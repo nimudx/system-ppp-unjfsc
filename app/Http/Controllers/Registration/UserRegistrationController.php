@@ -121,7 +121,7 @@ class UserRegistrationController extends Controller
         );
     }
 
-    public function userAcademicRegistration(StepThreeRequest $request): RedirectResponse
+    public function userAcademicRegistration(StepThreeRequest $request): JsonResponse
     {
         $user = Auth::user() ?? User::first();
 
@@ -133,8 +133,8 @@ class UserRegistrationController extends Controller
 
         $this->userService->registerUserAcademic($data, $semesterId, $assignmentId);
 
-        return back()->with([
-            'message' => 'Usuario creado correctamente. Y notificado por correo electrónico.',
+        return response()->json([
+            'message' => 'Usuario creado correctamente. Se ha enviado un correo de activación a su dirección de correo electrónico.',
         ]);
     }
 

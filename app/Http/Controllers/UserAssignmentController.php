@@ -61,18 +61,12 @@ class UserAssignmentController extends Controller
         $assignment = Assignment::find(session('assignment_id'));
 
         // Lógica Híbrida:
-        // Admin/Subadmin (1, 2) o Estudiantes (5) -> Lista vacía al inicio (Server-side)
+        // Admin/Subadmin (1, 2) o Estudiantes (5) -> Cargamos data inicial (Server-side paginated)
         // Docentes/Supervisores (3, 4) -> Cargamos data de su sección (Local-side)
-        $assignments = [
-            'data' => [],
-            'current_page' => 1,
-            'last_page' => 1,
-            'total' => 0,
-            'links' => []
-        ];
-
         if ($assignment && in_array($assignment->role_id, [3, 4])) {
             $assignments = $this->assignmentService->getAssignmentsByRole($roleId, $semesterId, ['section_id' => $assignment->section_id], false);
+        } else {
+            $assignments = $this->assignmentService->getAssignmentsByRole($roleId, $semesterId, [], true);
         }
 
         $faculties = Faculty::query()->forAssignmentContext($assignment, $semesterId)->get();

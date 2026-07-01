@@ -164,8 +164,9 @@ export function PersonFlow({
         };
 
         personService.store(payload, {
-            onSuccess: () => {
-                toast.success('Usuario registrado exitosamente');
+            onSuccess: (res) => {
+                const msg = res?.data?.message ?? 'Usuario registrado exitosamente. Se ha enviado el correo de activación.';
+                toast.success(msg, { duration: 6000 });
                 reset();
                 setStep(1);
             },

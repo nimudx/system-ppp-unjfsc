@@ -47,7 +47,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     ) || (academic?.semesters || [])[0];
 
     return (
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border/50 px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/70 backdrop-blur-lg px-4 shadow-[0_2px_15px_-3px_oklch(0.65_0.18_233.78/0.1)] transition-all ease-out duration-300 group-has-data-[collapsible=icon]/sidebar-wrapper:h-14">
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
@@ -86,8 +86,8 @@ const SemesterSelector = ({ semesters = [], currentId }: { semesters: any[]; cur
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <div className="group flex h-10 cursor-pointer items-center gap-3 rounded-md border border-input bg-background px-3 transition-colors hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent text-left">
-                    <Calendar className="h-4 w-4 shrink-0 text-primary" />
+                <div className="group flex h-10 cursor-pointer items-center gap-3 rounded-lg border border-border/50 bg-background/50 backdrop-blur-sm px-3 shadow-[0_2px_8px_oklch(0.65_0.18_233.78/0.05)] transition-all duration-300 hover:bg-accent/40 hover:border-primary/30 hover:shadow-[0_4px_12px_oklch(0.65_0.18_233.78/0.15)] data-[state=open]:bg-accent/50 data-[state=open]:border-primary/50 text-left">
+                    <Calendar className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:scale-110" />
                     <div className="flex flex-col items-start leading-tight">
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-muted-foreground tracking-wider">
@@ -180,7 +180,7 @@ const AvatarStack = ({ profiles, onSelect }: { profiles: any[]; onSelect: (id: n
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <div className="group flex h-10 cursor-pointer items-center gap-3 rounded-md border border-input bg-background px-3 transition-all hover:bg-accent data-[state=open]:bg-accent text-left">
+                <div className="group flex h-10 cursor-pointer items-center gap-3 rounded-lg border border-border/50 bg-background/50 backdrop-blur-sm px-3 shadow-[0_2px_8px_oklch(0.65_0.18_233.78/0.05)] transition-all duration-300 hover:bg-accent/40 hover:border-primary/30 hover:shadow-[0_4px_12px_oklch(0.65_0.18_233.78/0.15)] data-[state=open]:bg-accent/50 data-[state=open]:border-primary/50 text-left">
                     <div className="flex flex-col items-start leading-tight">
                         <span className="text-xs font-medium text-muted-foreground tracking-wider">
                             Perfil Activo

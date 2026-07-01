@@ -1,8 +1,21 @@
 <?php
 
+use App\Http\Controllers\Auth\AccountActivationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+
+// ─── Rutas públicas de activación de cuenta ──────────────────────────────────
+// Estas rutas son accesibles sin autenticación (el usuario aún no tiene sesión)
+Route::get('/activate/success', [AccountActivationController::class, 'success'])
+    ->name('activation.success');
+
+Route::get('/activate/{token}', [AccountActivationController::class, 'show'])
+    ->name('activate.show');
+
+Route::post('/activate/{token}', [AccountActivationController::class, 'activate'])
+    ->name('activate.store');
+// ─────────────────────────────────────────────────────────────────────────────
 
 Route::get('/', function () {
     return Inertia::render('landing', [

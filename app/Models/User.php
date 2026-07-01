@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,10 +55,27 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'       => 'datetime',
+            'password'                => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'status'                  => UserStatus::class,
         ];
+    }
+
+    /**
+     * Verifica si la cuenta está pendiente de activación.
+     */
+    public function isPending(): bool
+    {
+        return $this->status === UserStatus::PENDING;
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function accountActivation(): HasOne
+    {
+        return $this->hasOne(AccountActivation::class)->latestOfMany();
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Enums\Assignment\AssignmentApprovalStatus;
 use App\Enums\Assignment\AssignmentReviewStatus;
 use App\Enums\Assignment\AssignmentStatus;
 use App\Enums\PersonStatus;
+use App\Enums\UserStatus;
 use App\Exceptions\Registration\RegistrationAssignmentsMustBelongToSameFacultyException;
 use App\Exceptions\Registration\RegistrationNotAllowedException;
 use App\Exceptions\Registration\RegistrationRoleNotAllowedException;
@@ -21,6 +22,7 @@ use App\Models\Section;
 use App\Models\Semester;
 use App\Models\User;
 use App\Models\Company;
+use App\Services\Auth\AccountActivationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -28,6 +30,9 @@ use Illuminate\Validation\ValidationException;
 
 class UserRegistrationService
 {
+    public function __construct(
+        protected AccountActivationService $activationService,
+    ) {}
     /**
      * Validate the data for the first step of the registration process.
      *
@@ -216,15 +221,20 @@ class UserRegistrationService
                 ]);
             }
         } else {
-            // extrear el name del email maria@gmail.com -> maria
+            // Extraer el name del email: maria@gmail.com -> maria
             $code = explode('@', $data['email'])[0];
             $user = User::create([
-                'person_id' => $person->id,
-                'name' => $code,
-                'email' => $data['email'],
-                'password' => Hash::make('12345678'), // Password temporal
-                'type_user_id' => 2, // Tipo Académico
+                'person_id'    => $person->id,
+                'name'         => $code,
+                'email'        => $data['email'],
+                'password'     => Str::random(32), // placeholder; se reemplaza al activar
+                'type_user_id' => 2,               // Tipo Académico
+                'status'       => UserStatus::PENDING->value, // Pendiente de activación
             ]);
+
+            // Generar token y enviar correo de activación
+            $activation = $this->activationService->createActivationToken($user);
+            $this->activationService->sendActivationEmail($user, $activation);
         }
 
         // 3. Validar Reglas de Negocio (Roles, Secciones, Semestre)
@@ -267,16 +277,19 @@ class UserRegistrationService
                 'email' => $data['email'],
             ]);
 
-            $temporaryPassword = '12345678';
-
             $user = User::query()->create([
-                'authenticable_id' => $company->id,
+                'authenticable_id'   => $company->id,
                 'authenticable_type' => Company::class,
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($temporaryPassword),
-                'type_user_id' => 3,
+                'name'               => $data['name'],
+                'email'              => $data['email'],
+                'password'           => Str::random(32), // placeholder; se reemplaza al activar
+                'type_user_id'       => 3,
+                'status'             => UserStatus::PENDING->value, // Pendiente de activación
             ]);
+
+            // Generar token y enviar correo de activación
+            $activation = $this->activationService->createActivationToken($user);
+            $this->activationService->sendActivationEmail($user, $activation);
 
             return $user->load('company');
         });

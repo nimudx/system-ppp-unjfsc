@@ -93,7 +93,7 @@ export function useAcademicTable<T = any>({
     };
 
     const resetTable = () => {
-        setData(isAdmin ? { data: [] } : initialData);
+        setData(initialData);
         setActiveFilters(null);
         setSelectedId(null);
     };

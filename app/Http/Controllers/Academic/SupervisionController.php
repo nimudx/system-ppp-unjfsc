@@ -42,7 +42,7 @@ class SupervisionController extends Controller
         if (in_array($role, [3, 4]) && $assignment) {
             $groups = $this->supervisionService->getGroupsByFilter([
                 'section_id' => $assignment->section_id,
-            ]);
+            ], session('semester_id'));
         }
 
         if ($raId && $rmId) {
@@ -99,7 +99,7 @@ class SupervisionController extends Controller
         if (in_array($role, [3]) && $assignment) {
             $groups = $this->supervisionService->getGroupsByFilter([
                 'section_id' => $assignment->section_id,
-            ]);
+            ], session('semester_id'));
         }
 
         if ($raId && $rmId) {

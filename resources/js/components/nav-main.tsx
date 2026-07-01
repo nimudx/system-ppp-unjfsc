@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 import {
     Collapsible,
     CollapsibleContent,
@@ -21,6 +22,14 @@ import type { NavItem } from '@/types';
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
     const { isCurrentUrl } = useCurrentUrl();
+
+    const initialOpenItem = items.find(
+        (item) =>
+            item.isActive ||
+            item.items?.some((subItem) => isCurrentUrl(subItem.href))
+    )?.title;
+
+    const [openItem, setOpenItem] = useState<string | null>(initialOpenItem || null);
 
     return (
         <SidebarGroup className="px-2 py-0">
@@ -49,12 +58,21 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                         <Collapsible
                             key={item.title}
                             asChild
-                            defaultOpen={item.isActive}
+                            open={openItem === item.title}
+                            onOpenChange={(isOpen) => setOpenItem(isOpen ? item.title : null)}
                             className="group/collapsible"
                         >
                             <SidebarMenuItem>
                                 <CollapsibleTrigger asChild>
-                                    <SidebarMenuButton tooltip={item.title}>
+                                    <SidebarMenuButton
+                                        tooltip={item.title}
+                                        isActive={
+                                            item.isActive ||
+                                            item.items?.some((subItem) =>
+                                                isCurrentUrl(subItem.href),
+                                            )
+                                        }
+                                    >
                                         {item.icon && <item.icon />}
                                         <span>{item.title}</span>
                                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -66,7 +84,12 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                             <SidebarMenuSubItem
                                                 key={subItem.title}
                                             >
-                                                <SidebarMenuSubButton asChild>
+                                                <SidebarMenuSubButton
+                                                    asChild
+                                                    isActive={isCurrentUrl(
+                                                        subItem.href,
+                                                    )}
+                                                >
                                                     <Link
                                                         href={subItem.href}
                                                         prefetch

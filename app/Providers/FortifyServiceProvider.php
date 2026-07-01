@@ -4,8 +4,11 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Enums\UserStatus;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -40,6 +43,34 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        /**
+         * Autenticación personalizada: bloquea el acceso a cuentas pendientes de activación.
+         * Devuelve null para rechazar (Fortify interpreta null como credenciales inválidas).
+         */
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = \App\Models\User::where(
+                Fortify::username(),
+                $request->input(Fortify::username())
+            )->first();
+
+            if (! $user || ! Hash::check($request->input('password'), $user->password)) {
+                return null; // credenciales incorrectas
+            }
+
+            if ($user->status === UserStatus::PENDING) {
+                // Adjuntamos el mensaje al bag de errores vía sesión
+                // Fortify lanzará un ValidationException al recibir null,
+                // pero queremos un mensaje específico.
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    Fortify::username() => [
+                        '\u00a1Tu cuenta aún no está activada! Revisa tu correo electrónico y haz clic en el enlace de activación.',
+                    ],
+                ]);
+            }
+
+            return $user;
+        });
     }
 
     /**
