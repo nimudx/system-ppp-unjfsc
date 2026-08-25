@@ -48,8 +48,19 @@ En el entorno de desarrollo, la base de datos corre aislada en un contenedor Doc
 ### Prerrequisitos
 Asegúrate de tener instalado en tu sistema local:
 * Docker & Docker Compose
-* PHP 8.4+ & Composer
+* PHP 8.2+ & Composer
 * Node.js (v18+ recomendado) & NPM
+
+**Extensiones de PHP requeridas:** `pdo_mysql` e `iconv` (usada por `laravel/fortify`).
+En distros como Arch/CachyOS, PHP suele traer estas extensiones compiladas pero **deshabilitadas por defecto** (comentadas con `;` en `php.ini`). Verifica con:
+```bash
+php -m | grep -E "pdo_mysql|iconv"
+```
+Si no aparece alguna, localiza tu `php.ini` con `php --ini` y descoméntala:
+```bash
+sudo sed -i -e 's/^;extension=pdo_mysql/extension=pdo_mysql/' -e 's/^;extension=iconv/extension=iconv/' /etc/php/php.ini
+```
+Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate` falla con "could not find driver".
 
 #### Pasos para Inicializar en Local
 
@@ -61,7 +72,16 @@ Asegúrate de tener instalado en tu sistema local:
     ```bash
     cp .env.example .env
     ```
-    Nota crítica: Abre tu .env y configura DB_PORT=3307 para conectar correctamente con el mapeo del contenedor externo de desarrollo.
+    Nota crítica: `.env.example` trae `DB_CONNECTION=sqlite` por defecto. Ábrelo y reemplaza el bloque de base de datos por:
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3307
+    DB_DATABASE=db_system_ppp
+    DB_USERNAME=root
+    DB_PASSWORD=root123
+    ```
+    Estos valores deben coincidir con el servicio `db-dev` de `docker-compose.yml` (puerto mapeado 3307→3306, `MYSQL_DATABASE` y `MYSQL_ROOT_PASSWORD`).
 3. **Instalar dependencias del backend e iniciar la Base de Datos**
     ```bash
     # Instalar paquetes de Composer locales
@@ -78,6 +98,10 @@ Asegúrate de tener instalado en tu sistema local:
     php artisan migrate --seed
     ```
     Nota: Si el comando falla indicando que busca el puerto 3306, limpia la caché de configuración con **php artisan config:clear** o fuerza el puerto ejecutando: DB_PORT=3307 **php artisan migrate --seed**.
+
+    Esto crea los roles, tipos de usuario y un usuario administrador inicial para poder ingresar al sistema:
+    * **Email:** `admin@unjfsc.edu.pe`
+    * **Password:** `password`
 5. **Instalar dependencias del frontend**
     ```bash
     npm install

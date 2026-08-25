@@ -15,7 +15,7 @@ import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 import { NotificationDropdown } from './notification-dropdown';
 
 const ROLE_COLORS: Record<string, string> = {
-    ADMINISTRATIVO: 'bg-blue-600',
+    Administrador: 'bg-blue-600',
     'Docente Titular': 'bg-purple-600',
     Estudiante: 'bg-zinc-700',
     'Docente Supervisor': 'bg-indigo-600',

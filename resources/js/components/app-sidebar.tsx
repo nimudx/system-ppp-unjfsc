@@ -32,7 +32,7 @@ export function AppSidebar() {
 
     // Usamos directamente las constantes importadas en el objeto
     const menuSelection: Record<string, any[]> = {
-        Administrativo: ADMIN_NAV,
+        Administrador: ADMIN_NAV,
         Académico: ACADEMIC_NAV,
         Empresa: COMPANY_NAV,
     };
