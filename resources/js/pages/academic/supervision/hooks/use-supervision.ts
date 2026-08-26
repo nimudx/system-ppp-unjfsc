@@ -26,14 +26,19 @@ export function useSupervision({ initialData, groups, isAdmin }: Props) {
     const { url } = usePage();
     const moduleFromUrl = new URLSearchParams(url.split('?')[1] || '').get('m');
 
-    // --- 1. Motor de Detalle: gestiona 'a', fetch de anexos y reloadDetail ---
+    // --- 1. Estado del Módulo ('m') — manejado manualmente ---
+    const [selectedModuleId, setSelectedModuleId] = useState<number | null>(
+        moduleFromUrl ? Number(moduleFromUrl) : null
+    );
+
+    // --- 2. Motor de Detalle: gestiona 'a', fetch de anexos y reloadDetail ---
     const {
         selectedId,
         detailData,
         isLoading: isAnnexesLoading,
         actions: detailActions,
     } = useItemDetail<{ annexes: any[] }>({
-        fetchUrl: (id) => supervision.api.annexes.url(id),
+        fetchUrl: (id) => supervision.api.annexes.url(id, { query: { module_id: selectedModuleId } }),
         onError: () => toast.error('No se pudieron cargar los anexos.'),
     });
 
@@ -43,11 +48,6 @@ export function useSupervision({ initialData, groups, isAdmin }: Props) {
 
     // Resetear índice al cambiar de estudiante
     useEffect(() => { setSelectedAnnexIdx(0); }, [selectedId]);
-
-    // --- 2. Estado del Módulo ('m') — manejado manualmente ---
-    const [selectedModuleId, setSelectedModuleId] = useState<number | null>(
-        moduleFromUrl ? Number(moduleFromUrl) : null
-    );
 
     // --- 3. Estados de Grupos y Filtros ---
     const [availableGroups, setAvailableGroups] = useState<GroupOption[]>(groups);

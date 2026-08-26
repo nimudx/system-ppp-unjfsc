@@ -201,9 +201,10 @@ class SupervisionController extends Controller
      * API: Returns the Anexo 7 & Anexo 8 for a given supervision with evaluation history.
      * GET /supervision/api/supervisions/{supervision}/annexes
      */
-    public function getSupervisionAnnexes(Supervision $supervision): JsonResponse
+    public function getSupervisionAnnexes(Assignment $assignment, Request $request): JsonResponse
     {
-        $annexes = $this->supervisionService->getSupervisionAnnexes($supervision);
+        $moduleId = (int) $request->query('module_id');
+        $annexes = $this->supervisionService->getSupervisionAnnexes($assignment, $moduleId);
 
         return response()->json(['annexes' => $annexes]);
     }

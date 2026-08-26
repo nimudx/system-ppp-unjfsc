@@ -458,22 +458,26 @@ class SupervisionService
         return $result;
     }
 
-    public function getSupervisionAnnexes(Supervision $supervision): array
+    public function getSupervisionAnnexes(Assignment $assignment, int $moduleId): array
     {
+        $supervision = Supervision::where('assignment_id', $assignment->id)
+            ->where('module_id', $moduleId)
+            ->first();
+
         $annexCodes = ['anexo_7', 'anexo_8'];
         $result = [];
 
         foreach ($annexCodes as $code) {
             $docType = DocumentType::where('code', $code)->first();
 
-            if (!$docType) {
+            if (!$docType || !$supervision) {
                 $result[] = [
                     'code' => $code,
-                    'title' => strtoupper(str_replace('_', ' ', $code)),
+                    'title' => $docType->name ?? strtoupper(str_replace('_', ' ', $code)),
                     'status' => 0,
                     'latest' => null,
                     'history' => [],
-                    'supervision_id' => $supervision->id,
+                    'supervision_id' => $supervision?->id,
                 ];
                 continue;
             }
