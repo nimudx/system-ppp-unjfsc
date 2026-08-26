@@ -10,7 +10,15 @@ COPY . .
 RUN composer dump-autoload --optimize --no-dev
 
 # ===== Etapa 2: build del frontend (Vite + React) =====
-FROM node:22-alpine AS frontend
+# Base con PHP (no node-alpine puro) porque @laravel/vite-plugin-wayfinder
+# corre `php artisan wayfinder:generate` como parte de `npm run build` — el
+# build del frontend no es un paso solo-de-Node en este proyecto.
+FROM php:8.4-cli AS frontend
+
+RUN apt-get update && apt-get install -y curl ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -18,6 +26,8 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+COPY --from=vendor /app/vendor ./vendor
+
 RUN npm run build
 
 # ===== Etapa 3: imagen final de producción (PHP-FPM) =====
