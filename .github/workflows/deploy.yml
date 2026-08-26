@@ -1,0 +1,109 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Cargar llave SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Confiar en el host del VPS
+        run: ssh-keyscan -H ${{ vars.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Clonar/actualizar el código
+        run: |
+          ssh ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }} "
+            set -e
+            if [ -d '${{ vars.VPS_APP_PATH }}/.git' ]; then
+              cd '${{ vars.VPS_APP_PATH }}'
+              git pull origin main
+            else
+              git clone git@github.com:nimudx/system-ppp-unjfsc.git '${{ vars.VPS_APP_PATH }}'
+            fi
+          "
+
+      - name: Escribir .env de producción
+        run: |
+          ssh ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }} "cat > '${{ vars.VPS_APP_PATH }}/.env'" <<'EOF'
+          APP_NAME="Sistema PPP UNJFSC"
+          APP_ENV=production
+          APP_KEY=${{ secrets.APP_KEY }}
+          APP_DEBUG=false
+          APP_URL=${{ vars.APP_URL }}
+
+          LOG_CHANNEL=stack
+          LOG_LEVEL=error
+
+          DB_CONNECTION=mysql
+          DB_HOST=db
+          DB_PORT=3306
+          DB_DATABASE=${{ vars.DB_DATABASE }}
+          DB_USERNAME=root
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          SESSION_DRIVER=database
+          QUEUE_CONNECTION=database
+          CACHE_STORE=database
+          FILESYSTEM_DISK=local
+          MAIL_MAILER=log
+
+          VITE_APP_NAME="Sistema PPP UNJFSC"
+          EOF
+
+      - name: Levantar servicios
+        run: |
+          ssh ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }} "
+            set -e
+            cd '${{ vars.VPS_APP_PATH }}'
+            echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+          "

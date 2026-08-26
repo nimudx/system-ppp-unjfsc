@@ -9,6 +9,7 @@ use App\Enums\Assignment\AssignmentReviewStatus;
 use App\Enums\Assignment\AssignmentStatus;
 use App\Enums\PersonStatus;
 use App\Exceptions\Registration\RegistrationAssignmentsMustBelongToSameFacultyException;
+use App\Exceptions\Registration\RegistrationFacultyNotAllowedException;
 use App\Exceptions\Registration\RegistrationNotAllowedException;
 use App\Exceptions\Registration\RegistrationRoleNotAllowedException;
 use App\Exceptions\Registration\RegistrationSectionNotAllowedException;
@@ -88,43 +89,6 @@ class UserRegistrationService
     }
 
     /**
-     * Finalize the registration process by creating the necessary records.
-     * This method includes a security check to re-validate data consistency.
-     *
-     * @param  array  $data  The validated data from the frontend.
-     * @return User The result of the operation.
-     */
-    public function validateStepThree(array $data, int $currentSemesterId): ?User
-    {
-        // --- INICIO DEL BLOQUE DE SEGURIDAD Y COHERENCIA ---
-
-        $user = null;
-        if (!empty($data['user_id'])) {
-            $user = User::find($data['user_id']);
-            // Verificación: El email del payload debe coincidir con el del user_id encontrado.
-            if ($user && $user->email !== $data['email']) {
-                throw ValidationException::withMessages(['user_id' => 'Inconsistencia de datos: El ID de usuario no corresponde al email proporcionado.']);
-            }
-        } else {
-            // Si no hay user_id, buscamos por email. Si existe, es un usuario existente.
-            $user = User::where('email', $data['email'])->first();
-        }
-
-        // Si después de las verificaciones tenemos un usuario, aplicamos las reglas de negocio.
-        if ($user) {
-            // Re-validación de Reglas de Negocio (reutilizando la lógica de Step 1)
-            $this->validateRoleRulesUserAcademic($user, $data['role_id'], $data['section_id'], $currentSemesterId);
-
-            // Verificación de Coherencia: El person_id del usuario debe coincidir con el del payload.
-            if (!empty($data['person']['id']) && $user->authenticable_id != $data['person']['id']) {
-                throw ValidationException::withMessages(['person' => 'Inconsistencia de datos: La persona indicada no corresponde al usuario existente.']);
-            }
-        }
-
-        return $user;
-    }
-
-    /**
      * Registers a user for academic purposes.
      *
      * @param  array  $data  The registration data.
@@ -132,13 +96,19 @@ class UserRegistrationService
      */
     public function registerUserAcademic(array $data, int $currentSemesterId, int $assignmentId): void
     {
-        DB::transaction(function () use ($data, $currentSemesterId, $assignmentId) {
+        $authAssignment = Assignment::findOrFail($assignmentId);
+
+        DB::transaction(function () use ($data, $currentSemesterId, $authAssignment) {
+            $this->authorizeUserAction($authAssignment, (int) $data['role_id'], (int) $data['section_id']);
             $this->processSingleAcademicRegistration($data, $currentSemesterId);
         });
     }
 
     public function registerUserAcademicMassive(array $data, int $currentSemesterId, int $assignmentId): array
     {
+        $authAssignment = Assignment::findOrFail($assignmentId);
+        $this->authorizeUserAction($authAssignment, (int) $data['role_id'], (int) $data['section_id']);
+
         $report = [
             'total' => count($data['rows']),
             'success_count' => 0,
@@ -210,7 +180,7 @@ class UserRegistrationService
 
         if ($user) {
             // SEGURIDAD: Si el usuario existe, debe pertenecer a la misma persona
-            if ($user->authenticable_id !== $person->id) {
+            if ($user->person_id !== $person->id) {
                 throw ValidationException::withMessages([
                     'email' => "El email {$data['email']} ya está registrado a otra persona con distinto DNI."
                 ]);
@@ -290,11 +260,30 @@ class UserRegistrationService
             return;
         }
 
-        // Falta la regla para el user role 2
-
         // Rule 1: Roles 4 and 5 not register
         if (in_array($myRole, [4, 5])) {
             throw new RegistrationNotAllowedException;
+        }
+
+        // Rule 2: Sub Administrador (2) — puede registrar cualquier rol salvo
+        // Administrador (1) u otro Sub Administrador (2), y solo dentro de su
+        // propia facultad si tiene una sección asignada (mismo alcance que
+        // Faculty::scopeForAssignmentContext). Un Sub Administrador global
+        // (sin sección) no tiene restricción de facultad.
+        if ($myRole === 2) {
+            if (in_array($targetRoleId, [1, 2])) {
+                throw new RegistrationRoleNotAllowedException;
+            }
+
+            if ($authAssignment->section) {
+                $targetFacultyId = Section::query()->findOrFail($targetSectionId)->faculty_id;
+
+                if ($authAssignment->section->faculty_id !== $targetFacultyId) {
+                    throw new RegistrationFacultyNotAllowedException;
+                }
+            }
+
+            return;
         }
 
         if ($myRole === 3) {

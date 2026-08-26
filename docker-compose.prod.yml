@@ -1,0 +1,52 @@
+name: system-ppp-unjfsc
+
+services:
+  app:
+    image: ghcr.io/nimudx/system-ppp-unjfsc:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: app-prod
+    restart: unless-stopped
+    working_dir: /var/www
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=db
+      - DB_CONNECTION=mysql
+      - DB_PORT=3306
+    volumes:
+      - storage-data:/var/www/storage
+      - ./public:/var/www/public
+    ports:
+      # Solo loopback: el Caddy del VPS (fuera de este compose) le habla a
+      # PHP-FPM por acá. No se publica a 0.0.0.0 — php-fpm no tiene auth propia.
+      - '127.0.0.1:9000:9000'
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: mariadb:10.11
+    container_name: db-prod
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata-prod:/var/lib/mysql
+    networks:
+      - app-network
+    # Sin `ports:` a propósito: la BD solo se habla con `app` dentro de
+    # app-network. No hace falta exponerla al host/Internet en un VPS.
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata-prod:
+  storage-data:

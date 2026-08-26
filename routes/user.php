@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('register')->name('register.')->middleware(['auth', 'verified', 'role:1,2,3'])->group(function () {
     Route::get('/', [UserRegistrationController::class , 'index'])->name('index');
     Route::post('/step-one', [UserRegistrationController::class , 'stepOne'])->name('step-one');
-    Route::post('/step-one-massive', [UserRegistrationController::class , 'stepOneMassive'])->name('step-one-massive');
     Route::post('/step-two', [UserRegistrationController::class , 'stepTwo'])->name('step-two');
     Route::post('/academic', [UserRegistrationController::class , 'userAcademicRegistration'])->name('academic');
     Route::post('/academic-massive', [UserRegistrationController::class , 'userAcademicRegistrationMassive'])->name('academic.massive');

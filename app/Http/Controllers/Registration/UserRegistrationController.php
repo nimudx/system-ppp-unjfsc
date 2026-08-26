@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Registration;
 
 use App\Http\Controllers\Controller;
 
-use App\Http\Requests\Registration\StepOneMassiveRequest;
 use App\Http\Requests\Registration\StepOneRequest;
 use App\Http\Requests\Registration\StepTwoRequest;
 use App\Http\Requests\Registration\StepThreeRequest;
@@ -79,23 +78,6 @@ class UserRegistrationController extends Controller
         ]);
     }
 
-    public function stepOneMassive(StepOneMassiveRequest $request, UserRegistrationService $service): JsonResponse
-    {
-        $semesterId = session('semester_id');
-
-        $result = $service->validateStepOneMassive(
-            $request->validated(),
-            $semesterId
-        );
-
-        return response()->json([
-            'message' => $result['user_exists']
-                ? 'La persona ya existe en el sistema'
-                : 'Completa los datos de la persona',
-            'data' => $result,
-        ]);
-    }
-
     public function stepTwo(StepTwoRequest $request, UserRegistrationService $service): JsonResponse
     {
         $data = $request->validated();
@@ -110,16 +92,6 @@ class UserRegistrationController extends Controller
         ]);
     }
 
-
-    public function stepThree(StepThreeRequest $request, UserRegistrationService $service): JsonResponse
-    {
-        // Your code here
-        $data = $request->validated();
-
-        return response()->json(
-            $service->validateStepThree($data)
-        );
-    }
 
     public function userAcademicRegistration(StepThreeRequest $request): RedirectResponse
     {
