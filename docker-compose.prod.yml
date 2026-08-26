@@ -18,7 +18,7 @@ services:
       - DB_CONNECTION=mysql
       - DB_PORT=3306
     volumes:
-      - storage-data:/var/www/storage
+      - ./storage-data:/var/www/storage
       - ./public:/var/www/public
     ports:
       # Solo loopback: el Caddy del VPS (fuera de este compose) le habla a
@@ -49,4 +49,3 @@ networks:
 
 volumes:
   dbdata-prod:
-  storage-data:
