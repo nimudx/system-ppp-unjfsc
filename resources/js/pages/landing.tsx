@@ -228,6 +228,12 @@ export default function Landing() {
                                         Acceder al Sistema
                                     </Link>
                                 </Button>
+                                <Button size="lg" variant="ghost" asChild>
+                                    <Link href="/registro-empresa">
+                                        <Building2 className="h-4 w-4" />
+                                        Registrar mi empresa
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -355,9 +361,28 @@ export default function Landing() {
                                                                 </div>
                                                             ),
                                                         )}
-                                                    </div>
+                                    </div>
                                                 </CardContent>
                                             </Card>
+
+                                            {role === 'empresa' && (
+                                                <div className="flex flex-col items-center justify-between gap-4 rounded-lg border bg-background p-6 text-center sm:flex-row sm:text-left">
+                                                    <div>
+                                                        <p className="font-semibold">
+                                                            ¿Tu empresa quiere recibir practicantes?
+                                                        </p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Regístrala en minutos y empieza a recibir postulaciones.
+                                                        </p>
+                                                    </div>
+                                                    <Button className="shrink-0" asChild>
+                                                        <Link href="/registro-empresa">
+                                                            <Building2 className="h-4 w-4" />
+                                                            Registrar empresa
+                                                        </Link>
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     </TabsContent>
                                 ),

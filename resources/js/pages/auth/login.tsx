@@ -1,10 +1,12 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, Link } from '@inertiajs/react';
+import { Building2 } from 'lucide-react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/login';
@@ -103,6 +105,16 @@ export default function Login({
                     {status}
                 </div>
             )}
+
+            <div className="mt-2 space-y-3">
+                <Separator />
+                <Button variant="outline" className="w-full" asChild>
+                    <Link href="/registro-empresa">
+                        <Building2 className="h-4 w-4" />
+                        ¿Representas una empresa? Regístrate aquí
+                    </Link>
+                </Button>
+            </div>
         </AuthLayout>
     );
 }
