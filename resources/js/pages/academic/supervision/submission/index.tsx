@@ -256,6 +256,8 @@ export default function SubmissionShow({ faculties, groups, students }: Props) {
                                 renderActionForm={(annex) => (
                                     <SubmitForm
                                         annex={annex}
+                                        assignmentId={selectedId}
+                                        moduleId={selectedModuleId!}
                                         tempFile={tempFile}
                                         isEditing={isEditing}
                                         onSetEditing={setIsEditing}

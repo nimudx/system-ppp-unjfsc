@@ -5,7 +5,7 @@ use App\Http\Controllers\Academic\SupervisionController;
 
 Route::middleware(['role:1,2,3,4'])->group(function () {
     Route::get('supervision/submission', [SupervisionController::class, 'submissionIndex'])->name('supervision.submission');
-    Route::post('supervisions/{supervision}/evaluation', [SupervisionController::class, 'storeEvaluation'])->name('supervision.store');
+    Route::post('supervision/assignments/{assignment}/evaluation', [SupervisionController::class, 'storeEvaluation'])->name('supervision.store');
 });
 
 Route::middleware(['role:1,2,3'])->group(function () {

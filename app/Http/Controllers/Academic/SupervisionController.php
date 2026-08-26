@@ -209,14 +209,18 @@ class SupervisionController extends Controller
         return response()->json(['annexes' => $annexes]);
     }
 
-    public function storeEvaluation(StoreEvaluationRequest $request, Supervision $supervision): RedirectResponse
+    public function storeEvaluation(StoreEvaluationRequest $request, Assignment $assignment): RedirectResponse
     {
-        $assignmentId = session('assignment_id');
-        $assignment = Assignment::find($assignmentId);
+        $reviewerAssignment = Assignment::find(session('assignment_id'));
 
         $data = $request->validated();
 
-        $this->supervisionService->registerEvaluation($data, $assignment, $supervision);
+        $supervision = Supervision::firstOrCreate([
+            'assignment_id' => $assignment->id,
+            'module_id' => $data['module_id'],
+        ]);
+
+        $this->supervisionService->registerEvaluation($data, $reviewerAssignment, $supervision);
 
         return back()->with([
             'message' => 'Evaluación registrada correctamente.',

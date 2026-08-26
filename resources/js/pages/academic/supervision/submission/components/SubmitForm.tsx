@@ -15,6 +15,8 @@ interface AnnexRequirement {
 
 interface SubmitFormProps {
     annex: AnnexRequirement;
+    assignmentId: number;
+    moduleId: number;
     tempFile: File | null;
     isEditing: boolean;
     onSetEditing: (v: boolean) => void;
@@ -24,6 +26,8 @@ interface SubmitFormProps {
 
 export default function SubmitForm({
     annex,
+    assignmentId,
+    moduleId,
     tempFile,
     isEditing,
     onSetEditing,
@@ -35,6 +39,7 @@ export default function SubmitForm({
         comment: "",
         file: null as File | null,
         code: annex.code,
+        module_id: moduleId,
     });
 
     // Sincronizar estados
@@ -45,12 +50,13 @@ export default function SubmitForm({
             comment: "",
             file: tempFile,
             code: annex.code,
+            module_id: moduleId,
         });
         clearErrors();
-    }, [annex.code, annex.grade, tempFile]);
+    }, [annex.code, annex.grade, tempFile, moduleId]);
 
     const handleSubmit = () => {
-        post(supervision.store.url(annex.supervision_id), {
+        post(supervision.store.url(assignmentId), {
             forceFormData: true,
             onSuccess: (page: any) => {
                 onSuccess(page.props.flash?.message ?? "Anexo enviado correctamente.");

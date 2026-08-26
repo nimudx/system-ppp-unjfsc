@@ -25,6 +25,7 @@ class StoreEvaluationRequest extends FormRequest
             'grade' => 'required|numeric|min:0|max:20',
             'comment' => 'nullable|string|max:255',
             'code' => 'required|exists:document_types,code',
+            'module_id' => 'required|integer|exists:modules,id',
             'file' => 'nullable|file|mimes:pdf|max:10240',
         ];
     }
@@ -41,6 +42,8 @@ class StoreEvaluationRequest extends FormRequest
             'comment.max' => 'El comentario debe tener como máximo 255 caracteres.',
             'code.required' => 'El código es requerido.',
             'code.exists' => 'El código no existe.',
+            'module_id.required' => 'El módulo es requerido.',
+            'module_id.exists' => 'El módulo no existe.',
             'file.required' => 'El archivo es requerido.',
             'file.file' => 'El archivo debe ser un archivo.',
             'file.mimes' => 'El archivo debe ser un PDF.',
