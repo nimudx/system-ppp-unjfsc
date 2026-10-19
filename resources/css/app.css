@@ -17,6 +17,18 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
+    --color-lochmara-50: #f1f7fe;
+    --color-lochmara-100: #e3eefb;
+    --color-lochmara-200: #c0dbf7;
+    --color-lochmara-300: #89bff0;
+    --color-lochmara-400: #4a9ee6;
+    --color-lochmara-500: #217bca;
+    --color-lochmara-600: #1565b4;
+    --color-lochmara-700: #125192;
+    --color-lochmara-800: #134579;
+    --color-lochmara-900: #153b65;
+    --color-lochmara-950: #0e2543;
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
 
@@ -62,39 +74,40 @@
 }
 
 :root {
+    /* Tema claro: paleta institucional "lochmara" (azul UNJFSC) */
     --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
+    --foreground: var(--color-lochmara-950);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    --card-foreground: var(--color-lochmara-950);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+    --popover-foreground: var(--color-lochmara-950);
+    --primary: var(--color-lochmara-600);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: var(--color-lochmara-100);
+    --secondary-foreground: var(--color-lochmara-800);
+    --muted: var(--color-lochmara-50);
+    --muted-foreground: oklch(0.5 0.03 250);
+    --accent: var(--color-lochmara-100);
+    --accent-foreground: var(--color-lochmara-800);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    --border: var(--color-lochmara-200);
+    --input: var(--color-lochmara-200);
+    --ring: var(--color-lochmara-400);
+    --chart-1: var(--color-lochmara-500);
+    --chart-2: var(--color-lochmara-700);
+    --chart-3: var(--color-lochmara-300);
+    --chart-4: var(--color-lochmara-900);
+    --chart-5: var(--color-lochmara-400);
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --sidebar: var(--color-lochmara-50);
+    --sidebar-foreground: var(--color-lochmara-950);
+    --sidebar-primary: var(--color-lochmara-700);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: var(--color-lochmara-100);
+    --sidebar-accent-foreground: var(--color-lochmara-800);
+    --sidebar-border: var(--color-lochmara-200);
+    --sidebar-ring: var(--color-lochmara-400);
 }
 
 .dark {
