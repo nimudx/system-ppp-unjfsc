@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/martii-n/system-ppp-unjfsc">
+  <a href="https://github.com/nimudx/system-ppp-unjfsc">
     <img src="public/ins-unjfsc.png" alt="Logo UNJFSC" width="120" height="120">
   </a>
 </p>
@@ -66,8 +66,9 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
 
 1. **Clonar el repositorio (rama por defecto/main):**
    ```bash
-   git clone https://github.com/martii-n/system-ppp-unjfsc.git
+   git clone https://github.com/nimudx/system-ppp-unjfsc.git
    cd system-ppp-unjfsc
+   ```
 2. **Configurar el archivo de entorno local**
     ```bash
     cp .env.example .env
@@ -101,7 +102,7 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
 
     Esto crea los roles, tipos de usuario y un usuario administrador inicial para poder ingresar al sistema:
     * **Email:** `admin@unjfsc.edu.pe`
-    * **Password:** `password`
+    * **Password:** `12345678`
 5. **Instalar dependencias del frontend**
     ```bash
     npm install
@@ -113,6 +114,12 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
     ```
 
     http://localhost:8000
+
+    **En Windows:** `composer run dev` falla porque también lanza `php artisan pail`, que requiere la extensión `pcntl` (no existe en PHP para Windows), y al caer arrastra a los demás procesos (`--kill-others`). Usa el mismo comando sin `pail`:
+    ```bash
+    npx concurrently -c "#93c5fd,#c4b5fd,#fdba74" "php artisan serve" "php artisan queue:listen --tries=1 --timeout=0" "npm run dev" --names=server,queue,vite --kill-others
+    ```
+    Recuerda tener Docker Desktop abierto y el contenedor de la base de datos levantado (`docker compose up -d`) antes de iniciar.
 
 ---
 
@@ -127,7 +134,7 @@ El entorno de producción corre de forma 100% contenerizada dentro del VPS. Todo
 
 1. **Clonar la rama de producción directamente en el VPS**
     ```bash
-    git clone -b production https://github.com/martii-n/system-ppp-unjfsc.git
+    git clone -b production https://github.com/nimudx/system-ppp-unjfsc.git
     cd system-ppp-unjfsc
     ```
 2. **Configurar el entorno de producción**
@@ -140,6 +147,7 @@ El entorno de producción corre de forma 100% contenerizada dentro del VPS. Todo
     Levanta de forma aislada los contenedores de producción (nginx, app-prod, db-prod) limitando sus recursos para proteger la RAM del VPS:
     ```bash
     docker compose --profile prod up -d
+    ```
 4. **Ejecutar Migraciones Estructurales**
     Corre las migraciones de forma interna y segura dentro del contenedor productivo app:
     ```bash
