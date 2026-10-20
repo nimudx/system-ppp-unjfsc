@@ -218,7 +218,7 @@ export default function Landing() {
 
             {/* Header / Navbar */}
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                <div className="page-container flex h-16 items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex aspect-square size-10 items-center justify-center rounded-md">
                             <AppLogoIcon className="size-9 fill-current" />
@@ -271,7 +271,7 @@ export default function Landing() {
             <main className="flex-1">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden border-b bg-muted/20 py-20 lg:py-32">
-                    <div className="container mx-auto px-4">
+                    <div className="page-container">
                         <div className="flex flex-col items-center space-y-8 text-center">
                             <Badge
                                 variant="outline"
@@ -320,7 +320,7 @@ export default function Landing() {
                 {/* Mission & Vision Section */}
                 <section
                     id="about"
-                    className="container mx-auto grid gap-12 px-4 py-24 md:grid-cols-2"
+                    className="page-container grid gap-12 py-24 md:grid-cols-2"
                 >
                     <Card className="border-muted shadow-sm">
                         <CardHeader>
@@ -365,7 +365,7 @@ export default function Landing() {
 
                 {/* Roles / Platform Structure */}
                 <section id="roles" className="border-y bg-muted/30 py-24">
-                    <div className="container mx-auto px-4">
+                    <div className="page-container">
                         <div className="mb-16 space-y-4 text-center">
                             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                                 Estructura de la Plataforma
@@ -378,7 +378,7 @@ export default function Landing() {
 
                         <Tabs
                             defaultValue="estudiante"
-                            className="mx-auto max-w-5xl ring-offset-background"
+                            className="ring-offset-background"
                         >
                             <TabsList className="grid h-12 w-full grid-cols-3">
                                 <TabsTrigger
@@ -479,7 +479,7 @@ export default function Landing() {
 
                 {/* Process Stages Section */}
                 <section id="process" className="py-24">
-                    <div className="container mx-auto px-4 text-center">
+                    <div className="page-container text-center">
                         <div className="mb-16 space-y-4">
                             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                                 Etapas del Proceso de Prácticas
@@ -529,7 +529,7 @@ export default function Landing() {
 
                 {/* FAQ Section */}
                 <section id="faq" className="border-t bg-muted/10 py-24">
-                    <div className="container mx-auto max-w-4xl px-4">
+                    <div className="page-container">
                         <div className="grid gap-12 lg:grid-cols-5">
                             <div className="space-y-4 lg:col-span-2">
                                 <h2 className="text-3xl font-bold tracking-tight">
@@ -596,7 +596,7 @@ export default function Landing() {
 
             {/* Footer */}
             <footer className="border-t bg-muted/30">
-                <div className="container mx-auto px-4 py-16">
+                <div className="page-container py-16">
                     <div className="flex flex-col items-center space-y-6 text-center">
                         <div className="flex aspect-square items-center justify-center rounded-md">
                             <AppLogoIcon className="size-24 fill-current" />
