@@ -18,6 +18,7 @@ import {
     Star,
     Users,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import AppearanceToggleTab from '@/components/appearance-tabs';
 import {
@@ -37,6 +38,108 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+const navLinks = [
+    { id: 'about', label: 'Nosotros' },
+    { id: 'roles', label: 'Roles' },
+    { id: 'process', label: 'Proceso' },
+    { id: 'faq', label: 'Ayuda' },
+];
+
+// Menú con subrayado deslizante: la barra sigue al cursor y, al salir,
+// vuelve a la sección activa (seleccionada o visible en pantalla).
+function SlidingNavLinks() {
+    const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+    const hoveredRef = useRef<string | null>(null);
+    const activeRef = useRef<string | null>(null);
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [indicator, setIndicator] = useState({
+        left: 0,
+        width: 0,
+        visible: false,
+    });
+
+    const moveIndicatorTo = (id: string | null) => {
+        const link = id ? linkRefs.current[id] : null;
+        setIndicator((prev) =>
+            link
+                ? {
+                      left: link.offsetLeft,
+                      width: link.offsetWidth,
+                      visible: true,
+                  }
+                : { ...prev, visible: false },
+        );
+    };
+
+    const hover = (id: string | null) => {
+        hoveredRef.current = id;
+        moveIndicatorTo(id ?? activeRef.current);
+    };
+
+    const activate = (id: string) => {
+        activeRef.current = id;
+        setActiveId(id);
+        if (!hoveredRef.current) moveIndicatorTo(id);
+    };
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries.find((entry) => entry.isIntersecting);
+                if (visible) activate(visible.target.id);
+            },
+            { rootMargin: '-45% 0px -50% 0px' },
+        );
+
+        navLinks.forEach(({ id }) => {
+            const section = document.getElementById(id);
+            if (section) observer.observe(section);
+        });
+
+        return () => observer.disconnect();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return (
+        <div
+            className="relative mr-6 hidden gap-1 md:flex"
+            onMouseLeave={() => hover(null)}
+        >
+            {navLinks.map(({ id, label }) => (
+                <a
+                    key={id}
+                    href={`#${id}`}
+                    ref={(el) => {
+                        linkRefs.current[id] = el;
+                    }}
+                    onMouseEnter={() => hover(id)}
+                    onFocus={() => hover(id)}
+                    onBlur={() => hover(null)}
+                    onClick={() => activate(id)}
+                    aria-current={activeId === id ? 'true' : undefined}
+                    className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 ease-out outline-none hover:scale-105 hover:text-primary focus-visible:scale-105 focus-visible:text-primary motion-reduce:transition-none motion-reduce:hover:scale-100 ${
+                        activeId === id
+                            ? 'text-primary'
+                            : 'text-muted-foreground'
+                    }`}
+                >
+                    {label}
+                </a>
+            ))}
+
+            <span
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-primary transition-all duration-300 ease-out motion-reduce:transition-none"
+                style={{
+                    left: indicator.left + 12,
+                    width: Math.max(indicator.width - 24, 0),
+                    opacity: indicator.visible ? 1 : 0,
+                }}
+            />
+        </div>
+    );
+}
 
 export default function Landing() {
     const { auth } = usePage().props;
@@ -115,7 +218,7 @@ export default function Landing() {
 
             {/* Header / Navbar */}
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                <div className="page-container flex h-16 items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex aspect-square size-10 items-center justify-center rounded-md">
                             <AppLogoIcon className="size-9 fill-current" />
@@ -131,32 +234,7 @@ export default function Landing() {
                     </div>
 
                     <nav className="flex items-center gap-4">
-                        <div className="mr-6 hidden gap-6 md:flex">
-                            <a
-                                href="#about"
-                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                                Nosotros
-                            </a>
-                            <a
-                                href="#roles"
-                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                                Roles
-                            </a>
-                            <a
-                                href="#process"
-                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                                Proceso
-                            </a>
-                            <a
-                                href="#faq"
-                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                                Ayuda
-                            </a>
-                        </div>
+                        <SlidingNavLinks />
 
                         <AppearanceToggleTab className="hidden sm:inline-flex" />
 
@@ -193,7 +271,7 @@ export default function Landing() {
             <main className="flex-1">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden border-b bg-muted/20 py-20 lg:py-32">
-                    <div className="container mx-auto px-4">
+                    <div className="page-container">
                         <div className="flex flex-col items-center space-y-8 text-center">
                             <Badge
                                 variant="outline"
@@ -242,7 +320,7 @@ export default function Landing() {
                 {/* Mission & Vision Section */}
                 <section
                     id="about"
-                    className="container mx-auto grid gap-12 px-4 py-24 md:grid-cols-2"
+                    className="page-container grid gap-12 py-24 md:grid-cols-2"
                 >
                     <Card className="border-muted shadow-sm">
                         <CardHeader>
@@ -287,7 +365,7 @@ export default function Landing() {
 
                 {/* Roles / Platform Structure */}
                 <section id="roles" className="border-y bg-muted/30 py-24">
-                    <div className="container mx-auto px-4">
+                    <div className="page-container">
                         <div className="mb-16 space-y-4 text-center">
                             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                                 Estructura de la Plataforma
@@ -300,7 +378,7 @@ export default function Landing() {
 
                         <Tabs
                             defaultValue="estudiante"
-                            className="mx-auto max-w-5xl ring-offset-background"
+                            className="ring-offset-background"
                         >
                             <TabsList className="grid h-12 w-full grid-cols-3">
                                 <TabsTrigger
@@ -361,7 +439,7 @@ export default function Landing() {
                                                                 </div>
                                                             ),
                                                         )}
-                                    </div>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
 
@@ -369,13 +447,21 @@ export default function Landing() {
                                                 <div className="flex flex-col items-center justify-between gap-4 rounded-lg border bg-background p-6 text-center sm:flex-row sm:text-left">
                                                     <div>
                                                         <p className="font-semibold">
-                                                            ¿Tu empresa quiere recibir practicantes?
+                                                            ¿Tu empresa quiere
+                                                            recibir
+                                                            practicantes?
                                                         </p>
                                                         <p className="text-sm text-muted-foreground">
-                                                            Regístrala en minutos y empieza a recibir postulaciones.
+                                                            Regístrala en
+                                                            minutos y empieza a
+                                                            recibir
+                                                            postulaciones.
                                                         </p>
                                                     </div>
-                                                    <Button className="shrink-0" asChild>
+                                                    <Button
+                                                        className="shrink-0"
+                                                        asChild
+                                                    >
                                                         <Link href="/registro-empresa">
                                                             <Building2 className="h-4 w-4" />
                                                             Registrar empresa
@@ -393,7 +479,7 @@ export default function Landing() {
 
                 {/* Process Stages Section */}
                 <section id="process" className="py-24">
-                    <div className="container mx-auto px-4 text-center">
+                    <div className="page-container text-center">
                         <div className="mb-16 space-y-4">
                             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                                 Etapas del Proceso de Prácticas
@@ -443,7 +529,7 @@ export default function Landing() {
 
                 {/* FAQ Section */}
                 <section id="faq" className="border-t bg-muted/10 py-24">
-                    <div className="container mx-auto max-w-4xl px-4">
+                    <div className="page-container">
                         <div className="grid gap-12 lg:grid-cols-5">
                             <div className="space-y-4 lg:col-span-2">
                                 <h2 className="text-3xl font-bold tracking-tight">
@@ -510,7 +596,7 @@ export default function Landing() {
 
             {/* Footer */}
             <footer className="border-t bg-muted/30">
-                <div className="container mx-auto px-4 py-16">
+                <div className="page-container py-16">
                     <div className="flex flex-col items-center space-y-6 text-center">
                         <div className="flex aspect-square items-center justify-center rounded-md">
                             <AppLogoIcon className="size-24 fill-current" />
