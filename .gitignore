@@ -28,6 +28,5 @@ yarn-error.log
 /.vscode
 /.zed
 
-/docs
 db_practicantes.sql
 guide.txt
