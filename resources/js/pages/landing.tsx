@@ -558,9 +558,9 @@ export default function Landing() {
 
                             <div className="lg:col-span-3">
                                 <Accordion
-                                    type="single"
-                                    collapsible
-                                    className="w-full"
+                                    type="multiple"
+                                    defaultValue={['item-0']}
+                                    className="flex w-full flex-col gap-3"
                                 >
                                     {[
                                         {
@@ -583,12 +583,12 @@ export default function Landing() {
                                         <AccordionItem
                                             key={i}
                                             value={`item-${i}`}
-                                            className="border-b last:border-b-0"
+                                            className="overflow-hidden rounded-lg border bg-background shadow-xs transition-[border-color,box-shadow] duration-300 last:border-b data-[state=open]:border-primary/40 data-[state=open]:shadow-sm motion-reduce:transition-none"
                                         >
-                                            <AccordionTrigger className="px-0 py-4 text-left text-sm font-semibold transition-colors hover:text-primary hover:no-underline">
+                                            <AccordionTrigger className="items-center rounded-none px-5 py-4 text-left text-sm font-semibold transition-colors duration-200 hover:bg-muted/60 hover:text-primary hover:no-underline focus-visible:ring-inset data-[state=open]:text-primary motion-reduce:transition-none [&>svg]:translate-y-0">
                                                 {q.t}
                                             </AccordionTrigger>
-                                            <AccordionContent className="pb-4 text-sm leading-relaxed text-muted-foreground">
+                                            <AccordionContent className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground transition-opacity duration-300 ease-out in-data-[state=closed]:opacity-0 motion-reduce:transition-none [&_a]:font-medium [&_a]:text-primary [&_a]:underline-offset-4 hover:[&_a]:underline [&_li]:mt-1 [&_ul]:list-disc [&_ul]:pl-5">
                                                 {q.a}
                                             </AccordionContent>
                                         </AccordionItem>
