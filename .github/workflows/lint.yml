@@ -1,4 +1,6 @@
-name: linter
+#Formato PHP, ESLint, Prettier y tipos TypeScript.
+
+name: Calidad del Codigo - Lint
 
 on:
   push:
@@ -15,35 +17,49 @@ on:
       - workos
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+
     steps:
+      # Descargar el código del repositorio
+      - name: Checkout
       - uses: actions/checkout@v6
 
+      # Configurar PHP 8.4
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          tools: composer
 
+      # Configurar npm 22
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      # Instalar dependencias de PHP y Node.js
       - name: Install Dependencies
         run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci
 
-      - name: Run Pint
-        run: composer lint
+      # Comprobar formato PHP con Laravel Pint
+      - name: Check PHP
+        run: composer test:lint
 
-      - name: Format Frontend
-        run: npm run format
+      # Comprobar formato del Frontend con Prettier
+      - name: Check Frontend Format
+        run: npm run format:check
 
+      # Comprobar código Frontend con ESLint
       - name: Lint Frontend
-        run: npm run lint
+        run: npx eslint .
 
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v7
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
+      # Comprobar tipos TypeScript
+      - name: Check TypeScript
+        run: npm run types

@@ -1,38 +1,50 @@
-name: deploy
+#Despliegue a producción o staging.
 
+# Nombre del workflow que aparecerá en GitHub Actions
+name: Publicacion de la version - Deploy
+
+# El workflow se ejecutará cada vez que haya un push a la rama main
 on:
   push:
     branches:
       - main
 
 concurrency:
+  # Evita que varios deploys de producción se ejecuten simultáneamente
   group: deploy-production
+   # Si llega otro push mientras un deploy está en ejecución, no cancela el deploy actual.
   cancel-in-progress: false
 
+# Variables globales utilizadas durante el workflow
 env:
+  # GitHub Container Registry
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+# ==========================================================
+# JOB 1: CONSTRUIR Y PUBLICAR LA IMAGEN DOCKER
+# ==========================================================
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    # Descargar el código del repositorio
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
+    # Iniciar sesión en GitHub Container Registry (GHCR)
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+    # Configurar Docker Buildx para construir la imagen
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+    # Construir la imagen Docker y subirla a GHCR
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -43,6 +55,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+# ==========================================================
+# JOB 2: DESPLEGAR EN EL VPS
+# ==========================================================
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest

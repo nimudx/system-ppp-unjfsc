@@ -56,6 +56,10 @@ Route::middleware(['auth', 'type:1,3'])
         require __DIR__ . '/company/general.php';
     });
 
+    Route::get('/bolsa', function () {
+        return Inertia::render('bolsa/index');
+    })->name('bolsa.index');
+
 // Rutas compartidas o de configuración
 require __DIR__ . '/settings.php';
 require __DIR__ . '/user.php';
