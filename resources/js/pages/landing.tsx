@@ -46,12 +46,50 @@ const navLinks = [
     { id: 'faq', label: 'Ayuda' },
 ];
 
+// Duración del desplazamiento al hacer clic en el menú (ms).
+const SCROLL_DURATION = 900;
+
+const easeInOutCubic = (t: number) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+// Desplaza la página hasta la sección de forma suave y pausada, dejando
+// libre el alto de la cabecera fija. Respeta prefers-reduced-motion.
+function smoothScrollToSection(id: string, onDone?: () => void) {
+    const section = document.getElementById(id);
+    if (!section) return;
+
+    const headerHeight = document.querySelector('header')?.offsetHeight ?? 0;
+    const start = window.scrollY;
+    const target = section.getBoundingClientRect().top + start - headerHeight;
+    const distance = target - start;
+
+    if (
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        Math.abs(distance) < 1
+    ) {
+        window.scrollTo(0, target);
+        onDone?.();
+        return;
+    }
+
+    let startTime: number | null = null;
+    const step = (now: number) => {
+        startTime ??= now;
+        const progress = Math.min((now - startTime) / SCROLL_DURATION, 1);
+        window.scrollTo(0, start + distance * easeInOutCubic(progress));
+        if (progress < 1) requestAnimationFrame(step);
+        else onDone?.();
+    };
+    requestAnimationFrame(step);
+}
+
 // Menú con subrayado deslizante: la barra sigue al cursor y, al salir,
 // vuelve a la sección activa (seleccionada o visible en pantalla).
 function SlidingNavLinks() {
     const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
     const hoveredRef = useRef<string | null>(null);
     const activeRef = useRef<string | null>(null);
+    const isScrollingRef = useRef(false);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [indicator, setIndicator] = useState({
         left: 0,
@@ -87,7 +125,11 @@ function SlidingNavLinks() {
         const observer = new IntersectionObserver(
             (entries) => {
                 const visible = entries.find((entry) => entry.isIntersecting);
-                if (visible) activate(visible.target.id);
+                // Durante el scroll del menú se ignoran las secciones
+                // intermedias para que el subrayado no salte entre ellas.
+                if (visible && !isScrollingRef.current) {
+                    activate(visible.target.id);
+                }
             },
             { rootMargin: '-45% 0px -50% 0px' },
         );
@@ -116,7 +158,15 @@ function SlidingNavLinks() {
                     onMouseEnter={() => hover(id)}
                     onFocus={() => hover(id)}
                     onBlur={() => hover(null)}
-                    onClick={() => activate(id)}
+                    onClick={(event) => {
+                        event.preventDefault();
+                        activate(id);
+                        isScrollingRef.current = true;
+                        smoothScrollToSection(id, () => {
+                            isScrollingRef.current = false;
+                        });
+                        window.history.replaceState(null, '', `#${id}`);
+                    }}
                     aria-current={activeId === id ? 'true' : undefined}
                     className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 ease-out outline-none hover:scale-105 hover:text-primary focus-visible:scale-105 focus-visible:text-primary motion-reduce:transition-none motion-reduce:hover:scale-100 ${
                         activeId === id
@@ -322,17 +372,20 @@ export default function Landing() {
                     id="about"
                     className="page-container grid gap-12 py-24 md:grid-cols-2"
                 >
-                    <Card className="border-muted shadow-sm">
+                    <Card className="group border-muted shadow-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-lochmara-800 hover:shadow-xl hover:ring-lochmara-800 motion-reduce:transition-none motion-reduce:hover:scale-100 dark:hover:bg-lochmara-700 dark:hover:ring-lochmara-700">
                         <CardHeader>
-                            <Badge variant="secondary" className="mb-2 w-fit">
+                            <Badge
+                                variant="secondary"
+                                className="mb-2 w-fit transition-colors group-hover:bg-white/15 group-hover:text-white"
+                            >
                                 Academico
                             </Badge>
-                            <CardTitle className="text-3xl font-bold tracking-tight">
+                            <CardTitle className="text-3xl font-bold tracking-tight transition-colors group-hover:text-white">
                                 Misión
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="leading-relaxed text-muted-foreground">
+                            <p className="leading-relaxed text-muted-foreground transition-colors group-hover:text-lochmara-100">
                                 Formar profesionales líderes en sus respectivas
                                 disciplinas, con sólidos valores éticos y
                                 compromiso social, capaces de generar
@@ -342,17 +395,20 @@ export default function Landing() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-muted bg-muted/10 shadow-sm">
+                    <Card className="group border-muted bg-muted/10 shadow-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-lochmara-800 hover:shadow-xl hover:ring-lochmara-800 motion-reduce:transition-none motion-reduce:hover:scale-100 dark:hover:bg-lochmara-700 dark:hover:ring-lochmara-700">
                         <CardHeader>
-                            <Badge variant="secondary" className="mb-2 w-fit">
+                            <Badge
+                                variant="secondary"
+                                className="mb-2 w-fit transition-colors group-hover:bg-white/15 group-hover:text-white"
+                            >
                                 Institucional
                             </Badge>
-                            <CardTitle className="text-3xl font-bold tracking-tight">
+                            <CardTitle className="text-3xl font-bold tracking-tight transition-colors group-hover:text-white">
                                 Visión
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="leading-relaxed text-muted-foreground">
+                            <p className="leading-relaxed text-muted-foreground transition-colors group-hover:text-lochmara-100">
                                 Ser una universidad referente nacional e
                                 internacional en calidad educativa,
                                 investigación e innovación, reconocida por su
@@ -383,19 +439,19 @@ export default function Landing() {
                             <TabsList className="grid h-12 w-full grid-cols-3">
                                 <TabsTrigger
                                     value="estudiante"
-                                    className="text-sm font-semibold"
+                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                                 >
                                     Estudiante
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="docente"
-                                    className="text-sm font-semibold"
+                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                                 >
                                     Docente
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="empresa"
-                                    className="text-sm font-semibold"
+                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                                 >
                                     Empresa
                                 </TabsTrigger>
@@ -409,8 +465,8 @@ export default function Landing() {
                                         className="mt-8"
                                     >
                                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                                            <Card className="border-none bg-transparent shadow-none">
-                                                <CardHeader className="px-0">
+                                            <Card className="border-none bg-transparent py-6 shadow-none">
+                                                <CardHeader className="px-6">
                                                     <CardTitle className="text-2xl font-bold capitalize">
                                                         Servicios para el {role}
                                                     </CardTitle>
@@ -420,15 +476,15 @@ export default function Landing() {
                                                         disponibles.
                                                     </CardDescription>
                                                 </CardHeader>
-                                                <CardContent className="px-0">
+                                                <CardContent className="px-6">
                                                     <div className="grid gap-4 md:grid-cols-2">
                                                         {items.map(
                                                             (item, idx) => (
                                                                 <div
                                                                     key={idx}
-                                                                    className="group flex items-center gap-4 rounded-lg border bg-background p-4 shadow-xs transition-colors hover:border-primary/50"
+                                                                    className="group flex items-center gap-4 rounded-lg border bg-background p-4 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                                                                 >
-                                                                    <div className="rounded-md bg-muted p-2 transition-colors group-hover:text-primary">
+                                                                    <div className="rounded-md bg-muted p-2 transition-colors group-hover:bg-white/15 group-hover:text-primary-foreground">
                                                                         <item.icon className="h-5 w-5" />
                                                                     </div>
                                                                     <span className="text-sm font-medium">
@@ -510,15 +566,15 @@ export default function Landing() {
                             ].map((stage, i) => (
                                 <div
                                     key={i}
-                                    className="flex flex-col space-y-4 rounded-xl border bg-card/40 p-6 transition-colors hover:bg-card"
+                                    className="group flex flex-col space-y-4 rounded-xl border bg-card/40 p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-xl motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                                 >
-                                    <div className="mb-2 w-fit rounded-lg bg-primary/10 p-3 text-primary">
+                                    <div className="mb-2 w-fit rounded-lg bg-primary/10 p-3 text-primary transition-colors group-hover:bg-white/15 group-hover:text-primary-foreground">
                                         <stage.icon className="h-8 w-8" />
                                     </div>
                                     <h3 className="text-xl font-bold">
                                         {stage.title}
                                     </h3>
-                                    <p className="text-sm leading-relaxed text-muted-foreground">
+                                    <p className="text-sm leading-relaxed text-muted-foreground transition-colors group-hover:text-primary-foreground/85">
                                         {stage.desc}
                                     </p>
                                 </div>
@@ -552,9 +608,9 @@ export default function Landing() {
 
                             <div className="lg:col-span-3">
                                 <Accordion
-                                    type="single"
-                                    collapsible
-                                    className="w-full"
+                                    type="multiple"
+                                    defaultValue={['item-0']}
+                                    className="flex w-full flex-col gap-3"
                                 >
                                     {[
                                         {
@@ -577,12 +633,12 @@ export default function Landing() {
                                         <AccordionItem
                                             key={i}
                                             value={`item-${i}`}
-                                            className="border-b last:border-b-0"
+                                            className="overflow-hidden rounded-lg border bg-background shadow-xs transition-[border-color,box-shadow] duration-300 last:border-b data-[state=open]:border-primary/40 data-[state=open]:shadow-sm motion-reduce:transition-none"
                                         >
-                                            <AccordionTrigger className="px-0 py-4 text-left text-sm font-semibold transition-colors hover:text-primary hover:no-underline">
+                                            <AccordionTrigger className="items-center rounded-none px-5 py-4 text-left text-sm font-semibold transition-colors duration-200 hover:bg-muted/60 hover:text-primary hover:no-underline focus-visible:ring-inset data-[state=open]:text-primary motion-reduce:transition-none [&>svg]:translate-y-0">
                                                 {q.t}
                                             </AccordionTrigger>
-                                            <AccordionContent className="pb-4 text-sm leading-relaxed text-muted-foreground">
+                                            <AccordionContent className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground transition-opacity duration-300 ease-out in-data-[state=closed]:opacity-0 motion-reduce:transition-none [&_a]:font-medium [&_a]:text-primary [&_a]:underline-offset-4 hover:[&_a]:underline [&_li]:mt-1 [&_ul]:list-disc [&_ul]:pl-5">
                                                 {q.a}
                                             </AccordionContent>
                                         </AccordionItem>
