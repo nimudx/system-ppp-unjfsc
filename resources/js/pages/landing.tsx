@@ -46,12 +46,50 @@ const navLinks = [
     { id: 'faq', label: 'Ayuda' },
 ];
 
+// Duración del desplazamiento al hacer clic en el menú (ms).
+const SCROLL_DURATION = 900;
+
+const easeInOutCubic = (t: number) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+// Desplaza la página hasta la sección de forma suave y pausada, dejando
+// libre el alto de la cabecera fija. Respeta prefers-reduced-motion.
+function smoothScrollToSection(id: string, onDone?: () => void) {
+    const section = document.getElementById(id);
+    if (!section) return;
+
+    const headerHeight = document.querySelector('header')?.offsetHeight ?? 0;
+    const start = window.scrollY;
+    const target = section.getBoundingClientRect().top + start - headerHeight;
+    const distance = target - start;
+
+    if (
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        Math.abs(distance) < 1
+    ) {
+        window.scrollTo(0, target);
+        onDone?.();
+        return;
+    }
+
+    let startTime: number | null = null;
+    const step = (now: number) => {
+        startTime ??= now;
+        const progress = Math.min((now - startTime) / SCROLL_DURATION, 1);
+        window.scrollTo(0, start + distance * easeInOutCubic(progress));
+        if (progress < 1) requestAnimationFrame(step);
+        else onDone?.();
+    };
+    requestAnimationFrame(step);
+}
+
 // Menú con subrayado deslizante: la barra sigue al cursor y, al salir,
 // vuelve a la sección activa (seleccionada o visible en pantalla).
 function SlidingNavLinks() {
     const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
     const hoveredRef = useRef<string | null>(null);
     const activeRef = useRef<string | null>(null);
+    const isScrollingRef = useRef(false);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [indicator, setIndicator] = useState({
         left: 0,
@@ -87,7 +125,11 @@ function SlidingNavLinks() {
         const observer = new IntersectionObserver(
             (entries) => {
                 const visible = entries.find((entry) => entry.isIntersecting);
-                if (visible) activate(visible.target.id);
+                // Durante el scroll del menú se ignoran las secciones
+                // intermedias para que el subrayado no salte entre ellas.
+                if (visible && !isScrollingRef.current) {
+                    activate(visible.target.id);
+                }
             },
             { rootMargin: '-45% 0px -50% 0px' },
         );
@@ -116,7 +158,15 @@ function SlidingNavLinks() {
                     onMouseEnter={() => hover(id)}
                     onFocus={() => hover(id)}
                     onBlur={() => hover(null)}
-                    onClick={() => activate(id)}
+                    onClick={(event) => {
+                        event.preventDefault();
+                        activate(id);
+                        isScrollingRef.current = true;
+                        smoothScrollToSection(id, () => {
+                            isScrollingRef.current = false;
+                        });
+                        window.history.replaceState(null, '', `#${id}`);
+                    }}
                     aria-current={activeId === id ? 'true' : undefined}
                     className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 ease-out outline-none hover:scale-105 hover:text-primary focus-visible:scale-105 focus-visible:text-primary motion-reduce:transition-none motion-reduce:hover:scale-100 ${
                         activeId === id
