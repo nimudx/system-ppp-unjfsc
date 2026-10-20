@@ -322,17 +322,20 @@ export default function Landing() {
                     id="about"
                     className="page-container grid gap-12 py-24 md:grid-cols-2"
                 >
-                    <Card className="border-muted shadow-sm">
+                    <Card className="group border-muted shadow-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-lochmara-800 hover:shadow-xl hover:ring-lochmara-800 motion-reduce:transition-none motion-reduce:hover:scale-100 dark:hover:bg-lochmara-700 dark:hover:ring-lochmara-700">
                         <CardHeader>
-                            <Badge variant="secondary" className="mb-2 w-fit">
+                            <Badge
+                                variant="secondary"
+                                className="mb-2 w-fit transition-colors group-hover:bg-white/15 group-hover:text-white"
+                            >
                                 Academico
                             </Badge>
-                            <CardTitle className="text-3xl font-bold tracking-tight">
+                            <CardTitle className="text-3xl font-bold tracking-tight transition-colors group-hover:text-white">
                                 Misión
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="leading-relaxed text-muted-foreground">
+                            <p className="leading-relaxed text-muted-foreground transition-colors group-hover:text-lochmara-100">
                                 Formar profesionales líderes en sus respectivas
                                 disciplinas, con sólidos valores éticos y
                                 compromiso social, capaces de generar
@@ -342,17 +345,20 @@ export default function Landing() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-muted bg-muted/10 shadow-sm">
+                    <Card className="group border-muted bg-muted/10 shadow-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-lochmara-800 hover:shadow-xl hover:ring-lochmara-800 motion-reduce:transition-none motion-reduce:hover:scale-100 dark:hover:bg-lochmara-700 dark:hover:ring-lochmara-700">
                         <CardHeader>
-                            <Badge variant="secondary" className="mb-2 w-fit">
+                            <Badge
+                                variant="secondary"
+                                className="mb-2 w-fit transition-colors group-hover:bg-white/15 group-hover:text-white"
+                            >
                                 Institucional
                             </Badge>
-                            <CardTitle className="text-3xl font-bold tracking-tight">
+                            <CardTitle className="text-3xl font-bold tracking-tight transition-colors group-hover:text-white">
                                 Visión
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="leading-relaxed text-muted-foreground">
+                            <p className="leading-relaxed text-muted-foreground transition-colors group-hover:text-lochmara-100">
                                 Ser una universidad referente nacional e
                                 internacional en calidad educativa,
                                 investigación e innovación, reconocida por su
@@ -383,19 +389,19 @@ export default function Landing() {
                             <TabsList className="grid h-12 w-full grid-cols-3">
                                 <TabsTrigger
                                     value="estudiante"
-                                    className="text-sm font-semibold"
+                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                                 >
                                     Estudiante
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="docente"
-                                    className="text-sm font-semibold"
+                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                                 >
                                     Docente
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="empresa"
-                                    className="text-sm font-semibold"
+                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
                                 >
                                     Empresa
                                 </TabsTrigger>
@@ -409,8 +415,8 @@ export default function Landing() {
                                         className="mt-8"
                                     >
                                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                                            <Card className="border-none bg-transparent shadow-none">
-                                                <CardHeader className="px-0">
+                                            <Card className="border-none bg-transparent py-6 shadow-none">
+                                                <CardHeader className="px-6">
                                                     <CardTitle className="text-2xl font-bold capitalize">
                                                         Servicios para el {role}
                                                     </CardTitle>
@@ -420,15 +426,15 @@ export default function Landing() {
                                                         disponibles.
                                                     </CardDescription>
                                                 </CardHeader>
-                                                <CardContent className="px-0">
+                                                <CardContent className="px-6">
                                                     <div className="grid gap-4 md:grid-cols-2">
                                                         {items.map(
                                                             (item, idx) => (
                                                                 <div
                                                                     key={idx}
-                                                                    className="group flex items-center gap-4 rounded-lg border bg-background p-4 shadow-xs transition-colors hover:border-primary/50"
+                                                                    className="group flex items-center gap-4 rounded-lg border bg-background p-4 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                                                                 >
-                                                                    <div className="rounded-md bg-muted p-2 transition-colors group-hover:text-primary">
+                                                                    <div className="rounded-md bg-muted p-2 transition-colors group-hover:bg-white/15 group-hover:text-primary-foreground">
                                                                         <item.icon className="h-5 w-5" />
                                                                     </div>
                                                                     <span className="text-sm font-medium">
@@ -510,15 +516,15 @@ export default function Landing() {
                             ].map((stage, i) => (
                                 <div
                                     key={i}
-                                    className="flex flex-col space-y-4 rounded-xl border bg-card/40 p-6 transition-colors hover:bg-card"
+                                    className="group flex flex-col space-y-4 rounded-xl border bg-card/40 p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-xl motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                                 >
-                                    <div className="mb-2 w-fit rounded-lg bg-primary/10 p-3 text-primary">
+                                    <div className="mb-2 w-fit rounded-lg bg-primary/10 p-3 text-primary transition-colors group-hover:bg-white/15 group-hover:text-primary-foreground">
                                         <stage.icon className="h-8 w-8" />
                                     </div>
                                     <h3 className="text-xl font-bold">
                                         {stage.title}
                                     </h3>
-                                    <p className="text-sm leading-relaxed text-muted-foreground">
+                                    <p className="text-sm leading-relaxed text-muted-foreground transition-colors group-hover:text-primary-foreground/85">
                                         {stage.desc}
                                     </p>
                                 </div>
