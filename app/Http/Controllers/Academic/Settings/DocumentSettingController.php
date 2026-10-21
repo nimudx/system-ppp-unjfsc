@@ -18,7 +18,7 @@ class DocumentSettingController extends Controller
         $documentTypes = DocumentType::with('roles')->get();
         $roles = Role::where('status', 1)->get();
 
-        return Inertia::render('academic/settings/document/index', [
+        return Inertia::render('documents/settings/index', [
             'documentTypes' => $documentTypes,
             'roles' => $roles,
         ]);

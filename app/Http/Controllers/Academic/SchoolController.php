@@ -22,7 +22,7 @@ class SchoolController extends Controller
 
     public function index(): Response
     {
-        return Inertia::render('academic/management/school/index', [
+        return Inertia::render('academic/school/index', [
             'schools' => School::with('faculty')->get(),
             'faculties' => Faculty::select('id', 'name')->get(),
         ]);

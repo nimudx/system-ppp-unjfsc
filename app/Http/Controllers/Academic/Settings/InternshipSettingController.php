@@ -43,7 +43,7 @@ class InternshipSettingController extends Controller
             $q->where('roles.id', 5);
         })->where('status', 1)->get(['id', 'name', 'code']);
 
-        return Inertia::render('academic/internship/settings/index', [
+        return Inertia::render('internship/settings/index', [
             'faculties' => $faculties,
             'setting' => $setting,
             'currentSectionId' => $sectionId ? (int) $sectionId : null,

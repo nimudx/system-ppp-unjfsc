@@ -30,14 +30,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::get('settings/appearance', function () {
-        return Inertia::render('settings/appearance');
+        return Inertia::render('identity/settings/appearance');
     })->name('appearance.edit');
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
 
     Route::get('settings/about', function () {
-        return Inertia::render('settings/about');
+        return Inertia::render('identity/settings/about');
     })->name('settings.about');
 });
 

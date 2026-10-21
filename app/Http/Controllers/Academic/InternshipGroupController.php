@@ -45,7 +45,7 @@ class InternshipGroupController extends Controller
 
         $faculties = Faculty::query()->forAssignmentContext($currentAssignment, session('semester_id'))->get();
 
-        return Inertia::render('academic/group/internship/index', [
+        return Inertia::render('supervision/groups/internship/index', [
             'groups' => $groups,
             'faculties' => $faculties,
         ]);
@@ -131,7 +131,7 @@ class InternshipGroupController extends Controller
 
         $faculties = Faculty::query()->forAssignmentContext($currentAssignment, session('semester_id'))->get();
 
-        return Inertia::render('academic/group/student/index', [
+        return Inertia::render('supervision/groups/student/index', [
             'groups' => $groups,
             'students' => $students,
             'faculties' => $faculties,
@@ -250,7 +250,7 @@ class InternshipGroupController extends Controller
 
         $faculties = Faculty::query()->forAssignmentContext($currentAssignment, session('semester_id'))->get();
 
-        return Inertia::render('academic/group/supervision/index', [
+        return Inertia::render('supervision/groups/supervision/index', [
             'groups' => $groups,
             'faculties' => $faculties,
         ]);

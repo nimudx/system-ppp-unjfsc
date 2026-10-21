@@ -50,7 +50,7 @@ class UserRegistrationController extends Controller
 
         $faculties = Faculty::query()->forAssignmentContext($assignment, $semesterId, true)->get();
 
-        return Inertia::render('academic/user/register/index', [
+        return Inertia::render('registration/register/index', [
             'roles' => $roles,
             'faculties' => $faculties,
             'role' => $assignment->role_id,

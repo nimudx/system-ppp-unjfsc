@@ -75,7 +75,7 @@ class DossierController extends Controller
 
         $requirements = $this->dossierService->getDossierData($assignment);
 
-        return Inertia::render('academic/dossier/submission/index', [
+        return Inertia::render('dossier/submission/index', [
             'assignment' => $assignment,
             'requirements' => $requirements,
             'dossier' => $assignment->dossiers->first()?->id
@@ -111,7 +111,7 @@ class DossierController extends Controller
 
         $faculties = Faculty::query()->forAssignmentContext($assignment, $semesterId)->get();
 
-        return Inertia::render('academic/dossier/validation/index', [
+        return Inertia::render('dossier/validation/index', [
             'assignments' => $assignments,
             'title' => $title,
             'faculties' => $faculties,
@@ -160,7 +160,7 @@ class DossierController extends Controller
     {
         $dossier->load(['assignment.user', 'assignment.role', 'documents.type']);
 
-        return Inertia::render('academic/dossier/validation/details', [
+        return Inertia::render('dossier/validation/details', [
             'dossier' => $dossier
         ]);
     }

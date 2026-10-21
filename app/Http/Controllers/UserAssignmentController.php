@@ -77,7 +77,7 @@ class UserAssignmentController extends Controller
 
         $faculties = Faculty::query()->forAssignmentContext($assignment, $semesterId)->get();
 
-        return Inertia::render('academic/user/management/index', [
+        return Inertia::render('identity/users/index', [
             'assignments' => $assignments,
             'faculties' => $faculties,
             'roleId' => $roleId,

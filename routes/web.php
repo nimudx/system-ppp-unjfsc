@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
-    return Inertia::render('landing', [
+    return Inertia::render('public/landing', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
@@ -15,7 +15,7 @@ Route::get('/registro-empresa', function () {
 })->name('empresa.registro');
 
 Route::get('dashboard', function () {
-    return Inertia::render('dashboard');
+    return Inertia::render('dashboard/dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 use App\Http\Controllers\AcademicSessionController;
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'type:1,3'])
     });
 
     Route::get('/bolsa', function () {
-        return Inertia::render('bolsa/index');
+        return Inertia::render('jobboard/public/index');
     })->name('bolsa.index');
 
 // Rutas compartidas o de configuración
