@@ -331,3 +331,29 @@
 │       │   └── 🆕 📄 vacancy.schema.ts                # Zod
 │       ├── 🆕 📄 types.ts
 │       └── 🆕 📄 index.ts
+
+---
+
+### Nota: resolver de páginas (`app.tsx` / `ssr.tsx`)
+
+Laravel nombra cada página como `'<módulo>/<ruta dentro de pages>'` y el frontend la
+busca en `resources/js/modules/<módulo>/pages/<ruta>.tsx`
+(ver `shared/lib/inertia.ts`):
+
+| `Inertia::render(...)`        | Archivo                                               |
+| ----------------------------- | ----------------------------------------------------- |
+| `'public/landing'`            | `modules/public/pages/landing.tsx`                    |
+| `'identity/auth/login'`       | `modules/identity/pages/auth/login.tsx`               |
+| `'dashboard/dashboard'`       | `modules/dashboard/pages/dashboard.tsx`               |
+| `'academic/faculty/index'`    | `modules/academic/pages/faculty/index.tsx`            |
+| `'supervision/groups/student/index'` | `modules/supervision/pages/groups/student/index.tsx` |
+
+Reglas:
+
+- Al crear una página nueva, se usa ese mismo nombre en el controlador; no hay que
+  registrar alias.
+- `resources/views/app.blade.php` precarga la página con la misma regla.
+- Entre módulos se importa por su `index.ts` (`import { ValidationPanel } from '@/modules/documents'`),
+  nunca por rutas internas de otro módulo.
+- `shared/` no importa de `modules/`. Excepciones actuales: `app-sidebar-header` usa
+  `NotificationDropdown` y `academic-filter` usa el tipo `Faculty`.
