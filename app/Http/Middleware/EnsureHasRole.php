@@ -18,14 +18,15 @@ class EnsureHasRole
     {
         $assignmentId = session('assignment_id');
 
-        if (!$assignmentId) {
+        if (! $assignmentId) {
             abort(403, 'No tienes una sesion de rol activa');
         }
 
         $roleId = Assignment::find($assignmentId)->role_id;
 
-        if (!in_array($roleId, $roles)) {
+        if (! in_array($roleId, $roles)) {
             session()->reflash(); // Conserva los mensajes flash anteriores (ej: "cambio exitoso")
+
             return redirect()->route('dashboard')->with('error', 'No tienes permiso para acceder a esta área con tu rol actual.');
         }
 

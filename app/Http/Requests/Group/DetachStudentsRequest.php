@@ -23,7 +23,7 @@ class DetachStudentsRequest extends FormRequest
     {
         return [
             'student_assignment_ids' => 'required|array',
-            'student_assignment_ids.*' => 'exists:assignments,id'
+            'student_assignment_ids.*' => 'exists:assignments,id',
         ];
     }
 }

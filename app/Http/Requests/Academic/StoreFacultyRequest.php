@@ -26,9 +26,9 @@ class StoreFacultyRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:faculties,name'
+                'unique:faculties,name',
             ],
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
         ];
     }
 

@@ -3,17 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assignment;
-use App\Models\Staff;
 use App\Models\Semester;
+use App\Models\Staff;
 use App\Services\Auth\SyncAcademicSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class AcademicSessionController extends Controller
 {
-    public function __construct(protected SyncAcademicSessionService $syncService)
-    {
-    }
+    public function __construct(protected SyncAcademicSessionService $syncService) {}
 
     public function syncSemester(Semester $semester): RedirectResponse
     {

@@ -3,17 +3,14 @@
 namespace App\Services\Settings;
 
 use App\Models\Person;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileMediaService
 {
     /**
-     * @param Person $person
-     * @param mixed $photoFile (File | 'deleted' | null)
-     * @param mixed $bannerFile (File | 'deleted' | null)
-     * @return Person
+     * @param  mixed  $photoFile  (File | 'deleted' | null)
+     * @param  mixed  $bannerFile  (File | 'deleted' | null)
      */
     public function updateMedia(Person $person, $photoFile, $bannerFile): Person
     {
@@ -30,10 +27,7 @@ class ProfileMediaService
     }
 
     /**
-     * @param Person $person
-     * @param string $column
-     * @param string $type
-     * @param mixed $file (File | 'deleted' | null)
+     * @param  mixed  $file  (File | 'deleted' | null)
      */
     private function processFile(Person $person, string $column, string $type, $file): void
     {
@@ -49,7 +43,7 @@ class ProfileMediaService
             $identifier = $person->dni ?? $person->id;
 
             $folder = "profiles/{$modelType}/{$yearMonth}";
-            $filename = "{$identifier}_{$type}_" . time() . '.' . $file->extension();
+            $filename = "{$identifier}_{$type}_".time().'.'.$file->extension();
 
             $person->{$column} = $file->storeAs($folder, $filename, 'public');
         }

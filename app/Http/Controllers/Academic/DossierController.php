@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Dossier\UploadDocumentDossierRequest;
 use App\Http\Requests\Document\UpdateDocumentStatusRequest;
+use App\Http\Requests\Dossier\UploadDocumentDossierRequest;
 use App\Models\Assignment;
 use App\Models\Document;
 use App\Models\Dossier;
@@ -29,7 +30,6 @@ class DossierController extends Controller
     /**
      * Store a document for a dossier.
      *
-     * @param UploadDocumentDossierRequest $request
      * @return JsonResponse
      */
     public function storeDocumentDossier(UploadDocumentDossierRequest $request): RedirectResponse
@@ -47,8 +47,6 @@ class DossierController extends Controller
     /**
      * Update the status of a document for a dossier.
      *
-     * @param UpdateDocumentStatusRequest $request
-     * @param Document $document
      * @return JsonResponse
      */
     public function updateDossierStatus(UpdateDocumentStatusRequest $request, Document $document): RedirectResponse
@@ -65,8 +63,6 @@ class DossierController extends Controller
 
     /**
      * Render the view for the user's submission.
-     *
-     * @return Response
      */
     public function SubmissionIndex(): Response
     {
@@ -78,7 +74,7 @@ class DossierController extends Controller
         return Inertia::render('dossier/submission/index', [
             'assignment' => $assignment,
             'requirements' => $requirements,
-            'dossier' => $assignment->dossiers->first()?->id
+            'dossier' => $assignment->dossiers->first()?->id,
         ]);
     }
 
@@ -115,7 +111,7 @@ class DossierController extends Controller
             'assignments' => $assignments,
             'title' => $title,
             'faculties' => $faculties,
-            'target_role_id' => $roleId
+            'target_role_id' => $roleId,
         ]);
     }
 
@@ -126,7 +122,7 @@ class DossierController extends Controller
             'faculty_id' => 'nullable|integer',
             'school_id' => 'nullable|integer',
             'section_id' => 'nullable|integer',
-            'search' => 'nullable|string'
+            'search' => 'nullable|string',
         ]);
 
         $semesterId = session('semester_id');
@@ -146,22 +142,19 @@ class DossierController extends Controller
         return response()->json([
             'assignment' => $assignment,
             'requirements' => $requirements,
-            'dossier' => $assignment->dossiers->first()?->id
+            'dossier' => $assignment->dossiers->first()?->id,
         ]);
     }
 
     /**
      * Render the detailed view for validating a specific dossier.
-     *
-     * @param Dossier $dossier
-     * @return Response
      */
     public function showValidation(Dossier $dossier): Response
     {
         $dossier->load(['assignment.user', 'assignment.role', 'documents.type']);
 
         return Inertia::render('dossier/validation/details', [
-            'dossier' => $dossier
+            'dossier' => $dossier,
         ]);
     }
 }

@@ -9,9 +9,6 @@ class FacultyService
 {
     /**
      * Store a new faculty.
-     *
-     * @param array $data
-     * @return Faculty
      */
     public function store(array $data): Faculty
     {
@@ -27,6 +24,7 @@ class FacultyService
     {
         return DB::transaction(function () use ($data, $faculty) {
             $faculty->update($data);
+
             return $faculty;
         });
     }

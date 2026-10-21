@@ -30,9 +30,9 @@ class StorePlacementRequest extends FormRequest
             // origin: solo requerido y validado si el tipo es 'development'
             'origin_type' => [
                 'nullable',
-                Rule::requiredIf(fn() => $this->input('internship_type') === 'development'),
+                Rule::requiredIf(fn () => $this->input('internship_type') === 'development'),
                 Rule::when(
-                    fn() => $this->input('internship_type') === 'development',
+                    fn () => $this->input('internship_type') === 'development',
                     ['in:direct,application']
                 ),
             ],
@@ -44,7 +44,7 @@ class StorePlacementRequest extends FormRequest
                 'string',
                 'max:11',
                 Rule::when(
-                    !$companyId,
+                    ! $companyId,
                     [Rule::unique('companies', 'ruc')]
                 ),
             ],

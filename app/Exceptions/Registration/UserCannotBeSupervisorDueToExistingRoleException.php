@@ -11,7 +11,7 @@ class UserCannotBeSupervisorDueToExistingRoleException extends BusinessException
     public function __construct(string $roleName)
     {
         $this->roleName = $roleName;
-        $this->message = 'El usuario no puede ser Docente Supervisor porque ya está registrado como ' . $roleName . '.';
+        $this->message = 'El usuario no puede ser Docente Supervisor porque ya está registrado como '.$roleName.'.';
     }
 
     public function status(): int

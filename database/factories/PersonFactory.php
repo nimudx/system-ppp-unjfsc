@@ -23,7 +23,7 @@ class PersonFactory extends Factory
         return [
             'dni' => fake()->unique()->numerify('########'),
             'names' => fake()->firstName(),
-            'surnames' => fake()->lastName() . ' ' . fake()->lastName(),
+            'surnames' => fake()->lastName().' '.fake()->lastName(),
             'phone' => fake()->numerify('9########'),
             'gender' => fake()->randomElement(['M', 'F']),
             'status' => PersonStatus::ACTIVE,

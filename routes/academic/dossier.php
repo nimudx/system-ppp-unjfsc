@@ -19,7 +19,7 @@ Route::middleware(['role:1,2,3'])->group(function () {
     Route::get('/dossiers/student', [DossierController::class, 'StudentDossierIndex'])->name('dossiers.student');
 
     // Details and API
-    //Route::get('/dossiers/validation', [DossierController::class, 'indexValidation'])->name('dossiers.validation');
+    // Route::get('/dossiers/validation', [DossierController::class, 'indexValidation'])->name('dossiers.validation');
     Route::get('/dossiers/validation/{dossier}', [DossierController::class, 'showValidation'])->name('dossiers.validation.show');
     Route::get('/dossiers/api/validations/{assignment}', [DossierController::class, 'getDetailDossier'])->name('dossiers.api.validations');
     Route::get('/api/dossiers/filter', [DossierController::class, 'getAssignmentsByFilter'])

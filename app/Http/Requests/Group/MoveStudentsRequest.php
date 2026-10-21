@@ -24,7 +24,7 @@ class MoveStudentsRequest extends FormRequest
         return [
             'target_group_id' => 'required|exists:internship_groups,id',
             'student_assignment_ids' => 'required|array',
-            'student_assignment_ids.*' => 'exists:assignments,id'
+            'student_assignment_ids.*' => 'exists:assignments,id',
         ];
     }
 }

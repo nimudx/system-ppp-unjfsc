@@ -14,7 +14,6 @@ use App\Models\Placement;
 use App\Models\UserRequest;
 use App\Services\DocumentService;
 use App\Services\NotificationService;
-use App\Services\Academic\PlacementService;
 use App\Services\RequestService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -22,8 +21,11 @@ use Illuminate\Support\Facades\DB;
 class InternshipService
 {
     protected $documentService;
+
     protected $requestService;
+
     protected $placementService;
+
     protected $notificationService;
 
     public function __construct(DocumentService $documentService, RequestService $requestService, PlacementService $placementService, NotificationService $notificationService)
@@ -34,17 +36,14 @@ class InternshipService
         $this->notificationService = $notificationService;
     }
 
-    /**
-     * @return array
-     */
-    public function getSubmissionData(Assignment $assignment, int $requestStep = null): array
+    public function getSubmissionData(Assignment $assignment, ?int $requestStep = null): array
     {
         $assignment->loadMissing([
             'placement.company',
             'placement.area',
             'placement.documents.documentType',
             'internship.documents.documentType',
-            'section'
+            'section',
         ]);
 
         $placement = $assignment->placement;
@@ -61,9 +60,9 @@ class InternshipService
         $steps = [];
         $requirements = [];
 
-        if ($setting && !empty($setting->workflow_schema)) {
+        if ($setting && ! empty($setting->workflow_schema)) {
             $schema = collect($setting->workflow_schema)->sortBy('step');
-            $steps = $schema->map(fn($s) => [
+            $steps = $schema->map(fn ($s) => [
                 'id' => $s['step'],
                 'label' => $s['name'],
                 'is_evaluation' => $s['is_evaluation'] ?? false,
@@ -72,11 +71,11 @@ class InternshipService
             $viewStep = min($requestStep ?? $currentStep, $currentStep);
             $currentStage = $schema->firstWhere('step', $viewStep);
 
-            if ($currentStage && !($currentStage['is_evaluation'] ?? false)) {
+            if ($currentStage && ! ($currentStage['is_evaluation'] ?? false)) {
                 $reqDocs = $currentStage['required_docs'][$placement->internship_type] ?? [];
 
                 $requirements = $this->placementService->mapRequirements(
-                    collect($reqDocs)->map(fn($d) => ['code' => $d['code'], 'title' => $d['name']])->all(),
+                    collect($reqDocs)->map(fn ($d) => ['code' => $d['code'], 'title' => $d['name']])->all(),
                     $internship->documents
                 );
             }
@@ -94,17 +93,17 @@ class InternshipService
     /**
      * Register a new internship for a user.
      *
-     * @param array $data The data for the internship.
-     * @param Assignment $assignment The assignment associated with the internship.
+     * @param  array  $data  The data for the internship.
+     * @param  Assignment  $assignment  The assignment associated with the internship.
      * @return array The result of the operation.
      */
     public function registerInternship(array $data, Assignment $assignment): Internship
     {
-        return DB::transaction(function () use ($data, $assignment) {
+        return DB::transaction(function () use ($assignment) {
             $activeInternship = Internship::query()->where('assignment_id', $assignment->id)->where('status', 1)->latest()->first();
 
             if ($activeInternship) {
-                throw new InternshipAlreadyActiveException();
+                throw new InternshipAlreadyActiveException;
             }
 
             $placement = $assignment->placement;
@@ -120,13 +119,6 @@ class InternshipService
         });
     }
 
-    /**
-
-     *
-     * @param array $data
-     * @param Assignment $assignment
-     * @return Document
-     */
     public function uploadDocumentInternship(array $data, Assignment $assignment): Document
     {
         return DB::transaction(function () use ($data, $assignment) {
@@ -147,17 +139,13 @@ class InternshipService
 
     /**
      * Actualiza el estado de la práctica interna a la etapa 5.
-     *
-     * @param array $array
-     * @param Internship $internship
-     * @param Assignment $assignment
-     * @return Internship
      */
     public function stepFiveInternship(array $array, Internship $internship, Assignment $assignment): Internship
     {
         return DB::transaction(function () use ($array, $internship, $assignment) {
             $this->validateOwnership($internship, $assignment);
             $internship->update($array);
+
             return $internship;
         });
     }
@@ -169,7 +157,7 @@ class InternshipService
         }
 
         if ($model->assignment_id !== $assignment->id) {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException;
         }
     }
 
@@ -200,21 +188,15 @@ class InternshipService
          throw new \Exception('No es un tipo de documento válido para este internship en esta etapa.');
          }*/
 
-
         // validar si hay un document de ese tipo pendiente o ya aprobado
         $oldDocument = $internship->documents()->where('document_type_id', $documentTypeId)->latest()->first();
 
         if ($oldDocument && in_array($oldDocument->approval_status, [1, 2])) {
-            throw new DocumentAlreadyApprovedException();
+            throw new DocumentAlreadyApprovedException;
         }
     }
 
-
-
     /**
-     * @param array $data
-     * @param Internship $internship
-     * @param Assignment $sender
      * @return Request
      */
     public function requestTypeChange(array $data, Internship $internship, Assignment $sender): UserRequest
@@ -223,7 +205,7 @@ class InternshipService
             $this->validateOwnership($internship, $sender);
 
             if ($internship->internship_step >= 3) {
-                throw new \Exception("No puede solicitar el cambio de tipo, no está en la etapa correcta.");
+                throw new \Exception('No puede solicitar el cambio de tipo, no está en la etapa correcta.');
             }
 
             $this->hasPendingRequest($internship, 'CHANGE_INTERNSHIP_TYPE');
@@ -248,11 +230,6 @@ class InternshipService
 
     /**
      * Request a grade change for an internship.
-     *
-     * @param array $data
-     * @param Internship $internship
-     * @param Assignment $sender
-     * @return UserRequest
      */
     public function requestGradeChange(array $data, Internship $internship, Assignment $sender): UserRequest
     {
@@ -260,7 +237,7 @@ class InternshipService
             $this->validateOwnership($internship, $sender);
 
             if ($internship->grade === null) {
-                throw new \Exception("No puede solicitar el cambio de nota si aún no existe una calificación registrada.");
+                throw new \Exception('No puede solicitar el cambio de nota si aún no existe una calificación registrada.');
             }
 
             $this->hasPendingRequest($internship, 'CHANGE_INTERNSHIP_GRADE');
@@ -288,7 +265,7 @@ class InternshipService
         $exists = $internship->requests()->where('type', $type)->where('approval_status', 2)->latest()->exists();
 
         if ($exists) {
-            throw new \Exception("Ya existe una solicitud pendiente.");
+            throw new \Exception('Ya existe una solicitud pendiente.');
         }
     }
 
@@ -305,7 +282,7 @@ class InternshipService
         $assignment = $internship->assignment;
         $placement = $internship->placement;
 
-        if (!$assignment || !$placement) {
+        if (! $assignment || ! $placement) {
             return;
         }
 
@@ -315,7 +292,7 @@ class InternshipService
         // Si no hay configuración definida en JSON, asumimos que no se puede calcular nada.
         $setting = InternshipSetting::where('section_id', $assignment->section_id)->first();
 
-        if (!$setting || empty($setting->workflow_schema)) {
+        if (! $setting || empty($setting->workflow_schema)) {
             return;
         }
 
@@ -352,13 +329,13 @@ class InternshipService
 
             foreach ($requiredDocs as $docReq) {
                 // Chequear si el estudiante tiene este 'code' aprobado
-                if (!in_array($docReq['code'], $approvedCodes)) {
+                if (! in_array($docReq['code'], $approvedCodes)) {
                     $isStageComplete = false;
                     break; // Falta este documento, la etapa NO está completa
                 }
             }
 
-            if (!$isStageComplete) {
+            if (! $isStageComplete) {
                 // ¡Mínimo pendiente encontrado!
                 // El estudiante no ha completado esta etapa, por ende esta es su etapa actual.
                 $currentStep = $stage['step'];

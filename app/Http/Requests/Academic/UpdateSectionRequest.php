@@ -26,20 +26,20 @@ class UpdateSectionRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:sections,name,' . $this->route('section') . ',id'
+                'unique:sections,name,'.$this->route('section').',id',
             ],
             'faculty_id' => [
                 'required',
                 'integer',
-                'exists:faculties,id'
+                'exists:faculties,id',
             ],
             'school_id' => [
                 'required',
                 'integer',
                 'exists:schools,id',
-                'foreign:faculty_id,faculties,id'
+                'foreign:faculty_id,faculties,id',
             ],
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
         ];
     }
 }

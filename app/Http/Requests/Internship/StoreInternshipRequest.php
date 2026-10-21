@@ -22,7 +22,7 @@ class StoreInternshipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'internship_type' => 'required|string|in:convalidacion,desarrollo'
+            'internship_type' => 'required|string|in:convalidacion,desarrollo',
         ];
     }
 }

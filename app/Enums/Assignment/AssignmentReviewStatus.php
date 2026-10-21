@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Enums\Assignment;
+
 // NONE | UNDER_REVIEW | OBSERVED
 enum AssignmentReviewStatus: int
 {

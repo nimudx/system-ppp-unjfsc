@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Academic\InternshipController;
 use App\Http\Controllers\Academic\PlacementController;
 use App\Http\Controllers\Academic\Settings\InternshipSettingController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['role:1,5'])->group(function () {
     Route::get('/internship', [InternshipController::class, 'SubmissionIndex'])->middleware(['role:5'])->name('internship.submission');

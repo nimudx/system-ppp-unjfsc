@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Supervision\StoreEvaluationRequest;
 use App\Http\Requests\Supervision\UpdateEvaluationStatusRequest;
 use App\Models\Assignment;
+use App\Models\Evaluation;
 use App\Models\Faculty;
 use App\Models\InternshipGroup;
 use App\Models\Supervision;
-use App\Models\Evaluation;
-
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use App\Services\Academic\SupervisionService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -80,7 +79,7 @@ class SupervisionController extends Controller
             'faculties' => $faculties,
             'groups' => $groups,
             'students' => $students,
-            'role' => $role
+            'role' => $role,
         ]);
     }
 

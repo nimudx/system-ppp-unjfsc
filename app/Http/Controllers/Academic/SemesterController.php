@@ -6,20 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\UpdateSemesterRequest;
 use App\Models\Semester;
 use App\Services\Academic\SemesterService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SemesterController extends Controller
 {
-    public function __construct(protected SemesterService $semesterService)
-    {
-    }
+    public function __construct(protected SemesterService $semesterService) {}
 
     public function index(): Response
     {
         $semesters = Semester::orderBy('id', 'desc')->get();
+
         return Inertia::render('academic/semesters/index', ['semesters' => $semesters]);
     }
 
@@ -37,6 +35,7 @@ class SemesterController extends Controller
     public function closeCurrentSemester(Semester $semester): RedirectResponse
     {
         $this->semesterService->closeCurrentSemester($semester->id);
+
         return back()->with([
             'message' => 'Semestre finalizado correctamente.',
         ], 200);
@@ -45,6 +44,7 @@ class SemesterController extends Controller
     public function backCurrentSemester(Semester $semester): RedirectResponse
     {
         $this->semesterService->backCurrentSemester($semester->id);
+
         return back()->with('success', 'Semestre restablecido correctamente.');
     }
 }

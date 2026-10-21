@@ -17,12 +17,11 @@ class Company extends Model
         'website',
         'path_photo',
         'path_banner',
-        'status'
+        'status',
     ];
 
     /**
      * Get the bosses associated with the company.
-     * @return HasMany
      */
     public function bosses(): HasMany
     {

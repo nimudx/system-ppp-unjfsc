@@ -11,10 +11,6 @@ class SectionService
 {
     /**
      * Create a new section.
-     *
-     * @param  array  $data
-     * @param  School  $school
-     * @return Section
      */
     public function create(array $data, School $school, int $semesterId): Section
     {
@@ -33,10 +29,6 @@ class SectionService
 
     /**
      * Update an existing section.
-     *
-     * @param  Section  $section
-     * @param  array  $data
-     * @return Section
      */
     public function update(Section $section, array $data): Section
     {
@@ -44,7 +36,7 @@ class SectionService
             $section->update([
                 'name' => $data['name'],
                 'faculty_id' => $data['faculty_id'],
-                'school_id' => $data['school_id']
+                'school_id' => $data['school_id'],
             ]);
 
             return $section->load(['school', 'faculty']);
@@ -53,9 +45,6 @@ class SectionService
 
     /**
      * Delete an existing section.
-     *
-     * @param  Section  $section
-     * @return void
      */
     public function delete(Section $section): void
     {
@@ -65,5 +54,4 @@ class SectionService
 
         $section->delete();
     }
-
 }

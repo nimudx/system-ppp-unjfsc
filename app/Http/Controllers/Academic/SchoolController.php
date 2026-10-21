@@ -7,9 +7,9 @@ use App\Http\Requests\Academic\SchoolRequest;
 use App\Models\Faculty;
 use App\Models\School;
 use App\Services\Academic\SchoolService;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class SchoolController extends Controller
 {

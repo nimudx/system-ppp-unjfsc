@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Internship\StorePlacementRequest;
-use App\Models\Area;
 use App\Models\Assignment;
 use App\Models\Placement;
-use App\Services\Company\CompanyService;
 use App\Services\Academic\PlacementService;
+use App\Services\Company\CompanyService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,8 +19,7 @@ class PlacementController extends Controller
     public function __construct(
         protected PlacementService $placementService,
         protected CompanyService $companyService,
-    ) {
-    }
+    ) {}
 
     public function SubmissionIndex(Request $request): Response
     {
@@ -49,7 +47,7 @@ class PlacementController extends Controller
         try {
             $data = $this->companyService->verifyCompany($ruc);
 
-            if (!$data) {
+            if (! $data) {
                 return response()->json(['found' => false, 'company' => null, 'areas' => []]);
             }
 
@@ -63,7 +61,7 @@ class PlacementController extends Controller
                     'phone' => $data['phone'],
                     'email' => $data['email'],
                 ],
-                'areas' => $data['areas']->map(fn($a) => ['id' => $a->id, 'name' => $a->name]),
+                'areas' => $data['areas']->map(fn ($a) => ['id' => $a->id, 'name' => $a->name]),
             ]);
         } catch (\Throwable $e) {
             return response()->json(['found' => false, 'company' => null, 'areas' => [], 'error' => $e->getMessage()]);
@@ -92,13 +90,14 @@ class PlacementController extends Controller
 
         $data = $request->validate([
             'approval_status' => 'required|in:1,3',
-            'observation' => 'required_if:approval_status,3|string'
+            'observation' => 'required_if:approval_status,3|string',
         ]);
 
         $this->placementService->validatePlacementData($placement, $data, $assignment);
 
         return back()->with('message', 'Dictamen registrado correctamente.');
     }
+
     public function update(Request $request, Placement $placement): RedirectResponse
     {
         $data = $request->validate([
@@ -129,14 +128,14 @@ class PlacementController extends Controller
     {
         $request->validate([
             'code' => 'required|string|in:fut,carta_presentacion,carta_aceptacion',
-            'file' => 'required|file|mimes:pdf|max:2048'
+            'file' => 'required|file|mimes:pdf|max:2048',
         ]);
 
         $assignment = Assignment::findOrFail(session('assignment_id'));
 
         $this->placementService->updateDocument($placement, $assignment, [
             'code' => $request->code,
-            'file' => $request->file('file')
+            'file' => $request->file('file'),
         ]);
 
         return back()->with('message', 'Documento registrado correctamente.');

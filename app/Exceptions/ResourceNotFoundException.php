@@ -2,8 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\BusinessException;
-
 class ResourceNotFoundException extends BusinessException
 {
     protected $message = 'El recurso no fue encontrado.';

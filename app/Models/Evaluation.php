@@ -16,12 +16,11 @@ class Evaluation extends Model
         'grade',
         'comment',
         'approval_status',
-        'status'
+        'status',
     ];
 
     /**
      * Get the supervision that owns the evaluation.
-     * @return BelongsTo
      */
     public function supervision(): BelongsTo
     {
@@ -30,7 +29,6 @@ class Evaluation extends Model
 
     /**
      * Get the documents that belong to the application.
-     * @return MorphMany
      */
     public function documents(): MorphMany
     {

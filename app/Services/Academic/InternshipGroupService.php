@@ -6,17 +6,14 @@ use App\Exceptions\Group\GroupHasStudentsException;
 use App\Exceptions\Group\SupervisorAlreadyAssignedToGroupInSectionException;
 use App\Models\Assignment;
 use App\Models\InternshipGroup;
+use App\Models\Section;
 use App\Models\StudentGroup;
 use Exception;
-use Illuminate\Support\Facades\DB;
-use App\Services\Academic\SupervisionService;
-
-use App\Models\Section;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class InternshipGroupService
 {
-
     private $supervisionService;
 
     public function __construct(SupervisionService $supervisionService)
@@ -26,7 +23,6 @@ class InternshipGroupService
 
     /**
      * Get all internship groups with necessary relations for the listing view.
-     * @return array
      */
     public function getInternshipGroups(): array
     {
@@ -38,7 +34,7 @@ class InternshipGroupService
         ])
             ->latest()
             ->get()
-            ->map(fn($group) => [
+            ->map(fn ($group) => [
                 'id' => $group->id,
                 'name' => $group->name,
                 'module' => $group->module ? [
@@ -52,8 +48,8 @@ class InternshipGroupService
                         'person' => [
                             'names' => $group->teacher->user->person->names,
                             'surnames' => $group->teacher->user->person->surnames,
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'supervisor' => [
                     'id' => $group->supervisor->id,
@@ -62,8 +58,8 @@ class InternshipGroupService
                         'person' => [
                             'names' => $group->supervisor->user->person->names,
                             'surnames' => $group->supervisor->user->person->surnames,
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'section' => [
                     'id' => $group->section->id,
@@ -72,9 +68,9 @@ class InternshipGroupService
                         'name' => $group->section->school->name,
                         'faculty' => [
                             'name' => $group->section->school->faculty->name,
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ])->toArray();
     }
 
@@ -86,15 +82,15 @@ class InternshipGroupService
         return $group->students()
             ->with(['user.person'])
             ->get()
-            ->map(fn($st) => [
+            ->map(fn ($st) => [
                 'id' => $st->id,
                 'user' => [
                     'email' => $st->user->email,
                     'person' => [
                         'names' => $st->user->person->names,
                         'surnames' => $st->user->person->surnames,
-                    ]
-                ]
+                    ],
+                ],
             ])->toArray();
     }
 
@@ -105,20 +101,20 @@ class InternshipGroupService
     {
         $teachers = Assignment::where('section_id', $section->id)
             ->where('role_id', 3) // Docente Titular
-            //->where('access_status', 1)
+            // ->where('access_status', 1)
             ->with(['user.person'])
             ->get();
 
         $supervisors = Assignment::where('section_id', $section->id)
             ->where('role_id', 4) // Docente Supervisor
-            //->where('access_status', 1)
+            // ->where('access_status', 1)
             ->with(['user.person'])
             ->get();
 
         return [
             'teachers' => $teachers,
             'supervisors' => $supervisors,
-            'suggested_name' => "Grupo - " . ($section->name ?? '')
+            'suggested_name' => 'Grupo - '.($section->name ?? ''),
         ];
     }
 
@@ -130,25 +126,24 @@ class InternshipGroupService
         return Assignment::where('section_id', $section->id)
             ->where('semester_id', $semesterId)
             ->where('role_id', 5) // Role 5: Student
-            //->where('access_status', 1)
+            // ->where('access_status', 1)
             ->whereDoesntHave('studentGroups')
             ->with(['user.person'])
             ->get()
-            ->map(fn($st) => [
+            ->map(fn ($st) => [
                 'id' => $st->id,
                 'user' => [
                     'email' => $st->user->email,
                     'person' => [
                         'names' => $st->user->person->names,
                         'surnames' => $st->user->person->surnames,
-                    ]
-                ]
+                    ],
+                ],
             ])->toArray();
     }
 
     /**
      * Get all students and their assigned groups.
-     * @return Collection
      */
     public function getStudentsAndGroups(): Collection
     {
@@ -160,8 +155,6 @@ class InternshipGroupService
 
     /**
      * Get internship groups scoped to a specific section (for Docente/Supervisor).
-     * @param int $sectionId
-     * @return array
      */
     public function getInternshipGroupsBySection(int $sectionId): array
     {
@@ -174,7 +167,7 @@ class InternshipGroupService
             ->where('section_id', $sectionId)
             ->latest()
             ->get()
-            ->map(fn($group) => $this->formatGroupData($group))->toArray();
+            ->map(fn ($group) => $this->formatGroupData($group))->toArray();
     }
 
     // funciona para mapear los datos de los docentes y supervisores, sección y módulo
@@ -191,8 +184,8 @@ class InternshipGroupService
                     'person' => [
                         'names' => $group->teacher->user->person->names ?? '',
                         'surnames' => $group->teacher->user->person->surnames ?? '',
-                    ]
-                ]
+                    ],
+                ],
             ] : null,
             'supervisor' => $group->supervisor ? [
                 'id' => $group->supervisor->id,
@@ -201,8 +194,8 @@ class InternshipGroupService
                     'person' => [
                         'names' => $group->supervisor->user->person->names ?? '',
                         'surnames' => $group->supervisor->user->person->surnames ?? '',
-                    ]
-                ]
+                    ],
+                ],
             ] : null,
             'section' => [
                 'id' => $group->section->id,
@@ -210,8 +203,8 @@ class InternshipGroupService
                 'school' => [
                     'name' => $group->section->school->name,
                     'faculty' => ['name' => $group->section->school->faculty->name],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -230,7 +223,7 @@ class InternshipGroupService
     /**
      * Create a new internship group.
      *
-     * @param array $data The data for the new internship group.
+     * @param  array  $data  The data for the new internship group.
      * @return InternshipGroup The created internship group.
      */
     public function createGroup(array $data): InternshipGroup
@@ -245,7 +238,7 @@ class InternshipGroupService
                 ->exists();
 
             if ($alreadyAssigned) {
-                throw new SupervisorAlreadyAssignedToGroupInSectionException();
+                throw new SupervisorAlreadyAssignedToGroupInSectionException;
             }
 
             $group = InternshipGroup::query()->create([
@@ -280,7 +273,7 @@ class InternshipGroupService
                     ->exists();
 
                 if ($alreadyAssigned) {
-                    throw new SupervisorAlreadyAssignedToGroupInSectionException();
+                    throw new SupervisorAlreadyAssignedToGroupInSectionException;
                 }
 
                 $group->supervisor_assignment_id = $supervisor->id;
@@ -302,7 +295,7 @@ class InternshipGroupService
             $group = InternshipGroup::query()->findOrFail($groupId);
 
             if ($group->studentGroups()->exists()) {
-                throw new GroupHasStudentsException();
+                throw new GroupHasStudentsException;
             }
 
             $group->delete();
@@ -312,8 +305,6 @@ class InternshipGroupService
     /**
      * Asigna estudiantes a un grupo de prácticas.
      *
-     * @param int $groupId
-     * @param array $studentIds
      * @return void
      */
     public function attachStudents(int $groupId, array $studentIds): array
@@ -342,6 +333,7 @@ class InternshipGroupService
 
                     $count++;
                 }
+
                 return $count;
             });
 
@@ -356,8 +348,8 @@ class InternshipGroupService
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error al asignar estudiante: ' . $e->getMessage(),
-                'data' => null
+                'message' => 'Error al asignar estudiante: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
@@ -365,8 +357,8 @@ class InternshipGroupService
     /**
      * Desasigna estudiantes de un grupo de prácticas.
      *
-     * @param int $groupId El ID del grupo de prácticas.
-     * @param array $studentIds Los IDs de los estudiantes a desasignar.
+     * @param  int  $groupId  El ID del grupo de prácticas.
+     * @param  array  $studentIds  Los IDs de los estudiantes a desasignar.
      * @return array Un array con el resultado de la operación.
      */
     public function detachStudents(int $groupId, array $studentIds): array
@@ -381,22 +373,19 @@ class InternshipGroupService
             return [
                 'success' => true,
                 'message' => "Se han retirado {$deleted} estudiantes del grupo",
-                'data' => InternshipGroup::query()->find($groupId)->load('students.user.person')
+                'data' => InternshipGroup::query()->find($groupId)->load('students.user.person'),
             ];
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error al desasignar estudiantes: ' . $e->getMessage(),
-                'data' => null
+                'message' => 'Error al desasignar estudiantes: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
 
     /**
      * Mueve estudiantes de un grupo a otro.
-     *
-     * @param array $studentIds
-     * @return array
      */
     public function moveStudents(int $currentGroupId, int $targetGroupId, array $studentIds): array
     {
@@ -412,18 +401,18 @@ class InternshipGroupService
 
                 return [
                     'success' => true,
-                    'message' => "Se han movido " . count($studentIds) . " estudiantes exitosamente.",
+                    'message' => 'Se han movido '.count($studentIds).' estudiantes exitosamente.',
                     'data' => [
                         'from_group_id' => $currentGroupId,
-                        'to_group' => $result['data']
-                    ]
+                        'to_group' => $result['data'],
+                    ],
                 ];
             });
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error al mover estudiantes: ' . $e->getMessage(),
-                'data' => null
+                'message' => 'Error al mover estudiantes: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
@@ -434,22 +423,23 @@ class InternshipGroupService
     public function getGroupStudentsWithPlacement(int $groupId): array
     {
         $group = InternshipGroup::findOrFail($groupId);
+
         return $group->students()
             ->with([
                 'user.person',
                 'placement.company',
                 'placement.area',
-                'internship'
+                'internship',
             ])
             ->get()
-            ->map(fn($student) => [
+            ->map(fn ($student) => [
                 'id' => $student->id,
                 'user' => [
                     'email' => $student->user->email,
                     'person' => [
                         'names' => $student->user->person->names,
                         'surnames' => $student->user->person->surnames,
-                    ]
+                    ],
                 ],
                 'placement' => $student->placement ? [
                     'id' => $student->placement->id,

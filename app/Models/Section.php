@@ -10,25 +10,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Section extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'name',
         'faculty_id',
         'school_id',
         'semester_id',
-        'status'
+        'status',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);

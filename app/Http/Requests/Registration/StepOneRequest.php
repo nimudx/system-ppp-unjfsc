@@ -24,7 +24,7 @@ class StepOneRequest extends FormRequest
         return [
             'email' => 'required|email',
             'role_id' => 'required|integer|exists:roles,id',
-            'section_id' => 'required|exists:sections,id'
+            'section_id' => 'required|exists:sections,id',
         ];
     }
 

@@ -21,10 +21,6 @@ class ResourceService
 
     /**
      * Store a resource.
-     *
-     * @param array $data
-     * @param Model $uploader
-     * @return Resource
      */
     public function storeResource(array $data, Model $uploader): Resource
     {
@@ -55,9 +51,7 @@ class ResourceService
 
     /**
      * List resources for a user based on role, semester, and locations.
-     * @param int $roleId
-     * @param ?int $semesterId
-     * @param array $locations
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function listResourcesForUser(int $roleId, ?int $semesterId, array $locations = [])
@@ -74,8 +68,9 @@ class ResourceService
             $q->where('level', 1);
 
             foreach ($locations as $loc) {
-                if (!isset($loc['type']) || !isset($loc['id']))
+                if (! isset($loc['type']) || ! isset($loc['id'])) {
                     continue;
+                }
 
                 $q->orWhere(function ($q) use ($loc) {
                     $q->where('location_type', $loc['type'])
@@ -111,11 +106,6 @@ class ResourceService
 
     /**
      * Update a resource and optionally its document.
-     *
-     * @param Resource $resource
-     * @param array $data
-     * @param Model $uploader
-     * @return Resource
      */
     public function updateResource(Resource $resource, array $data, Model $uploader): Resource
     {
@@ -146,9 +136,6 @@ class ResourceService
 
     /**
      * Delete a resource and its associated documents.
-     *
-     * @param Resource $resource
-     * @return void
      */
     public function deleteResource(Resource $resource): void
     {

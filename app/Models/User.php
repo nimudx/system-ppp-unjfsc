@@ -62,57 +62,37 @@ class User extends Authenticatable
 
     /**
      * Alias for authenticable to maintain compatibility with 'person' naming.
-     * @return BelongsTo
      */
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
     }
 
-    /**
-     * @return MorphTo
-     */
     public function company(): MorphTo
     {
         return $this->morphTo('authenticable');
     }
 
-
-    /**
-     * @return HasMany
-     */
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);
     }
 
-    /**
-     * @return HasOne
-     */
     public function activeAssignment(): HasOne
     {
         return $this->hasOne(Assignment::class)->latestOfMany();
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function typeUser(): BelongsTo
     {
         return $this->belongsTo(TypeUser::class);
     }
 
-    /**
-     * @return HasMany
-     */
     public function staffs(): HasMany
     {
         return $this->hasMany(Staff::class, 'user_id', 'id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function notificationRecipients(): HasMany
     {
         return $this->hasMany(NotificationRecipient::class);

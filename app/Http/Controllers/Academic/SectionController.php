@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\StoreSectionRequest;
-use App\Http\Requests\Academic\UpdateSectionRequest;
 use App\Models\School;
 use App\Models\Section;
 use App\Services\Academic\SectionService;

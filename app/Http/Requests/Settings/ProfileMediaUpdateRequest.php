@@ -26,34 +26,38 @@ class ProfileMediaUpdateRequest extends FormRequest
             'photo' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if ($value === 'deleted')
+                    if ($value === 'deleted') {
                         return;
+                    }
 
-                    if (!($value instanceof UploadedFile)) {
+                    if (! ($value instanceof UploadedFile)) {
                         $fail('La foto debe ser una imagen válida o la instrucción de eliminación.');
+
                         return;
                     }
 
                     if ($value->getSize() > 2048 * 1024) {
                         $fail('La foto no debe pesar más de 2MB.');
                     }
-                }
+                },
             ],
             'banner' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if ($value === 'deleted')
+                    if ($value === 'deleted') {
                         return;
+                    }
 
-                    if (!($value instanceof UploadedFile)) {
+                    if (! ($value instanceof UploadedFile)) {
                         $fail('El fondo debe ser una imagen válida o la instrucción de eliminación.');
+
                         return;
                     }
 
                     if ($value->getSize() > 2048 * 1024) {
                         $fail('El fondo no debe pesar más de 2MB.');
                     }
-                }
+                },
             ],
         ];
     }

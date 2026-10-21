@@ -25,7 +25,7 @@ class UploadDocumentInternshipRequest extends FormRequest
             'file' => 'required|file|mimes:pdf,doc,docx|max:10240', // Maximum file size is 10MB
             'code' => 'required|exists:document_types,code|string',
             'target_id' => 'required|integer',
-            //'context' => 'required|in:dossier,internship,resource',
+            // 'context' => 'required|in:dossier,internship,resource',
         ];
     }
 }

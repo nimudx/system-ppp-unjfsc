@@ -26,9 +26,9 @@ class SchoolRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:schools,name'
+                'unique:schools,name',
             ],
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
         ];
     }
 }

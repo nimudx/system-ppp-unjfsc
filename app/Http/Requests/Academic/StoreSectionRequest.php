@@ -31,8 +31,8 @@ class StoreSectionRequest extends FormRequest
                 'max:255',
                 \Illuminate\Validation\Rule::unique('sections')->where(function ($query) use ($school, $semesterId) {
                     return $query->where('school_id', $school->id)
-                                 ->where('semester_id', $semesterId);
-                })
+                        ->where('semester_id', $semesterId);
+                }),
             ],
         ];
     }

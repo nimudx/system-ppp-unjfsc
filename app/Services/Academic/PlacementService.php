@@ -6,10 +6,9 @@ use App\Enums\Role;
 use App\Models\Area;
 use App\Models\Assignment;
 use App\Models\Company;
+use App\Models\DocumentType;
 use App\Models\Internship;
 use App\Models\Placement;
-use App\Models\Staff;
-use App\Models\DocumentType;
 use App\Services\Company\CompanyService;
 use App\Services\DocumentService;
 use App\Services\NotificationService;
@@ -22,8 +21,7 @@ class PlacementService
         protected CompanyService $companyService,
         protected DocumentService $documentService,
         protected NotificationService $notificationService
-    ) {
-    }
+    ) {}
 
     public function getSubmissionData(Assignment $assignment): array
     {
@@ -32,7 +30,7 @@ class PlacementService
             'section.school.faculty',
             'placement.company',
             'placement.area',
-            'placement.documents.documentType'
+            'placement.documents.documentType',
         ]);
 
         $placement = $assignment->placement;
@@ -43,7 +41,7 @@ class PlacementService
             ['code' => 'carta_aceptacion', 'title' => 'Carta de Aceptación', 'locked' => false],
         ];
 
-        if (!$placement) {
+        if (! $placement) {
             return [
                 'placement' => null,
                 'requirements' => $reqsConfig,
@@ -79,8 +77,9 @@ class PlacementService
     public function mapRequirements(array $config, $documentCollection): array
     {
         return collect($config)->map(function ($item) use ($documentCollection) {
-            $docsOfType = $documentCollection->filter(fn($doc) => $doc->documentType->code === $item['code']);
+            $docsOfType = $documentCollection->filter(fn ($doc) => $doc->documentType->code === $item['code']);
             $latest = $docsOfType->first();
+
             return [
                 'code' => $item['code'],
                 'title' => $item['title'],
@@ -94,7 +93,7 @@ class PlacementService
                     'comment' => $latest->comment,
                     'created_at' => $latest->created_at,
                 ] : null,
-                'history' => $docsOfType->map(fn($d) => [
+                'history' => $docsOfType->map(fn ($d) => [
                     'id' => $d->id,
                     'name' => $d->name,
                     'approval_status' => $d->approval_status,
@@ -111,7 +110,7 @@ class PlacementService
             // Resolver company_id: usar el ID provisto, buscarlo por RUC, o crear uno nuevo
             $companyId = $data['company']['id'] ?? null;
 
-            if (!$companyId) {
+            if (! $companyId) {
                 // Buscar si ya existe un empresa con ese RUC antes de crear
                 $existing = Company::where('ruc', $data['company']['ruc'])->first();
                 if ($existing) {
@@ -123,7 +122,7 @@ class PlacementService
             }
 
             $areaId = $data['placement']['area_id'] ?? null;
-            if (!$areaId && !empty($data['placement']['area_name'])) {
+            if (! $areaId && ! empty($data['placement']['area_name'])) {
                 $area = $this->companyService->registerArea([
                     'name' => $data['placement']['area_name'],
                     'description' => $data['placement']['area_description'] ?? null,
@@ -169,7 +168,7 @@ class PlacementService
                         'entity' => 'placement',
                     ],
                 ],
-                resolver: fn($subject, $actor) => $this->notificationService->resolveAcademicRoles(
+                resolver: fn ($subject, $actor) => $this->notificationService->resolveAcademicRoles(
                     $actor->section_id,
                     [Role::ADMIN, Role::SUBADMIN, Role::DTITULAR]
                 )
@@ -216,9 +215,9 @@ class PlacementService
 
             // Gestión de área:
             $areaId = $data['placement']['area_id'] ?? null;
-            
+
             // Si no viene ID pero sí nombre, buscamos o creamos el área
-            if (!$areaId && !empty($data['placement']['area_name'])) {
+            if (! $areaId && ! empty($data['placement']['area_name'])) {
                 $area = $this->companyService->registerArea([
                     'name' => $data['placement']['area_name'],
                     'company_id' => $placement->company_id,
@@ -256,7 +255,7 @@ class PlacementService
                         'entity' => 'placement',
                     ],
                 ],
-                resolver: fn($subject, $actor) => $this->notificationService->resolveAcademicRoles(
+                resolver: fn ($subject, $actor) => $this->notificationService->resolveAcademicRoles(
                     $actor->section_id,
                     [Role::ADMIN, Role::SUBADMIN, Role::DTITULAR]
                 )
@@ -320,7 +319,7 @@ class PlacementService
         return DB::transaction(function () use ($data, $document, $assignment) {
             $result = $this->documentService->updateStatus($document, [
                 'approval_status' => $data['approval_status'],
-                'comment' => $data['comment'] ?? ''
+                'comment' => $data['comment'] ?? '',
             ]);
 
             $docType = $result->documentType->name;
@@ -371,8 +370,9 @@ class PlacementService
     public function checkAndFinalizeValidation(Placement $placement, Assignment $assignment): void
     {
         // 1. Verificar si los datos (empresa/jefe) están aprobados
-        if ($placement->approval_status !== 1)
+        if ($placement->approval_status !== 1) {
             return;
+        }
 
         // 2. Verificar si los 3 documentos obligatorios están aprobados
         $requiredCodes = ['fut', 'carta_presentacion', 'carta_aceptacion'];
@@ -386,8 +386,9 @@ class PlacementService
             ->unique('document_type_id')
             ->count();
 
-        if ($approvedDocsCount < count($requiredCodes))
+        if ($approvedDocsCount < count($requiredCodes)) {
             return;
+        }
 
         // 3. Si todo está aprobado, finalizar formalización y crear Internship
         DB::transaction(function () use ($placement, $assignment) {
@@ -398,7 +399,7 @@ class PlacementService
                 ['placement_id' => $placement->id, 'assignment_id' => $placement->assignment_id],
                 [
                     'internship_step' => 1,
-                    'status' => 1
+                    'status' => 1,
                 ]
             );
 
@@ -435,7 +436,7 @@ class PlacementService
                 'context' => 'placement',
                 'target_id' => $placement->id,
                 'document_type_id' => $docType->id,
-                'comment' => ''
+                'comment' => '',
             ], $assignment, $placement);
         }
     }

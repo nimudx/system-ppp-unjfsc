@@ -17,12 +17,9 @@ class TypeUser extends Model
      */
     protected $fillable = [
         'name',
-        'status'
+        'status',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

@@ -3,19 +3,18 @@
 namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Internship\StoreInternshipRequest;
 use App\Http\Requests\Document\UpdateDocumentStatusRequest;
-use App\Http\Requests\Internship\UploadDocumentInternshipRequest;
 use App\Http\Requests\Internship\StoreGradeInternshipRequest;
+use App\Http\Requests\Internship\StoreInternshipRequest;
 use App\Http\Requests\Internship\StoreRequestGradeChangeInternshipRequest;
 use App\Http\Requests\Internship\StoreRequestTypeChangeInternshipRequest;
-
+use App\Http\Requests\Internship\UploadDocumentInternshipRequest;
 use App\Models\Assignment;
 use App\Models\Document;
 use App\Models\Faculty;
 use App\Models\Internship;
-use App\Models\UserRequest;
 use App\Models\User;
+use App\Models\UserRequest;
 use App\Services\Academic\InternshipService;
 use App\Services\Academic\PlacementService;
 use Illuminate\Http\JsonResponse;
@@ -28,6 +27,7 @@ use Inertia\Response;
 class InternshipController extends Controller
 {
     protected $internshipService;
+
     protected $placementService;
 
     public function __construct(InternshipService $internshipService, PlacementService $placementService)
@@ -43,11 +43,11 @@ class InternshipController extends Controller
         $placement = $assignment->placement;
 
         // Si NO tiene placement O si tiene uno pero NO está totalmente validado (validation_status !== 1)
-        if (!$placement || $placement->validation_status !== 1) {
+        if (! $placement || $placement->validation_status !== 1) {
             $data = $this->placementService->getSubmissionData($assignment);
 
             return Inertia::render('internship/submission/placementIndex', [
-                'data' => $data
+                'data' => $data,
             ]);
         }
 
@@ -58,7 +58,7 @@ class InternshipController extends Controller
         );
 
         return Inertia::render('internship/submission/internshipIndex', [
-            'data' => $internshipData
+            'data' => $internshipData,
         ]);
     }
 
@@ -90,7 +90,7 @@ class InternshipController extends Controller
         return Inertia::render('internship/validation/index', [
             'assignments' => $assignments,
             'faculties' => $faculties,
-            'title' => 'Validación de Prácticas'
+            'title' => 'Validación de Prácticas',
         ]);
     }
 
@@ -110,10 +110,10 @@ class InternshipController extends Controller
             ->where('semester_id', $semesterId);
 
         if ($request->filled('faculty_id')) {
-            $query->whereHas('section.school.faculty', fn($q) => $q->where('id', $request->faculty_id));
+            $query->whereHas('section.school.faculty', fn ($q) => $q->where('id', $request->faculty_id));
         }
         if ($request->filled('school_id')) {
-            $query->whereHas('section.school', fn($q) => $q->where('id', $request->school_id));
+            $query->whereHas('section.school', fn ($q) => $q->where('id', $request->school_id));
         }
         if ($request->filled('section_id')) {
             $query->where('section_id', $request->section_id);
@@ -134,7 +134,7 @@ class InternshipController extends Controller
         $placement = $assignment->placement;
 
         // Caso 1: Aún en Formalización (Placement no validado al 100%)
-        if (!$placement || $placement->validation_status !== 1) {
+        if (! $placement || $placement->validation_status !== 1) {
             $data = $this->placementService->getSubmissionData($assignment);
 
             return response()->json(array_merge([
@@ -164,10 +164,9 @@ class InternshipController extends Controller
             'phase' => 'internship',
             'assignment' => $assignment->load(['user.person', 'section.school.faculty']),
             'placement' => $assignment->placement,
-            'pending_request' => $pendingRequest
+            'pending_request' => $pendingRequest,
         ], $internshipData));
     }
-
 
     public function store(StoreInternshipRequest $request, Assignment $assignment): JsonResponse
     {
@@ -177,14 +176,13 @@ class InternshipController extends Controller
 
         return response()->json([
             'message' => 'Tipo de práctica seleccionado. Por favor, complete la Etapa 1.',
-            'data' => $internship
+            'data' => $internship,
         ], 201);
     }
 
     /**
      * Store a document for an internship.
      *
-     * @param UploadDocumentInternshipRequest $request
      * @return JsonResponse
      */
     public function storeDocumentInternship(UploadDocumentInternshipRequest $request): RedirectResponse
@@ -202,8 +200,6 @@ class InternshipController extends Controller
     /**
      * Update the status of a document for an internship.
      *
-     * @param UpdateDocumentStatusRequest $request
-     * @param Document $document
      * @return JsonResponse
      */
     public function updateInternshipStatus(UpdateDocumentStatusRequest $request, Document $document): RedirectResponse
@@ -220,10 +216,6 @@ class InternshipController extends Controller
 
     /**
      * Store a grade for an internship.
-     *
-     * @param StoreGradeInternshipRequest $request
-     * @param Internship $internship
-     * @return JsonResponse
      */
     public function storeGradeInternship(StoreGradeInternshipRequest $request, Internship $internship): JsonResponse
     {
@@ -236,7 +228,7 @@ class InternshipController extends Controller
 
         return response()->json([
             'message' => 'Calificación registrada correctamente.',
-            'data' => $internship
+            'data' => $internship,
         ], 201);
     }
 
@@ -256,10 +248,6 @@ class InternshipController extends Controller
 
     /**
      * Store a request for changing the type of an internship.
-     *
-     * @param StoreRequestTypeChangeInternshipRequest $request
-     * @param Internship $internship
-     * @return JsonResponse
      */
     public function storeRequestTypeChangeInternship(StoreRequestTypeChangeInternshipRequest $request, Internship $internship): JsonResponse
     {
@@ -272,15 +260,13 @@ class InternshipController extends Controller
 
         return response()->json([
             'message' => 'Solicitud de cambio de tipo registrada correctamente.',
-            'data' => $internship
+            'data' => $internship,
         ], 201);
     }
 
     /**
      * Store a request for changing the grade of an internship.
      *
-     * @param StoreRequestGradeChangeInternshipRequest $request
-     * @param Internship $internship
      * @return JsonResponse
      */
     public function storeRequestGradeChangeInternship(StoreRequestGradeChangeInternshipRequest $request, Internship $internship): RedirectResponse

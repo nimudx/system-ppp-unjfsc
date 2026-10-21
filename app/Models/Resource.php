@@ -30,7 +30,6 @@ class Resource extends Model
 
     /**
      * Get the uploader that owns the resource.
-     * @return MorphTo
      */
     public function uploader(): MorphTo
     {
@@ -39,7 +38,6 @@ class Resource extends Model
 
     /**
      * Get the location that owns the resource.
-     * @return MorphTo
      */
     public function location(): MorphTo
     {
@@ -48,7 +46,6 @@ class Resource extends Model
 
     /**
      * Get the document type that owns the resource.
-     * @return BelongsTo
      */
     public function documentType(): BelongsTo
     {
@@ -57,7 +54,6 @@ class Resource extends Model
 
     /**
      * Get the role that owns the resource.
-     * @return BelongsTo
      */
     public function role(): BelongsTo
     {
@@ -66,7 +62,6 @@ class Resource extends Model
 
     /**
      * Get the semester that owns the resource.
-     * @return BelongsTo
      */
     public function semester(): BelongsTo
     {
@@ -75,7 +70,6 @@ class Resource extends Model
 
     /**
      * Get the documents that belong to the resource.
-     * @return MorphMany
      */
     public function documents(): MorphMany
     {

@@ -3,12 +3,10 @@
 namespace App\Services;
 
 use App\Exceptions\RequestUnsupportedTypeException;
-
 use App\Models\Assignment;
 use App\Models\UserRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-
 
 class RequestService
 {
@@ -37,7 +35,7 @@ class RequestService
             $request->update([
                 'reviewed_by' => $reviewer->id,
                 'justification' => $data['justification'],
-                'approval_status' => $data['approval_status']
+                'approval_status' => $data['approval_status'],
             ]);
 
             if ($data['approval_status'] == 1) {
@@ -61,14 +59,14 @@ class RequestService
             case 'CHANGE_INTERNSHIP_TYPE':
                 $target->update([
                     'internship_type' => $payload['new_type'],
-                    'application_status' => 0
+                    'application_status' => 0,
                 ]);
                 break;
 
             case 'CHANGE_INTERNSHIP_GRADE':
                 $target->update([
                     'grade' => $payload['new_grade'],
-                    'application_status' => 0
+                    'application_status' => 0,
                 ]);
                 break;
             case 'DELETE_ASSIGNMENT':
@@ -81,7 +79,7 @@ class RequestService
                 $target->update(['access_status' => 1, 'review_status' => 0]);
                 break;
             default:
-                throw new RequestUnsupportedTypeException();
+                throw new RequestUnsupportedTypeException;
         }
     }
 }

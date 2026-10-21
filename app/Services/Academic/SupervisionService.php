@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Academic;
 
 use App\Enums\Role as RoleEnum;
@@ -9,16 +10,16 @@ use App\Models\Evaluation;
 use App\Models\InternshipGroup;
 use App\Models\StudentGroup;
 use App\Models\Supervision;
-use Illuminate\Support\Facades\DB;
 use App\Services\DocumentService;
 use App\Services\NotificationService;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SupervisionService
 {
-
     private $documentService;
+
     private $notificationService;
 
     public function __construct(DocumentService $documentService, NotificationService $notificationService)
@@ -47,6 +48,7 @@ class SupervisionService
 
         if ($studentIds->isEmpty()) {
             $group->update(['module_id' => 1]);
+
             return 1;
         }
 
@@ -82,7 +84,7 @@ class SupervisionService
     /**
      * Registra una evaluación y un documento asociado.
      *
-     * @param array $data Datos de la evaluación.
+     * @param  array  $data  Datos de la evaluación.
      * @return array Resultado de la operación.
      */
     public function registerEvaluation(array $data, Assignment $assignment, Supervision $supervision): void
@@ -102,7 +104,7 @@ class SupervisionService
                 ->first();
 
             if ($oldEvaluation && in_array($oldEvaluation->approval_status, [1, 2])) {
-                throw new EvaluationAlreadyApprovedException();
+                throw new EvaluationAlreadyApprovedException;
             }
 
             $evaluation = Evaluation::query()->create([
@@ -165,7 +167,7 @@ class SupervisionService
                         'entity' => 'supervisión',
                     ],
                 ],
-                resolver: fn($subject, $actor) => $this->notificationService->resolveAcademicRoles(
+                resolver: fn ($subject, $actor) => $this->notificationService->resolveAcademicRoles(
                     $actor->section_id,
                     [RoleEnum::ADMIN, RoleEnum::SUBADMIN, RoleEnum::DTITULAR]
                 )
@@ -176,9 +178,8 @@ class SupervisionService
     /**
      * Actualiza el estado de evaluación y procesa el progreso de la evaluación.
      *
-     * @param Evaluation $evaluation La evaluación a actualizar.
-     * @param array $data Los datos de la evaluación.
-     * @return void
+     * @param  Evaluation  $evaluation  La evaluación a actualizar.
+     * @param  array  $data  Los datos de la evaluación.
      */
     public function updateEvaluationStatus(Evaluation $evaluation, array $data, Assignment $assignment): void
     {
@@ -186,7 +187,7 @@ class SupervisionService
         DB::transaction(function () use ($evaluation, $data, $assignment) {
             $evaluation->update([
                 'approval_status' => $data['approval_status'],
-                //'comment' => $data['comment']
+                // 'comment' => $data['comment']
             ]);
 
             $documentStatus = ($data['approval_status'] >= 3) ? 3 : $data['approval_status'];
@@ -195,17 +196,18 @@ class SupervisionService
             if ($document) {
                 $this->documentService->updateStatus($document, [
                     'approval_status' => $documentStatus,
-                    'comment' => $data['comment']
+                    'comment' => $data['comment'],
                 ]);
             }
 
-            if ((int) $data['approval_status'] === 1)
+            if ((int) $data['approval_status'] === 1) {
                 $this->processEvaluationProgress($evaluation);
+            }
 
             $msj = '';
             if ($data['approval_status'] == 1) {
                 $msj = 'La evaluación ha sido aprobada';
-            } else if ($data['approval_status'] == 3) {
+            } elseif ($data['approval_status'] == 3) {
                 $msj = 'La evaluación ha sido observada';
             }
 
@@ -263,7 +265,7 @@ class SupervisionService
         $required = 2;
         $supervision = $evaluation->supervision;
 
-        if (!$supervision) {
+        if (! $supervision) {
             return;
         }
 
@@ -282,7 +284,6 @@ class SupervisionService
     }
 
     /**
-     *
      * @@param array $filters
      */
     public function getGroupsByFilter(array $filters, int $semesterId): Collection
@@ -300,15 +301,15 @@ class SupervisionService
             });
         }
 
-        if (!empty($filters['section_id'])) {
+        if (! empty($filters['section_id'])) {
             $query->where('section_id', $filters['section_id']);
-        } elseif (!empty($filters['school_id'])) {
-            $query->whereHas('section', fn($q) => $q->where('school_id', $filters['school_id']));
-        } elseif (!empty($filters['faculty_id'])) {
-            $query->whereHas('section.school', fn($q) => $q->where('faculty_id', $filters['faculty_id']));
+        } elseif (! empty($filters['school_id'])) {
+            $query->whereHas('section', fn ($q) => $q->where('school_id', $filters['school_id']));
+        } elseif (! empty($filters['faculty_id'])) {
+            $query->whereHas('section.school', fn ($q) => $q->where('faculty_id', $filters['faculty_id']));
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $s = $filters['search'];
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
@@ -323,7 +324,7 @@ class SupervisionService
             });
         }
 
-        return $query->get()->map(fn($group) => [
+        return $query->get()->map(fn ($group) => [
             'id' => $group->id,
             'name' => $group->name,
             'module_id' => $group->module_id,
@@ -333,16 +334,16 @@ class SupervisionService
                     'person' => [
                         'names' => $group->teacher?->user?->person?->names,
                         'surnames' => $group->teacher?->user?->person?->surnames,
-                    ]
-                ]
+                    ],
+                ],
             ],
             'supervisor' => [
                 'user' => [
                     'person' => [
                         'names' => $group->supervisor?->user?->person?->names,
                         'surnames' => $group->supervisor?->user?->person?->surnames,
-                    ]
-                ]
+                    ],
+                ],
             ],
             'section' => [
                 'id' => $group->section->id,
@@ -364,7 +365,7 @@ class SupervisionService
         $query = Assignment::query()
             ->where('role_id', 5)
             ->with(['user.person', 'section.school.faculty'])
-            ->whereHas('user', fn($q) => $q->where('name', 'like', "%{$code}%"));
+            ->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$code}%"));
 
         $paginator = $query->paginate(15);
 
@@ -411,7 +412,6 @@ class SupervisionService
             ['path' => \Illuminate\Support\Facades\Request::url()]
         );
     }
-
 
     public function getStudentsByFilter(InternshipGroup $group, int $moduleId, bool $paginate = true)
     {
@@ -470,7 +470,7 @@ class SupervisionService
         foreach ($annexCodes as $code) {
             $docType = DocumentType::where('code', $code)->first();
 
-            if (!$docType || !$supervision) {
+            if (! $docType || ! $supervision) {
                 $result[] = [
                     'code' => $code,
                     'title' => $docType->name ?? strtoupper(str_replace('_', ' ', $code)),
@@ -479,16 +479,17 @@ class SupervisionService
                     'history' => [],
                     'supervision_id' => $supervision?->id,
                 ];
+
                 continue;
             }
 
             // All evaluations for this supervision that have a document of this type
             $evaluations = $supervision->evaluations()
-                ->with(['documents' => fn($q) => $q->where('document_type_id', $docType->id)])
+                ->with(['documents' => fn ($q) => $q->where('document_type_id', $docType->id)])
                 ->get()
-                ->filter(fn($e) => $e->documents->isNotEmpty());
+                ->filter(fn ($e) => $e->documents->isNotEmpty());
 
-            $history = $evaluations->map(fn($e) => [
+            $history = $evaluations->map(fn ($e) => [
                 'id' => $e->id,
                 'approval_status' => $e->documents->first()?->approval_status,
                 'comment' => $e->documents->first()?->comment,

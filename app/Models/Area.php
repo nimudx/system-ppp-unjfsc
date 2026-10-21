@@ -11,7 +11,7 @@ class Area extends Model
         'name',
         'description',
         'company_id',
-        'status'
+        'status',
     ];
 
     public function company(): BelongsTo

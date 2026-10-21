@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentGroup extends Model
 {
@@ -18,7 +18,6 @@ class StudentGroup extends Model
 
     /**
      * Get the teacher assignment associated with the internship group.
-     * @return BelongsTo
      */
     public function student(): BelongsTo
     {
@@ -27,7 +26,6 @@ class StudentGroup extends Model
 
     /**
      * Get the internship group associated with the student group.
-     * @return BelongsTo
      */
     public function internshipGroup(): BelongsTo
     {

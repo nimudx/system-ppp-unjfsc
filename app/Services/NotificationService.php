@@ -7,14 +7,12 @@ use App\Models\Assignment;
 use App\Models\Notification;
 use App\Models\NotificationRecipient;
 use Closure;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class NotificationService
 {
-
     /*
         DEMO OF A PAYLOAD
         {
@@ -39,21 +37,22 @@ class NotificationService
                 $notification = $recipient->notification;
 
                 // Verificamos que la notificación exista para evitar errores
-                if (!$notification)
+                if (! $notification) {
                     return null;
+                }
 
-                $actorName = trim($notification->actor->user->person->names . ' ' . $notification->actor->user->person->surnames);
+                $actorName = trim($notification->actor->user->person->names.' '.$notification->actor->user->person->surnames);
 
                 return [
                     'id' => $recipient->id,
                     'type' => $notification->type,
                     'actor' => $actorName,
-                    'role'     => $notification->payload['meta']['role'] ?? '',
-                    'title'    => $notification->payload['meta']['title'] ?? '',
+                    'role' => $notification->payload['meta']['role'] ?? '',
+                    'title' => $notification->payload['meta']['title'] ?? '',
                     'document' => $notification->payload['meta']['document'] ?? '',
-                    'status'   => $notification->payload['meta']['status'] ?? null,
-                    'comment'  => $notification->payload['meta']['comment'] ?? null,
-                    'entity'   => $notification->payload['meta']['entity'] ?? null,
+                    'status' => $notification->payload['meta']['status'] ?? null,
+                    'comment' => $notification->payload['meta']['comment'] ?? null,
+                    'entity' => $notification->payload['meta']['entity'] ?? null,
                     'action' => $notification->payload['action'] ?? '',
                     'read_at' => $recipient->read_at,
                     'seen_at' => $recipient->seen_at,
@@ -65,7 +64,7 @@ class NotificationService
     }
 
     /**
-     * @param Closure(Model, Model): Collection|null $resolver
+     * @param  Closure(Model, Model): Collection|null  $resolver
      */
     public function notify(string $type, Model $actor, Model $subject, array $payload = [], ?Closure $resolver = null): Notification
     {
@@ -88,7 +87,7 @@ class NotificationService
                 'type' => $type,
                 'actor' => $actor->getKey(),
                 'subject' => $subject->getKey(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             throw $e;
@@ -141,7 +140,7 @@ class NotificationService
 
     protected function defaultRecipients(string $type, Model $subject): Collection
     {
-        if (!method_exists($subject, 'assignment')) {
+        if (! method_exists($subject, 'assignment')) {
             return collect();
         }
 
@@ -150,10 +149,10 @@ class NotificationService
         return match ($type) {
             'DOSSIER_UPLOAD' => $this->resolveAcademicRoles($subject->assignment->section_id, [Role::ADMIN, Role::SUBADMIN, Role::DTITULAR]),
             'DOSSIER_VALIDATION' => collect([
-                $subject->assignment->user
+                $subject->assignment->user,
             ]),
             'PLACEMENT_FINALIZED' => collect([
-                $subject->assignment->user
+                $subject->assignment->user,
             ]),
             default => collect(),
         };
@@ -161,8 +160,8 @@ class NotificationService
 
     public function resolveAcademicRoles(int $sectionId, array $roles): Collection
     {
-        $roleValues = array_map(fn($role) => $role instanceof \BackedEnum ? $role->value : $role, $roles);
-        $cacheKey = "section_roles_{$sectionId}_" . implode('_', $roleValues);
+        $roleValues = array_map(fn ($role) => $role instanceof \BackedEnum ? $role->value : $role, $roles);
+        $cacheKey = "section_roles_{$sectionId}_".implode('_', $roleValues);
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($sectionId, $roleValues) {
             return Assignment::query()
@@ -179,11 +178,11 @@ class NotificationService
 
     protected function storeRecipients(Notification $notification, $users): void
     {
-        if (!$users || $users->isEmpty()) {
+        if (! $users || $users->isEmpty()) {
             return;
         }
 
-        $data = $users->map(fn($user) => [
+        $data = $users->map(fn ($user) => [
             'notification_id' => $notification->id,
             'user_id' => $user->id,
             'created_at' => now(),

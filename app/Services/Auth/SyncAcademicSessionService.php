@@ -4,8 +4,8 @@ namespace App\Services\Auth;
 
 use App\Enums\Role;
 use App\Models\Assignment;
-use App\Models\Staff;
 use App\Models\Semester;
+use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +37,7 @@ class SyncAcademicSessionService
             if (! session()->has('semester_id')) {
                 session(['semester_id' => Semester::getActiveSemester()?->id]);
             }
+
             return;
         }
 
@@ -49,11 +50,12 @@ class SyncAcademicSessionService
             $currentAssignmentId = session('assignment_id');
             $current = Assignment::find($currentAssignmentId);
 
-            if (in_array($current->role_id, [1,2])) {
+            if (in_array($current->role_id, [1, 2])) {
                 // actualizamos el semester del current assignment
                 $current->semester_id = $semester->id;
                 $current->save();
                 session(['semester_id' => $semester->id]);
+
                 return;
             }
 

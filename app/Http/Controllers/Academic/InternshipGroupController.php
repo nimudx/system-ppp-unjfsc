@@ -8,14 +8,14 @@ use App\Http\Requests\Group\DetachStudentsRequest;
 use App\Http\Requests\Group\MoveStudentsRequest;
 use App\Http\Requests\Group\StoreGroupRequest;
 use App\Http\Requests\Group\UpdateGroupRequest;
+use App\Models\Assignment;
 use App\Models\Faculty;
 use App\Models\InternshipGroup;
 use App\Models\Section;
 use App\Services\Academic\InternshipGroupService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Models\Assignment;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -84,10 +84,10 @@ class InternshipGroupController extends Controller
         }
 
         if ($request->filled('faculty_id')) {
-            $query->whereHas('section.school.faculty', fn($q) => $q->where('id', $request->faculty_id));
+            $query->whereHas('section.school.faculty', fn ($q) => $q->where('id', $request->faculty_id));
         }
         if ($request->filled('school_id')) {
-            $query->whereHas('section.school', fn($q) => $q->where('id', $request->school_id));
+            $query->whereHas('section.school', fn ($q) => $q->where('id', $request->school_id));
         }
         if ($request->filled('section_id')) {
             $query->where('section_id', $request->section_id);
@@ -96,8 +96,8 @@ class InternshipGroupController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                    ->orWhereHas('teacher.user', fn($q2) => $q2->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"))
-                    ->orWhereHas('supervisor.user', fn($q2) => $q2->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"));
+                    ->orWhereHas('teacher.user', fn ($q2) => $q2->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"))
+                    ->orWhereHas('supervisor.user', fn ($q2) => $q2->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"));
             });
         }
 
@@ -105,7 +105,7 @@ class InternshipGroupController extends Controller
         // para garantizar la misma estructura que reciben los roles 3/4
         $paginator = $query->paginate(15);
         $paginator->getCollection()->transform(
-            fn($group) => $this->groupService->formatGroupData($group)
+            fn ($group) => $this->groupService->formatGroupData($group)
         );
 
         return response()->json(['groups' => $paginator]);
@@ -157,17 +157,17 @@ class InternshipGroupController extends Controller
             ->where('semester_id', $semesterId);
 
         if ($request->filled('faculty_id')) {
-            $query->whereHas('section.school.faculty', fn($q) => $q->where('id', $request->faculty_id));
+            $query->whereHas('section.school.faculty', fn ($q) => $q->where('id', $request->faculty_id));
         }
         if ($request->filled('school_id')) {
-            $query->whereHas('section.school', fn($q) => $q->where('id', $request->school_id));
+            $query->whereHas('section.school', fn ($q) => $q->where('id', $request->school_id));
         }
         if ($request->filled('section_id')) {
             $query->where('section_id', $request->section_id);
         }
         if ($request->filled('search')) {
             $s = $request->search;
-            $query->whereHas('user', fn($q) => $q->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"));
+            $query->whereHas('user', fn ($q) => $q->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"));
         }
 
         return response()->json(['students' => $query->paginate(15)]);
@@ -176,14 +176,14 @@ class InternshipGroupController extends Controller
     public function getStudents(Section $section): JsonResponse
     {
         return response()->json([
-            'students' => $this->groupService->getAvailableStudents($section, session('semester_id'))
+            'students' => $this->groupService->getAvailableStudents($section, session('semester_id')),
         ]);
     }
 
     public function getGroupStudents(InternshipGroup $group): JsonResponse
     {
         return response()->json([
-            'students' => $this->groupService->getGroupStudents($group)
+            'students' => $this->groupService->getGroupStudents($group),
         ]);
     }
 
@@ -191,6 +191,7 @@ class InternshipGroupController extends Controller
     {
         $data = $request->validated();
         $this->groupService->createGroup($data);
+
         return back()->with([
             'message' => 'Grupo creado correctamente.',
         ]);
@@ -200,6 +201,7 @@ class InternshipGroupController extends Controller
     {
         $data = $request->validated();
         $this->groupService->updateGroup($group->id, $data);
+
         return back()->with([
             'message' => 'Grupo actualizado correctamente.',
         ]);
@@ -208,6 +210,7 @@ class InternshipGroupController extends Controller
     public function delete(InternshipGroup $group): RedirectResponse
     {
         $this->groupService->deleteGroup($group->id);
+
         return back()->with([
             'message' => 'Grupo eliminado correctamente.',
         ]);
@@ -217,6 +220,7 @@ class InternshipGroupController extends Controller
     {
         $data = $request->validated();
         $this->groupService->attachStudents($group->id, $data['student_assignment_ids']);
+
         return back()->with('message', 'Estudiantes agregados correctamente.');
     }
 
@@ -224,6 +228,7 @@ class InternshipGroupController extends Controller
     {
         $data = $request->validated();
         $this->groupService->detachStudents($group->id, $data['student_assignment_ids']);
+
         return back()->with('message', 'Estudiantes retirados correctamente.');
     }
 
@@ -235,6 +240,7 @@ class InternshipGroupController extends Controller
             $data['target_group_id'],
             $data['student_assignment_ids']
         );
+
         return back()->with('message', 'Estudiantes movidos correctamente.');
     }
 
@@ -259,8 +265,9 @@ class InternshipGroupController extends Controller
     public function getGroupStudentsDetails(InternshipGroup $group): JsonResponse
     {
         $students = $this->groupService->getGroupStudentsWithPlacement($group->id);
+
         return response()->json([
-            'students' => $students
+            'students' => $students,
         ]);
     }
 }

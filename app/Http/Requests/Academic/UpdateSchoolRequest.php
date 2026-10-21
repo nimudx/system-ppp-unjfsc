@@ -26,10 +26,10 @@ class UpdateSchoolRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:schools,name,' . $this->school->id
+                'unique:schools,name,'.$this->school->id,
             ],
             'faculty_id' => 'required|exists:faculties,id',
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
         ];
     }
 

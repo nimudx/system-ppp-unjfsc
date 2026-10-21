@@ -4,15 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ResourceRequest;
 use App\Models\Assignment;
-use App\Models\Company;
 use App\Models\DocumentType;
 use App\Models\Faculty;
+use App\Models\Resource;
 use App\Models\Role;
 use App\Models\School;
 use App\Models\Section;
-use App\Models\Resource;
 use App\Services\ResourceService;
-use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,8 +18,7 @@ class ResourceController extends Controller
 {
     public function __construct(
         protected ResourceService $resourceService
-    ) {
-    }
+    ) {}
 
     public function index()
     {
@@ -36,7 +33,7 @@ class ResourceController extends Controller
                     // Si es docente, solo le interesan los tipos de documentos marcados para alumnos/empresas
                     $query->whereIn('roles.id', [4, 5]);
                 }
-            }
+            },
         ]);
 
         $documentTypes = $queryDocTypes->where('status', 1)->get();
@@ -93,7 +90,7 @@ class ResourceController extends Controller
             'faculties' => $faculties,
             'initialFilters' => $initialFilters,
             'role' => $assignment?->role_id,
-            'userAssignment' => $assignment
+            'userAssignment' => $assignment,
         ]);
     }
 
@@ -144,6 +141,7 @@ class ResourceController extends Controller
     public function destroy(Resource $resource)
     {
         $this->resourceService->deleteResource($resource);
+
         return back()->with('success', 'Recurso eliminado correctamente.');
     }
 }

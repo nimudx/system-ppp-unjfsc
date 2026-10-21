@@ -2,7 +2,6 @@
 
 namespace App\Services\Registration;
 
-use App\Enums\Academic\SemesterStatus;
 use App\Enums\Assignment\AssignmentAccessStatus;
 use App\Enums\Assignment\AssignmentApprovalStatus;
 use App\Enums\Assignment\AssignmentReviewStatus;
@@ -15,16 +14,14 @@ use App\Exceptions\Registration\RegistrationRoleNotAllowedException;
 use App\Exceptions\Registration\RegistrationSectionNotAllowedException;
 use App\Exceptions\Registration\UserAlreadyAssignedInSemesterException;
 use App\Exceptions\Registration\UserAlreadyRegisteredInSectionException;
-use App\Exceptions\Registration\UserCannotBeSupervisorDueToExistingRoleException;
 use App\Models\Assignment;
+use App\Models\Company;
 use App\Models\Person;
 use App\Models\Section;
 use App\Models\Semester;
 use App\Models\User;
-use App\Models\Company;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class UserRegistrationService
@@ -61,14 +58,12 @@ class UserRegistrationService
 
     /**
      * Validate step two of the registration process.
-     * @param array $data
-     * @return array
      */
     public function validateStepTwo(array $data): array
     {
         $person = Person::query()->where('dni', $data['dni'])->first();
 
-        if (!$person) {
+        if (! $person) {
             return [
                 'person_exists' => false,
                 'dni' => $data['dni'],
@@ -113,7 +108,7 @@ class UserRegistrationService
             'total' => count($data['rows']),
             'success_count' => 0,
             'failed_count' => 0,
-            'errors' => []
+            'errors' => [],
         ];
 
         foreach ($data['rows'] as $index => $row) {
@@ -127,7 +122,7 @@ class UserRegistrationService
                             'dni' => $row['dni'],
                             'names' => $row['names'],
                             'surnames' => $row['surnames'],
-                        ]
+                        ],
                     ];
 
                     $this->processSingleAcademicRegistration($payload, $currentSemesterId);
@@ -140,7 +135,7 @@ class UserRegistrationService
                     'row' => $index + 1,
                     'dni' => $row['dni'],
                     'email' => $row['email'],
-                    'message' => collect($e->errors())->flatten()->first()
+                    'message' => collect($e->errors())->flatten()->first(),
                 ];
             } catch (\Exception $e) {
                 $report['failed_count']++;
@@ -148,14 +143,13 @@ class UserRegistrationService
                     'row' => $index + 1,
                     'dni' => $row['dni'],
                     'email' => $row['email'],
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ];
             }
         }
 
         return $report;
     }
-
 
     /**
      * Internal method to process a single academic registration.
@@ -166,7 +160,7 @@ class UserRegistrationService
         // 1. Buscar Persona por DNI
         $person = Person::where('dni', $data['person']['dni'])->first();
 
-        if (!$person) {
+        if (! $person) {
             $person = Person::create([
                 'dni' => $data['person']['dni'],
                 'names' => $data['person']['names'],
@@ -182,7 +176,7 @@ class UserRegistrationService
             // SEGURIDAD: Si el usuario existe, debe pertenecer a la misma persona
             if ($user->person_id !== $person->id) {
                 throw ValidationException::withMessages([
-                    'email' => "El email {$data['email']} ya está registrado a otra persona con distinto DNI."
+                    'email' => "El email {$data['email']} ya está registrado a otra persona con distinto DNI.",
                 ]);
             }
         } else {
@@ -213,11 +207,8 @@ class UserRegistrationService
         ]);
     }
 
-
     /**
      * Registers a user for a company.
-     * @param array $data
-     * @return User
      */
     public function registerUserCompany(array $data): User
     {
@@ -287,7 +278,7 @@ class UserRegistrationService
         }
 
         if ($myRole === 3) {
-            if (!in_array($targetRoleId, [4, 5])) {
+            if (! in_array($targetRoleId, [4, 5])) {
                 throw new RegistrationRoleNotAllowedException;
             }
 
@@ -340,7 +331,7 @@ class UserRegistrationService
 
             foreach ($currentAssignments as $assignment) {
                 if ($assignment->section->faculty_id !== $newFacultyId) {
-                    throw new RegistrationAssignmentsMustBelongToSameFacultyException();
+                    throw new RegistrationAssignmentsMustBelongToSameFacultyException;
                 }
             }
         }

@@ -9,9 +9,7 @@ use Illuminate\Support\Collection;
 
 class SharedDataService
 {
-    public function __construct(protected SyncAcademicSessionService $syncService)
-    {
-    }
+    public function __construct(protected SyncAcademicSessionService $syncService) {}
 
     public function getSharedPayload(User $user): array
     {
@@ -37,7 +35,7 @@ class SharedDataService
         ];
 
         if ($type->id === 2 || $type->id === 1) {
-            $payload['academic'] = fn() => $this->getAcademicContext($user);
+            $payload['academic'] = fn () => $this->getAcademicContext($user);
         }
 
         return $payload;
@@ -60,7 +58,7 @@ class SharedDataService
         return "{$profile->names} {$profile->surnames}";
     }
 
-    private function getProfilePhoto(User $user): string|null
+    private function getProfilePhoto(User $user): ?string
     {
         $profile = $user->person;
 
@@ -71,7 +69,7 @@ class SharedDataService
     {
         $semester_id = session('semester_id');
 
-        if (!$semester_id) {
+        if (! $semester_id) {
             $semester_id = Semester::getActiveSemester()->id;
         }
 
@@ -88,7 +86,7 @@ class SharedDataService
      */
     private function getUserAssignments(User $user, int $semester_id): Collection
     {
-        if (!$user || !$semester_id) {
+        if (! $user || ! $semester_id) {
             return collect();
         }
 
@@ -100,7 +98,7 @@ class SharedDataService
             })
             ->with(['role', 'section.school'])
             ->get()
-            ->map(fn($asig) => [
+            ->map(fn ($asig) => [
                 'id' => $asig->id,
                 'role' => $asig->role->name,
                 'initials' => substr($asig->role->name, 0, 2),
@@ -140,7 +138,7 @@ class SharedDataService
         $assignmentId = session('assignment_id');
         $assignment = Assignment::find($assignmentId);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return collect();
         }
 
@@ -155,13 +153,13 @@ class SharedDataService
 
     private function getSelectedRoleId(?User $user): ?int
     {
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
         $assignmentId = session('assignment_id');
 
-        if (!$assignmentId) {
+        if (! $assignmentId) {
             return null;
         }
 
@@ -176,7 +174,7 @@ class SharedDataService
         return $user->staffs()
             ->with(['company', 'position'])
             ->get()
-            ->map(fn($staff) => [
+            ->map(fn ($staff) => [
                 'id' => $staff->id,
                 'role' => $staff->position->name ?? 'Staff',
                 'initials' => substr($staff->position->name ?? 'ST', 0, 2),
@@ -196,7 +194,7 @@ class SharedDataService
 
         return $recipients->map(function ($recipient) {
             $notification = $recipient->notification;
-            $actorName = trim($notification->actor->user->person->names . ' ' . $notification->actor->user->person->surnames);
+            $actorName = trim($notification->actor->user->person->names.' '.$notification->actor->user->person->surnames);
 
             return [
                 'id' => $recipient->id,

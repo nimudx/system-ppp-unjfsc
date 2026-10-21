@@ -11,14 +11,13 @@ class DocumentType extends Model
         'name',
         'code',
         'description',
-        'status'
+        'status',
     ];
 
     /**
      * Get all documents of this type.
-     * @return HasMany
      */
-    public function documents():HasMany
+    public function documents(): HasMany
     {
         return $this->hasMany(Document::class);
     }
@@ -26,6 +25,6 @@ class DocumentType extends Model
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'document_type_roles')
-                    ->wherePivot('status', 1);
+            ->wherePivot('status', 1);
     }
 }

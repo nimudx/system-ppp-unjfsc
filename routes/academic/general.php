@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Academic\SemesterController;
 use App\Http\Controllers\Academic\FacultyController;
 use App\Http\Controllers\Academic\SchoolController;
 use App\Http\Controllers\Academic\SectionController;
+use App\Http\Controllers\Academic\SemesterController;
 use App\Http\Controllers\UserAssignmentController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,8 +16,6 @@ Route::middleware(['role:1,2,3'])->group(function () {
     // Filtrado de Usuarios (Estilo Dossier)
     Route::get('/users/filter', [UserAssignmentController::class, 'getAssignmentsByFilter'])->name('users.filter');
 });
-
-
 
 Route::middleware(['role:1,2,4'])->group(function () {
     Route::get('/faculties', [FacultyController::class, 'index'])->name('faculties.index');

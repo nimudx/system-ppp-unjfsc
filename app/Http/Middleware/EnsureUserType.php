@@ -15,7 +15,7 @@ class EnsureUserType
      */
     public function handle(Request $request, Closure $next, ...$types): Response
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -24,9 +24,10 @@ class EnsureUserType
         // Cargamos la relación si no está cargada
         $typeId = $user->type_user_id;
 
-        if (!in_array($typeId, $types)) {
+        if (! in_array($typeId, $types)) {
             // abort(403, 'No tienes permiso para acceder a esta área según tu tipo de usuario.');
             $request->session()->flash('error', 'No tienes permiso para acceder a esta área según tu tipo de usuario.');
+
             return redirect()->route('dashboard');
         }
 

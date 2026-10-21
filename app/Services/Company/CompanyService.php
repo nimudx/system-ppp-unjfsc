@@ -9,12 +9,11 @@ use Illuminate\Support\Collection;
 
 class CompanyService
 {
-
     public function verifyCompany(string $ruc): ?array
     {
         $company = Company::query()->where('ruc', $ruc)->first();
 
-        if (!$company) {
+        if (! $company) {
             return null;
         }
 
@@ -24,19 +23,19 @@ class CompanyService
             'address' => $company->address,
             'phone' => $company->phone,
             'email' => $company->email,
-            'areas' => $this->listAreas($company->id)
+            'areas' => $this->listAreas($company->id),
         ];
     }
 
     public function registerCompany(array $data): Company
     {
         $company = Company::query()->create([
-            'name'    => $data['name'],
-            'ruc'     => $data['ruc'],
-            'razon'   => $data['razon'] ?? $data['name'],  // fallback: si no mandan razón social, usa el nombre
+            'name' => $data['name'],
+            'ruc' => $data['ruc'],
+            'razon' => $data['razon'] ?? $data['name'],  // fallback: si no mandan razón social, usa el nombre
             'address' => $data['address'] ?? '',
-            'phone'   => $data['phone'] ?? '',
-            'email'   => $data['email'] ?? '',
+            'phone' => $data['phone'] ?? '',
+            'email' => $data['email'] ?? '',
         ]);
 
         return $company;

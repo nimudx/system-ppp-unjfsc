@@ -3,30 +3,25 @@
 namespace App\Http\Controllers\Registration;
 
 use App\Http\Controllers\Controller;
-
 use App\Http\Requests\Registration\StepOneRequest;
-use App\Http\Requests\Registration\StepTwoRequest;
 use App\Http\Requests\Registration\StepThreeRequest;
+use App\Http\Requests\Registration\StepTwoRequest;
 use App\Http\Requests\Registration\StoreCompanyRequest;
 use App\Http\Requests\Registration\StorePersonMassiveRequest;
 use App\Models\Assignment;
 use App\Models\Faculty;
 use App\Models\Role;
-use App\Models\School;
-use App\Models\Section;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use App\Services\Registration\UserRegistrationService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class UserRegistrationController extends Controller
 {
-    public function __construct(protected UserRegistrationService $userService)
-    {
-    }
+    public function __construct(protected UserRegistrationService $userService) {}
 
     public function index(): Response
     {
@@ -87,11 +82,10 @@ class UserRegistrationController extends Controller
         return response()->json([
             'message' => $result['person_exists']
                 ? 'La persona ya existe en el sistema'
-                : 'No se ha encontrado la persona con DNI: ' . $data['dni'] . '. Por favor, complete los datos de la persona.',
-            'data' => $result
+                : 'No se ha encontrado la persona con DNI: '.$data['dni'].'. Por favor, complete los datos de la persona.',
+            'data' => $result,
         ]);
     }
-
 
     public function userAcademicRegistration(StepThreeRequest $request): RedirectResponse
     {
@@ -109,7 +103,6 @@ class UserRegistrationController extends Controller
             'message' => 'Usuario creado correctamente. Y notificado por correo electrónico.',
         ]);
     }
-
 
     public function userAcademicRegistrationMassive(StorePersonMassiveRequest $request): JsonResponse
     {

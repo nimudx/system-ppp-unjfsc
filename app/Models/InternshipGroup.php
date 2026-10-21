@@ -23,7 +23,6 @@ class InternshipGroup extends Model
 
     /**
      * Get the teacher assignment associated with the internship group.
-     * @return BelongsTo
      */
     public function teacher(): BelongsTo
     {
@@ -32,7 +31,6 @@ class InternshipGroup extends Model
 
     /**
      * Get the supervisor assignment associated with the internship group.
-     * @return BelongsTo
      */
     public function supervisor(): BelongsTo
     {
@@ -41,7 +39,6 @@ class InternshipGroup extends Model
 
     /**
      * Get the section associated with the internship group.
-     * @return BelongsTo
      */
     public function section(): BelongsTo
     {
@@ -50,7 +47,6 @@ class InternshipGroup extends Model
 
     /**
      * Get the module associated with the internship group.
-     * @return BelongsTo
      */
     public function module(): BelongsTo
     {
@@ -59,7 +55,6 @@ class InternshipGroup extends Model
 
     /**
      * Get the student groups associated with the internship group.
-     * @return HasMany
      */
     public function studentGroups(): HasMany
     {
@@ -68,7 +63,6 @@ class InternshipGroup extends Model
 
     /**
      * Get the students associated with the internship group.
-     * @return HasManyThrough
      */
     public function students(): HasManyThrough
     {

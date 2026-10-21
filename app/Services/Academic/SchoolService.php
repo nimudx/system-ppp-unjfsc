@@ -11,10 +11,6 @@ class SchoolService
 {
     /**
      * Store a new school.
-     *
-     * @param array $data
-     * @param Faculty $faculty
-     * @return School
      */
     public function store(array $data, Faculty $faculty): School
     {
@@ -24,17 +20,13 @@ class SchoolService
                 'faculty_id' => $faculty->id,
                 'status' => $data['status'],
             ]);
+
             return $school->load(['faculty']);
         });
     }
 
     /**
      * Update an existing school.
-     *
-     * @param array $data
-     * @param School $school
-     * @param Faculty $faculty
-     * @return School
      */
     public function update(array $data, School $school, Faculty $faculty): School
     {
@@ -44,15 +36,13 @@ class SchoolService
                 'faculty_id' => $faculty->id,
                 'status' => $data['status'],
             ]);
+
             return $school->load(['faculty']);
         });
     }
 
     /**
      * Delete an existing school.
-     *
-     * @param School $school
-     * @return void
      */
     public function delete(School $school): void
     {
@@ -65,7 +55,7 @@ class SchoolService
     {
         $role = $assignment->role_id;
 
-        if (!in_array($role, [1, 2])) {
+        if (! in_array($role, [1, 2])) {
             throw new \Exception('No tiene permisos para gestionar.');
         }
     }

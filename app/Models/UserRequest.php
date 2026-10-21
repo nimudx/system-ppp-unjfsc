@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class UserRequest extends Model
 {
@@ -40,7 +40,6 @@ class UserRequest extends Model
 
     /**
      * Get the senderable that owns the request.
-     * @return MorphTo
      */
     public function senderable(): MorphTo
     {
@@ -49,7 +48,6 @@ class UserRequest extends Model
 
     /**
      * Get the requestable that owns the request.
-     * @return MorphTo
      */
     public function requestable(): MorphTo
     {
@@ -58,7 +56,6 @@ class UserRequest extends Model
 
     /**
      * Get the user that reviewed the request.
-     * @return BelongsTo
      */
     public function reviewedBy(): BelongsTo
     {

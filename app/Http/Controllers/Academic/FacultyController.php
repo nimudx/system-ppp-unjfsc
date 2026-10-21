@@ -12,19 +12,18 @@ use Inertia\Response;
 
 class FacultyController extends Controller
 {
-    public function __construct(protected FacultyService $facultyService)
-    {
-    }
+    public function __construct(protected FacultyService $facultyService) {}
 
     public function index(): Response
     {
         $faculties = Faculty::all();
+
         return Inertia::render('academic/faculty/index', ['faculties' => $faculties]);
     }
 
     /**
-    * Store a newly created resource in storage.
-    */
+     * Store a newly created resource in storage.
+     */
     public function store(FacultyRequest $request): RedirectResponse
     {
         $this->facultyService->store($request->validated());
@@ -35,8 +34,8 @@ class FacultyController extends Controller
     }
 
     /**
-    * Update the specified resource in storage.
-    */
+     * Update the specified resource in storage.
+     */
     public function update(FacultyRequest $request, Faculty $faculty): RedirectResponse
     {
         $this->facultyService->update($request->validated(), $faculty);
@@ -47,8 +46,8 @@ class FacultyController extends Controller
     }
 
     /**
-    * Remove the specified resource from storage.
-    */
+     * Remove the specified resource from storage.
+     */
     public function destroy(Faculty $faculty): RedirectResponse
     {
         $this->facultyService->delete($faculty);

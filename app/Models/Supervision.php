@@ -21,8 +21,6 @@ class Supervision extends Model
 
     /**
      * Get the assignment that owns the supervision.
-     *
-     * @return BelongsTo
      */
     public function assignment(): BelongsTo
     {
@@ -31,8 +29,6 @@ class Supervision extends Model
 
     /**
      * Get the module that owns the supervision.
-     *
-     * @return BelongsTo
      */
     public function module(): BelongsTo
     {
@@ -41,8 +37,6 @@ class Supervision extends Model
 
     /**
      * Get the evaluations that belong to the supervision.
-     *
-     * @return HasMany
      */
     public function evaluations(): HasMany
     {
@@ -51,8 +45,6 @@ class Supervision extends Model
 
     /**
      * Get the documents that belong to the supervision.
-     *
-     * @return HasManyThrough
      */
     public function documents(): HasManyThrough
     {

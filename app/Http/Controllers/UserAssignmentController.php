@@ -5,20 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Assignment\StoreAssignmentManageRequest;
 use App\Models\Assignment;
 use App\Models\Faculty;
+use App\Models\UserRequest;
 use App\Services\AssignmentService;
 use App\Services\UserAssignmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\UserRequest;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserAssignmentController extends Controller
 {
-    public function __construct(protected UserAssignmentService $assignmentService)
-    {
-    }
+    public function __construct(protected UserAssignmentService $assignmentService) {}
 
     /**
      * Listar Sub-Administradores (Role 2)
@@ -68,7 +66,7 @@ class UserAssignmentController extends Controller
             'current_page' => 1,
             'last_page' => 1,
             'total' => 0,
-            'links' => []
+            'links' => [],
         ];
 
         if ($assignment && in_array($assignment->role_id, [3, 4])) {
@@ -137,7 +135,7 @@ class UserAssignmentController extends Controller
 
         $data = $httpRequest->validate([
             'approval_status' => 'required|in:1,3',
-            'justification' => 'nullable|string'
+            'justification' => 'nullable|string',
         ]);
 
         $assignmentService->updateAssignmentRequestStatus($data, $userRequest, $reviewer);

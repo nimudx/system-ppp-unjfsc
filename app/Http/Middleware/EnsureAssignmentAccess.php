@@ -33,22 +33,23 @@ class EnsureAssignmentAccess
         }
 
         // 2. NIVEL CRÍTICO: Bloqueado o Inactivo
-        if (!$assignment || $assignment->isBlocked()) {
+        if (! $assignment || $assignment->isBlocked()) {
             session()->forget('assignment_id');
+
             return redirect()->route('profile.select')->with('error', 'Acceso denegado a esta asignación.');
         }
 
         // 3. NIVEL DE INTEGRIDAD: Solo Lectura (READ_ONLY)
         // Bloqueamos cualquier método que intente "escribir" (POST, PUT, PATCH, DELETE)
-        if ($assignment->isReadOnly() && !$request->isMethod('GET')) {
+        if ($assignment->isReadOnly() && ! $request->isMethod('GET')) {
             return back()->with('error', 'La asignación está en modo lectura. No se permiten cambios.');
         }
 
         // 4. NIVEL DE VALIDACIÓN: Limitado (LIMITED)
         // El usuario debe completar su dossier/validación antes de acceder al resto del sistema.
-        if ($assignment->isLimited() && !$request->routeIs('academic.dossiers.submission')) {
+        if ($assignment->isLimited() && ! $request->routeIs('academic.dossiers.submission')) {
             // Permitir solo la ruta de guardado de documentos de la validación
-            if (!$request->is('dossiers/document/store')) {
+            if (! $request->is('dossiers/document/store')) {
                 return redirect()->route('academic.dossiers.submission');
             }
         }

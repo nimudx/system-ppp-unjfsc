@@ -2,32 +2,30 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+
 class Dossier extends Model
 {
     protected $fillable = [
         'assignment_id',
         'approval_status',
-        'status'
+        'status',
     ];
 
     /**
      * Get the assignment that owns the application.
-     * @return BelongsTo
      */
-    public function assignment():BelongsTo
+    public function assignment(): BelongsTo
     {
         return $this->belongsTo(Assignment::class);
     }
 
     /**
      * Get the documents that belong to the application.
-     * @return MorphMany
      */
-    public function documents():MorphMany
+    public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }

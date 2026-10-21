@@ -33,7 +33,7 @@ class StepThreeRequest extends FormRequest
          "surnames": "Perez Gonzales"
          } */
         return [
-            'email' => 'required|email|unique:users,email,' . $this->user_id,
+            'email' => 'required|email|unique:users,email,'.$this->user_id,
             'role_id' => 'required|exists:roles,id',
             'section_id' => 'required|exists:sections,id',
             'user_id' => 'nullable|exists:users,id',
@@ -43,10 +43,10 @@ class StepThreeRequest extends FormRequest
                 'required_if:user_id,null',
                 'string',
                 'digits:8',
-                'unique:people,dni,' . ($this->input('person.id') ?? 'NULL') . ',id',
+                'unique:people,dni,'.($this->input('person.id') ?? 'NULL').',id',
             ],
             'person.names' => 'required_if:user_id,null|string|max:100',
-            'person.surnames' => 'required_if:user_id,null|string|max:100'
+            'person.surnames' => 'required_if:user_id,null|string|max:100',
         ];
     }
 

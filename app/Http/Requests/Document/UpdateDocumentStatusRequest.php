@@ -23,7 +23,7 @@ class UpdateDocumentStatusRequest extends FormRequest
     {
         return [
             'approval_status' => 'required|in:1,3',
-            'comment'=> 'required_if:approval_status,3|nullable|string|max:255',
+            'comment' => 'required_if:approval_status,3|nullable|string|max:255',
         ];
     }
 }

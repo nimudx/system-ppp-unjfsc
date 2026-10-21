@@ -30,7 +30,7 @@ class RequestController extends Controller
             ->with('senderable')
             ->first();
 
-        if (!$request) {
+        if (! $request) {
             return response()->json(['data' => null], 200);
         }
 
@@ -40,8 +40,7 @@ class RequestController extends Controller
     /**
      * Update the management request status.
      *
-     * @param UpdateManagementRequestStatusRequest $request
-     * @return RedirectResponse
+     * @param  UpdateManagementRequestStatusRequest  $request
      */
     public function updateManagementRequestStatus(UpdateManagementRequestStatusRequest $validatedRequest, UserRequest $request): RedirectResponse
     {

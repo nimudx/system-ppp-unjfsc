@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Internship extends Model
 {
@@ -17,12 +16,11 @@ class Internship extends Model
         'internship_step',
         'approval_status',
         'application_status',
-        'status'
+        'status',
     ];
 
     /**
      * Get the assignment that owns the internship.
-     * @return BelongsTo
      */
     public function assignment(): BelongsTo
     {
@@ -31,7 +29,6 @@ class Internship extends Model
 
     /**
      * Get the boss that owns the internship.
-     * @return BelongsTo
      */
     public function boss(): BelongsTo
     {
@@ -40,7 +37,6 @@ class Internship extends Model
 
     /**
      * Get the documents associated with the internship.
-     * @return MorphMany
      */
     public function documents(): MorphMany
     {
@@ -49,7 +45,6 @@ class Internship extends Model
 
     /**
      * Get the requests associated with the internship.
-     * @return MorphMany
      */
     public function requests(): MorphMany
     {
@@ -58,7 +53,6 @@ class Internship extends Model
 
     /**
      * Get the placement that owns the internship.
-     * @return BelongsTo
      */
     public function placement(): BelongsTo
     {

@@ -13,12 +13,12 @@ class InternshipSettingService
     public function getSettingForSection(int $sectionId): InternshipSetting
     {
         return InternshipSetting::firstOrCreate(
-        ['section_id' => $sectionId],
-        [
-            'workflow_schema' => [],
-            'is_active' => false,
-            'status' => 1
-        ]
+            ['section_id' => $sectionId],
+            [
+                'workflow_schema' => [],
+                'is_active' => false,
+                'status' => 1,
+            ]
         );
     }
 

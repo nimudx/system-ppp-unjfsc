@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Document extends Model
 {
@@ -18,13 +18,11 @@ class Document extends Model
         'uploaded_by',
         'reviewed_by',
         'approval_status',
-        'status'
+        'status',
     ];
 
     /**
      * Get the documentable model that owns the document.
-     *
-     * @return MorphTo
      */
     public function documentable(): MorphTo
     {
@@ -33,8 +31,6 @@ class Document extends Model
 
     /**
      * Get the document type that owns the document.
-     *
-     * @return BelongsTo
      */
     public function documentType(): BelongsTo
     {

@@ -7,8 +7,8 @@ use App\Enums\Assignment\AssignmentApprovalStatus;
 use App\Enums\Assignment\AssignmentReviewStatus;
 use App\Enums\Assignment\AssignmentStatus;
 use App\Models\Assignment;
-use App\Models\UserRequest;
 use App\Models\User;
+use App\Models\UserRequest;
 use Illuminate\Support\Facades\DB;
 
 class AssignmentService
@@ -70,12 +70,12 @@ class AssignmentService
             $request->update([
                 'reviewed_by' => $reviewer->id,
                 'justification' => $data['justification'] ?? '',
-                'approval_status' => $approvalStatus
+                'approval_status' => $approvalStatus,
             ]);
 
             $target = $request->requestable;
 
-            //dd($target);
+            // dd($target);
 
             // 2. Si se aprueba, aplicamos la lógica de negocio
             if ($approvalStatus == 1 && $target) {
@@ -170,7 +170,7 @@ class AssignmentService
 
             // Si la persona ya no tiene más usuarios (ej. ni académico ni empresa), borramos a la persona
             $otherUsersExist = User::query()->where('person_id', $person->id)->exists();
-            if (!$otherUsersExist) {
+            if (! $otherUsersExist) {
                 $person->delete();
             }
         }

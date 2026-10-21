@@ -5,20 +5,19 @@ namespace App\Http\Controllers\Academic\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Internship\SaveInternshipSettingRequest;
 use App\Models\Assignment;
-use App\Models\Faculty;
 use App\Models\DocumentType;
+use App\Models\Faculty;
 use App\Services\Academic\InternshipSettingService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class InternshipSettingController extends Controller
 {
     public function __construct(
         protected InternshipSettingService $internshipSettingService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): Response
     {

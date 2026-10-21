@@ -13,7 +13,7 @@ class DashboardController extends Controller
 
         $assignment_id = session('assignment_id');
 
-        if (!$assignment_id) {
+        if (! $assignment_id) {
             return Inertia::render('dashboard/dashboard', ['user' => $user]);
         }
 

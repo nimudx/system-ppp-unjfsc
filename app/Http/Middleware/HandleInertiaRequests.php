@@ -71,10 +71,14 @@ class HandleInertiaRequests extends Middleware
     private function isHistoricMode(Request $request): bool
     {
         $assignmentId = session('assignment_id');
-        if (!$assignmentId) return false;
+        if (! $assignmentId) {
+            return false;
+        }
 
         $assignment = \App\Models\Assignment::find($assignmentId);
-        if (!$assignment) return false;
+        if (! $assignment) {
+            return false;
+        }
 
         // Si es Admin, nunca es historico para él (puede gestionar todo)
         if ($assignment->role_id === \App\Enums\Role::ADMIN->value) {
@@ -87,12 +91,12 @@ class HandleInertiaRequests extends Middleware
     private function getCurrentAccessStatus(): int
     {
         $assignmentId = session('assignment_id');
-        if (!$assignmentId) {
+        if (! $assignmentId) {
             return 1;
         }
 
         $assignment = \App\Models\Assignment::find($assignmentId);
-        if (!$assignment) {
+        if (! $assignment) {
             return 1;
         }
 
@@ -107,10 +111,14 @@ class HandleInertiaRequests extends Middleware
     private function getCurrentSemester(): ?array
     {
         $semesterId = session('semester_id');
-        if (!$semesterId) return null;
+        if (! $semesterId) {
+            return null;
+        }
 
         $semester = Semester::find($semesterId);
-        if (!$semester) return null;
+        if (! $semester) {
+            return null;
+        }
 
         return [
             'id' => $semester->id,

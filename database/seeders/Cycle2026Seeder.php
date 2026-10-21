@@ -135,7 +135,7 @@ class Cycle2026Seeder extends Seeder
                 continue;
             }
 
-            $module = new Module();
+            $module = new Module;
             $module->name = $name;
             $module->status = 1;
             $module->save();

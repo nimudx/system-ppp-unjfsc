@@ -12,12 +12,9 @@ class Role extends Model
 
     protected $fillable = [
         'name',
-        'status'
+        'status',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);

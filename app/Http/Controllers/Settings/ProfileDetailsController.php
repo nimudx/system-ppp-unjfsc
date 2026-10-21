@@ -9,10 +9,7 @@ use Illuminate\Http\RedirectResponse;
 
 class ProfileDetailsController extends Controller
 {
-    public function __construct(protected ProfileDetailsService $service)
-    {
-
-    }
+    public function __construct(protected ProfileDetailsService $service) {}
 
     public function update(ProfileDetailsUpdateRequest $request): RedirectResponse
     {

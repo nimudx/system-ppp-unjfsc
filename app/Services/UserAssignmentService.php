@@ -3,18 +3,12 @@
 namespace App\Services;
 
 use App\Models\Assignment;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class UserAssignmentService
 {
     /**
      * Obtener asignaciones por rol y semestre, con soporte opcional para filtros completos (estilo Dossier).
      *
-     * @param int $roleId
-     * @param int $semesterId
-     * @param array $filters
-     * @param bool $paginate
      * @return mixed
      */
     public function getAssignmentsByRole(int $roleId, int $semesterId, array $filters = [], bool $paginate = true)
@@ -30,19 +24,19 @@ class UserAssignmentService
             ->where('semester_id', $semesterId);
 
         // Filtro por Facultad/Escuela/Sección
-        if (!empty($filters['section_id'])) {
+        if (! empty($filters['section_id'])) {
             $query->where('section_id', $filters['section_id']);
-        } elseif (!empty($filters['school_id'])) {
-            $query->whereHas('section', fn($q) => $q->where('school_id', $filters['school_id']));
-        } elseif (!empty($filters['faculty_id'])) {
+        } elseif (! empty($filters['school_id'])) {
+            $query->whereHas('section', fn ($q) => $q->where('school_id', $filters['school_id']));
+        } elseif (! empty($filters['faculty_id'])) {
             $query->where(function ($q) use ($filters) {
-                $q->whereHas('section.school', fn($sq) => $sq->where('faculty_id', $filters['faculty_id']))
-                    ->orWhereHas('section.faculty', fn($sq) => $sq->where('id', $filters['faculty_id']));
+                $q->whereHas('section.school', fn ($sq) => $sq->where('faculty_id', $filters['faculty_id']))
+                    ->orWhereHas('section.faculty', fn ($sq) => $sq->where('id', $filters['faculty_id']));
             });
         }
 
         // Búsqueda por Email o Nombre
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")

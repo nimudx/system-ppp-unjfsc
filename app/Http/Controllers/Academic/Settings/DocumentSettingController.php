@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Academic\Settings;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-
 use App\Models\DocumentType;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DocumentSettingController extends Controller
 {
@@ -41,7 +40,7 @@ class DocumentSettingController extends Controller
             'status' => 1,
         ]);
 
-        if (!empty($validated['roles'])) {
+        if (! empty($validated['roles'])) {
             $documentType->roles()->sync($validated['roles']);
         }
 
@@ -52,7 +51,7 @@ class DocumentSettingController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:document_types,code,' . $document->id,
+            'code' => 'required|string|max:50|unique:document_types,code,'.$document->id,
             'description' => 'nullable|string',
             'roles' => 'required|array',
             'roles.*' => 'exists:roles,id',

@@ -15,12 +15,11 @@ class Boss extends Model
         'area',
         'email',
         'phone',
-        'status'
+        'status',
     ];
 
     /**
      * Get the company that owns the boss.
-     * @return BelongsTo
      */
     public function company(): BelongsTo
     {

@@ -11,7 +11,7 @@ class UserAlreadyAssignedInSemesterException extends BusinessException
     public function __construct(string $roleName)
     {
         $this->roleName = $roleName;
-        $this->message = 'El usuario ya cuenta con una asignación activa en este semestre como ' . $roleName . '.';
+        $this->message = 'El usuario ya cuenta con una asignación activa en este semestre como '.$roleName.'.';
     }
 
     public function status(): int

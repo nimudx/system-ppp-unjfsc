@@ -2,8 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\BusinessException;
-
 class RequestUnsupportedTypeException extends BusinessException
 {
     protected $message = 'El tipo de solicitud no es soportado para ejecución automática.';

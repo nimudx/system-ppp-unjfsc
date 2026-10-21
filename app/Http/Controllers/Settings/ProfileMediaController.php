@@ -5,13 +5,10 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileMediaUpdateRequest;
 use App\Services\Settings\ProfileMediaService;
-use Illuminate\Http\Request;
 
 class ProfileMediaController extends Controller
 {
-    public function __construct(protected ProfileMediaService $service)
-    {
-    }
+    public function __construct(protected ProfileMediaService $service) {}
 
     public function update(ProfileMediaUpdateRequest $request)
     {

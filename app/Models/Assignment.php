@@ -37,97 +37,61 @@ class Assignment extends Model
         'is_select' => 'boolean',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function semester(): BelongsTo
     {
         return $this->belongsTo(Semester::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class);
     }
 
-    /**
-     * @return HasMany
-     */
     public function dossiers(): HasMany
     {
         return $this->hasMany(Dossier::class, 'assignment_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function teacherGroups(): HasMany
     {
         return $this->hasMany(InternshipGroup::class, 'teacher_assignment_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function supervisorGroups(): HasMany
     {
         return $this->hasMany(InternshipGroup::class, 'supervisor_assignment_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function studentGroups(): HasMany
     {
         return $this->hasMany(StudentGroup::class, 'student_assignment_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function internships(): HasMany
     {
         return $this->hasMany(Internship::class, 'assignment_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class, 'uploaded_by');
     }
 
-    /**
-     * @return HasOne
-     */
     public function placement(): HasOne
     {
         return $this->hasOne(Placement::class, 'assignment_id');
     }
 
-    /**
-     * @return HasOne
-     */
     public function internship(): HasOne
     {
         return $this->hasOne(Internship::class, 'assignment_id');
@@ -138,7 +102,7 @@ class Assignment extends Model
      */
     public function isBlocked(): bool
     {
-        return $this->status === AssignmentStatus::INACTIVE 
+        return $this->status === AssignmentStatus::INACTIVE
             || $this->access_status === AssignmentAccessStatus::BLOCKED;
     }
 
@@ -159,7 +123,6 @@ class Assignment extends Model
 
     /**
      * Get the requests associated with the assignment.
-     * @return MorphMany
      */
     public function requests(): MorphMany
     {

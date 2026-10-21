@@ -1,12 +1,12 @@
 <?php
 
+use App\Http\Controllers\Academic\Settings\DocumentSettingController;
+use App\Http\Controllers\Academic\Settings\InternshipSettingController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\ProfileDetailsController;
 use App\Http\Controllers\Settings\ProfileMediaController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
-use App\Http\Controllers\Academic\Settings\InternshipSettingController;
-use App\Http\Controllers\Academic\Settings\DocumentSettingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 

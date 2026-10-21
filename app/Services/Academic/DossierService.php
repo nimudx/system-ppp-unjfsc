@@ -8,14 +8,15 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Services\DocumentService;
 use App\Services\NotificationService;
-use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DossierService
 {
     protected DocumentService $documentService;
+
     protected NotificationService $notificationService;
 
     public function __construct(DocumentService $documentService, NotificationService $notificationService)
@@ -24,11 +25,6 @@ class DossierService
         $this->notificationService = $notificationService;
     }
 
-    /**
-     * @param Assignment $assignment
-     *
-     * @return Collection
-     */
     public function getDossierData(Assignment $assignment): Collection
     {
         $dossier = $assignment->dossiers()->firstOrCreate([
@@ -50,56 +46,52 @@ class DossierService
             );
 
             $transform = function ($doc) {
-                if (!$doc)
+                if (! $doc) {
                     return null;
+                }
                 $data = $doc->toArray();
                 // Transformamos el path a una URL pública
                 $data['path'] = Storage::url($doc->path);
+
                 return $data;
-            }
-            ;
+            };
 
             return [
                 'code' => $item['code'],
                 'title' => $item['title'],
                 'has_template' => $item['has_template'] ?? false,
                 'latest' => $transform($docsOfType->first()),
-                'history' => $docsOfType->map(fn($d) => $transform($d))->values()->all(),
+                'history' => $docsOfType->map(fn ($d) => $transform($d))->values()->all(),
                 'status' => $docsOfType->first()->approval_status ?? 0,
             ];
         });
     }
 
     /**
-     * @param int $roleId
      * @return array<int, array<string, string>>
      */
     private function getRequirementsByRole(int $roleId): array
     {
         $configs = [
             3 => [
-                ["code" => "horario", "title" => "Horario"],
-                ["code" => "carga_lectiva", "title" => "Carga Lectiva"],
+                ['code' => 'horario', 'title' => 'Horario'],
+                ['code' => 'carga_lectiva', 'title' => 'Carga Lectiva'],
             ],
             4 => [
-                ["code" => "horario", "title" => "Horario"],
-                ["code" => "carga_lectiva", "title" => "Carga Lectiva"],
-                ["code" => "resolucion_designacion", "title" => "Resolución de designación"]
+                ['code' => 'horario', 'title' => 'Horario'],
+                ['code' => 'carga_lectiva', 'title' => 'Carga Lectiva'],
+                ['code' => 'resolucion_designacion', 'title' => 'Resolución de designación'],
 
             ],
             5 => [
-                ["code" => "ficha", "title" => "Ficha de Matrícula"],
-                ["code" => "record", "title" => "Record Académico"]
+                ['code' => 'ficha', 'title' => 'Ficha de Matrícula'],
+                ['code' => 'record', 'title' => 'Record Académico'],
             ],
         ];
 
         return $configs[$roleId] ?? [];
     }
 
-    /**
-     * @param int|null $raId
-     * @return array
-     */
     public function initDataValidation(?int $raId, int $roleId, Assignment $assignment, int $semesterId): array
     {
         $assignments = [
@@ -107,7 +99,7 @@ class DossierService
             'current_page' => 1,
             'last_page' => 1,
             'total' => 0,
-            'links' => []
+            'links' => [],
         ];
 
         if ($raId) {
@@ -128,30 +120,26 @@ class DossierService
         return $assignments;
     }
 
-    /**
-     * @param array $filters
-     * @return LengthAwarePaginator
-     */
     public function getAssignments(array $filters, int $semesterId): LengthAwarePaginator
     {
         $query = Assignment::with(['user.person', 'section.school.faculty', 'section.faculty', 'dossiers'])
             ->where('role_id', $filters['target_role_id'])
             ->where('semester_id', $semesterId);
 
-        if (!empty($filters['faculty_id'])) {
+        if (! empty($filters['faculty_id'])) {
             $query->whereHas('section.school.faculty', function ($q) use ($filters) {
                 $q->where('id', $filters['faculty_id']);
             });
         }
-        if (!empty($filters['school_id'])) {
+        if (! empty($filters['school_id'])) {
             $query->whereHas('section.school', function ($q) use ($filters) {
                 $q->where('id', $filters['school_id']);
             });
         }
-        if (!empty($filters['section_id'])) {
+        if (! empty($filters['section_id'])) {
             $query->where('section_id', $filters['section_id']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
@@ -164,10 +152,6 @@ class DossierService
 
     /**
      * Store a document for a dossier.
-     *
-     * @param array $data
-     * @param Assignment $assignment
-     * @return Document
      */
     public function storeDocumentDossier(array $data, Assignment $assignment): Document
     {
@@ -199,13 +183,13 @@ class DossierService
                         'params' => ['a' => $assignment->id],
                     ],
                     'meta' => [
-                        'title'    => 'Nueva carga de archivo',
-                        'role'     => $assignment->role->name,
+                        'title' => 'Nueva carga de archivo',
+                        'role' => $assignment->role->name,
                         'document' => $docType,
-                        'entity'   => 'dossier',
+                        'entity' => 'dossier',
                     ],
                 ],
-                resolver: fn($subject, $actor) => $this->notificationService->resolveAcademicRoles(
+                resolver: fn ($subject, $actor) => $this->notificationService->resolveAcademicRoles(
                     $actor->section_id,
                     $recipientRoles
                 )
@@ -217,11 +201,6 @@ class DossierService
 
     /**
      * Update the status of a dossier document.
-     *
-     * @param array $data
-     * @param Document $document
-     * @param Assignment $assignment
-     * @return Document
      */
     public function updateDossierStatus(array $data, Document $document, Assignment $assignment): Document
     {
@@ -229,7 +208,7 @@ class DossierService
 
             $result = $this->documentService->updateStatus($document, [
                 'approval_status' => $data['approval_status'],
-                'comment' => $data['comment'] ?? ''
+                'comment' => $data['comment'] ?? '',
             ]);
 
             $docType = $result->documentType->name;
@@ -250,12 +229,12 @@ class DossierService
                         'params' => [],
                     ],
                     'meta' => [
-                        'title'    => $title,
-                        'role'     => $assignment->role->name,
+                        'title' => $title,
+                        'role' => $assignment->role->name,
                         'document' => $docType,
-                        'status'   => $status,
-                        'comment'  => $data['comment'] ?? null,
-                        'entity'   => 'dossier',
+                        'status' => $status,
+                        'comment' => $data['comment'] ?? null,
+                        'entity' => 'dossier',
                     ],
                 ],
                 resolver: function ($subject, $actor) {

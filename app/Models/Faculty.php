@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Faculty extends Model
@@ -13,12 +13,9 @@ class Faculty extends Model
 
     protected $fillable = [
         'name',
-        'status'
+        'status',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function schools(): HasMany
     {
         return $this->hasMany(School::class);
@@ -39,9 +36,9 @@ class Faculty extends Model
                                 'sections' => function ($q) use ($assignment, $semesterId) {
                                     $q->where('id', $assignment->section_id)
                                         ->where('semester_id', $semesterId);
-                                }
+                                },
                             ]);
-                    }
+                    },
                 ]);
         }
 
@@ -52,7 +49,7 @@ class Faculty extends Model
         return $query->with([
             'schools.sections' => function ($q) use ($semesterId) {
                 $q->where('semester_id', $semesterId);
-            }
+            },
         ])->where('status', 1);
     }
 }

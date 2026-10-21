@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Exceptions\Document\DocumentInvalidContextException;
 use App\Exceptions\Document\DocumentSizeLimitException;
 use App\Exceptions\ResourceNotFoundException;
-
 use App\Models\Assignment;
 use App\Models\Document;
 use App\Models\DocumentType;
@@ -13,13 +12,12 @@ use App\Models\Dossier;
 use App\Models\Evaluation;
 use App\Models\Internship;
 use App\Models\Placement;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Storage;
 
 class DocumentService
 {
-
     protected array $contextMap = [
         'dossier' => Dossier::class,
         'evaluation' => Evaluation::class,
@@ -29,21 +27,17 @@ class DocumentService
 
     /**
      * Register a new document.
-     *
-     * @param array $data
-     * @param Assignment $assignment
-     * @return Document
      */
     public function registerDocument(array $data, Assignment $assignment, Model $model): Document
     {
         $maxSizeInBytes = 10 * 1024 * 1024;
-        
+
         if (isset($data['file']) && $data['file']->getSize() > $maxSizeInBytes) {
-            throw new DocumentSizeLimitException();
+            throw new DocumentSizeLimitException;
         }
 
         return DB::transaction(function () use ($data, $assignment, $model) {
-            //$model = $this->validateOwnership($data['context'], $data['target_id'], $user);
+            // $model = $this->validateOwnership($data['context'], $data['target_id'], $user);
 
             $filePath = $this->uploadPhysicalFile(
                 $data['file'],
@@ -61,10 +55,6 @@ class DocumentService
 
     /**
      * Update the path of an existing document.
-     *
-     * @param array $data
-     * @param Assignment $assignment
-     * @return Document
      */
     public function updatePathDocument(array $data, Assignment $assignment): Document
     {
@@ -77,23 +67,19 @@ class DocumentService
 
     /**
      * Validate ownership of the target resource.
-     *
-     * @param string $context
-     * @param int $targetId
-     * @return Model
      */
     public function validateOwnership(string $context, int $targetId, Assignment $userAssignment): Model
     {
-        if (!isset($this->contextMap[$context])) {
-            throw new DocumentInvalidContextException();
+        if (! isset($this->contextMap[$context])) {
+            throw new DocumentInvalidContextException;
         }
 
         // Implementation here
         $class = $this->contextMap[$context];
         $model = $class::find($targetId);
 
-        if (!$model) {
-            throw new ResourceNotFoundException();
+        if (! $model) {
+            throw new ResourceNotFoundException;
         }
 
         /*$modelAssignmentId = $model->assignment_id ?? ($model->assignment->id ?? null);
@@ -110,18 +96,17 @@ class DocumentService
     /**
      * Upload a physical file to the storage.
      *
-     * @param string $context
-     * @param string $identifier
-     * @param int $typeId
-     * @return string
+     * @param  string  $context
+     * @param  string  $identifier
+     * @param  int  $typeId
      */
     private function uploadPhysicalFile($file, $context, $identifier, $typeId): string
     {
-        $semester = "2026-1"; // Semester temporal
+        $semester = '2026-1'; // Semester temporal
         $typeDocument = DocumentType::query()->where('id', $typeId)->firstOrFail();
 
         $folder = "{$context}s/{$semester}/{$identifier}/{$typeDocument->code}";
-        $filename = "type_{$typeDocument->code}_" . time() . ".{$file->extension()}";
+        $filename = "type_{$typeDocument->code}_".time().".{$file->extension()}";
 
         return $file->storeAs($folder, $filename, 'public');
     }
@@ -129,22 +114,21 @@ class DocumentService
     /**
      * Save the document to the database.
      *
-     * @param Dossier|Model $model
-     * @param array $data
-     * @param string $path
-     * @param Assignment $assignment
-     * @return Document
+     * @param  Dossier|Model  $model
+     * @param  array  $data
+     * @param  string  $path
+     * @param  Assignment  $assignment
      */
     private function saveToDatabase($model, $data, $path, $assignment): Document
     {
-        if (!$assignment) {
+        if (! $assignment) {
             abort(403, 'You are not authorized to perform this action. WAAA');
         }
 
         return $model->documents()->create([
             'document_type_id' => $data['document_type_id'],
             'path' => $path,
-            'name' => $data['name'], //$data['file']->getClientOriginalName(),
+            'name' => $data['name'], // $data['file']->getClientOriginalName(),
             'uploaded_by' => $assignment->id,
             'approval_status' => 2,
             'comment' => $data['comment'] ?? '',
@@ -153,10 +137,6 @@ class DocumentService
 
     /**
      * Update the status of a document.
-     *
-     * @param Document $document
-     * @param array $data
-     * @return Document
      */
     public function updateStatus(Document $document, array $data): Document
     {
@@ -191,9 +171,6 @@ class DocumentService
 
     /**
      * Handle the completion of a dossier.
-     *
-     * @param Dossier $dossier
-     * @return void
      */
     private function handleDossierCompletion(Dossier $dossier): void
     {

@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Academic\SupervisionController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['role:1,2,3,4'])->group(function () {
     Route::get('supervision/submission', [SupervisionController::class, 'submissionIndex'])->name('supervision.submission');
