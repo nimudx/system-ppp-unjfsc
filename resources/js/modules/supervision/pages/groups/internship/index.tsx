@@ -33,8 +33,6 @@ import CreateGroupModal from './partials/create-group-modal';
 import DeleteGroupModal from './partials/delete-group-modal';
 import EditGroupModal from './partials/edit-group-modal';
 
-
-
 interface Props {
     groups: any;
     faculties: any[];

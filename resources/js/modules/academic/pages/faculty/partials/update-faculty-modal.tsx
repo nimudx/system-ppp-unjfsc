@@ -16,7 +16,6 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
 
-
 interface Props {
     faculty: Faculty | null;
     open: boolean;

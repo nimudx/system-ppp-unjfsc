@@ -19,7 +19,6 @@ import { CsvUploader } from './components/CsvUploader';
 import type { MassivePersonInitValues} from "./schema";
 import { massivePersonInitSchema } from "./schema";
 
-
 interface MassivePersonInitProps {
     roles: any[];
     faculties: Faculty[];

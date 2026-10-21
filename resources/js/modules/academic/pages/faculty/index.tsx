@@ -23,8 +23,6 @@ import CreateFacultyModal from './partials/create-faculty-modal';
 import DeleteFacultyModal from './partials/delete-faculty-modal';
 import UpdateFacultyModal from './partials/update-faculty-modal';
 
-
-
 interface Props {
     faculties: Faculty[];
 }

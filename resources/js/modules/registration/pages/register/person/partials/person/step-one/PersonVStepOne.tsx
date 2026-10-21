@@ -25,7 +25,6 @@ import {
 } from '@/shared/components/ui/select';
 import { AcademicSelectorRHF } from '../../../../components/AcademicSelector/AcademicSelector';
 
-
 import type { PersonInitValues } from './schema';
 import { personInitSchema } from './schema';
 

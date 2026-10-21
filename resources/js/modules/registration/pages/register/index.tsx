@@ -14,7 +14,6 @@ import { ToggleGroup } from './components/ToggleGroup';
 // Flujos (Inyectados)
 import { PersonFlow } from './person/PersonFlow';
 
-
 interface PageProps {
     roles: any[];
     faculties: Faculty[];

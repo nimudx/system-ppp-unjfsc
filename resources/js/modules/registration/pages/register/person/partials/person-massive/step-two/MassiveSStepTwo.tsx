@@ -12,7 +12,6 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { DataPreviewModal } from './partials/DataPreviewModal';
 
-
 interface MassiveSummaryProps {
     data: any;
     roles: any[];

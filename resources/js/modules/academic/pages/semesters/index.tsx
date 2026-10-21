@@ -23,8 +23,6 @@ import BackSemesterModal from './partials/back-semester-modal';
 import CloseSemesterModal from './partials/close-semester-modal';
 import UpdateSemesterModal from './partials/update-semester-modal';
 
-
-
 interface Props {
     semesters: Semester[];
 }

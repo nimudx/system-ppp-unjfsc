@@ -98,6 +98,7 @@
 │   │       ├── 📄 layout.tsx
 │   │       └── 📄 academic-settings-layout.tsx        ← layouts/academic/settings-layout.tsx
 │   ├── 📁 lib
+│   │   ├── 📄 inertia.ts                              # nombre de página → modules/<módulo>/pages (ver nota al final)
 │   │   └── 📄 utils.ts
 │   └── 📁 types
 │       ├── 📄 auth.ts
@@ -289,6 +290,7 @@
 │   │   ├── 📁 pages
 │   │   │   ├── 📄 index.tsx                           ← pages/resource.tsx (despachador por tipo de usuario)
 │   │   │   ├── 📄 academic-resource-content.tsx       ← pages/academic/resource/resource-content.tsx
+│   │   │   ├── 📄 admin-resource-content.tsx          ← pages/admin/resource-content.tsx
 │   │   │   └── 📁 partials (create-resource-sheet, edit-resource-sheet, delete-resource-alert, location-selector .tsx)
 │   │   └── 📄 index.ts
 │   │

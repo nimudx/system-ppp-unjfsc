@@ -12,7 +12,6 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 
-
 interface Props {
     semester: Semester | null;
     open: boolean;

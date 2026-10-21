@@ -14,7 +14,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-
 interface Props {
     semester: Semester | null;
     open: boolean;

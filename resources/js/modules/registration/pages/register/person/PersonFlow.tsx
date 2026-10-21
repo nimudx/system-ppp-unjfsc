@@ -7,7 +7,6 @@ import { Button } from '@/shared/components/ui/button';
 import { RegistrationModeSelector } from '../components/RegistrationModeSelector';
 import { getRegistrationSteps } from '../components/steps.config';
 
-
 import { PersonVStepOne } from './partials/person/step-one/PersonVStepOne';
 import type { PersonInitValues } from './partials/person/step-one/schema';
 import { PersonSStepThree } from './partials/person/step-three/PersonSStepThree';
