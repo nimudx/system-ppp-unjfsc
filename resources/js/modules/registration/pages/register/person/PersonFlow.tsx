@@ -1,23 +1,22 @@
-import { useState } from 'react';
-import { PersonFlowProps, PersonInitialState } from './person.types';
-import { getRegistrationSteps } from '../components/steps.config';
 import { useForm, usePage } from '@inertiajs/react';
-import { personService } from './person.service';
-import { toast } from 'sonner';
-import { Stepper } from '../components/Stepper';
-import { Button } from '@/shared/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Stepper } from '@/shared/components/stepper';
+import { Button } from '@/shared/components/ui/button';
 import { RegistrationModeSelector } from '../components/RegistrationModeSelector';
+import { getRegistrationSteps } from '../components/steps.config';
 
-import { MassivePersonInitValues } from './partials/person-massive/step-one/schema';
-import { MassiveVStepOne } from './partials/person-massive/step-one/MassiveVStepOne';
-import { MassiveSStepTwo } from './partials/person-massive/step-two/MassiveSStepTwo';
-import { MassiveRStepThree } from './partials/person-massive/step-three/MassiveRStepThree';
-
-import { PersonInitValues } from './partials/person/step-one/schema';
 import { PersonVStepOne } from './partials/person/step-one/PersonVStepOne';
+import type { PersonInitValues } from './partials/person/step-one/schema';
 import { PersonSStepThree } from './partials/person/step-three/PersonSStepThree';
 import { PersonFStepTwo } from './partials/person/step-two/PersonFStepTwo';
+import { MassiveVStepOne } from './partials/person-massive/step-one/MassiveVStepOne';
+import type { MassivePersonInitValues } from './partials/person-massive/step-one/schema';
+import { MassiveRStepThree } from './partials/person-massive/step-three/MassiveRStepThree';
+import { MassiveSStepTwo } from './partials/person-massive/step-two/MassiveSStepTwo';
+import { personService } from './person.service';
+import type { PersonFlowProps, PersonInitialState } from './person.types';
 
 export function PersonFlow({
     roles,

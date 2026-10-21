@@ -1,6 +1,12 @@
-import AppLayout from '@/shared/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
+import { X, Users, ChevronRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { DetailHeader } from '@/modules/documents';
+import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
+import Heading from '@/shared/components/heading';
+import { Button } from '@/shared/components/ui/button';
 import {
     Table,
     TableBody,
@@ -9,15 +15,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
-import { Button } from '@/shared/components/ui/button';
-import { X, Users, ChevronRight } from 'lucide-react';
-import Heading from '@/shared/components/heading';
-import StudentManagementTabs from './partials/student-management-tabs';
-import { AcademicFilter } from '@/shared/components/academic/academic-filter';
-import AcademicSearch from '@/shared/components/academic/academic-search';
-import AcademicPagination from '@/shared/components/academic/academic-pagination';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
-import { DetailHeader } from '@/shared/components/academic/detail-header';
+import AppLayout from '@/shared/layouts/app-layout';
+import StudentManagementTabs from './partials/student-management-tabs';
 
 interface Props {
     groups: any[];

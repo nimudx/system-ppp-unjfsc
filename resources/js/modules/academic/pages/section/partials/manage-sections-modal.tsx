@@ -1,4 +1,8 @@
 import { router } from '@inertiajs/react';
+import { Plus, X } from 'lucide-react';
+import type { School } from '@/modules/academic/types';
+import { store, destroy } from '@/routes/academic/sections';
+import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -8,11 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
-import { Badge } from '@/shared/components/ui/badge';
 import { Label } from '@/shared/components/ui/label';
-import { Plus, X } from 'lucide-react';
-import { store, destroy } from '@/routes/academic/sections';
-import type { School } from '@/shared/types';
 
 interface Props {
     school: School | null;

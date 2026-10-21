@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import { SectionCard } from '@/shared/components/ui/section-card';
 import {
     Select,
     SelectContent,
@@ -17,7 +18,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { StudentSelectorTable } from '../../../../components/student-selector-table';
 import { useStudentManagement } from '../../../../hooks/use-student-management';
-import { SectionCard } from '@/shared/components/ui/section-card';
 interface StudentManagementTabsProps {
     group: any;
     allGroups: any[];

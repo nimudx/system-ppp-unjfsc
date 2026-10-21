@@ -1,5 +1,5 @@
 import { GraduationCap } from "lucide-react";
-import { WorkflowStage } from "../types";
+import type { WorkflowStage } from "../types";
 
 interface EvaluationCardProps {
     stage: WorkflowStage;

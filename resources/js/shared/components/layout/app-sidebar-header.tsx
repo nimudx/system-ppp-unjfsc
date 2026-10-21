@@ -1,6 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
-import { Breadcrumbs } from '@/shared/components/breadcrumbs';
+import { NotificationDropdown } from '@/modules/notifications';
+import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,7 +13,6 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/shared/types';
-import { NotificationDropdown } from '../../../modules/notifications/components/notification-dropdown';
 
 const ROLE_COLORS: Record<string, string> = {
     Administrador: 'bg-blue-600',

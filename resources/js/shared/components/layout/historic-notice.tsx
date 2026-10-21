@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { Lock, AlertTriangle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -9,7 +10,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
 
 export function HistoricNotice() {
     const { academic } = usePage().props as any;

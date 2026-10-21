@@ -46,7 +46,7 @@ class InternshipController extends Controller
         if (!$placement || $placement->validation_status !== 1) {
             $data = $this->placementService->getSubmissionData($assignment);
 
-            return Inertia::render('academic/internship/submission/placementIndex', [
+            return Inertia::render('internship/submission/placementIndex', [
                 'data' => $data
             ]);
         }
@@ -57,7 +57,7 @@ class InternshipController extends Controller
             $request->query('step')
         );
 
-        return Inertia::render('academic/internship/submission/internshipIndex', [
+        return Inertia::render('internship/submission/internshipIndex', [
             'data' => $internshipData
         ]);
     }
@@ -87,7 +87,7 @@ class InternshipController extends Controller
             }
         }
 
-        return Inertia::render('academic/internship/validation/index', [
+        return Inertia::render('internship/validation/index', [
             'assignments' => $assignments,
             'faculties' => $faculties,
             'title' => 'Validación de Prácticas'
@@ -297,6 +297,6 @@ class InternshipController extends Controller
 
     public function settings(): Response
     {
-        return Inertia::render('academic/internship/settings/index');
+        return Inertia::render('internship/settings/index');
     }
 }

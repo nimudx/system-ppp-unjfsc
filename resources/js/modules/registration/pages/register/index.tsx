@@ -1,19 +1,18 @@
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
+import type { Faculty } from '@/modules/academic';
+import Heading from '@/shared/components/heading';
+import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from "@/shared/types";
 
 // Layouts & UI Base
-import AppLayout from '@/shared/layouts/app-layout';
-import Heading from '@/shared/components/heading';
 
 // Componentes Desacoplados de UI
-import { ToggleGroup } from '../../../../modules/registration/pages/register/components/ToggleGroup';
-import { SidebarInfo } from '../../../../modules/registration/pages/register/components/SidebarInfo';
+import { SidebarInfo } from './components/SidebarInfo';
+import { ToggleGroup } from './components/ToggleGroup';
 
 // Flujos (Inyectados)
 import { PersonFlow } from './person/PersonFlow';
-
-import { type Faculty } from '@/shared/types';
 
 interface PageProps {
     roles: any[];

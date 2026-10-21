@@ -1,14 +1,12 @@
-import AppLayout from "@/shared/layouts/app-layout";
 import { Head, Link, usePage } from "@inertiajs/react";
-import { type BreadcrumbItem } from "@/shared/types";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/shared/components/ui/table";
+import { MoreHorizontal, UserCog, Settings2, Clock, Info } from "lucide-react";
+import { useState } from "react";
+import { AcademicFilter, type AcademicFilterValues } from "@/shared/components/data-table/academic-filter";
+import AcademicPagination from "@/shared/components/data-table/academic-pagination";
+import AcademicSearch from "@/shared/components/data-table/academic-search";
+import Heading from "@/shared/components/heading";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,20 +15,22 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Button } from "@/shared/components/ui/button";
-import { useState } from "react";
-import { AcademicFilter, type AcademicFilterValues } from "@/shared/components/academic/academic-filter";
-import AcademicSearch from "@/shared/components/academic/academic-search";
-import AcademicPagination from "@/shared/components/academic/academic-pagination";
-import { MoreHorizontal, UserCog, Settings2, Clock, Info } from "lucide-react";
-import Heading from "@/shared/components/heading";
-import ManageAssignmentModal from "../../../../pages/academic/user/management/partials/manage-assignment-modal";
-import PendingRequestModal from "../../../../pages/academic/user/management/partials/pending-request-modal";
-import { Badge } from "@/shared/components/ui/badge";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/shared/components/ui/table";
+import AppLayout from "@/shared/layouts/app-layout";
+import { type BreadcrumbItem } from "@/shared/types";
 
 
 
-import { useUserManagement } from "../../../../pages/academic/user/management/hooks/use-user-management";
+import { useUserManagement } from "./hooks/use-user-management";
+import ManageAssignmentModal from "./partials/manage-assignment-modal";
+import PendingRequestModal from "./partials/pending-request-modal";
 
 interface Props {
     assignments: any;

@@ -27,7 +27,7 @@ class PlacementController extends Controller
     {
         $assignment = Assignment::findOrFail(session('assignment_id'));
 
-        return Inertia::render('academic/internship/submission/placement', [
+        return Inertia::render('internship/submission/placement', [
             'assignment' => $assignment,
         ]);
     }
@@ -36,7 +36,7 @@ class PlacementController extends Controller
     {
         $assignment = Assignment::findOrFail(session('assignment_id'));
 
-        return Inertia::render('academic/internship/validation/placement', [
+        return Inertia::render('internship/validation/placement', [
             'assignment' => $assignment,
         ]);
     }

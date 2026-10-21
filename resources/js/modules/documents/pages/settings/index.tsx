@@ -1,13 +1,6 @@
-import AppLayout from "@/shared/layouts/app-layout";
-import AcademicSettingsLayout from "@/shared/layouts/settings/academic-settings-layout";
 import { Head } from "@inertiajs/react";
-import Heading from "@/shared/components/heading";
-import { Button } from "@/shared/components/ui/button";
 import { Plus } from "lucide-react";
-
-import { useDocumentSetup, DocumentType } from "./hooks/use-document";
-import { DocumentTypeTable } from "./components/DocumentTypeTable";
-import { DocumentTypeForm } from "./components/DocumentTypeForm";
+import Heading from "@/shared/components/heading";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,6 +11,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
+import { Button } from "@/shared/components/ui/button";
+import AppLayout from "@/shared/layouts/app-layout";
+import AcademicSettingsLayout from "@/shared/layouts/settings/academic-settings-layout";
+
+import { DocumentTypeForm } from "./components/DocumentTypeForm";
+import { DocumentTypeTable } from "./components/DocumentTypeTable";
+import type { DocumentType } from "./hooks/use-document";
+import { useDocumentSetup } from "./hooks/use-document";
 
 interface Props {
     documentTypes: DocumentType[];

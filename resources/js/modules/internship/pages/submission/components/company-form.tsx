@@ -1,9 +1,14 @@
-import { Checkbox } from "@/shared/components/ui/checkbox";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "@inertiajs/react";
 import { Save, Building2, User, Calendar, Briefcase, Info, ChevronDown, Search, Plus, X, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import internship from "@/routes/academic/internship";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu";
 import {
     Form,
     FormControl,
@@ -12,16 +17,11 @@ import {
     FormLabel,
     FormMessage,
 } from "@/shared/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { stepDetailsSchema } from "../schemas/detail.schema";
-import { toast } from "sonner";
-import { router } from "@inertiajs/react";
-import { useEffect, useState } from "react";
-import internship from "@/routes/academic/internship";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu";
-import { Badge } from "@/shared/components/ui/badge";
+import { stepDetailsSchema } from "../schemas/detail.schema";
 
 type CompanyArea = { id: number; name: string };
 

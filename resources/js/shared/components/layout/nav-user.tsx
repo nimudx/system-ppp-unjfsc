@@ -1,5 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { ChevronsUpDown } from 'lucide-react';
+import { UserInfo } from '@/shared/components/layout/user-info';
+import { UserMenuContent } from '@/shared/components/layout/user-menu-content';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,8 +13,6 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/shared/components/ui/sidebar';
-import { UserInfo } from '@/shared/components/user-info';
-import { UserMenuContent } from '@/shared/components/user-menu-content';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 
 export function NavUser() {

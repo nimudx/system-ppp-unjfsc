@@ -1,9 +1,6 @@
 import { Building2, Eye, EyeOff, FileText, User, X } from "lucide-react";
-import { ValidationPanel } from "@/shared/components/academic/validation-panel";
-import RequirementsList from "@/shared/components/academic/requirements-list";
-import FilePreview from "@/shared/components/document/FilePreview";
+import { ValidationPanel, RequirementsList, FilePreview, DetailHeader } from '@/modules/documents';
 import { Button } from "@/shared/components/ui/button";
-import { DetailHeader } from "@/shared/components/academic/detail-header";
 import { SectionCard } from "@/shared/components/ui/section-card";
 
 interface DossierDetailPanelProps {

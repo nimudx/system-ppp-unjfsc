@@ -1,17 +1,16 @@
-import { Separator } from '@/shared/components/ui/separator';
 import { FileSpreadsheet, Users, Eye, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/shared/components/ui/button';
-import { DataPreviewModal } from './partials/DataPreviewModal';
+import type { Faculty } from '@/modules/academic';
 import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Separator } from '@/shared/components/ui/separator';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-
-import { type Faculty } from '@/shared/types';
+import { DataPreviewModal } from './partials/DataPreviewModal';
 
 interface MassiveSummaryProps {
     data: any;

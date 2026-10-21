@@ -1,5 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { useState } from "react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
     Table,
     TableBody,
@@ -8,7 +9,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/shared/components/ui/table";
-import { Badge } from "@/shared/components/ui/badge";
 
 interface CsvPreviewProps {
     data: any[];

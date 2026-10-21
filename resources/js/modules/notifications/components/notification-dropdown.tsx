@@ -1,18 +1,19 @@
-import { useState } from 'react';
 import { router, Link } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import { useState } from 'react';
+import type { NotificationMeta } from '@/modules/notifications/config/notification';
+import { resolveConfig } from '@/modules/notifications/config/notification';
+import academic from '@/routes/academic';
+import notificationsRoute from '@/routes/notifications';
+import { Button } from '@/shared/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
-import { Button } from '@/shared/components/ui/button';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { cn } from '@/shared/lib/utils';
-import academic from '@/routes/academic';
-import notificationsRoute from '@/routes/notifications';
-import { resolveConfig, NotificationMeta } from '@/modules/notifications/config/notification';
 
 export function NotificationDropdown({ notifications = [] }: { notifications?: any[] }) {
     const [isOpen, setIsOpen] = useState(false);

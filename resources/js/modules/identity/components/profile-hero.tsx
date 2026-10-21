@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react';
-import { toast } from 'sonner';
 import { Camera, ImagePlus, Trash2 } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { toast } from 'sonner';
+import { update as updateMedia } from '@/routes/profile/media';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -10,7 +11,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
-import { update as updateMedia } from '@/routes/profile/media';
 
 export default function ProfileHero({ profileData }: { profileData: any }) {
     // Helper function to prepend /storage/ to partial paths saving 'http'

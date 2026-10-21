@@ -1,6 +1,5 @@
-import RequirementsList from "@/shared/components/academic/requirements-list";
-import { AlertHelp } from "@/shared/components/document/AlertHelp";
 import { AlertCircle } from "lucide-react";
+import { RequirementsList, AlertHelp } from '@/modules/documents';
 
 interface RequirementListPanelProps {
     requirements: any[];

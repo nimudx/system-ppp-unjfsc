@@ -46,7 +46,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Geist&display=swap" rel="stylesheet">
 
     @viteReactRefresh
-    @vite(['resources/js/app.tsx'])
+    {{-- 'identity/auth/login' -> resources/js/modules/identity/pages/auth/login.tsx (ver shared/lib/inertia.ts) --}}
+    @vite(['resources/js/app.tsx', 'resources/js/modules/'.Str::before($page['component'], '/').'/pages/'.Str::after($page['component'], '/').'.tsx'])
     @inertiaHead
 </head>
 

@@ -76,7 +76,7 @@ class SupervisionController extends Controller
                 });
         }
 
-        return Inertia::render('academic/supervision/submission/index', [
+        return Inertia::render('supervision/submission/index', [
             'faculties' => $faculties,
             'groups' => $groups,
             'students' => $students,
@@ -133,7 +133,7 @@ class SupervisionController extends Controller
                 });
         }
 
-        return Inertia::render('academic/supervision/validation/index', [
+        return Inertia::render('supervision/validation/index', [
             'faculties' => $faculties,
             'groups' => $groups,
             'students' => $students,
@@ -242,6 +242,6 @@ class SupervisionController extends Controller
 
     public function studentIndex(): Response
     {
-        return Inertia::render('academic/supervision/student/index', []);
+        return Inertia::render('supervision/student/index', []);
     }
 }

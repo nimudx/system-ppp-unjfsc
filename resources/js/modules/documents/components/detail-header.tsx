@@ -1,6 +1,6 @@
 import { Building2, User, X } from "lucide-react";
-import { Button } from "../ui/button";
-import { SectionCard } from "../ui/section-card";
+import { Button } from "@/shared/components/ui/button";
+import { SectionCard } from "@/shared/components/ui/section-card";
 
 export function DetailHeader({
     selectedItem,

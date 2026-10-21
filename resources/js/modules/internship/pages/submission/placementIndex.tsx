@@ -1,20 +1,17 @@
 import { Head } from '@inertiajs/react';
 import { Building2, Loader2, Save } from 'lucide-react';
-import RequirementsList from '@/shared/components/academic/requirements-list';
-import { AlertHelp } from '@/shared/components/document/AlertHelp';
-import ContentDetailsDocument from '@/shared/components/academic/submission-form';
+import { RequirementsList, AlertHelp, SubmissionForm as ContentDetailsDocument, SubmissionPanel } from '@/modules/documents';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import { SectionCard } from '@/shared/components/ui/section-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
-import { TYPE_LABELS, TypeSelector } from './components/type-selector';
-import { usePlacementSubmission } from './hooks/use-placement-submission';
 import CompanyForm from './components/company-form';
 import DocumentForm from './components/document-form';
-import { SectionCard } from '@/shared/components/ui/section-card';
-import { SubmissionPanel } from '@/shared/components/academic/submission-panel';
+import { TYPE_LABELS, TypeSelector } from './components/type-selector';
+import { usePlacementSubmission } from './hooks/use-placement-submission';
 
 interface PlacementProps {
     data: {

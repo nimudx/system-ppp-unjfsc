@@ -1,5 +1,7 @@
-import { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
+import type { FormEvent } from 'react';
+import type { Faculty } from '@/modules/academic/types';
+import { store } from '@/routes/academic/schools';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -19,8 +21,6 @@ import {
     SelectValue,
 } from '@/shared/components/ui/select';
 import { Switch } from '@/shared/components/ui/switch';
-import { store } from '@/routes/academic/schools';
-import type { Faculty } from '@/shared/types';
 
 interface Props {
     faculties: Faculty[];

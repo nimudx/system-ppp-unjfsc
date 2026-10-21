@@ -1,5 +1,7 @@
 import { router } from '@inertiajs/react';
 import { RotateCcw, ShieldAlert, History } from 'lucide-react';
+import type { Semester } from '@/modules/academic/types';
+import { back } from '@/routes/academic/semesters';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -9,9 +11,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
-import { back } from '@/routes/academic/semesters';
-
-import type { Semester } from '@/shared/types';
 
 interface Props {
     semester: Semester | null;

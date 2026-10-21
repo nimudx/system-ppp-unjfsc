@@ -1,4 +1,4 @@
-import { type Faculty } from '@/shared/types';
+import type { Faculty } from '@/modules/academic';
 
 export interface PersonFlowProps {
     roles: any[];

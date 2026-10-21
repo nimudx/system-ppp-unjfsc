@@ -30,7 +30,7 @@ class SectionController extends Controller
             $query->where('semester_id', $semesterId);
         }])->get();
 
-        return Inertia::render('academic/management/section/index', [
+        return Inertia::render('academic/section/index', [
             'schools' => $schools,
         ]);
     }

@@ -1,14 +1,10 @@
-import AppLayout from '@/shared/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
-import { type BreadcrumbItem } from '@/shared/types';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/shared/components/ui/table';
+import { MoreHorizontal, Plus, Users, Pencil, Trash2 } from 'lucide-react';
+import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
+import Heading from '@/shared/components/heading';
+import { Button } from '@/shared/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,22 +13,25 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
-import { Button } from '@/shared/components/ui/button';
-import { MoreHorizontal, Plus, Users, Pencil, Trash2 } from 'lucide-react';
-import Heading from '@/shared/components/heading';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
+import AppLayout from '@/shared/layouts/app-layout';
+import { type BreadcrumbItem } from '@/shared/types';
 
+import type {
+    InternshipGroup} from '../../../hooks/use-internship-group';
+import {
+    useInternshipGroup
+} from '../../../hooks/use-internship-group';
 import CreateGroupModal from './partials/create-group-modal';
 import DeleteGroupModal from './partials/delete-group-modal';
 import EditGroupModal from './partials/edit-group-modal';
-
-import { AcademicFilter } from '@/shared/components/academic/academic-filter';
-import AcademicSearch from '@/shared/components/academic/academic-search';
-import AcademicPagination from '@/shared/components/academic/academic-pagination';
-
-import {
-    useInternshipGroup,
-    InternshipGroup,
-} from '../../../hooks/use-internship-group';
 
 interface Props {
     groups: any;

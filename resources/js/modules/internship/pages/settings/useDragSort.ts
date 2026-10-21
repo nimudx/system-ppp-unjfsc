@@ -11,7 +11,8 @@
  *   - source.index        → posición final tras el reordenamiento optimista
  */
 
-import { Modifier, DragOperation } from '@dnd-kit/abstract';
+import type { DragOperation } from '@dnd-kit/abstract';
+import { Modifier } from '@dnd-kit/abstract';
 
 // ─── Modificador: Restringir movimiento al eje vertical ──────────────────────
 export class RestrictToVerticalAxis extends Modifier<any> {

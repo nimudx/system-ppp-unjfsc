@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Users, Calendar, CheckSquare, MessageSquare } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
 export default function TeacherDashboardContent() {
     return (

@@ -1,9 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
 import { LayoutGrid } from 'lucide-react';
 
-import { NavFooter } from '@/shared/components/nav-footer';
-import { NavMain } from '@/shared/components/nav-main';
-import { NavUser } from '@/shared/components/nav-user';
+import { dashboard } from '@/routes';
+import { NavFooter } from '@/shared/components/layout/nav-footer';
+import { NavMain } from '@/shared/components/layout/nav-main';
+import { NavUser } from '@/shared/components/layout/nav-user';
 
 import {
     Sidebar,
@@ -20,7 +21,6 @@ import {
     COMPANY_NAV,
     FOOTER_NAV,
 } from '@/shared/config/navigation';
-import { dashboard } from '@/routes';
 import type { NavItem } from '@/shared/types';
 import AppLogo from '../app-logo';
 

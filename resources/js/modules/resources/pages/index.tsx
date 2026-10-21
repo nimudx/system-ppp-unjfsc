@@ -1,8 +1,8 @@
 import { Head, usePage } from "@inertiajs/react";
-import AcademicResourceContent from "../pages/academic-resource-content";
-import CompanyResourceContent from "../../company/pages/resource-content";
-import AdminResourceContent from "../../admin/resource-content";
+import { CompanyResourceContent } from '@/modules/company';
 import AppLayout from "@/shared/layouts/app-layout";
+import AcademicResourceContent from "./academic-resource-content";
+import AdminResourceContent from "./admin-resource-content";
 
 interface ResourceProps {
     resources?: any;

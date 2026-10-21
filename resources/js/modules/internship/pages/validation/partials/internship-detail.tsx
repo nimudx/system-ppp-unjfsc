@@ -1,15 +1,13 @@
-import { useState } from 'react';
-import { Stepper } from '@/shared/components/general/stepper';
-import { Badge } from '@/shared/components/ui/badge';
-import { Info, FileText, EyeOff, Eye } from 'lucide-react';
-import RequirementsList from '@/shared/components/academic/requirements-list';
-import FilePreview from '@/shared/components/document/FilePreview';
-import { EvaluationView } from '../../submission/parts/EvaluationView';
-import { ValidationPanel } from '@/shared/components/academic/validation-panel';
 import { router } from '@inertiajs/react';
+import { Info, FileText, EyeOff, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { RequirementsList, FilePreview, ValidationPanel } from '@/modules/documents';
 import internship from '@/routes/academic/internship';
+import { Stepper } from '@/shared/components/stepper';
+import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
+import { EvaluationView } from '../../submission/parts/EvaluationView';
 
 interface InternshipDetailProps {
     detailData: any;

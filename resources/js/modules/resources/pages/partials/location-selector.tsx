@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { Label } from "@/shared/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -5,8 +7,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/shared/components/ui/select";
-import { Label } from "@/shared/components/ui/label";
-import { useMemo } from "react";
 
 export interface LocationValue {
     location_id: number | null;

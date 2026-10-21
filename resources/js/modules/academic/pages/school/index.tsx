@@ -1,14 +1,13 @@
 import { Head } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, GraduationCap } from 'lucide-react';
 import { useState } from 'react';
+import type { School, Faculty } from '@/modules/academic/types';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
-import AppLayout from '@/shared/layouts/app-layout';
-import AcademicSearch from '@/shared/components/data-table/academic-search';
-import AcademicPagination from '@/shared/components/data-table/academic-pagination';
-import { useAcademicTable } from '@/shared/hooks/use-academic-table';
-import { usePage } from '@inertiajs/react';
 import {
     Table,
     TableBody,
@@ -17,11 +16,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
-import type { School, Faculty } from '@/shared/types';
+import { useAcademicTable } from '@/shared/hooks/use-academic-table';
+import AppLayout from '@/shared/layouts/app-layout';
 
 import CreateSchoolModal from './partials/create-school-modal';
-import UpdateSchoolModal from './partials/update-school-modal';
 import DeleteSchoolModal from './partials/delete-school-modal';
+import UpdateSchoolModal from './partials/update-school-modal';
 
 interface Props {
     schools: School[];

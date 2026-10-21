@@ -1,11 +1,11 @@
 import { Head } from '@inertiajs/react';
-import SettingsLayout from '@/layouts/settings/layout';
-import Heading from '@/shared/components/heading';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Badge } from '@/shared/components/ui/badge';
-import { Separator } from '@/shared/components/ui/separator';
 import { Cpu, Code2, UserCircle2, ShieldCheck, Github, ExternalLink } from 'lucide-react';
+import Heading from '@/shared/components/heading';
+import { Badge } from '@/shared/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Separator } from '@/shared/components/ui/separator';
 import AppLayout from '@/shared/layouts/app-layout';
+import SettingsLayout from '@/shared/layouts/settings/layout';
 
 const breadcrumbs = [
     {

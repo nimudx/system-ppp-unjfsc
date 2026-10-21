@@ -1,7 +1,7 @@
-import { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
+import { useEffect } from "react";
+import { SubmissionPanel } from '@/modules/documents';
 import supervision from "@/routes/academic/supervision";
-import { SubmissionPanel } from "@/shared/components/academic/submission-panel";
 
 interface AnnexRequirement {
     code: string;

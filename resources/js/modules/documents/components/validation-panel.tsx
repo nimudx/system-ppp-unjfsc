@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import FileHistory from '@/modules/documents/components/FileHistory';
+import { ValidationForm } from '@/modules/documents/components/validation-form';
 import { SectionCard } from '@/shared/components/ui/section-card';
-import { ValidationForm } from '@/shared/components/academic/validation-form';
-import FileHistory from '@/shared/components/document/FileHistory';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
 export interface ValidationPanelProps {
     status?: number;

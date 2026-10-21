@@ -1,16 +1,16 @@
 import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
+import { edit as editAppearance } from '@/routes/appearance';
+import { edit } from '@/routes/profile';
+import { about } from '@/routes/settings';
+import { show } from '@/routes/two-factor';
+import { edit as editPassword } from '@/routes/user-password';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import { useCurrentUrl } from '@/shared/hooks/use-current-url';
 import { cn, toUrl } from '@/shared/lib/utils';
 import type { NavItem } from '@/shared/types';
-import { edit as editAppearance } from '@/routes/appearance';
-import { edit } from '@/routes/profile';
-import { show } from '@/routes/two-factor';
-import { edit as editPassword } from '@/routes/user-password';
-import { about } from '@/routes/settings';
 
 const sidebarNavItems: NavItem[] = [
     {

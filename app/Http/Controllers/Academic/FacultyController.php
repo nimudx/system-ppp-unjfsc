@@ -19,7 +19,7 @@ class FacultyController extends Controller
     public function index(): Response
     {
         $faculties = Faculty::all();
-        return Inertia::render('academic/management/faculty/index', ['faculties' => $faculties]);
+        return Inertia::render('academic/faculty/index', ['faculties' => $faculties]);
     }
 
     /**

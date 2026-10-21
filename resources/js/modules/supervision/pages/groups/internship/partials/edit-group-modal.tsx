@@ -1,3 +1,11 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "@inertiajs/react";
+import axios from "axios";
+import { Loader2, Info } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import groups from "@/routes/academic/groups";
 import { Button } from "@/shared/components/ui/button";
 import {
     Dialog,
@@ -7,6 +15,14 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/shared/components/ui/dialog";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/shared/components/ui/form';
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import {
@@ -16,23 +32,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/shared/components/ui/select";
-import { router } from "@inertiajs/react";
-import { useForm } from "react-hook-form";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import groups from "@/routes/academic/groups";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/shared/components/ui/form';
-import { updateGroupSchema, UpdateGroupValues } from "./update.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Info } from "lucide-react";
+import type { UpdateGroupValues } from "./update.schema";
+import { updateGroupSchema } from "./update.schema";
 
 interface EditGroupModalProps {
     open: boolean;

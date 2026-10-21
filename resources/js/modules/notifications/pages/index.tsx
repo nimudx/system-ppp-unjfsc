@@ -1,19 +1,20 @@
-import Heading from "@/shared/components/heading";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardHeader } from "@/shared/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { Input } from "@/shared/components/ui/input";
-import AppLayout from "@/shared/layouts/app-layout";
-import academic from '@/routes/academic';
-import notificationsRoute from '@/routes/notifications';
 import { Head, router } from "@inertiajs/react";
 import { isToday, isYesterday, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Bell, ChevronLeft, Inbox, CheckCheck, Trash2, Search } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
 import React, { useState, useMemo } from "react";
-import { resolveConfig, NotificationMeta } from "@/modules/notifications/config/notification";
+import type { NotificationMeta } from "@/modules/notifications/config/notification";
+import { resolveConfig } from "@/modules/notifications/config/notification";
+import academic from '@/routes/academic';
+import notificationsRoute from '@/routes/notifications';
+import Heading from "@/shared/components/heading";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import AppLayout from "@/shared/layouts/app-layout";
+import { cn } from "@/shared/lib/utils";
 
 interface NotificationAction {
     route: string;

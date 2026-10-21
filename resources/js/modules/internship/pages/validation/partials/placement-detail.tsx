@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { router } from '@inertiajs/react';
 import {
     Building2,
     User,
@@ -6,18 +6,13 @@ import {
     FileText,
     EyeOff,
     Eye,
-    Info,
 } from 'lucide-react';
-import { Badge } from '@/shared/components/ui/badge';
-import RequirementsList from '@/shared/components/academic/requirements-list';
-import FilePreview from '@/shared/components/document/FilePreview';
-import { Button } from '@/shared/components/ui/button';
-import ContentDetailsDocument from '@/shared/components/academic/submission-form';
-import { ValidationPanel } from '@/shared/components/academic/validation-panel';
-import { SectionCard } from '@/shared/components/ui/section-card';
-
-import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { RequirementsList, FilePreview, SubmissionForm as ContentDetailsDocument, ValidationPanel } from '@/modules/documents';
 import internship from '@/routes/academic/internship';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { SectionCard } from '@/shared/components/ui/section-card';
 
 interface PlacementDetailProps {
     detailData: any;
@@ -47,13 +42,6 @@ export function InfoItem({
         </div>
     );
 }
-
-const TYPE_LABELS: any = {
-    development: 'Desarrollo de Prácticas',
-    validation: 'Convalidación de Prácticas',
-    direct: 'Vía Directa',
-    indirect: 'Vía Indirecta',
-};
 
 export default function PlacementDetail({
     detailData,
@@ -97,32 +85,6 @@ export default function PlacementDetail({
 
     return (
         <div className="mt-5 flex flex-1 flex-col gap-5 overflow-hidden xl:flex-row">
-            {/* COL 1: Información Lateral Izquierda ──────────────── */}
-            {/*<aside className="w-56 xl:w-64 border-r bg-muted/10 p-4 space-y-6 shrink-0 hidden xl:flex flex-col">
-                <div className="space-y-4">
-                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Modalidad</h3>
-                    <div className="space-y-2">
-                        <Badge variant="outline" className="w-full justify-start py-1.5 bg-background shadow-sm border-blue-100 text-blue-700">
-                            {TYPE_LABELS[detailData?.placement?.internship_type] || '---'}
-                        </Badge>
-                        <Badge variant="outline" className="w-full justify-start py-1.5 bg-background shadow-sm">
-                            {TYPE_LABELS[detailData?.placement?.origin_type] || '---'}
-                        </Badge>
-                    </div>
-                </div>
-
-                <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center gap-2 text-blue-800">
-                        <Info className="size-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-wide">Guía de Validación</span>
-                    </div>
-                    <p className="text-[11px] text-blue-700 leading-relaxed">
-                        Revise que los datos de la empresa coincidan con los documentos cargados.
-                        La formalización debe ser aprobada antes de iniciar el seguimiento.
-                    </p>
-                </div>
-            </aside>*/}
-
             {/* COL 2: Panel Central (Detalles Empresa o PDF) ──────── */}
             <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
                 <SectionCard>

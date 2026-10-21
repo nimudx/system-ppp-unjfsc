@@ -98,6 +98,7 @@
 │   │       ├── 📄 layout.tsx
 │   │       └── 📄 academic-settings-layout.tsx        ← layouts/academic/settings-layout.tsx
 │   ├── 📁 lib
+│   │   ├── 📄 inertia.ts                              # nombre de página → modules/<módulo>/pages (ver nota al final)
 │   │   └── 📄 utils.ts
 │   └── 📁 types
 │       ├── 📄 auth.ts
@@ -146,7 +147,7 @@
 │   │   │   └── 📄 update-company-profile-form.tsx
 │   │   ├── 📁 hooks
 │   │   │   └── 📄 use-two-factor-auth.ts
-│   │   └── 📄 index.ts -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 registration                                # Alta de usuarios
 │   │   ├── 📁 pages
@@ -175,7 +176,7 @@
 │   │   │                   ├── 📁 step-one   (MassiveVStepOne.tsx, schema.ts, csv.schema.ts, csv.utils.ts, components/CsvPreview.tsx, components/CsvUploader.tsx)
 │   │   │                   ├── 📁 step-two   (MassiveSStepTwo.tsx, partials/DataPreviewModal.tsx)
 │   │   │                   └── 📁 step-three (MassiveRStepThree.tsx)
-│   │   └── 📄 index.ts -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 dashboard
 │   │   ├── 📁 pages
@@ -203,7 +204,7 @@
 │   │   │       ├── 📄 index.tsx
 │   │   │       └── 📁 partials (back-, close-, update-semester-modal.tsx)
 │   │   ├── 📄 types.ts                                ← types/models.ts
-│   │   └── 📄 index.ts -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 documents                                   # UI de revisión y carga de documentos (la usan 3 módulos)
 │   │   ├── 📁 pages
@@ -225,7 +226,7 @@
 │   │   │   ├── 📄 validation-form.tsx
 │   │   │   ├── 📄 validation-panel.tsx
 │   │   │   └── 🗑️ status-form.tsx                     # sin uso
-│   │   └── 📄 index.ts       --encontrar              # exporta lo que dossier/internship/supervision pueden usar
+│   │   └── 📄 index.ts                                # exporta lo que dossier/internship/supervision pueden usar
 │   │
 │   ├── 📁 dossier
 │   │   ├── 📁 pages
@@ -233,7 +234,7 @@
 │   │   │   └── 📁 validation (index.tsx)
 │   │   ├── 📁 components (dossier-detail-panel.tsx, dossier-table.tsx)
 │   │   ├── 📁 hooks (use-dossier-validation.ts)
-│   │   └── 📄 index.ts   -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 internship
 │   │   ├── 📁 pages
@@ -255,7 +256,7 @@
 │   │   │       ├── 📄 useWorkflow.ts
 │   │   │       └── 📁 components (BuilderCard, EvaluationCard, JsonPreview, RequirementColumn, StepperPreview .tsx)
 │   │   │   # 🗑️ pages/academic/settings/internship.tsx y hooks/use-student-group.ts están vacíos
-│   │   └── 📄 index.ts  -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 supervision                                 # Supervisión + grupos
 │   │   ├── 📁 pages
@@ -283,14 +284,15 @@
 │   │   │   ├── 📄 use-internship-group.ts
 │   │   │   └── 📄 use-student-management.ts
 │   │   ├── 📄 types.ts                                ← types/data.tsx
-│   │   └── 📄 index.ts  -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 resources
 │   │   ├── 📁 pages
 │   │   │   ├── 📄 index.tsx                           ← pages/resource.tsx (despachador por tipo de usuario)
 │   │   │   ├── 📄 academic-resource-content.tsx       ← pages/academic/resource/resource-content.tsx
+│   │   │   ├── 📄 admin-resource-content.tsx          ← pages/admin/resource-content.tsx
 │   │   │   └── 📁 partials (create-resource-sheet, edit-resource-sheet, delete-resource-alert, location-selector .tsx)
-│   │   └── 📄 index.ts  -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 notifications
 │   │   ├── 📁 pages
@@ -299,7 +301,7 @@
 │   │   │   └── 📄 notification-dropdown.tsx
 │   │   ├── 📁 config
 │   │   │   └── 📄 notification.tsx                    ← config/notification.tsx
-│   │   └── 📄 index.ts  -- encontrar
+│   │   └── 📄 index.ts
 │   │
 │   ├── 📁 company
 │   │   ├── 📁 pages
@@ -331,3 +333,29 @@
 │       │   └── 🆕 📄 vacancy.schema.ts                # Zod
 │       ├── 🆕 📄 types.ts
 │       └── 🆕 📄 index.ts
+
+---
+
+### Nota: resolver de páginas (`app.tsx` / `ssr.tsx`)
+
+Laravel nombra cada página como `'<módulo>/<ruta dentro de pages>'` y el frontend la
+busca en `resources/js/modules/<módulo>/pages/<ruta>.tsx`
+(ver `shared/lib/inertia.ts`):
+
+| `Inertia::render(...)`        | Archivo                                               |
+| ----------------------------- | ----------------------------------------------------- |
+| `'public/landing'`            | `modules/public/pages/landing.tsx`                    |
+| `'identity/auth/login'`       | `modules/identity/pages/auth/login.tsx`               |
+| `'dashboard/dashboard'`       | `modules/dashboard/pages/dashboard.tsx`               |
+| `'academic/faculty/index'`    | `modules/academic/pages/faculty/index.tsx`            |
+| `'supervision/groups/student/index'` | `modules/supervision/pages/groups/student/index.tsx` |
+
+Reglas:
+
+- Al crear una página nueva, se usa ese mismo nombre en el controlador; no hay que
+  registrar alias.
+- `resources/views/app.blade.php` precarga la página con la misma regla.
+- Entre módulos se importa por su `index.ts` (`import { ValidationPanel } from '@/modules/documents'`),
+  nunca por rutas internas de otro módulo.
+- `shared/` no importa de `modules/`. Excepciones actuales: `app-sidebar-header` usa
+  `NotificationDropdown` y `academic-filter` usa el tipo `Faculty`.

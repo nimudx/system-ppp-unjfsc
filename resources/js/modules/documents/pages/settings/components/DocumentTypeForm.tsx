@@ -1,4 +1,7 @@
+import InputError from '@/shared/components/input-error';
+import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -10,9 +13,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Textarea } from '@/shared/components/ui/textarea';
-import { Badge } from '@/shared/components/ui/badge';
-import InputError from '@/shared/components/input-error';
-import { Checkbox } from '@/shared/components/ui/checkbox';
 
 interface DocumentTypeFormProps {
     isOpen: boolean;

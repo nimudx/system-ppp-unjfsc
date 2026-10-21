@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
-import { AcademicFilter } from '@/shared/components/academic/academic-filter';
-import AcademicPagination from '@/shared/components/academic/academic-pagination';
-import AcademicSearch from '@/shared/components/academic/academic-search';
+import type { Faculty } from '@/modules/academic';
+import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
 import AppLayout from '@/shared/layouts/app-layout';
-import { type Faculty } from '@/shared/types';
 import DossierDetailPanel from '../../components/dossier-detail-panel';
 import DossierTable from '../../components/dossier-table';
 import { useDossierValidation } from '../../hooks/use-dossier-validation';

@@ -1,15 +1,15 @@
 import { Head } from '@inertiajs/react';
 import { Info } from 'lucide-react';
 import { useState } from 'react';
-import { Stepper } from '@/shared/components/general/stepper';
+import { SubmissionPanel } from '@/modules/documents';
 import Heading from '@/shared/components/heading';
+import { Stepper } from '@/shared/components/stepper';
 import { Badge } from '@/shared/components/ui/badge';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 // Hook
 import { useInternshipSubmission } from './hooks/use-internship-submission';
 // Components
-import { SubmissionPanel } from '../../../../components/academic/submission-panel';
 import { DocumentViewerPanel } from './parts/DocumentViewerPanel';
 import { EvaluationView } from './parts/EvaluationView';
 import { RequirementListPanel } from './parts/RequirementListPanel';

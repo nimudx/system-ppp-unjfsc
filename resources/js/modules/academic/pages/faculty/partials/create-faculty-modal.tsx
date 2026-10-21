@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import { store } from '@/routes/academic/faculties';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -12,7 +13,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
-import { store } from '@/routes/academic/faculties';
 
 interface Props {
     open: boolean;

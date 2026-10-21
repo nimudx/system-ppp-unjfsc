@@ -15,28 +15,28 @@ import {
     Users,
 } from 'lucide-react';
 import { dashboard } from '@/routes';
-import { index as semestersIndex } from '@/routes/academic/semesters';
-import { index as facultiesIndex } from '@/routes/academic/faculties';
-import { index as schoolsIndex } from '@/routes/academic/schools';
-import { index as sectionsIndex } from '@/routes/academic/sections';
-import { index as registerIndex } from '@/routes/register';
-import { index as subadminsIndex } from '@/routes/academic/subadmins';
-import { index as teachersIndex } from '@/routes/academic/teachers';
-import { index as supervisorsIndex } from '@/routes/academic/supervisors';
-import { index as studentsIndex } from '@/routes/academic/students';
 import { submission as dossierSubmissionIndex } from '@/routes/academic/dossiers';
 import { teacher as teacherDossierIndex } from '@/routes/academic/dossiers';
 import { supervisor as supervisorDossierIndex } from '@/routes/academic/dossiers';
 import { student as studentDossierIndex } from '@/routes/academic/dossiers';
+import { index as facultiesIndex } from '@/routes/academic/faculties';
 import { internship as internshipIndex } from '@/routes/academic/groups';
 import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
-import { submission as supervisionSubmissionIndex } from '@/routes/academic/supervision';
-import { validation as supervisionValidationIndex } from '@/routes/academic/supervision';
-import { student as studentSupervisionIndex } from '@/routes/academic/supervision';
-import { index as resourceIndex } from '@/routes/resource';
 import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
 import { validation as internshipValidationIndex } from '@/routes/academic/internship';
+import { index as schoolsIndex } from '@/routes/academic/schools';
+import { index as sectionsIndex } from '@/routes/academic/sections';
+import { index as semestersIndex } from '@/routes/academic/semesters';
+import { index as studentsIndex } from '@/routes/academic/students';
+import { index as subadminsIndex } from '@/routes/academic/subadmins';
+import { student as studentSupervisionIndex } from '@/routes/academic/supervision';
+import { validation as supervisionValidationIndex } from '@/routes/academic/supervision';
+import { submission as supervisionSubmissionIndex } from '@/routes/academic/supervision';
+import { index as supervisorsIndex } from '@/routes/academic/supervisors';
+import { index as teachersIndex } from '@/routes/academic/teachers';
+import { index as registerIndex } from '@/routes/register';
+import { index as resourceIndex } from '@/routes/resource';
 
 export const ACADEMIC_NAV = [
     {

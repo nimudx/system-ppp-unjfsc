@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import groups from '@/routes/academic/groups';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -9,7 +10,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
-import groups from '@/routes/academic/groups';
 
 interface Props {
     group: any | null;

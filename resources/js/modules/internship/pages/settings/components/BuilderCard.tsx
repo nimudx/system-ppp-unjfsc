@@ -1,6 +1,6 @@
-import { Trash2, GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { WorkflowStage } from "../types";
+import { Trash2, GripVertical } from "lucide-react";
+import type { WorkflowStage } from "../types";
 import { RequirementColumn } from "./RequirementColumn";
 
 interface BuilderCardProps {

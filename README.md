@@ -24,21 +24,28 @@
 ### Estructura Principal del Proyecto
 
 ```text
-├── app/                  # Lógica del Backend (Controladores, Modelos, Middleware)
-├── bootstrap/            # Configuración de inicialización de Laravel
-├── config/               # Archivos de configuración del framework
-├── database/             # Migraciones, Factories y Seeders (MariaDB)
-├── docker/               # Archivos de configuración de entornos Docker (Nginx, PHP, etc.)
+├── app/                     # Backend: controladores, modelos, servicios, middleware
+├── config/                  # Configuración de Laravel
+├── database/                # Migraciones, factories y seeders (MariaDB)
+├── docker/                  # Dockerfile y entrypoint de la imagen de producción (PHP-FPM)
+├── docs/                    # Documentación del equipo (Frontend.md, Backend.md, ...)
 ├── resources/
-│   ├── js/               # Frontend en React + Inertia.js
-│   │   ├── Components/   # Componentes reutilizables (Shadcn UI)
-│   │   ├── Pages/        # Vistas y Páginas de la aplicación
-│   │   └── app.jsx       # Punto de entrada de React
-│   └── views/            # Plantilla raíz (root.blade.php)
-├── routes/               # Rutas de la Aplicación (web.php, api.php)
-├── docker-compose.yml    # Orquestación de contenedores (Dev/Prod)
-└── vite.config.js        # Configuración del empaquetador Vite
+│   ├── css/app.css          # Tailwind + tema (paleta lochmara, claro/oscuro)
+│   ├── js/
+│   │   ├── app.tsx          # Punto de entrada de React + Inertia
+│   │   ├── shared/          # Lo común: ui (shadcn), layouts, hooks, lib, tipos
+│   │   ├── modules/         # Un módulo por área: identity, academic, dossier, ...
+│   │   │   └── <módulo>/    #   pages/, components/, hooks/ e index.ts (API pública)
+│   │   ├── routes/          # Generado por Wayfinder (no editar)
+│   │   └── actions/         # Generado por Wayfinder (no editar)
+│   └── views/app.blade.php  # Plantilla raíz
+├── routes/                  # Rutas web.php, api.php y por área
+├── docker-compose.yml       # Desarrollo: solo la base de datos (MariaDB)
+├── docker-compose.prod.yml  # Producción: app (PHP-FPM) + base de datos
+└── vite.config.ts           # Configuración de Vite
 ```
+
+La organización del frontend y sus reglas están en [docs/Frontend.md](docs/Frontend.md). En resumen: cada página vive en `resources/js/modules/<módulo>/pages/` y el controlador la nombra como `'<módulo>/<ruta>'`, por ejemplo `Inertia::render('identity/auth/login')` → `modules/identity/pages/auth/login.tsx`.
 ---
 
 ### 1. Modo Desarrollo (Local - Híbrido)
@@ -92,7 +99,7 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
     php artisan key:generate
     
     # Levantar el contenedor de MariaDB en segundo plano
-    docker compose --profile dev up -d
+    docker compose up -d
     ```
 4. **Ejecutar Migraciones y Poblado de Datos (Seeds)**
     ```bash
@@ -100,9 +107,29 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
     ```
     Nota: Si el comando falla indicando que busca el puerto 3306, limpia la caché de configuración con **php artisan config:clear** o fuerza el puerto ejecutando: DB_PORT=3307 **php artisan migrate --seed**.
 
-    Esto crea los roles, tipos de usuario y un usuario administrador inicial para poder ingresar al sistema:
-    * **Email:** `admin@unjfsc.edu.pe`
-    * **Password:** `12345678`
+    Esto crea los roles, los tipos de usuario y el administrador inicial (`admin@unjfsc.edu.pe` / `12345678`).
+
+    Para trabajar con datos de prueba (facultades, escuelas, secciones del ciclo 2026-I, tipos de documento y usuarios de cada rol), ejecuta además, en este orden:
+    ```bash
+    php artisan db:seed --class=Cycle2026Seeder
+    php artisan db:seed --class=DocumentTypeRoleSeeder
+    ```
+
+    Usuarios de prueba (contraseña para todos: `12345678`):
+
+    | Email | Rol |
+    |---|---|
+    | `admin@unjfsc.edu.pe` | Administrador |
+    | `nicasio@gmail.com`, `admin2@gmail.com` | Administrador |
+    | `subadmin1@gmail.com`, `subadmin2@gmail.com` | Sub Administrador |
+    | `docente1@gmail.com`, `docente2@gmail.com` | Docente Titular |
+    | `supervisor1@gmail.com`, `supervisor2@gmail.com` | Docente Supervisor |
+    | `estudiante1@gmail.com`, `estudiante2@gmail.com` | Estudiante |
+
+    > **¿No puedes ingresar con `12345678`?** Los seeders usan `firstOrCreate`: si el usuario ya existía en tu base (por ejemplo, de una instalación anterior), **no le cambian la contraseña**. Restablécela con:
+    > ```bash
+    > php artisan tinker --execute="App\Models\User::where('email','admin@unjfsc.edu.pe')->update(['password' => Hash::make('12345678')]);"
+    > ```
 5. **Instalar dependencias del frontend**
     ```bash
     npm install
@@ -121,45 +148,34 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
     ```
     Recuerda tener Docker Desktop abierto y el contenedor de la base de datos levantado (`docker compose up -d`) antes de iniciar.
 
+    **Si aparece `ViteManifestNotFoundException`:** Laravel no encuentra `public/hot`, el archivo con el que Vite avisa que está corriendo.
+    * Espera a ver `VITE ... ready` en la terminal antes de abrir el navegador, y recarga la página.
+    * Mantén **un solo** servidor de desarrollo abierto. Si arrancas un segundo, su Vite no consigue el puerto 5173, se cierra y al cerrarse borra `public/hot`. Detén el que sobra con `Ctrl + C` y vuelve a lanzar uno.
+
 ---
 
 ### 2. Modo Producción (VPS + Docker Completo)
-El entorno de producción corre de forma 100% contenerizada dentro del VPS. Todo el tráfico web externo está completamente blindado y anonimizado utilizando Cloudflare Tunnels, eliminando la necesidad de exponer puertos públicos del servidor al internet.
+El entorno de producción corre 100% en contenedores dentro del VPS: la app (PHP-FPM) y MariaDB, definidos en `docker-compose.prod.yml`. El Caddy del VPS sirve los archivos públicos y le pasa las peticiones a PHP-FPM; el tráfico externo entra por Cloudflare, así que el servidor no expone puertos públicos.
 
-### Prerrequisitos en el VPS
-* Docker & Docker Compose instalado de forma nativa.
-* Cuenta de Cloudflare con los Nameservers delegados correctamente.
+#### Despliegue automático (flujo normal)
+No hace falta entrar al VPS: **cada push a `main` despliega solo** mediante el workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
 
-#### Pasos para Inicializar en Local
+1. Construye la imagen de producción (`docker/Dockerfile`, incluye `npm run build`) y la publica en GHCR.
+2. Se conecta por SSH al VPS, actualiza el código (`git pull origin main`) y escribe el `.env` de producción desde los secretos de GitHub.
+3. Ejecuta `docker compose -f docker-compose.prod.yml pull`, `up -d` y `php artisan migrate --force` dentro del contenedor `app`.
 
-1. **Clonar la rama de producción directamente en el VPS**
-    ```bash
-    git clone -b production https://github.com/nimudx/system-ppp-unjfsc.git
-    cd system-ppp-unjfsc
-    ```
-2. **Configurar el entorno de producción**
-    ```bash
-    cp .env.example .env
-    nano .env
-    ```
-    Asegúrate de definir variables seguras para la base de datos de producción (db_system_ppp_prod).
-3. **Levantar todo el Stack Productivo**
-    Levanta de forma aislada los contenedores de producción (nginx, app-prod, db-prod) limitando sus recursos para proteger la RAM del VPS:
-    ```bash
-    docker compose --profile prod up -d
-    ```
-4. **Ejecutar Migraciones Estructurales**
-    Corre las migraciones de forma interna y segura dentro del contenedor productivo app:
-    ```bash
-    docker exec -it app-prod php artisan migrate --force
-    ```
-5. **Optimizar el Rendimiento de Laravel**
-    Obliga a Laravel a precargar las configuraciones, rutas y layouts en memoria para acelerar la velocidad de carga de las peticiones de Inertia:
-    ```bash
-    docker exec -it app-prod php artisan optimize
-    ```
-    El sistema estará listo y securizado, respondiendo directamente de forma cifra a través de 
-    https://sistemappp.kerpun.com
+Si el build falla, el despliegue no se ejecuta y producción sigue con la versión anterior. Por eso los cambios se integran con un Pull Request hacia `main`, no con push directo.
+
+#### Despliegue manual (solo si hiciera falta)
+Desde la carpeta del proyecto en el VPS:
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+```
+El `docker/entrypoint.sh` del contenedor ya regenera las cachés de configuración, rutas y vistas en cada arranque.
+
+El sistema responde en **https://practicaspre.kerpun.com**
 
 ## Licencia
 

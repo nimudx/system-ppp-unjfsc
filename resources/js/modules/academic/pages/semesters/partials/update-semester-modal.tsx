@@ -1,5 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
+import type { Semester } from '@/modules/academic/types';
+import { update } from '@/routes/academic/semesters';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -11,9 +13,6 @@ import {
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
-import { update } from '@/routes/academic/semesters';
-
-import type { Semester } from '@/shared/types';
 
 interface Props {
     semester: Semester | null;

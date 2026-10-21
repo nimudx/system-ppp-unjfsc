@@ -1,5 +1,5 @@
-import { useConfigTable } from "@/shared/hooks/use-config-table";
 import { useState } from "react";
+import { useConfigTable } from "@/shared/hooks/use-config-table";
 
 export interface Assignment {
     id: number;

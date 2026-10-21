@@ -1,16 +1,16 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Settings, ShieldCheck } from 'lucide-react';
+import { logout } from '@/routes';
+import { edit } from '@/routes/profile';
+import { UserInfo } from '@/shared/components/layout/user-info';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from '@/shared/components/ui/dropdown-menu';
-import { UserInfo } from '@/shared/components/user-info';
 import { useMobileNavigation } from '@/shared/hooks/use-mobile-navigation';
 import type { User } from '@/shared/types';
-import { logout } from '@/routes';
-import { edit } from '@/routes/profile';
 
 type Props = {
     user: User;

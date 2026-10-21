@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useConfigTable, TableData } from '@/shared/hooks/use-config-table';
+import type { TableData } from '@/shared/hooks/use-config-table';
+import { useConfigTable } from '@/shared/hooks/use-config-table';
 
 // --- DEFINICIÓN DE TIPOS ---
 export interface Person {

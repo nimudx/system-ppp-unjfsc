@@ -1,3 +1,4 @@
+import { useFormContext, useWatch } from "react-hook-form";
 import {
     FormControl,
     FormField,
@@ -13,7 +14,6 @@ import {
     SelectValue,
 } from "@/shared/components/ui/select";
 
-import { useFormContext, useWatch } from "react-hook-form";
 import { useAcademicAutoResolver } from "./useAcademicAutoResolver";
 
 export function AcademicSelectorRHF({

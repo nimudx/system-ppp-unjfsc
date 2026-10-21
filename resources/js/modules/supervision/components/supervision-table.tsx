@@ -1,4 +1,6 @@
-import AcademicPagination from '@/shared/components/academic/academic-pagination';
+import { ChevronRight, User } from 'lucide-react';
+import type { StudentSupervision } from '@/modules/supervision/types';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,
@@ -8,8 +10,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
-import { StudentSupervision } from '@/shared/types';
-import { ChevronRight, User } from 'lucide-react';
 
 interface SupervisionTableProps {
     // El objeto retornado por useConfigTable

@@ -1,6 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
-import { Breadcrumbs } from '@/shared/components/breadcrumbs';
+import { dashboard } from '@/routes';
+import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
+import { UserMenuContent } from '@/shared/components/layout/user-menu-content';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -27,11 +29,9 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
-import { UserMenuContent } from '@/shared/components/user-menu-content';
 import { useCurrentUrl } from '@/shared/hooks/use-current-url';
 import { useInitials } from '@/shared/hooks/use-initials';
 import { cn, toUrl } from '@/shared/lib/utils';
-import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/shared/types';
 import AppLogo from '../app-logo';
 import AppLogoIcon from '../app-logo-icon';

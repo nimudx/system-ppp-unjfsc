@@ -1,24 +1,25 @@
-import AppLayout from '@/shared/layouts/app-layout';
-import AcademicSettingsLayout from '@/layouts/academic/settings-layout';
-import { Head, router, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
 import { DragDropProvider } from '@dnd-kit/react';
-import { toast } from 'sonner';
-
-import { useWorkflow } from './useWorkflow';
-import { buildDragEndHandler, RestrictToVerticalAxis } from './useDragSort';
-import { BuilderCard } from './components/BuilderCard';
-import { EvaluationCard } from './components/EvaluationCard';
-import { StepperPreview } from './components/StepperPreview';
-import { JsonPreview } from './components/JsonPreview';
-import {
-    AcademicFilter,
-    AcademicFilterValues,
-} from '@/shared/components/academic/academic-filter';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Plus, Save, GitMerge } from 'lucide-react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+import internship from '@/routes/academic/internship';
+import type {
+    AcademicFilterValues} from '@/shared/components/data-table/academic-filter';
+import {
+    AcademicFilter
+} from '@/shared/components/data-table/academic-filter';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
-import internship from '@/routes/academic/internship';
+import AppLayout from '@/shared/layouts/app-layout';
+import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
+
+import { BuilderCard } from './components/BuilderCard';
+import { EvaluationCard } from './components/EvaluationCard';
+import { JsonPreview } from './components/JsonPreview';
+import { StepperPreview } from './components/StepperPreview';
+import { buildDragEndHandler, RestrictToVerticalAxis } from './useDragSort';
+import { useWorkflow } from './useWorkflow';
 
 // ─── Plantilla por defecto para secciones sin configuración ──────────────────
 const createDefaultWorkflow = () => [

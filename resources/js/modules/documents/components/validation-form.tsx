@@ -1,9 +1,9 @@
-import * as React from "react"
 import { CheckCircle2, AlertCircle, Clock, ArrowRight, MessageSquare, Loader2, XCircle, FileText } from "lucide-react"
-import { cn } from "@/shared/lib/utils"
+import * as React from "react"
 import { Button } from "@/shared/components/ui/button"
 import { Label } from "@/shared/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "../../../shared/components/ui/radio-group"
+import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group"
+import { cn } from "@/shared/lib/utils"
 
 interface ValidationFormProps {
     status?: number;            // Current status: 1: Approved, 3: Observed

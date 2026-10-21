@@ -1,3 +1,5 @@
+import { CheckCircle2, AlertCircle, RefreshCcw, LayoutPanelLeft } from "lucide-react";
+import Heading from "@/shared/components/heading";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -9,10 +11,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/shared/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { CheckCircle2, AlertCircle, RefreshCcw, LayoutPanelLeft } from "lucide-react";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import Heading from "@/shared/components/heading";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 
 interface SummaryReportProps {
     report: {

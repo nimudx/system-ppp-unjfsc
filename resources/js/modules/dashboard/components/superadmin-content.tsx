@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Shield, Building2, Users, Database } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
 export default function SuperAdminDashboardContent() {
     return (

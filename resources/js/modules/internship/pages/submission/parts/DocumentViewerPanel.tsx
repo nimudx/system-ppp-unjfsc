@@ -1,5 +1,5 @@
-import DocumentViewer from "@/shared/components/document/DocumentViewer";
 import { FileText } from "lucide-react";
+import { DocumentViewer } from '@/modules/documents';
 import { Spinner } from "@/shared/components/ui/spinner";
 
 interface DocumentViewerPanelProps {

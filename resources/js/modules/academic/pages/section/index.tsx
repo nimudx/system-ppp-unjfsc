@@ -1,12 +1,12 @@
-import AppLayout from '@/shared/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
+import { GraduationCap, LayoutGrid, Plus } from 'lucide-react';
 import { useState } from 'react';
+import type { School } from '@/modules/academic/types';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
-import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
-import AcademicSearch from '@/shared/components/academic/academic-search';
-import AcademicPagination from '@/shared/components/academic/academic-pagination';
-import { useAcademicTable } from '@/shared/hooks/use-academic-table';
+import { Button } from '@/shared/components/ui/button';
 import {
     Table,
     TableBody,
@@ -15,9 +15,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
-import { GraduationCap, LayoutGrid, Plus } from 'lucide-react';
+import { useAcademicTable } from '@/shared/hooks/use-academic-table';
+import AppLayout from '@/shared/layouts/app-layout';
 import ManageSectionsModal from './partials/manage-sections-modal';
-import type { School } from '@/shared/types';
 
 interface Props {
     schools: School[];

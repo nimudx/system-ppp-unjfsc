@@ -1,6 +1,6 @@
 import { AlertCircle, CheckCircle2, Clock, FileText, ShieldCheck, FileCheck, Circle, Info, Lock as LockIcon } from "lucide-react";
-import { Badge } from "../../../shared/components/ui/badge";
-import { SectionCard } from "../../../shared/components/ui/section-card";
+import { Badge } from "@/shared/components/ui/badge";
+import { SectionCard } from "@/shared/components/ui/section-card";
 
 export interface RequirementItem {
     code: string;

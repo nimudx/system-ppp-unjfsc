@@ -1,5 +1,9 @@
 import { useForm, usePage } from '@inertiajs/react';
-import { FormEvent, useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import type { FormEvent} from 'react';
+import { useEffect, useState } from 'react';
+import assignments from '@/routes/academic/assignments';
+import requests from '@/routes/requests';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -17,9 +21,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import requests from '@/routes/requests';
-import assignments from '@/routes/academic/assignments';
-import { Loader2 } from 'lucide-react';
 
 interface Assignment {
     id: number;

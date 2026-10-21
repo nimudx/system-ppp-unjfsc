@@ -1,8 +1,8 @@
-import { useConfigTable } from "@/shared/hooks/use-config-table";
-import dossiers from "@/routes/academic/dossiers";
 import { router } from "@inertiajs/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import dossiers from "@/routes/academic/dossiers";
+import { useConfigTable } from "@/shared/hooks/use-config-table";
 import { useItemDetail } from "@/shared/hooks/use-item-detail";
 
 interface Props {

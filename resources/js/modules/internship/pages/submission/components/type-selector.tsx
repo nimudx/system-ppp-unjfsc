@@ -1,5 +1,5 @@
-import { SectionCard } from "@/shared/components/ui/section-card";
 import { CheckCircle2, GraduationCap, Laptop, UserCheck } from "lucide-react";
+import { SectionCard } from "@/shared/components/ui/section-card";
 
 const TYPE_OPTIONS = [
     { value: 'development', label: 'Desarrollo', icon: Laptop, desc: 'Pasantía en empresa' },

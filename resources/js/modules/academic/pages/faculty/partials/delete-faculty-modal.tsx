@@ -1,5 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import type { Faculty } from '@/modules/academic/types';
+import { destroy } from '@/routes/academic/faculties';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -9,9 +11,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
-import { destroy } from '@/routes/academic/faculties';
-
-import type { Faculty } from '@/shared/types';
 
 interface Props {
     faculty: Faculty | null;

@@ -2,6 +2,9 @@ import { Form } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { OTP_MAX_LENGTH } from '@/modules/identity/hooks/use-two-factor-auth';
+import { confirm } from '@/routes/two-factor';
+import AlertError from '@/shared/components/alert-error';
 import InputError from '@/shared/components/input-error';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -16,12 +19,9 @@ import {
     InputOTPGroup,
     InputOTPSlot,
 } from '@/shared/components/ui/input-otp';
+import { Spinner } from '@/shared/components/ui/spinner';
 import { useAppearance } from '@/shared/hooks/use-appearance';
 import { useClipboard } from '@/shared/hooks/use-clipboard';
-import { OTP_MAX_LENGTH } from '@/modules/identity/hooks/use-two-factor-auth';
-import AlertError from '../../../shared/components/alert-error';
-import { Spinner } from '../../../shared/components/ui/spinner';
-import { confirm } from '@/routes/two-factor';
 
 function GridScanIcon() {
     return (

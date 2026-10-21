@@ -1,8 +1,4 @@
-import React, { useEffect, useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-import AppLayout from '@/shared/layouts/app-layout';
-import { BreadcrumbItem } from '@/shared/types';
-import Heading from '@/shared/components/heading';
 import {
     FileText,
     Maximize2,
@@ -11,19 +7,18 @@ import {
     Download,
     FileDown
 } from 'lucide-react';
-import { Button } from '@/shared/components/ui/button';
-import { Spinner } from '@/shared/components/ui/spinner';
-import DocumentViewer from '@/shared/components/document/DocumentViewer';
-import FileHistory from '@/shared/components/document/FileHistory';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { DocumentViewer, FileHistory, RequirementsList, AlertHelp, SubmissionForm as ContentDetailsDocument, SubmissionPanel } from '@/modules/documents';
 
 import dossiers from '@/routes/academic/dossiers';
-import { toast } from 'sonner';
-import RequirementsList from '@/shared/components/academic/requirements-list';
-import { AlertHelp } from '@/shared/components/document/AlertHelp';
-import ContentDetailsDocument from '@/shared/components/academic/submission-form';
+import Heading from '@/shared/components/heading';
+import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
+import { Spinner } from '@/shared/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { SubmissionPanel } from '../../../../components/academic/submission-panel';
+import AppLayout from '@/shared/layouts/app-layout';
+import type { BreadcrumbItem } from '@/shared/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -67,18 +62,6 @@ export default function MyDossier({ assignment, requirements, dossier }: any) {
 
     // Lógica para decidir si mostrar UploadZone o Preview
     const canUpload = (!currentFile?.latest || isEditing) && !tempFile;
-
-    //const requirements = getRequirements(assignment?.role_id);
-    //const currentFile = requirements[selectedType];
-
-    /*const handleSubmit = () => {
-        const payload = {
-            file: tempFile,
-            code: currentFile.code,
-            target_id: dossier,
-        }
-        post(dossiers.document.store.url, payload);
-    }*/
 
     const removeTempFile = () => {
         setTempFile(null);

@@ -1,8 +1,12 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { usePage } from '@inertiajs/react';
 import { Loader2, RefreshCcw, UploadCloud } from 'lucide-react';
+import { useState, useEffect } from 'react'; // 👈 Añadido useEffect
+import { useForm } from 'react-hook-form';
+import type { Faculty } from '@/modules/academic';
+import { AcademicSelectorRHF } from '@/modules/registration/pages/register/components/AcademicSelector/AcademicSelector';
 import { Button } from '@/shared/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Select,
     SelectContent,
@@ -10,14 +14,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/shared/components/ui/select";
-import { MassivePersonInitValues, massivePersonInitSchema } from "./schema";
-import { AcademicSelectorRHF } from '@/modules/registration/pages/register/components/AcademicSelector/AcademicSelector';
-import { useState, useEffect } from 'react'; // 👈 Añadido useEffect
-import { CsvUploader } from './components/CsvUploader';
 import { CsvPreview } from './components/CsvPreview';
-import { usePage } from '@inertiajs/react';
-
-import { type Faculty } from '@/shared/types';
+import { CsvUploader } from './components/CsvUploader';
+import type { MassivePersonInitValues} from "./schema";
+import { massivePersonInitSchema } from "./schema";
 
 interface MassivePersonInitProps {
     roles: any[];

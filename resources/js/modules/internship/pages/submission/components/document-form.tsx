@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DocumentViewer from '@/shared/components/document/DocumentViewer';
+import { DocumentViewer } from '@/modules/documents';
 import { Spinner } from '@/shared/components/ui/spinner';
 
 interface DocumentFormProps {

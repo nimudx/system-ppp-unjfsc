@@ -1,6 +1,8 @@
 import { Form } from '@inertiajs/react';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { regenerateRecoveryCodes } from '@/routes/two-factor';
+import AlertError from '@/shared/components/alert-error';
 import { Button } from '@/shared/components/ui/button';
 import {
     Card,
@@ -9,8 +11,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/shared/components/ui/card';
-import AlertError from '../../../shared/components/alert-error';
-import { regenerateRecoveryCodes } from '@/routes/two-factor';
 
 type Props = {
     recoveryCodesList: string[];

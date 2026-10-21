@@ -1,6 +1,6 @@
-import { FileText, MessageSquare, History as HistoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { FileText, MessageSquare, History as HistoryIcon } from 'lucide-react';
 
 export interface HistoryRecord {
     id: number;

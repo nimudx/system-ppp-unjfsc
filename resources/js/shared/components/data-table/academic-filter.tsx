@@ -1,5 +1,6 @@
 import { Filter, X, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import type { Faculty } from '@/modules/academic';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -14,7 +15,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Faculty } from '@/shared/types';
 
 export interface AcademicFilterValues {
     faculty_id: string;

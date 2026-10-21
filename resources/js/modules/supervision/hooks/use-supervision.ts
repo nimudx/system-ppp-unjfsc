@@ -1,12 +1,13 @@
-import { GroupOption } from "@/shared/components/academic/group-selector";
-import { TableData, useConfigTable } from "@/shared/hooks/use-config-table";
-import { useItemDetail } from "@/shared/hooks/use-item-detail";
-import supervision from "@/routes/academic/supervision";
-import { StudentSupervision } from "@/shared/types";
 import { router, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import type { GroupOption } from "@/modules/supervision/components/group-selector";
+import type { StudentSupervision } from "@/modules/supervision/types";
+import supervision from "@/routes/academic/supervision";
+import { useConfigTable } from "@/shared/hooks/use-config-table";
+import type { TableData} from "@/shared/hooks/use-config-table";
+import { useItemDetail } from "@/shared/hooks/use-item-detail";
 
 interface Props {
     initialData: any;

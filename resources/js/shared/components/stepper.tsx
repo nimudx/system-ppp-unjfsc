@@ -1,6 +1,6 @@
 import { CheckCircle2 } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
 import { Fragment } from "react";
+import { cn } from '@/shared/lib/utils';
 
 interface StepItem {
     id: number;

@@ -1,5 +1,5 @@
 import { FileText, Eye } from "lucide-react";
-import { WorkflowStage } from "../types";
+import type { WorkflowStage } from "../types";
 
 interface StepperPreviewProps {
     workflow: WorkflowStage[];

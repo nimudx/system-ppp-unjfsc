@@ -15,7 +15,7 @@ class NotificationController extends Controller
     {
         $notifications = $this->notificationService->getNotifications($request->user()->id);
 
-        return inertia('notification', [
+        return inertia('notifications/index', [
             'notifications' => $notifications,
         ]);
     }

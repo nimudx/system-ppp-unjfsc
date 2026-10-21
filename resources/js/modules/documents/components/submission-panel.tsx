@@ -1,7 +1,7 @@
-import FileHistory from "@/shared/components/document/FileHistory";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import FileHistory from "@/modules/documents/components/FileHistory";
+import SubmissionForm from "@/modules/documents/components/submission-form";
 import { SectionCard } from "@/shared/components/ui/section-card";
-import SubmissionForm from "@/shared/components/academic/submission-form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 interface Props {
     status?: number;

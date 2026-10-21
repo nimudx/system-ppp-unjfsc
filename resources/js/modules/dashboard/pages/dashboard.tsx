@@ -1,14 +1,14 @@
 import { Head, usePage } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/shared/components/ui/placeholder-pattern';
-import AppLayout from '@/shared/layouts/app-layout';
 import AdminContent from '@/modules/dashboard/components/admin-content';
+import { CompanyContent } from '@/modules/dashboard/components/company-content';
 import StudentContent from '@/modules/dashboard/components/student-content';
+import SuperAdminContent from '@/modules/dashboard/components/superadmin-content';
 import SupervisorContent from '@/modules/dashboard/components/supervisor-content';
 import TeacherContent from '@/modules/dashboard/components/teacher-content';
-import SuperAdminContent from '@/modules/dashboard/components/superadmin-content';
-import { CompanyContent } from '@/modules/dashboard/components/company-content';
 
 import { dashboard } from '@/routes';
+import { PlaceholderPattern } from '@/shared/components/ui/placeholder-pattern';
+import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
 
 const breadcrumbs: BreadcrumbItem[] = [

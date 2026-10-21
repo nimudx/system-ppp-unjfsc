@@ -1,9 +1,8 @@
 import { useForm } from "@inertiajs/react";
-import { toast } from "sonner";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { Label } from "@/shared/components/ui/label";
 import {
     Sheet,
@@ -12,6 +11,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 interface ResourceItem {
     id: number;

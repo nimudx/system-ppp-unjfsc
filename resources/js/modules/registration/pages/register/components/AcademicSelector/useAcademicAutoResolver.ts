@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { type Faculty } from '@/shared/types';
+import type { Faculty } from '@/modules/academic';
 
 interface UseAcademicAutoResolverOptions {
     faculties: Faculty[];

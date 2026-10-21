@@ -1,7 +1,7 @@
-import internship from '@/routes/academic/internship';
 import { router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import internship from '@/routes/academic/internship';
 
 // El contexto activo puede ser 'empresa' o el índice de un requerimiento (número)
 export type PlacementContext = 'empresa' | number;

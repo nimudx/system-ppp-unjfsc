@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
+import { Stepper } from '@/shared/components/stepper';
 import { Button } from '@/shared/components/ui/button';
 import {
     Card,
@@ -22,7 +23,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Separator } from '@/shared/components/ui/separator';
-import { Stepper } from '@/modules/registration/pages/register/components/Stepper';
 
 const steps = [
     { id: 1, label: 'Formulario' },

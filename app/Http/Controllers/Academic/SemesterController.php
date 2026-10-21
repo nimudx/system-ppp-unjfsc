@@ -20,7 +20,7 @@ class SemesterController extends Controller
     public function index(): Response
     {
         $semesters = Semester::orderBy('id', 'desc')->get();
-        return Inertia::render('academic/management/semesters/index', ['semesters' => $semesters]);
+        return Inertia::render('academic/semesters/index', ['semesters' => $semesters]);
     }
 
     public function update(UpdateSemesterRequest $request, Semester $semester): RedirectResponse

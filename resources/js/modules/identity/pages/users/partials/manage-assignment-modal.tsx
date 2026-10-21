@@ -1,5 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import { FormEvent, SubmitEvent, useEffect } from 'react';
+import type { FormEvent} from 'react';
+import { SubmitEvent, useEffect } from 'react';
+import assignments from '@/routes/academic/assignments';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -17,7 +19,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import assignments from '@/routes/academic/assignments';
 
 interface Assignment {
     id: number;

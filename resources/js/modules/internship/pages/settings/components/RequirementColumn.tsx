@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { X, GraduationCap, Briefcase, GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/react/sortable";
+import { X, GraduationCap, Briefcase, GripVertical } from "lucide-react";
+import { useState } from "react";
 import {
     Combobox,
     ComboboxInput,

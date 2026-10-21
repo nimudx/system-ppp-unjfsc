@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Search, Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
+import { Button } from "@/shared/components/ui/button";
 import {
     Form,
     FormControl,
@@ -19,11 +21,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/shared/components/ui/select";
-import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
-import { Search, Loader2 } from "lucide-react";
 
-import { PersonValues, personSchema } from "./schema";
+import type { PersonValues} from "./schema";
+import { personSchema } from "./schema";
 
 interface PersonFormProps {
     initialValues?: Partial<PersonValues>;

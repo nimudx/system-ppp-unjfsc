@@ -1,21 +1,21 @@
 import { Head, usePage } from '@inertiajs/react';
+import { Tooltip, TooltipTrigger } from '@radix-ui/react-tooltip';
 import { ChevronRight, Info, ShieldCheck, User, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-import { AcademicFilter } from '@/shared/components/academic/academic-filter';
-import AcademicSearch from '@/shared/components/academic/academic-search';
-import { GroupSelector } from '@/shared/components/academic/group-selector';
-import { ModuleSelector } from '@/shared/components/academic/module-selector';
+import { GroupSelector } from '@/modules/supervision/components/group-selector';
+import { ModuleSelector } from '@/modules/supervision/components/module-selector';
+import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
+import { Button } from '@/shared/components/ui/button';
+import { TooltipContent } from '@/shared/components/ui/tooltip';
 import AppLayout from '@/shared/layouts/app-layout';
 
-import { useSupervision } from '../hooks/use-supervision';
-import SupervisionDetailPanel from '../components/supervision-detail-panel';
-import SupervisionTable from '../components/supervision-table';
+import SupervisionDetailPanel from '../../components/supervision-detail-panel';
+import SupervisionTable from '../../components/supervision-table';
+import { useSupervision } from '../../hooks/use-supervision';
 import SubmitForm from './components/SubmitForm';
-import { Tooltip, TooltipTrigger } from '@radix-ui/react-tooltip';
-import { TooltipContent } from '@/shared/components/ui/tooltip';
-import { Button } from '@/shared/components/ui/button';
 
 interface Props {
     faculties: any[];

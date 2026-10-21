@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
+import { Eye, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/shared/components/ui/button';
 import { 
     Dialog, 
     DialogContent, 
@@ -8,8 +10,6 @@ import {
     DialogDescription, 
     DialogFooter 
 } from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
-import { Eye, AlertCircle } from 'lucide-react';
 
 export function AssignmentAccessNotice() {
     const { academic } = usePage().props as any;

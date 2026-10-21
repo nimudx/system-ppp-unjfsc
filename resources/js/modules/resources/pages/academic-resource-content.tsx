@@ -1,17 +1,17 @@
-import Heading from "@/shared/components/heading";
+import { usePage } from "@inertiajs/react";
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Button } from "@/shared/components/ui/button";
 import { Plus, FileText, Download, FileArchive, File, MoreVertical, Pencil, Trash2, ExternalLink } from "lucide-react";
-import { Badge } from "@/shared/components/ui/badge";
 import { useState } from "react";
-import { CreateResourceSheet } from "../../../pages/academic/resource/partials/create-resource-sheet";
-import { usePage } from "@inertiajs/react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSubTrigger } from "@/shared/components/ui/dropdown-menu";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { toast } from "sonner";
-import { DeleteResourceAlert } from "../../../pages/academic/resource/partials/delete-resource-alert";
-import { EditResourceSheet } from "../../../pages/academic/resource/partials/edit-resource-sheet";
+import Heading from "@/shared/components/heading";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSubTrigger } from "@/shared/components/ui/dropdown-menu";
+import { CreateResourceSheet } from "./partials/create-resource-sheet";
+import { DeleteResourceAlert } from "./partials/delete-resource-alert";
+import { EditResourceSheet } from "./partials/edit-resource-sheet";
 
 // Interfaces para tipar nuestros recursos
 interface DocumentType {

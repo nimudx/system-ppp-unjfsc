@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WorkflowStage } from './types';
+import type { WorkflowStage } from './types';
 
 export function useWorkflow(initialState: WorkflowStage[]) {
     const [workflow, setWorkflow] = useState<WorkflowStage[]>(initialState);

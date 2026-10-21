@@ -1,14 +1,11 @@
+import { useForm, usePage } from "@inertiajs/react";
+import { Loader2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { toast } from "sonner";
+import resource from "@/routes/resource";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-} from "@/shared/components/ui/sheet";
 import {
     Select,
     SelectContent,
@@ -16,12 +13,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/shared/components/ui/select";
-import { useState, useMemo, useEffect } from "react";
-import { useForm, usePage } from "@inertiajs/react";
-import { LocationSelector, LocationValue } from "./location-selector";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import resource from "@/routes/resource";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/shared/components/ui/sheet";
+import { Textarea } from "@/shared/components/ui/textarea";
+import type { LocationValue } from "./location-selector";
+import { LocationSelector } from "./location-selector";
 
 export function CreateResourceSheet({
     open,

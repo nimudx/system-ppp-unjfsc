@@ -1,6 +1,3 @@
-import Heading from "@/shared/components/heading";
-import AppLayout from "@/shared/layouts/app-layout";
-import { BreadcrumbItem } from "@/shared/types";
 import { Head } from "@inertiajs/react";
 import {
     Users,
@@ -15,6 +12,10 @@ import {
     Briefcase,
     Loader2
 } from "lucide-react";
+import { useState } from "react";
+import Heading from "@/shared/components/heading";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
     Table,
     TableBody,
@@ -23,10 +24,9 @@ import {
     TableHeader,
     TableRow
 } from "@/shared/components/ui/table";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { useGroupSupervision } from "../../../../../pages/academic/group/supervision/hooks/use-group-supervision";
-import { useState } from "react";
+import AppLayout from "@/shared/layouts/app-layout";
+import type { BreadcrumbItem } from "@/shared/types";
+import { useGroupSupervision } from "./hooks/use-group-supervision";
 
 interface Props {
     groups: any[];

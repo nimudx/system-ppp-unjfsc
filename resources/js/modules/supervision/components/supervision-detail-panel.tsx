@@ -1,10 +1,8 @@
 import { ChevronRight, FileText, User, X, Eye, EyeOff } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import RequirementsList from '@/shared/components/academic/requirements-list';
-import DocumentViewer from '@/shared/components/document/DocumentViewer';
+import { RequirementsList, DocumentViewer, DetailHeader } from '@/modules/documents';
+import type { StudentSupervision } from '@/modules/supervision/types';
 import { SectionCard } from '@/shared/components/ui/section-card';
-import { DetailHeader } from '@/shared/components/academic/detail-header';
-import { StudentSupervision } from '@/shared/types';
 
 interface SupervisionDetailPanelProps {
     selectedItem: StudentSupervision;

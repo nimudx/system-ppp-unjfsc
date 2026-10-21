@@ -3,17 +3,21 @@ import axios from 'axios';
 import { ChevronRight, Info, ShieldCheck, User, X } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
-import {
-    AcademicFilter,
-    type AcademicFilterValues,
-} from '@/shared/components/academic/academic-filter';
-
-import AcademicSearch from '@/shared/components/academic/academic-search';
+import type { Faculty } from '@/modules/academic';
+import { ValidationPanel } from '@/modules/documents';
 import {
     type GroupOption,
     GroupSelector,
-} from '@/shared/components/academic/group-selector';
-import { ModuleSelector } from '@/shared/components/academic/module-selector';
+} from '@/modules/supervision/components/group-selector';
+import { ModuleSelector } from '@/modules/supervision/components/module-selector';
+import { type StudentSupervision } from '@/modules/supervision/types';
+import supervision from '@/routes/academic/supervision';
+import {
+    AcademicFilter,
+    type AcademicFilterValues,
+} from '@/shared/components/data-table/academic-filter';
+
+import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -28,11 +32,11 @@ import {
     useConfigTable,
 } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
-import supervision from '@/routes/academic/supervision';
-import { Faculty, type BreadcrumbItem } from '@/shared/types';
-import { type StudentSupervision } from '@/shared/types';
+import { type BreadcrumbItem } from '@/shared/types';
 
+import SupervisionDetailPanel from '../../components/supervision-detail-panel';
 import SupervisionTable from '../../components/supervision-table';
+import { useSupervision } from '../../hooks/use-supervision';
 
 interface Props {
     faculties: Faculty[];
@@ -63,9 +67,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Supervisión de prácticas', href: '/supervision/submission' },
 ];
 
-import { useSupervision } from '../../hooks/use-supervision';
-import SupervisionDetailPanel from '../../components/supervision-detail-panel';
-import { ValidationPanel } from '@/shared/components/academic/validation-panel';
 
 export default function ValidationIndex({
     faculties,

@@ -1,11 +1,11 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
+import { logout } from '@/routes';
+import { send } from '@/routes/verification';
 import TextLink from '@/shared/components/text-link';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
-import AuthLayout from '@/layouts/auth-layout';
-import { logout } from '@/routes';
-import { send } from '@/routes/verification';
+import AuthLayout from '@/shared/layouts/auth-layout';
 
 export default function VerifyEmail({ status }: { status?: string }) {
     return (

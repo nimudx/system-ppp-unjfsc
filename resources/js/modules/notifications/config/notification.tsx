@@ -1,4 +1,5 @@
-import { CheckCircle2, FileUp, AlertCircle, Bell, LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { CheckCircle2, FileUp, AlertCircle, Bell } from "lucide-react";
 
 export interface NotificationMeta {
     title?: string;

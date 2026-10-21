@@ -1,6 +1,8 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { Building2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { store } from '@/routes/login';
+import { request } from '@/routes/password';
 import InputError from '@/shared/components/input-error';
 import TextLink from '@/shared/components/text-link';
 import { Button } from '@/shared/components/ui/button';
@@ -10,8 +12,6 @@ import { Label } from '@/shared/components/ui/label';
 import { Separator } from '@/shared/components/ui/separator';
 import { Spinner } from '@/shared/components/ui/spinner';
 import AuthLayout from '@/shared/layouts/auth-layout';
-import { store } from '@/routes/login';
-import { request } from '@/routes/password';
 
 type Props = {
     status?: string;

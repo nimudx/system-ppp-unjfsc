@@ -1,19 +1,13 @@
 import { Head } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, Building } from 'lucide-react';
 import { useState } from 'react';
+import type { Faculty } from '@/modules/academic/types';
+import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
-import AppLayout from '@/shared/layouts/app-layout';
-import AcademicSearch from '@/shared/components/data-table/academic-search';
-import AcademicPagination from '@/shared/components/data-table/academic-pagination';
-import { useAcademicTable } from '@/shared/hooks/use-academic-table';
-import { usePage } from '@inertiajs/react';
-
-import CreateFacultyModal from './partials/create-faculty-modal';
-import UpdateFacultyModal from './partials/update-faculty-modal';
-import DeleteFacultyModal from './partials/delete-faculty-modal';
-
 import {
     Table,
     TableBody,
@@ -22,8 +16,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
+import { useAcademicTable } from '@/shared/hooks/use-academic-table';
+import AppLayout from '@/shared/layouts/app-layout';
 
-import type { Faculty } from '@/shared/types';
+import CreateFacultyModal from './partials/create-faculty-modal';
+import DeleteFacultyModal from './partials/delete-faculty-modal';
+import UpdateFacultyModal from './partials/update-faculty-modal';
 
 interface Props {
     faculties: Faculty[];

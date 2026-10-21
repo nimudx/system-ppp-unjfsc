@@ -1,12 +1,12 @@
 import { Link } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import { ACADEMIC_SETTINGS_NAV } from '@/shared/config/navigation';
 import { useCurrentUrl } from '@/shared/hooks/use-current-url';
 import { cn, toUrl } from '@/shared/lib/utils';
-import { ACADEMIC_SETTINGS_NAV } from '@/shared/config/navigation';
-import { usePage } from '@inertiajs/react';
 
 export default function AcademicSettingsLayout({ children }: PropsWithChildren) {
     const { role } = usePage().props as any;

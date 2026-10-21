@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+
+import type { Faculty } from '@/modules/academic';
 import { Button } from '@/shared/components/ui/button';
 
 import {
@@ -22,10 +25,8 @@ import {
 } from '@/shared/components/ui/select';
 import { AcademicSelectorRHF } from '../../../../components/AcademicSelector/AcademicSelector';
 
-import { type Faculty } from '@/shared/types';
-
-import { personInitSchema, PersonInitValues } from './schema';
-import { usePage } from '@inertiajs/react';
+import type { PersonInitValues } from './schema';
+import { personInitSchema } from './schema';
 
 interface PersonInitProps {
     roles: any[];

@@ -1,11 +1,10 @@
-// resources/js/pages/settings/partials/update-company-profile-form.tsx
 import { useForm, usePage } from '@inertiajs/react';
+import { update as updateDetails } from '@/routes/profile/details';
 import Heading from '@/shared/components/heading';
 import InputError from '@/shared/components/input-error';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
-import { update as updateDetails } from '@/routes/profile/details';
 
 export default function UpdateCompanyProfileForm({ data }: { data: any }) {
     const { auth } = usePage().props as any;

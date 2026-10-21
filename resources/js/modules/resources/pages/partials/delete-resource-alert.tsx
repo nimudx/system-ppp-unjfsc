@@ -1,6 +1,7 @@
 import { router } from "@inertiajs/react";
-import { toast } from "sonner";
 import { useState } from "react";
+import { toast } from "sonner";
+import resource from "@/routes/resource";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,7 +12,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import resource from "@/routes/resource";
 
 interface ResourceItem {
     id: number;

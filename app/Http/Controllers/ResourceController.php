@@ -86,7 +86,7 @@ class ResourceController extends Controller
             ];
         }
 
-        return Inertia::render('resource', [
+        return Inertia::render('resources/index', [
             'resources' => $resources,
             'documentTypes' => $documentTypes,
             'roles' => $roles,

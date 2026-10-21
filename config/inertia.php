@@ -35,10 +35,14 @@ return [
 
     'testing' => [
 
-        'ensure_pages_exist' => true,
+        // Las páginas viven en resources/js/modules/<módulo>/pages/ y el nombre
+        // 'identity/auth/login' se traduce en el frontend (shared/lib/inertia.ts).
+        // Ese mapeo no se puede expresar como page_paths + nombre, así que la
+        // comprobación de existencia queda desactivada.
+        'ensure_pages_exist' => false,
 
         'page_paths' => [
-            resource_path('js/pages'),
+            resource_path('js/modules'),
         ],
 
         'page_extensions' => [

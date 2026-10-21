@@ -1,5 +1,5 @@
 import { Code2 } from "lucide-react";
-import { WorkflowStage } from "../types";
+import type { WorkflowStage } from "../types";
 
 interface JsonPreviewProps {
     workflow: WorkflowStage[];

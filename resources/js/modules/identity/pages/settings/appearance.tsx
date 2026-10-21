@@ -1,10 +1,10 @@
 import { Head } from '@inertiajs/react';
+import { edit as editAppearance } from '@/routes/appearance';
 import AppearanceTabs from '@/shared/components/appearance-tabs';
 import Heading from '@/shared/components/heading';
 import AppLayout from '@/shared/layouts/app-layout';
-import SettingsLayout from '@/layouts/settings/layout';
+import SettingsLayout from '@/shared/layouts/settings/layout';
 import type { BreadcrumbItem } from '@/shared/types';
-import { edit as editAppearance } from '@/routes/appearance';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
