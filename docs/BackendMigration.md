@@ -97,3 +97,7 @@ npm run build
 ```
 
 Los resultados detallados están en `output/backend_reorganization`, ignorado por Git. Los cambios permanecen en `aldo`, sin commit, push ni integración a `main`.
+
+## Integración con main
+
+Se incorporaron los commits de main hasta `4dc3827`, conservando la reorganización y las correcciones de `c692962`. Las ocho migraciones futuras agregadas vacías en main se conservan con extensión `.php.gitkeep`: con extensión `.php`, Laravel intentaba ejecutarlas y fallaba por ausencia de clase. Se mantienen las carpetas de pruebas y se respeta la eliminación de dos tests de ejemplo sin cobertura real. Por ello, la suite pasa de 91 a 89 pruebas y de 396 a 394 aserciones.
