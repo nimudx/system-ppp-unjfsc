@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
+import { useWatch } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import type { Faculty } from '@/modules/academic';
+import type { RoleOption } from '@/modules/registration/types';
 import { Button } from '@/shared/components/ui/button';
 
 import {
@@ -29,7 +31,7 @@ import type { PersonInitValues } from './schema';
 import { personInitSchema } from './schema';
 
 interface PersonInitProps {
-    roles: any[];
+    roles: RoleOption[];
     faculties: Faculty[];
     initialValues?: Partial<PersonInitValues>;
     onSubmit: (values: PersonInitValues) => void;
@@ -43,7 +45,7 @@ export function PersonVStepOne({
     onSubmit,
     isLoading,
 }: PersonInitProps) {
-    const { role } = usePage().props as any;
+    const { role } = usePage().props;
     const form = useForm<PersonInitValues>({
         resolver: zodResolver(personInitSchema),
         defaultValues: {
@@ -56,6 +58,7 @@ export function PersonVStepOne({
         },
         mode: 'onChange',
     });
+    const watchedField1 = useWatch({ control: form.control, name: 'role_id' });
 
     return (
         <Form {...form}>
@@ -110,7 +113,7 @@ export function PersonVStepOne({
                 </div>
 
                 <AcademicSelectorRHF
-                    roleId={form.watch('role_id')}
+                    roleId={watchedField1}
                     roleUser={role}
                     faculties={faculties}
                 />

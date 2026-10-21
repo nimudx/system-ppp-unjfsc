@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import ProfileHero from '@/modules/identity/components/profile-hero';
 import UpdatePersonProfileForm from '@/modules/identity/components/update-person-profile-form';
+import type { PersonProfile } from '@/modules/identity/types';
 import { edit } from '@/routes/profile';
 import AppLayout from '@/shared/layouts/app-layout';
 import SettingsLayout from '@/shared/layouts/settings/layout';
@@ -18,7 +19,7 @@ export default function Profile({
 }: {
     mustVerifyEmail: boolean;
     status?: string;
-    profileData: any;
+    profileData: PersonProfile;
     profileType: string;
 }) {
     return (

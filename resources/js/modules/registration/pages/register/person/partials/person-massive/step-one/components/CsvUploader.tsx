@@ -1,17 +1,17 @@
-import { UploadCloud } from "lucide-react";
-import { parseCSV, validateRows } from "../csv.utils";
+import { UploadCloud } from 'lucide-react';
+import type { CsvRow, CsvValidationError } from '@/modules/registration/types';
+import { parseCSV, validateRows } from '../csv.utils';
 
 interface CsvUploaderProps {
     onChange: (result: {
         file: File;
-        rows: any[];
-        valid: any[];
-        errors: any[];
+        rows: CsvRow[];
+        valid: CsvRow[];
+        errors: CsvValidationError[];
     }) => void;
 }
 
 export function CsvUploader({ onChange }: CsvUploaderProps) {
-
     const handleFile = async (file: File) => {
         const rows = await parseCSV(file);
         const { valid, errors } = validateRows(rows);
@@ -26,8 +26,8 @@ export function CsvUploader({ onChange }: CsvUploaderProps) {
 
     return (
         <div
-            className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-12 text-center hover:bg-muted/30 transition-colors cursor-pointer"
-            onClick={() => document.getElementById("fileInput")?.click()}
+            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 text-center transition-colors hover:bg-muted/30"
+            onClick={() => document.getElementById('fileInput')?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
                 e.preventDefault();
@@ -35,12 +35,10 @@ export function CsvUploader({ onChange }: CsvUploaderProps) {
                 if (file) handleFile(file);
             }}
         >
-            <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
+            <UploadCloud className="mb-4 h-10 w-10 text-muted-foreground" />
 
-            <p className="text-sm font-medium">
-                Arrastra tu archivo CSV aquí
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm font-medium">Arrastra tu archivo CSV aquí</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 o haz click para seleccionar
             </p>
 

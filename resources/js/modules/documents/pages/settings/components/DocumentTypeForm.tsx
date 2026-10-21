@@ -1,5 +1,6 @@
+import type { DocumentTypeOption } from '@/modules/documents/types';
 import InputError from '@/shared/components/input-error';
-import { Badge } from '@/shared/components/ui/badge';
+
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
@@ -18,11 +19,14 @@ interface DocumentTypeFormProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (e: React.FormEvent) => void;
-    editingDoc: any;
+    editingDoc: DocumentTypeOption | null;
     roles: Array<{ id: number; name: string }>;
-    data: any;
-    setData: (data: any) => void;
-    errors: any;
+    data: { name: string; code: string; description: string; roles: number[] };
+    setData: (
+        key: 'name' | 'code' | 'description' | 'roles',
+        value: string | number[],
+    ) => void;
+    errors: Partial<Record<'name' | 'code' | 'description' | 'roles', string>>;
     processing: boolean;
 }
 
@@ -35,12 +39,15 @@ export function DocumentTypeForm({
     data,
     setData,
     errors,
-    processing
+    processing,
 }: DocumentTypeFormProps) {
     const handleRoleToggle = (roleId: number) => {
         const currentRoles = data.roles || [];
         if (currentRoles.includes(roleId)) {
-            setData('roles', currentRoles.filter((id: number) => id !== roleId));
+            setData(
+                'roles',
+                currentRoles.filter((id: number) => id !== roleId),
+            );
         } else {
             setData('roles', [...currentRoles, roleId]);
         }
@@ -51,15 +58,22 @@ export function DocumentTypeForm({
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={onSubmit}>
                     <DialogHeader>
-                        <DialogTitle>{editingDoc ? 'Editar Tipo de Documento' : 'Registrar Nuevo Documento'}</DialogTitle>
+                        <DialogTitle>
+                            {editingDoc
+                                ? 'Editar Tipo de Documento'
+                                : 'Registrar Nuevo Documento'}
+                        </DialogTitle>
                         <DialogDescription>
-                            Define los campos necesarios para este tipo de documento.
+                            Define los campos necesarios para este tipo de
+                            documento.
                         </DialogDescription>
                     </DialogHeader>
 
                     {editingDoc && (
-                        <div className="mt-2 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-md">
-                            <strong>Precaución:</strong> Modificar el código o remover roles de un documento en uso podría ocasionar comportamientos inesperados en el sistema.
+                        <div className="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                            <strong>Precaución:</strong> Modificar el código o
+                            remover roles de un documento en uso podría
+                            ocasionar comportamientos inesperados en el sistema.
                         </div>
                     )}
 
@@ -69,47 +83,62 @@ export function DocumentTypeForm({
                             <Input
                                 id="name"
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
                                 placeholder="Ej: Carta u Oficio"
                             />
                             <InputError message={errors.name} />
                         </div>
-                        
+
                         <div className="grid gap-2">
                             <Label htmlFor="code">Código (Único)</Label>
                             <Input
                                 id="code"
                                 value={data.code}
-                                onChange={(e) => setData('code', e.target.value)}
+                                onChange={(e) =>
+                                    setData('code', e.target.value)
+                                }
                                 placeholder="Ej: OFICIO_MULTIPLE"
                             />
                             <InputError message={errors.code} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="description">Descripción (Opcional)</Label>
+                            <Label htmlFor="description">
+                                Descripción (Opcional)
+                            </Label>
                             <Textarea
                                 id="description"
                                 value={data.description}
-                                onChange={(e) => setData('description', e.target.value)}
+                                onChange={(e) =>
+                                    setData('description', e.target.value)
+                                }
                                 placeholder="Breve detalle sobre su uso..."
                             />
                             <InputError message={errors.description} />
                         </div>
 
-                        <div className="grid gap-2 mt-2">
+                        <div className="mt-2 grid gap-2">
                             <Label>Roles Compatibles</Label>
-                            <div className="flex flex-col gap-2 mt-1">
+                            <div className="mt-1 flex flex-col gap-2">
                                 {roles.map((role) => (
-                                    <div key={role.id} className="flex items-center space-x-2">
-                                        <Checkbox 
-                                            id={`role-${role.id}`} 
-                                            checked={data.roles.includes(role.id)}
-                                            onCheckedChange={() => handleRoleToggle(role.id)}
+                                    <div
+                                        key={role.id}
+                                        className="flex items-center space-x-2"
+                                    >
+                                        <Checkbox
+                                            id={`role-${role.id}`}
+                                            checked={data.roles.includes(
+                                                role.id,
+                                            )}
+                                            onCheckedChange={() =>
+                                                handleRoleToggle(role.id)
+                                            }
                                         />
                                         <label
                                             htmlFor={`role-${role.id}`}
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
                                             {role.name}
                                         </label>
@@ -120,7 +149,12 @@ export function DocumentTypeForm({
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={onClose} disabled={processing}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={processing}
+                        >
                             Cancelar
                         </Button>
                         <Button type="submit" disabled={processing}>

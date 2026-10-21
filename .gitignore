@@ -30,3 +30,6 @@ yarn-error.log
 
 db_practicantes.sql
 guide.txt
+
+# Generated documents, validation reports and isolated local test databases
+/output/

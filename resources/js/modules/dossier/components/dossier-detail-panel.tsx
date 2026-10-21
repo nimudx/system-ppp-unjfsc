@@ -1,11 +1,18 @@
-import { Building2, Eye, EyeOff, FileText, User, X } from "lucide-react";
-import { ValidationPanel, RequirementsList, FilePreview, DetailHeader } from '@/modules/documents';
-import { Button } from "@/shared/components/ui/button";
-import { SectionCard } from "@/shared/components/ui/section-card";
+import { Eye, EyeOff, FileText } from 'lucide-react';
+import {
+    ValidationPanel,
+    RequirementsList,
+    FilePreview,
+    DetailHeader,
+} from '@/modules/documents';
+
+import type { AssignmentRecord, DossierDetail } from '@/modules/identity/types';
+
+import { SectionCard } from '@/shared/components/ui/section-card';
 
 interface DossierDetailPanelProps {
-    selectedItem: any;
-    detail: any;
+    selectedItem: AssignmentRecord | undefined;
+    detail: DossierDetail | null;
     selectedType: number;
     setSelectedType: (val: number) => void;
     previewEnabled: boolean;
@@ -31,7 +38,9 @@ export default function DossierDetailPanel({
             <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                     <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-2 text-lg font-semibold">Sin selección</h3>
+                    <h3 className="mt-2 text-lg font-semibold">
+                        Sin selección
+                    </h3>
                     <p className="text-muted-foreground">
                         Selecciona un expediente para ver los detalles.
                     </p>
@@ -61,26 +70,20 @@ export default function DossierDetailPanel({
                                 <div className="flex flex-col">
                                     <span className="text-sm leading-none font-semibold">
                                         {
-                                            detail
-                                                ?.requirements?.[
-                                                selectedType
-                                            ]?.title
+                                            detail?.requirements?.[selectedType]
+                                                ?.title
                                         }
                                     </span>
                                     <span className="mt-1 text-[11px] text-muted-foreground">
-                                        {detail
-                                            ?.requirements?.[
-                                            selectedType
-                                        ]?.latest
+                                        {detail?.requirements?.[selectedType]
+                                            ?.latest
                                             ? 'Archivo cargado'
                                             : 'Sin archivo'}
                                     </span>
                                 </div>
                             </div>
                             <button
-                                onClick={() =>
-                                    setPreviewEnabled((p) => !p)
-                                }
+                                onClick={() => setPreviewEnabled((p) => !p)}
                                 className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
                             >
                                 {previewEnabled ? (
@@ -99,14 +102,12 @@ export default function DossierDetailPanel({
                     <SectionCard.Body className="p-0">
                         <FilePreview
                             path={
-                                detail?.requirements?.[
-                                    selectedType
-                                ]?.latest?.path
+                                detail?.requirements?.[selectedType]?.latest
+                                    ?.path
                             }
                             name={
-                                detail?.requirements?.[
-                                    selectedType
-                                ]?.title || 'Documento adjunto'
+                                detail?.requirements?.[selectedType]?.title ||
+                                'Documento adjunto'
                             }
                             previewEnabled={previewEnabled}
                         />
@@ -118,30 +119,34 @@ export default function DossierDetailPanel({
                     {/* Arriba: Lista de Requisitos (Componente Reutilizable) */}
 
                     <RequirementsList
-                        requirements={
-                            detail?.requirements ||
-                            []
-                        }
+                        requirements={detail?.requirements || []}
                         selectedType={selectedType}
                         onSelectType={setSelectedType}
                         previewEnabled={previewEnabled}
                         onTogglePreview={() =>
-                            setPreviewEnabled(
-                                !previewEnabled,
-                            )
+                            setPreviewEnabled(!previewEnabled)
                         }
                     />
                     {/* Validation Panel */}
                     <ValidationPanel
                         status={detail?.requirements?.[selectedType]?.status}
-                        history={detail?.requirements?.[selectedType]?.history || []}
-                        onSuccess={(data) => handleSaveValidation(data.status, data.comment)}
+                        history={
+                            detail?.requirements?.[selectedType]?.history || []
+                        }
+                        onSuccess={(data) =>
+                            handleSaveValidation(data.status, data.comment)
+                        }
                         isSubmitting={isSavingValidation}
                         hasSelection={!!detail?.requirements?.[selectedType]}
-                        showFileInfo={detail?.requirements?.[selectedType]?.latest ? {
-                            name: detail?.requirements?.[selectedType]?.title,
-                            meta: "Documento adjunto"
-                        } : undefined}
+                        showFileInfo={
+                            detail?.requirements?.[selectedType]?.latest
+                                ? {
+                                      name: detail?.requirements?.[selectedType]
+                                          ?.title,
+                                      meta: 'Documento adjunto',
+                                  }
+                                : undefined
+                        }
                         emptyMessage="Seleccione un requisito para evaluar"
                     />
                 </div>

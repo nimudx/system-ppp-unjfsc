@@ -42,7 +42,8 @@ export default function CreateFacultyModal({ open, onOpenChange }: Props) {
                     <DialogHeader>
                         <DialogTitle>Nueva Facultad</DialogTitle>
                         <DialogDescription>
-                            Ingresa el nombre de la nueva facultad y define su estado inicial.
+                            Ingresa el nombre de la nueva facultad y define su
+                            estado inicial.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -52,9 +53,13 @@ export default function CreateFacultyModal({ open, onOpenChange }: Props) {
                             <Input
                                 id="name"
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
                                 placeholder="Ej. Facultad de Ingeniería"
-                                className={errors.name ? 'border-destructive' : ''}
+                                className={
+                                    errors.name ? 'border-destructive' : ''
+                                }
                             />
                             {errors.name && (
                                 <p className="text-sm font-medium text-destructive">
@@ -65,17 +70,23 @@ export default function CreateFacultyModal({ open, onOpenChange }: Props) {
 
                         <div className="flex items-center justify-between rounded-lg border p-3 shadow-xs">
                             <div className="space-y-0.5">
-                                <Label htmlFor="status" className="cursor-pointer text-base">
+                                <Label
+                                    htmlFor="status"
+                                    className="cursor-pointer text-base"
+                                >
                                     Estado Activo
                                 </Label>
                                 <p className="text-xs text-muted-foreground">
-                                    Habilita o deshabilita la facultad en el sistema.
+                                    Habilita o deshabilita la facultad en el
+                                    sistema.
                                 </p>
                             </div>
                             <Switch
                                 id="status"
                                 checked={data.status}
-                                onCheckedChange={(checked) => setData('status', checked)}
+                                onCheckedChange={(checked) =>
+                                    setData('status', checked)
+                                }
                             />
                         </div>
                     </div>

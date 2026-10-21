@@ -1,21 +1,21 @@
 import { router } from '@inertiajs/react';
-import {
-    Building2,
-    User,
-    Calendar,
-    FileText,
-    EyeOff,
-    Eye,
-} from 'lucide-react';
+import { Building2, User, Calendar, FileText, EyeOff, Eye } from 'lucide-react';
 import { useState } from 'react';
-import { RequirementsList, FilePreview, SubmissionForm as ContentDetailsDocument, ValidationPanel } from '@/modules/documents';
+
+import {
+    RequirementsList,
+    FilePreview,
+    ValidationPanel,
+} from '@/modules/documents';
+
+import type { InternshipDetailData } from '@/modules/internship/types';
 import internship from '@/routes/academic/internship';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 
 interface PlacementDetailProps {
-    detailData: any;
+    detailData: InternshipDetailData;
     loadDetail: (id?: number, step?: number) => void;
     onStatusUpdateSuccess: () => void;
 }
@@ -45,7 +45,6 @@ export function InfoItem({
 
 export default function PlacementDetail({
     detailData,
-    loadDetail,
     onStatusUpdateSuccess,
 }: PlacementDetailProps) {
     // Contexto: 'empresa' o el índice del requerimiento
@@ -57,22 +56,31 @@ export default function PlacementDetail({
 
     const requirements = detailData?.requirements || [];
     const activeRequirement =
-        typeof activeContext === 'number'
-            ? requirements[activeContext]
-            : null;
+        typeof activeContext === 'number' ? requirements[activeContext] : null;
 
     const handleValidation = (
         type: 'data' | 'document',
-        payloadValidation: { status: number; comment: string }
+        payloadValidation: { status: number; comment: string },
     ) => {
         const isData = type === 'data';
-        const url = isData
-            ? internship.placements.status.url(detailData?.placement?.id)
-            : internship.documents.status.url(activeRequirement?.latest?.id);
+        let url: string;
+        if (isData) {
+            if (!detailData.placement) return;
+            url = internship.placements.status.url(detailData.placement.id);
+        } else {
+            if (!activeRequirement?.latest) return;
+            url = internship.documents.status.url(activeRequirement.latest.id);
+        }
 
         const payload = isData
-            ? { approval_status: payloadValidation.status, observation: payloadValidation.comment }
-            : { approval_status: payloadValidation.status, comment: payloadValidation.comment };
+            ? {
+                  approval_status: payloadValidation.status,
+                  observation: payloadValidation.comment,
+              }
+            : {
+                  approval_status: payloadValidation.status,
+                  comment: payloadValidation.comment,
+              };
 
         router.patch(url, payload, {
             onBefore: () => setIsSubmitting(true),
@@ -102,7 +110,7 @@ export default function PlacementDetail({
                                     {activeContext === 'empresa'
                                         ? 'Detalles de la Empresa'
                                         : activeRequirement?.title ||
-                                        'Vista de Documento'}
+                                          'Vista de Documento'}
                                 </span>
                             </div>
                             {activeContext !== 'empresa' && (
@@ -309,7 +317,7 @@ export default function PlacementDetail({
                                     className="text-[9px]"
                                 >
                                     {detailData?.placement?.approval_status ===
-                                        1
+                                    1
                                         ? 'Listo'
                                         : 'Pendiente'}
                                 </Badge>
@@ -339,21 +347,29 @@ export default function PlacementDetail({
                             isSubmitting={isSubmitting}
                             hasSelection={true}
                             showFileInfo={{
-                                name: detailData?.placement?.company?.name || "Empresa",
-                                meta: "Datos de Formalización"
+                                name:
+                                    detailData?.placement?.company?.name ||
+                                    'Empresa',
+                                meta: 'Datos de Formalización',
                             }}
                         />
                     ) : (
                         <ValidationPanel
                             status={activeRequirement?.status}
                             history={activeRequirement?.history || []}
-                            onSuccess={(data) => handleValidation('document', data)}
+                            onSuccess={(data) =>
+                                handleValidation('document', data)
+                            }
                             isSubmitting={isSubmitting}
                             hasSelection={!!activeRequirement}
-                            showFileInfo={activeRequirement?.latest ? {
-                                name: activeRequirement.title,
-                                meta: "Documento adjunto"
-                            } : undefined}
+                            showFileInfo={
+                                activeRequirement?.latest
+                                    ? {
+                                          name: activeRequirement.title,
+                                          meta: 'Documento adjunto',
+                                      }
+                                    : undefined
+                            }
                         />
                     )}
                 </div>

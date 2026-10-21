@@ -18,7 +18,11 @@ interface Props {
     onOpenChange: (open: boolean) => void;
 }
 
-export default function DeleteFacultyModal({ faculty, open, onOpenChange }: Props) {
+export default function DeleteFacultyModal({
+    faculty,
+    open,
+    onOpenChange,
+}: Props) {
     const { delete: destroyRequest, processing } = useForm();
 
     const handleSubmit = (e: FormEvent) => {

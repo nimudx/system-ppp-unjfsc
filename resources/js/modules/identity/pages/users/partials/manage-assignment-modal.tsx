@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEvent} from 'react';
-import { SubmitEvent, useEffect } from 'react';
+import type { FormEvent } from 'react';
+import { useEffect } from 'react';
 import assignments from '@/routes/academic/assignments';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -39,7 +39,12 @@ interface Props {
     onSuccess?: () => void;
 }
 
-export default function ManageAssignmentModal({ assignment, open, onOpenChange, onSuccess }: Props) {
+export default function ManageAssignmentModal({
+    assignment,
+    open,
+    onOpenChange,
+    onSuccess,
+}: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         action: '',
         reason: '',
@@ -58,7 +63,7 @@ export default function ManageAssignmentModal({ assignment, open, onOpenChange, 
                 setData('action', '2'); // Deshabilitar
             }
         }
-    }, [open, isReadOnly]);
+    }, [open, isReadOnly, reset, setData]);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -80,13 +85,14 @@ export default function ManageAssignmentModal({ assignment, open, onOpenChange, 
                     <DialogHeader>
                         <DialogTitle>Gestionar Asignación</DialogTitle>
                         <DialogDescription>
-                            Configure el estado de la asignación para el usuario seleccionado.
+                            Configure el estado de la asignación para el usuario
+                            seleccionado.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="space-y-1">
-                            <Label className="text-muted-foreground text-xs uppercase font-bold tracking-wider">
+                            <Label className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                 Usuario
                             </Label>
                             <p className="font-medium">
@@ -99,18 +105,26 @@ export default function ManageAssignmentModal({ assignment, open, onOpenChange, 
                             <Label htmlFor="action">Seleccione Acción</Label>
                             <Select
                                 value={data.action}
-                                onValueChange={(value: string) => setData('action', value)}
+                                onValueChange={(value: string) =>
+                                    setData('action', value)
+                                }
                             >
                                 <SelectTrigger id="action">
                                     <SelectValue placeholder="Seleccione una acción" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {isReadOnly || isReview ? (
-                                        <SelectItem value="3">Habilitar Acceso</SelectItem>
+                                        <SelectItem value="3">
+                                            Habilitar Acceso
+                                        </SelectItem>
                                     ) : (
                                         <>
-                                            <SelectItem value="2">Deshabilitar (Solo Lectura)</SelectItem>
-                                            <SelectItem value="1">Eliminar Asignación</SelectItem>
+                                            <SelectItem value="2">
+                                                Deshabilitar (Solo Lectura)
+                                            </SelectItem>
+                                            <SelectItem value="1">
+                                                Eliminar Asignación
+                                            </SelectItem>
                                         </>
                                     )}
                                 </SelectContent>
@@ -123,13 +137,17 @@ export default function ManageAssignmentModal({ assignment, open, onOpenChange, 
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="reason">Motivo / Justificación</Label>
+                            <Label htmlFor="reason">
+                                Motivo / Justificación
+                            </Label>
                             <textarea
                                 id="reason"
                                 value={data.reason}
-                                onChange={(e) => setData('reason', e.target.value)}
+                                onChange={(e) =>
+                                    setData('reason', e.target.value)
+                                }
                                 placeholder="Describa el motivo de esta acción..."
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {errors.reason && (
                                 <p className="text-sm font-medium text-destructive">
@@ -147,7 +165,12 @@ export default function ManageAssignmentModal({ assignment, open, onOpenChange, 
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={processing || !data.action || !data.reason}>
+                        <Button
+                            type="submit"
+                            disabled={
+                                processing || !data.action || !data.reason
+                            }
+                        >
                             {processing ? 'Enviando...' : 'Enviar Solicitud'}
                         </Button>
                     </DialogFooter>

@@ -45,7 +45,7 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
         onSave,
         onSetEditing,
         onCancelForm,
-        children
+        children,
     } = props;
 
     // BLOQUE 1: Estado Vacío Absoluto
@@ -59,7 +59,8 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
                     Sin archivo cargado
                 </h4>
                 <p className="max-w-50 text-xs text-muted-foreground">
-                    Por favor, selecciona o arrastra el documento para iniciar el proceso.
+                    Por favor, selecciona o arrastra el documento para iniciar
+                    el proceso.
                 </p>
             </div>
         );
@@ -71,10 +72,14 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
             return (
                 <div className="space-y-4">
                     <div className="flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50/80 p-4">
-                        <CheckCircle2 className="size-5 shrink-0 text-emerald-600 mt-0.5" />
+                        <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" />
                         <div className="space-y-1">
-                            <p className="text-sm font-bold text-emerald-900 tracking-tight leading-none">Aprobado</p>
-                            <p className="text-[11px] text-emerald-700/90 leading-relaxed font-medium">Este documento ha sido validado correctamente.</p>
+                            <p className="text-sm leading-none font-bold tracking-tight text-emerald-900">
+                                Aprobado
+                            </p>
+                            <p className="text-[11px] leading-relaxed font-medium text-emerald-700/90">
+                                Este documento ha sido validado correctamente.
+                            </p>
                         </div>
                     </div>
                     {existingFileInfo && <FileInfoCard {...existingFileInfo} />}
@@ -86,13 +91,14 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
             return (
                 <div className="space-y-4">
                     <div className="flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-                        <Clock className="size-5 shrink-0 text-amber-600 mt-0.5" />
+                        <Clock className="mt-0.5 size-5 shrink-0 text-amber-600" />
                         <div className="space-y-1">
-                            <h4 className="text-sm leading-none font-bold text-amber-900 tracking-tight">
+                            <h4 className="text-sm leading-none font-bold tracking-tight text-amber-900">
                                 En espera de revisión
                             </h4>
                             <p className="text-[11px] leading-relaxed font-medium text-amber-700/80">
-                                Tu archivo ha sido enviado. Pendiente de validación.
+                                Tu archivo ha sido enviado. Pendiente de
+                                validación.
                             </p>
                         </div>
                     </div>
@@ -101,15 +107,21 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
             );
         }
 
-        if (status >= 3) { // Observado (3: Ambos/Archivo, 4: Calificación)
+        if (status >= 3) {
+            // Observado (3: Ambos/Archivo, 4: Calificación)
             return (
                 <div className="space-y-4">
                     <div className="flex gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-                        <AlertCircle className="size-5 shrink-0 text-destructive mt-0.5" />
-                        <div className="space-y-1.5 flex flex-col items-start">
-                            <p className="text-sm font-bold text-destructive tracking-tight leading-none">Observado</p>
-                            <p className="text-[11px] text-destructive/80 leading-relaxed italic">
-                                "{existingFileInfo?.observationMsg || 'Pendiente de corrección.'}"
+                        <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
+                        <div className="flex flex-col items-start space-y-1.5">
+                            <p className="text-sm leading-none font-bold tracking-tight text-destructive">
+                                Observado
+                            </p>
+                            <p className="text-[11px] leading-relaxed text-destructive/80 italic">
+                                "
+                                {existingFileInfo?.observationMsg ||
+                                    'Pendiente de corrección.'}
+                                "
                             </p>
                         </div>
                     </div>
@@ -117,7 +129,7 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
 
                     <Button
                         variant="outline"
-                        className="w-full border-destructive/20 text-xs font-bold hover:bg-destructive/5 hover:text-destructive text-destructive/90 transition-colors"
+                        className="w-full border-destructive/20 text-xs font-bold text-destructive/90 transition-colors hover:bg-destructive/5 hover:text-destructive"
                         onClick={() => onSetEditing(true)}
                     >
                         <RotateCcw className="mr-2 h-4 w-4" />
@@ -139,33 +151,45 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
         >
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                    <h4 className="text-[11px] uppercase tracking-widest font-extrabold text-muted-foreground/80">
+                    <h4 className="text-[11px] font-extrabold tracking-widest text-muted-foreground/80 uppercase">
                         Archivo Cargado
                     </h4>
                     <Badge
                         variant="secondary"
-                        className="border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 tracking-tight text-[10px] uppercase font-bold"
+                        className="border-blue-100 bg-blue-50 text-[10px] font-bold tracking-tight text-blue-600 uppercase hover:bg-blue-50"
                     >
                         Listo para enviar
                     </Badge>
                 </div>
 
-                <div className={`rounded-lg border p-3.5 flex items-center gap-3 ${tempFile ? 'bg-blue-50/50 border-blue-200 shadow-sm' : 'bg-green-50/50 border-green-200 shadow-sm'}`}>
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-white shadow-sm`}>
-                        <FileText className={`h-5 w-5 ${tempFile ? 'text-blue-500' : 'text-green-500'}`} />
+                <div
+                    className={`flex items-center gap-3 rounded-lg border p-3.5 ${tempFile ? 'border-blue-200 bg-blue-50/50 shadow-sm' : 'border-green-200 bg-green-50/50 shadow-sm'}`}
+                >
+                    <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-white shadow-sm`}
+                    >
+                        <FileText
+                            className={`h-5 w-5 ${tempFile ? 'text-blue-500' : 'text-green-500'}`}
+                        />
                     </div>
-                    <div className="space-y-1 overflow-hidden flex-1">
-                        <p className="text-xs leading-none font-bold truncate">
-                            {tempFile ? tempFile.name : (existingFileInfo?.name || 'Archivo previo')}
+                    <div className="flex-1 space-y-1 overflow-hidden">
+                        <p className="truncate text-xs leading-none font-bold">
+                            {tempFile
+                                ? tempFile.name
+                                : existingFileInfo?.name || 'Archivo previo'}
                         </p>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                        <p className="text-[10px] font-medium tracking-tight text-muted-foreground uppercase">
                             {tempFile
                                 ? `${(tempFile.size / 1024 / 1024).toFixed(2)} MB`
                                 : 'Manteniendo archivo validado...'}
                         </p>
                     </div>
                     {tempFile && (
-                        <button type="button" onClick={() => onCancelForm()} className="shrink-0 text-muted-foreground hover:text-destructive transition-colors">
+                        <button
+                            type="button"
+                            onClick={() => onCancelForm()}
+                            className="shrink-0 text-muted-foreground transition-colors hover:text-destructive"
+                        >
                             <Trash2 className="size-4" />
                         </button>
                     )}
@@ -189,18 +213,25 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
                         </>
                     ) : (
                         <>
-                            Enviar para Revisión <ArrowRight className="size-4 ml-1.5" />
+                            Enviar para Revisión{' '}
+                            <ArrowRight className="ml-1.5 size-4" />
                         </>
                     )}
                 </Button>
                 {(isEditing || hasExistingDocument) && (
-                    <Button variant="outline" className="w-full text-xs font-bold text-muted-foreground shadow-sm" type="button" onClick={onCancelForm}>
+                    <Button
+                        variant="outline"
+                        className="w-full text-xs font-bold text-muted-foreground shadow-sm"
+                        type="button"
+                        onClick={onCancelForm}
+                    >
                         Cancelar
                     </Button>
                 )}
-                {(!isEditing && !hasExistingDocument) && (
-                    <p className="text-[10px] text-center text-muted-foreground/70 font-medium px-4 leading-relaxed mt-1">
-                        Asegúrate de que el archivo esté correcto. Al enviar, no se podrá editar durante su revisión.
+                {!isEditing && !hasExistingDocument && (
+                    <p className="mt-1 px-4 text-center text-[10px] leading-relaxed font-medium text-muted-foreground/70">
+                        Asegúrate de que el archivo esté correcto. Al enviar, no
+                        se podrá editar durante su revisión.
                     </p>
                 )}
             </div>
@@ -208,22 +239,40 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
     );
 }
 
-function FileInfoCard({ name, meta, grade }: { name: string; meta?: string, grade?: number }) {
+function FileInfoCard({
+    name,
+    meta,
+    grade,
+}: {
+    name: string;
+    meta?: string;
+    grade?: number;
+}) {
     return (
-        <div className="flex items-center gap-3.5 p-3 rounded-lg border bg-muted/30 border-muted-foreground/15 group hover:border-muted-foreground/25 transition-colors">
-            <div className="size-9 rounded-md border bg-background shadow-sm flex items-center justify-center shrink-0">
+        <div className="group flex items-center gap-3.5 rounded-lg border border-muted-foreground/15 bg-muted/30 p-3 transition-colors hover:border-muted-foreground/25">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background shadow-sm">
                 <FileText className="size-5 text-muted-foreground/60" />
             </div>
-            <div className="flex flex-col min-w-0 flex-1 gap-1">
-                <span className="truncate text-[11px] font-bold uppercase tracking-tight text-foreground/90">{name}</span>
-                {meta && <span className="text-[9px] text-muted-foreground/80 font-medium uppercase tracking-widest leading-none mt-0.5">{meta}</span>}
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="truncate text-[11px] font-bold tracking-tight text-foreground/90 uppercase">
+                    {name}
+                </span>
+                {meta && (
+                    <span className="mt-0.5 text-[9px] leading-none font-medium tracking-widest text-muted-foreground/80 uppercase">
+                        {meta}
+                    </span>
+                )}
                 {grade != null && (
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Calificación:</span>
-                        <span className="text-xs font-extrabold text-foreground">{grade} / 20</span>
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                            Calificación:
+                        </span>
+                        <span className="text-xs font-extrabold text-foreground">
+                            {grade} / 20
+                        </span>
                     </div>
                 )}
             </div>
         </div>
-    )
+    );
 }

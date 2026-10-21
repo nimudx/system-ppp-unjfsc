@@ -1,14 +1,34 @@
-import { CheckCircle2, GraduationCap, Laptop, UserCheck } from "lucide-react";
-import { SectionCard } from "@/shared/components/ui/section-card";
+import { CheckCircle2, GraduationCap, Laptop, UserCheck } from 'lucide-react';
+import { SectionCard } from '@/shared/components/ui/section-card';
 
 const TYPE_OPTIONS = [
-    { value: 'development', label: 'Desarrollo', icon: Laptop, desc: 'Pasantía en empresa' },
-    { value: 'validation', label: 'Convalidación', icon: CheckCircle2, desc: 'Experiencia laboral previa' },
+    {
+        value: 'development',
+        label: 'Desarrollo',
+        icon: Laptop,
+        desc: 'Pasantía en empresa',
+    },
+    {
+        value: 'validation',
+        label: 'Convalidación',
+        icon: CheckCircle2,
+        desc: 'Experiencia laboral previa',
+    },
 ];
 
 const ORIGIN_OPTIONS = [
-    { value: 'direct', label: 'Directo', icon: UserCheck, desc: 'Convenio propio' },
-    { value: 'application', label: 'Postulación', icon: GraduationCap, desc: 'Convocatoria universitaria' },
+    {
+        value: 'direct',
+        label: 'Directo',
+        icon: UserCheck,
+        desc: 'Convenio propio',
+    },
+    {
+        value: 'application',
+        label: 'Postulación',
+        icon: GraduationCap,
+        desc: 'Convocatoria universitaria',
+    },
 ];
 
 export const TYPE_LABELS: Record<string, string> = {
@@ -18,9 +38,14 @@ export const TYPE_LABELS: Record<string, string> = {
     application: 'Postulación',
 };
 
-
 // ── ASIDE: TypeSelector Vertical ───────────────────────────────────────────
-export function TypeSelector({ type, setType, origin, setOrigin, disabled }: {
+export function TypeSelector({
+    type,
+    setType,
+    origin,
+    setOrigin,
+    disabled,
+}: {
     type: string;
     setType: (v: string) => void;
     origin: string;
@@ -43,21 +68,28 @@ export function TypeSelector({ type, setType, origin, setOrigin, disabled }: {
                                 key={opt.value}
                                 onClick={() => {
                                     setType(opt.value);
-                                    if (opt.value === 'validation') setOrigin('direct');
+                                    if (opt.value === 'validation')
+                                        setOrigin('direct');
                                 }}
                                 disabled={disabled}
-                                className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all duration-200
-                                ${isSelected
-                                        ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm'
+                                className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 ${
+                                    isSelected
+                                        ? 'border-primary bg-primary/5 shadow-sm ring-1 ring-primary'
                                         : 'border-border bg-card hover:border-primary/40 hover:bg-muted/50'
-                                    } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                             >
-                                <div className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                <div
+                                    className={`shrink-0 rounded-lg p-2 transition-colors ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+                                >
                                     <Icon className="size-4" />
                                 </div>
                                 <div className="flex-1 overflow-hidden">
-                                    <p className="text-xs font-bold leading-tight">{opt.label}</p>
-                                    <p className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</p>
+                                    <p className="text-xs leading-tight font-bold">
+                                        {opt.label}
+                                    </p>
+                                    <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                        {opt.desc}
+                                    </p>
                                 </div>
                             </button>
                         );
@@ -66,9 +98,9 @@ export function TypeSelector({ type, setType, origin, setOrigin, disabled }: {
 
                 {/* Origen (solo Desarrollo) */}
                 {type === 'development' && (
-                    <div className="flex flex-col gap-2 animate-in slide-in-from-top-2 duration-300">
+                    <div className="flex animate-in flex-col gap-2 duration-300 slide-in-from-top-2">
                         <div className="px-1 pt-2 pb-1">
-                            <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/80">
+                            <p className="text-[10px] font-bold tracking-widest text-muted-foreground/80 uppercase">
                                 Origen de Vacante
                             </p>
                         </div>
@@ -81,18 +113,24 @@ export function TypeSelector({ type, setType, origin, setOrigin, disabled }: {
                                         key={opt.value}
                                         onClick={() => setOrigin(opt.value)}
                                         disabled={disabled}
-                                        className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all duration-200
-                                        ${isSelected
-                                                ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm'
+                                        className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 ${
+                                            isSelected
+                                                ? 'border-primary bg-primary/5 shadow-sm ring-1 ring-primary'
                                                 : 'border-border bg-card hover:border-primary/40 hover:bg-muted/50'
-                                            } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                        } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                                     >
-                                        <div className={`p-2 rounded-lg shrink-0 transition-colors ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                        <div
+                                            className={`shrink-0 rounded-lg p-2 transition-colors ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+                                        >
                                             <Icon className="size-4" />
                                         </div>
                                         <div className="flex-1 overflow-hidden">
-                                            <p className="text-xs font-bold leading-tight">{opt.label}</p>
-                                            <p className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</p>
+                                            <p className="text-xs leading-tight font-bold">
+                                                {opt.label}
+                                            </p>
+                                            <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                                {opt.desc}
+                                            </p>
                                         </div>
                                     </button>
                                 );

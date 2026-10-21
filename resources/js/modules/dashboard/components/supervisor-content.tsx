@@ -4,7 +4,12 @@ import {
     CheckCircle2,
     AlertTriangle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/shared/components/ui/card';
 
 export default function SupervisorDashboardContent() {
     return (

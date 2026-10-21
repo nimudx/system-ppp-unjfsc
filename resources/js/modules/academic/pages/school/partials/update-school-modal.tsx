@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEvent} from 'react';
+import type { FormEvent } from 'react';
 import { useEffect } from 'react';
 import type { Faculty, School } from '@/modules/academic/types';
 import { update } from '@/routes/academic/schools';
@@ -30,8 +30,13 @@ interface Props {
     onOpenChange: (open: boolean) => void;
 }
 
-export default function UpdateSchoolModal({ school, faculties, open, onOpenChange }: Props) {
-    const { data, setData, patch, processing, errors, reset } = useForm({
+export default function UpdateSchoolModal({
+    school,
+    faculties,
+    open,
+    onOpenChange,
+}: Props) {
+    const { data, setData, patch, processing, errors } = useForm({
         name: '',
         faculty_id: '',
         status: true,
@@ -45,17 +50,20 @@ export default function UpdateSchoolModal({ school, faculties, open, onOpenChang
                 status: school.status === 1,
             });
         }
-    }, [school]);
+    }, [school, setData]);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (!school) return;
 
-        patch(update({ faculty: Number(data.faculty_id), school: school.id }).url, {
-            onSuccess: () => {
-                onOpenChange(false);
+        patch(
+            update({ faculty: Number(data.faculty_id), school: school.id }).url,
+            {
+                onSuccess: () => {
+                    onOpenChange(false);
+                },
             },
-        });
+        );
     };
 
     return (
@@ -74,14 +82,26 @@ export default function UpdateSchoolModal({ school, faculties, open, onOpenChang
                             <Label htmlFor="edit-faculty_id">Facultad</Label>
                             <Select
                                 value={data.faculty_id}
-                                onValueChange={(value) => setData('faculty_id', value)}
+                                onValueChange={(value) =>
+                                    setData('faculty_id', value)
+                                }
                             >
-                                <SelectTrigger id="edit-faculty_id" className={errors.faculty_id ? 'border-destructive' : ''}>
+                                <SelectTrigger
+                                    id="edit-faculty_id"
+                                    className={
+                                        errors.faculty_id
+                                            ? 'border-destructive'
+                                            : ''
+                                    }
+                                >
                                     <SelectValue placeholder="Seleccione una facultad" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {faculties.map((faculty) => (
-                                        <SelectItem key={faculty.id} value={faculty.id.toString()}>
+                                        <SelectItem
+                                            key={faculty.id}
+                                            value={faculty.id.toString()}
+                                        >
                                             {faculty.name}
                                         </SelectItem>
                                     ))}
@@ -95,13 +115,19 @@ export default function UpdateSchoolModal({ school, faculties, open, onOpenChang
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="edit-name">Nombre de la Escuela</Label>
+                            <Label htmlFor="edit-name">
+                                Nombre de la Escuela
+                            </Label>
                             <Input
                                 id="edit-name"
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
                                 placeholder="Ej. Ingeniería de Sistemas"
-                                className={errors.name ? 'border-destructive' : ''}
+                                className={
+                                    errors.name ? 'border-destructive' : ''
+                                }
                             />
                             {errors.name && (
                                 <p className="text-xs font-medium text-destructive">
@@ -112,17 +138,23 @@ export default function UpdateSchoolModal({ school, faculties, open, onOpenChang
 
                         <div className="flex items-center justify-between rounded-lg border p-3 shadow-xs">
                             <div className="space-y-0.5">
-                                <Label htmlFor="edit-status" className="cursor-pointer text-base">
+                                <Label
+                                    htmlFor="edit-status"
+                                    className="cursor-pointer text-base"
+                                >
                                     Estado Activo
                                 </Label>
                                 <p className="text-xs text-muted-foreground">
-                                    Permite que la escuela sea seleccionada en otros módulos.
+                                    Permite que la escuela sea seleccionada en
+                                    otros módulos.
                                 </p>
                             </div>
                             <Switch
                                 id="edit-status"
                                 checked={data.status}
-                                onCheckedChange={(checked) => setData('status', checked)}
+                                onCheckedChange={(checked) =>
+                                    setData('status', checked)
+                                }
                             />
                         </div>
                     </div>
@@ -136,7 +168,9 @@ export default function UpdateSchoolModal({ school, faculties, open, onOpenChang
                             Cancelar
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Actualizando...' : 'Actualizar Escuela'}
+                            {processing
+                                ? 'Actualizando...'
+                                : 'Actualizar Escuela'}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -1,11 +1,17 @@
-import FileHistory from "@/modules/documents/components/FileHistory";
-import SubmissionForm from "@/modules/documents/components/submission-form";
-import { SectionCard } from "@/shared/components/ui/section-card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import FileHistory from '@/modules/documents/components/FileHistory';
+import SubmissionForm from '@/modules/documents/components/submission-form';
+import type { DocumentRequirement } from '@/modules/documents/types';
+import { SectionCard } from '@/shared/components/ui/section-card';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from '@/shared/components/ui/tabs';
 
 interface Props {
     status?: number;
-    currentRequirement: any;
+    currentRequirement: DocumentRequirement | null;
     tempFile: File | null;
     isEditing: boolean;
     onSetEditing: (val: boolean) => void;
@@ -14,7 +20,7 @@ interface Props {
     showFileInfo?: {
         name?: string;
         meta?: string;
-        size?: string;
+        size?: string | number;
         grade?: number;
     };
     onSubmit: () => void;
@@ -34,28 +40,41 @@ export function SubmissionPanel({
 }: Props) {
     // 1. Resolvemos qué existe en DB vs si estamos enviando uno nuevo
     const hasExistingDocument = !!currentRequirement?.latest;
-    
+
     // 2. Extraemos la información relevante en un plano seguro
-    const existingFileInfo = hasExistingDocument ? {
-        name: showFileInfo?.name || currentRequirement?.latest?.name || 'Archivo adjunto',
-        meta: showFileInfo?.meta || 'Documento adjunto',
-        grade: currentRequirement?.latest?.grade,
-        observationMsg: currentRequirement?.latest?.comment || currentRequirement?.latest?.justification,
-    } : undefined;
+    const existingFileInfo = hasExistingDocument
+        ? {
+              name:
+                  showFileInfo?.name ||
+                  currentRequirement?.latest?.name ||
+                  'Archivo adjunto',
+              meta: showFileInfo?.meta || 'Documento adjunto',
+              grade: currentRequirement?.latest?.grade,
+              observationMsg:
+                  currentRequirement?.latest?.comment ||
+                  currentRequirement?.latest?.justification,
+          }
+        : undefined;
 
     return (
-        <div className="w-full lg:w-64 xl:w-72 flex flex-col gap-4 shrink-0">
+        <div className="flex w-full shrink-0 flex-col gap-4 lg:w-64 xl:w-72">
             {/* Shadcn Tabs Card */}
             <Tabs defaultValue="detail" className="w-full">
                 <SectionCard>
                     <SectionCard.Header>
-                        <TabsList className="grid w-full grid-cols-2 gap-1 p-0 rounded-lg">
-                            <TabsTrigger value="detail"
-                                className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none transition-colors"
-                            >Detalle</TabsTrigger>
-                            <TabsTrigger value="history"
-                                className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none transition-colors"
-                            >Historial</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-2 gap-1 rounded-lg p-0">
+                            <TabsTrigger
+                                value="detail"
+                                className="flex-1 rounded-lg text-xs font-semibold transition-colors data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+                            >
+                                Detalle
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="history"
+                                className="flex-1 rounded-lg text-xs font-semibold transition-colors data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+                            >
+                                Historial
+                            </TabsTrigger>
                         </TabsList>
                     </SectionCard.Header>
                     <SectionCard.Body>
@@ -78,7 +97,9 @@ export function SubmissionPanel({
                             </SubmissionForm>
                         </TabsContent>
                         <TabsContent value="history" className="m-0">
-                            <FileHistory history={currentRequirement?.history} />
+                            <FileHistory
+                                history={currentRequirement?.history ?? []}
+                            />
                         </TabsContent>
                     </SectionCard.Body>
                 </SectionCard>

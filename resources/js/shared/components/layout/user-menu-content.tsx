@@ -18,14 +18,17 @@ type Props = {
 
 export function UserMenuContent({ user }: Props) {
     const cleanup = useMobileNavigation();
-    const { auth } = usePage().props as any;
+    const { auth } = usePage().props;
     const profiles = auth?.profiles;
 
     const academicProfiles = profiles?.academic || [];
     const staffProfiles = profiles?.staff || [];
 
     const handleProfileSelect = (id: number, type: string) => {
-        const route = type === 'academic' ? `/assignments/${id}/select` : `/staffs/${id}/select`;
+        const route =
+            type === 'academic'
+                ? `/assignments/${id}/select`
+                : `/staffs/${id}/select`;
         router.patch(route, {}, { preserveState: false });
         cleanup();
     };
@@ -46,30 +49,48 @@ export function UserMenuContent({ user }: Props) {
             {/* Profile Switcher Section */}
             {(academicProfiles.length > 0 || staffProfiles.length > 0) && (
                 <>
-                    <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
                         Cambiar Perfil
                     </DropdownMenuLabel>
                     <DropdownMenuGroup className="px-1">
-                        {academicProfiles.map((p: any) => (
+                        {academicProfiles.map((p) => (
                             <DropdownMenuItem
                                 key={`ac-${p.id}`}
-                                onClick={() => handleProfileSelect(p.id, 'academic')}
-                                className={`flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer ${p.selected ? 'bg-accent font-medium' : ''}`}
+                                onClick={() =>
+                                    handleProfileSelect(p.id, 'academic')
+                                }
+                                className={`flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 ${p.selected ? 'bg-accent font-medium' : ''}`}
                             >
                                 <div className="h-2 w-2 rounded-full bg-purple-500" />
-                                <span className="text-xs truncate">{p.role} - <span className="text-muted-foreground">{p.context}</span></span>
-                                {p.selected && <ShieldCheck className="ml-auto h-3 w-3 text-primary" />}
+                                <span className="truncate text-xs">
+                                    {p.role} -{' '}
+                                    <span className="text-muted-foreground">
+                                        {p.context}
+                                    </span>
+                                </span>
+                                {p.selected && (
+                                    <ShieldCheck className="ml-auto h-3 w-3 text-primary" />
+                                )}
                             </DropdownMenuItem>
                         ))}
-                        {staffProfiles.map((p: any) => (
+                        {staffProfiles.map((p) => (
                             <DropdownMenuItem
                                 key={`st-${p.id}`}
-                                onClick={() => handleProfileSelect(p.id, 'staff')}
-                                className={`flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer ${p.selected ? 'bg-accent font-medium' : ''}`}
+                                onClick={() =>
+                                    handleProfileSelect(p.id, 'staff')
+                                }
+                                className={`flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 ${p.selected ? 'bg-accent font-medium' : ''}`}
                             >
                                 <div className="h-2 w-2 rounded-full bg-blue-500" />
-                                <span className="text-xs truncate">{p.role} - <span className="text-muted-foreground">{p.context}</span></span>
-                                {p.selected && <ShieldCheck className="ml-auto h-3 w-3 text-primary" />}
+                                <span className="truncate text-xs">
+                                    {p.role} -{' '}
+                                    <span className="text-muted-foreground">
+                                        {p.context}
+                                    </span>
+                                </span>
+                                {p.selected && (
+                                    <ShieldCheck className="ml-auto h-3 w-3 text-primary" />
+                                )}
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuGroup>

@@ -1,8 +1,21 @@
 import { Head } from '@inertiajs/react';
-import { Cpu, Code2, UserCircle2, ShieldCheck, Github, ExternalLink } from 'lucide-react';
+import {
+    Cpu,
+    Code2,
+    UserCircle2,
+    ShieldCheck,
+    Github,
+    ExternalLink,
+} from 'lucide-react';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/shared/components/ui/card';
 import { Separator } from '@/shared/components/ui/separator';
 import AppLayout from '@/shared/layouts/app-layout';
 import SettingsLayout from '@/shared/layouts/settings/layout';
@@ -33,19 +46,31 @@ export default function About() {
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
-                                        <CardTitle className="text-xl font-bold tracking-tight">System PPP UNJFSC</CardTitle>
+                                        <CardTitle className="text-xl font-bold tracking-tight">
+                                            System PPP UNJFSC
+                                        </CardTitle>
                                         <CardDescription>
-                                            Sistema de Gestión de Prácticas Pre Profesionales
+                                            Sistema de Gestión de Prácticas Pre
+                                            Profesionales
                                         </CardDescription>
                                     </div>
-                                    <Badge variant="secondary" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+                                    <Badge
+                                        variant="secondary"
+                                        className="px-3 py-1 text-xs font-semibold tracking-wider uppercase"
+                                    >
                                         Version 4.0
                                     </Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <p className="text-sm leading-relaxed text-muted-foreground">
-                                    Este sistema ha sido diseñado y desarrollado para optimizar los procesos académicos y administrativos relacionados con las prácticas pre-profesionales, proporcionando una plataforma robusta, segura y eficiente para estudiantes, docentes y administradores.
+                                    Este sistema ha sido diseñado y desarrollado
+                                    para optimizar los procesos académicos y
+                                    administrativos relacionados con las
+                                    prácticas pre-profesionales, proporcionando
+                                    una plataforma robusta, segura y eficiente
+                                    para estudiantes, docentes y
+                                    administradores.
                                 </p>
 
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -54,8 +79,12 @@ export default function About() {
                                             <Code2 className="h-4 w-4" />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <p className="text-[10px] font-medium uppercase text-muted-foreground">Frontend</p>
-                                            <p className="text-xs font-semibold">React + Inertia</p>
+                                            <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                                                Frontend
+                                            </p>
+                                            <p className="text-xs font-semibold">
+                                                React + Inertia
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 rounded-lg bg-background/50 p-3 ring-1 ring-border">
@@ -63,8 +92,12 @@ export default function About() {
                                             <Cpu className="h-4 w-4" />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <p className="text-[10px] font-medium uppercase text-muted-foreground">Backend</p>
-                                            <p className="text-xs font-semibold">Laravel 11</p>
+                                            <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                                                Backend
+                                            </p>
+                                            <p className="text-xs font-semibold">
+                                                Laravel 11
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 rounded-lg bg-background/50 p-3 ring-1 ring-border">
@@ -72,8 +105,12 @@ export default function About() {
                                             <ShieldCheck className="h-4 w-4" />
                                         </div>
                                         <div className="space-y-0.5">
-                                            <p className="text-[10px] font-medium uppercase text-muted-foreground">Security</p>
-                                            <p className="text-xs font-semibold">Sanctum + Fortify</p>
+                                            <p className="text-[10px] font-medium text-muted-foreground uppercase">
+                                                Security
+                                            </p>
+                                            <p className="text-xs font-semibold">
+                                                Sanctum + Fortify
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -85,13 +122,19 @@ export default function About() {
                                 <CardHeader className="pb-3">
                                     <div className="flex items-center gap-2 text-primary">
                                         <UserCircle2 className="h-5 w-5 transition-transform group-hover:scale-110" />
-                                        <CardTitle className="text-lg">Project Manager</CardTitle>
+                                        <CardTitle className="text-lg">
+                                            Project Manager
+                                        </CardTitle>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-1">
-                                        <p className="text-base font-bold">Ing. Carlos Claros</p>
-                                        <p className="text-xs text-muted-foreground">Supervisión y Dirección de Proyecto</p>
+                                        <p className="text-base font-bold">
+                                            Ing. Carlos Claros
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Supervisión y Dirección de Proyecto
+                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -100,13 +143,19 @@ export default function About() {
                                 <CardHeader className="pb-3">
                                     <div className="flex items-center gap-2 text-primary">
                                         <Code2 className="h-5 w-5 transition-transform group-hover:scale-110" />
-                                        <CardTitle className="text-lg">Lead Developer</CardTitle>
+                                        <CardTitle className="text-lg">
+                                            Lead Developer
+                                        </CardTitle>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-1">
-                                        <p className="text-base font-bold">Ing. Martin Nicasio Marcelo</p>
-                                        <p className="text-xs text-muted-foreground">Arquitectura y Desarrollo Fullstack</p>
+                                        <p className="text-base font-bold">
+                                            Ing. Martin Nicasio Marcelo
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Arquitectura y Desarrollo Fullstack
+                                        </p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <a
@@ -133,15 +182,22 @@ export default function About() {
                         <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
                             <div className="space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground">
-                                    &copy; {new Date().getFullYear()} Facultad de Ingeniería Industrial, Sistemas e Informática
+                                    &copy; {new Date().getFullYear()} Facultad
+                                    de Ingeniería Industrial, Sistemas e
+                                    Informática
                                 </p>
-                                <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">
-                                    Universidad Nacional José Faustino Sánchez Carrión
+                                <p className="text-[10px] tracking-widest text-muted-foreground/60 uppercase">
+                                    Universidad Nacional José Faustino Sánchez
+                                    Carrión
                                 </p>
                             </div>
                             <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
-                                <span className="cursor-default hover:text-primary">Documentation</span>
-                                <span className="cursor-default hover:text-primary">Changelog</span>
+                                <span className="cursor-default hover:text-primary">
+                                    Documentation
+                                </span>
+                                <span className="cursor-default hover:text-primary">
+                                    Changelog
+                                </span>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, Building } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic/types';
@@ -28,8 +27,9 @@ interface Props {
 }
 
 export default function Faculties({ faculties }: Props) {
-    const { role } = usePage().props as any;
-    const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
+    const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(
+        null,
+    );
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -41,7 +41,7 @@ export default function Faculties({ faculties }: Props) {
         localPage,
         setLocalPage,
         localTotalPages,
-        handlePageChange
+        handlePageChange,
     } = useAcademicTable<Faculty>({
         endpoint: '',
         initialData: faculties,
@@ -49,7 +49,7 @@ export default function Faculties({ faculties }: Props) {
         pageSize: 10,
         localSearchFn: (faculty, search) =>
             faculty.name.toLowerCase().includes(search) ||
-            `#${faculty.id}`.includes(search)
+            `#${faculty.id}`.includes(search),
     });
 
     const formatId = (id: number) => `#${id.toString().padStart(3, '0')}`;
@@ -84,7 +84,7 @@ export default function Faculties({ faculties }: Props) {
 
                 <div className="flex items-center justify-start">
                     <AcademicSearch
-                        role={role}
+                        isAdmin={false}
                         search={search}
                         setSearch={setSearch}
                         placeholder="Buscar facultad por nombre o ID..."

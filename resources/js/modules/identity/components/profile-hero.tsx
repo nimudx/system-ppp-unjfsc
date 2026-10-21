@@ -3,7 +3,11 @@ import { Camera, ImagePlus, Trash2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { update as updateMedia } from '@/routes/profile/media';
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import {
     DropdownMenu,
@@ -12,9 +16,13 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 
-export default function ProfileHero({ profileData }: { profileData: any }) {
+export default function ProfileHero({
+    profileData,
+}: {
+    profileData: { path_photo?: string | null; path_banner?: string | null };
+}) {
     // Helper function to prepend /storage/ to partial paths saving 'http'
-    const getStorageUrl = (path: string | null) => {
+    const getStorageUrl = (path: string | null | undefined) => {
         if (!path) return null;
         if (path.startsWith('http') || path.startsWith('/storage/'))
             return path;
@@ -49,7 +57,8 @@ export default function ProfileHero({ profileData }: { profileData: any }) {
         if (file) {
             if (file.size > 2 * 1024 * 1024) {
                 toast.error('La imagen es muy pesada', {
-                    description: 'Por favor, comprímela o usa una de menos de 2MB.',
+                    description:
+                        'Por favor, comprímela o usa una de menos de 2MB.',
                 });
                 e.target.value = ''; // Limpiar el input
                 return;
@@ -65,7 +74,8 @@ export default function ProfileHero({ profileData }: { profileData: any }) {
         if (file) {
             if (file.size > 2 * 1024 * 1024) {
                 toast.error('La imagen de portada es muy pesada', {
-                    description: 'Por favor, comprímela o usa una de menos de 2MB.',
+                    description:
+                        'Por favor, comprímela o usa una de menos de 2MB.',
                 });
                 e.target.value = '';
                 return;

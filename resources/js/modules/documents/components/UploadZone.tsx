@@ -7,7 +7,7 @@ interface UploadZoneProps {
     onUpload: (file: File) => void;
 }
 
-export default function UploadZone({ code, onUpload }: UploadZoneProps) {
+export default function UploadZone({ onUpload }: UploadZoneProps) {
     const [isDragging, setIsDragging] = useState(false);
 
     const handleFile = (file: File) => {

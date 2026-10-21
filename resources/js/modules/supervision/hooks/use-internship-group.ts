@@ -14,6 +14,18 @@ export interface User {
 }
 
 export interface Assignment {
+    placement?: {
+        internship_type: string;
+        company_name: string;
+        area_name: string;
+        position: string;
+        start_date: string;
+        end_date: string;
+        boss_name: string;
+        boss_position: string;
+        boss_phone: string;
+        boss_email: string;
+    } | null;
     id: number;
     user: User;
 }
@@ -45,12 +57,17 @@ interface UseInternshipGroupProps {
     isAdmin: boolean;
 }
 
-export function useInternshipGroup({ initialData, isAdmin }: UseInternshipGroupProps) {
+export function useInternshipGroup({
+    initialData,
+    isAdmin,
+}: UseInternshipGroupProps) {
     // --- 1. Gestión de Modales ---
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedGroup, setSelectedGroup] = useState<InternshipGroup | null>(null);
+    const [selectedGroup, setSelectedGroup] = useState<InternshipGroup | null>(
+        null,
+    );
 
     // --- 2. Lógica de Tabla (Hook Genérico) ---
     const tableManager = useConfigTable<InternshipGroup>({
@@ -69,7 +86,7 @@ export function useInternshipGroup({ initialData, isAdmin }: UseInternshipGroupP
 
     // --- 3. Acciones de UI ---
     const openCreate = useCallback(() => setIsCreateModalOpen(true), []);
-    
+
     const openEdit = useCallback((group: InternshipGroup) => {
         setSelectedGroup(group);
         setIsEditModalOpen(true);
@@ -83,13 +100,13 @@ export function useInternshipGroup({ initialData, isAdmin }: UseInternshipGroupP
     // Función para refrescar los datos tras una acción exitosa (Create/Update/Delete)
     const refreshData = useCallback(() => {
         const params = (
-            tableManager.search.trim() 
-                ? { search: tableManager.search.trim() } 
+            tableManager.search.trim()
+                ? { search: tableManager.search.trim() }
                 : tableManager.activeFilters || {}
         ) as Record<string, unknown>;
-        
+
         tableManager.fetchData(undefined, params);
-        
+
         // Cerrar modales
         setIsCreateModalOpen(false);
         setIsEditModalOpen(false);
@@ -99,18 +116,30 @@ export function useInternshipGroup({ initialData, isAdmin }: UseInternshipGroupP
     return {
         // Todo lo relacionado con la tabla
         tableManager,
-        
+
         // Estado y acciones de los modales
         modals: {
-            create: { isOpen: isCreateModalOpen, setOpen: setIsCreateModalOpen, open: openCreate },
-            edit: { isOpen: isEditModalOpen, setOpen: setIsEditModalOpen, open: openEdit },
-            delete: { isOpen: isDeleteModalOpen, setOpen: setIsDeleteModalOpen, open: openDelete },
+            create: {
+                isOpen: isCreateModalOpen,
+                setOpen: setIsCreateModalOpen,
+                open: openCreate,
+            },
+            edit: {
+                isOpen: isEditModalOpen,
+                setOpen: setIsEditModalOpen,
+                open: openEdit,
+            },
+            delete: {
+                isOpen: isDeleteModalOpen,
+                setOpen: setIsDeleteModalOpen,
+                open: openDelete,
+            },
             selectedGroup,
         },
-        
+
         // Acciones globales
         actions: {
             refreshData,
-        }
+        },
     };
 }

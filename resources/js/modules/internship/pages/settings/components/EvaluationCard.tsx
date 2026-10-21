@@ -1,5 +1,5 @@
-import { GraduationCap } from "lucide-react";
-import type { WorkflowStage } from "../types";
+import { GraduationCap } from 'lucide-react';
+import type { WorkflowStage } from '../types';
 
 interface EvaluationCardProps {
     stage: WorkflowStage;
@@ -12,26 +12,28 @@ interface EvaluationCardProps {
  */
 export function EvaluationCard({ stage }: EvaluationCardProps) {
     return (
-        <div className="relative border-2 border-dashed border-amber-300 bg-amber-50/40 rounded-lg p-5 flex items-center gap-5">
+        <div className="relative flex items-center gap-5 rounded-lg border-2 border-dashed border-amber-300 bg-amber-50/40 p-5">
             {/* Step badge */}
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 text-amber-700 border-2 border-amber-300 shrink-0 text-sm font-bold">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-amber-300 bg-amber-100 text-sm font-bold text-amber-700">
                 {stage.step}
             </div>
 
             {/* Contenido */}
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                    <GraduationCap className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-bold text-amber-800">{stage.name}</span>
+            <div className="min-w-0 flex-1">
+                <div className="mb-0.5 flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4 text-amber-600" />
+                    <span className="text-sm font-bold text-amber-800">
+                        {stage.name}
+                    </span>
                 </div>
                 <p className="text-xs text-amber-600/80">
-                    Etapa final fija — aquí se registrará la calificación del estudiante.
-                    No requiere documentos adicionales.
+                    Etapa final fija — aquí se registrará la calificación del
+                    estudiante. No requiere documentos adicionales.
                 </p>
             </div>
 
             {/* Etiqueta fija */}
-            <div className="shrink-0 px-2.5 py-1 rounded-full bg-amber-200 text-amber-800 text-[10px] font-bold uppercase tracking-wide">
+            <div className="shrink-0 rounded-full bg-amber-200 px-2.5 py-1 text-[10px] font-bold tracking-wide text-amber-800 uppercase">
                 Evaluación Final
             </div>
         </div>

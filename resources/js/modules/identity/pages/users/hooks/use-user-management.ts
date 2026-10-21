@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useConfigTable } from "@/shared/hooks/use-config-table";
+import { useState } from 'react';
+import type { TableData } from '@/shared/hooks/use-config-table';
+import { useConfigTable } from '@/shared/hooks/use-config-table';
 
 export interface Assignment {
     id: number;
@@ -32,7 +33,7 @@ export interface Assignment {
 }
 
 interface Props {
-    initialData: any;
+    initialData: TableData<Assignment>;
     roleId: number;
     isAdmin: boolean;
 }
@@ -45,12 +46,17 @@ export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
         pageSize: 15,
         extraParams: { target_role_id: roleId },
         onLocalSearch: (a, term) => {
-            const fullName = `${a.user?.person?.surnames || ''} ${a.user?.person?.names || ''}`.toLowerCase();
-            return fullName.includes(term) || (a.user?.email || '').toLowerCase().includes(term);
-        }
+            const fullName =
+                `${a.user?.person?.surnames || ''} ${a.user?.person?.names || ''}`.toLowerCase();
+            return (
+                fullName.includes(term) ||
+                (a.user?.email || '').toLowerCase().includes(term)
+            );
+        },
     });
 
-    const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+    const [selectedAssignment, setSelectedAssignment] =
+        useState<Assignment | null>(null);
     const [isManageModalOpen, setIsManageModalOpen] = useState(false);
     const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
 
@@ -66,12 +72,12 @@ export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
 
     const reload = () => {
         if (isAdmin) {
-            const currentPath = (table.data as any)?.path || '/users/filter';
+            const currentPath = table.pagination?.path || '/users/filter';
             const params = {
                 target_role_id: roleId,
                 search: table.search.trim(),
                 page: table.localPage,
-                ...(table.activeFilters || {})
+                ...(table.activeFilters || {}),
             };
             table.fetchData(currentPath, params);
         }
@@ -82,7 +88,7 @@ export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
         state: {
             selectedAssignment,
             isManageModalOpen,
-            isPendingModalOpen
+            isPendingModalOpen,
         },
         actions: {
             setSelectedAssignment,
@@ -90,7 +96,7 @@ export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
             setIsPendingModalOpen,
             openManageModal,
             openPendingModal,
-            reload
-        }
+            reload,
+        },
     };
 }

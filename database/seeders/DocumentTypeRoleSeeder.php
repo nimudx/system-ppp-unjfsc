@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DocumentTypeRoleSeeder extends Seeder
@@ -12,11 +11,11 @@ class DocumentTypeRoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminRole = \App\Models\Role::find(1);
-        $titularRole = \App\Models\Role::find(3);
-        $supervisorRole = \App\Models\Role::find(4);
-        $studentRole = \App\Models\Role::find(5);
-        $companyRole = \App\Models\Role::find(6);
+        $adminRole = \App\Domains\Identity\Models\Role::find(1);
+        $titularRole = \App\Domains\Identity\Models\Role::find(3);
+        $supervisorRole = \App\Domains\Identity\Models\Role::find(4);
+        $studentRole = \App\Domains\Identity\Models\Role::find(5);
+        $companyRole = \App\Domains\Identity\Models\Role::find(6);
 
         // Limpiar para evitar duplicados
         \Illuminate\Support\Facades\DB::table('document_type_roles')->truncate();
@@ -30,7 +29,7 @@ class DocumentTypeRoleSeeder extends Seeder
         // 4:Carta de presentación, 8: Anexo 7
         $companyTypes = [4, 8];
 
-        $allTypes = \App\Models\DocumentType::all();
+        $allTypes = \App\Domains\Documents\Models\DocumentType::all();
 
         foreach ($allTypes as $type) {
             // Admin can see all

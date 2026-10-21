@@ -37,7 +37,7 @@ const sidebarNavItems: NavItem[] = [
         title: 'About',
         href: about(),
         icon: null,
-    }
+    },
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {

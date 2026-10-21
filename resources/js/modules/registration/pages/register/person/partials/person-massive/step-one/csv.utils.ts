@@ -1,9 +1,10 @@
-import Papa from "papaparse";
-import { csvRowSchema } from "./csv.schema";
+import Papa from 'papaparse';
+import type { CsvRow, CsvValidationError } from '@/modules/registration/types';
+import { csvRowSchema } from './csv.schema';
 
-export function parseCSV(file: File): Promise<any[]> {
+export function parseCSV(file: File): Promise<CsvRow[]> {
     return new Promise((resolve) => {
-        Papa.parse(file, {
+        Papa.parse<CsvRow>(file, {
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
@@ -13,9 +14,9 @@ export function parseCSV(file: File): Promise<any[]> {
     });
 }
 
-export function validateRows(rows: any[]) {
-    const valid: any[] = [];
-    const errors: any[] = [];
+export function validateRows(rows: CsvRow[]) {
+    const valid: CsvRow[] = [];
+    const errors: CsvValidationError[] = [];
 
     rows.forEach((row, index) => {
         const result = csvRowSchema.safeParse(row);

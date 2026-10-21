@@ -1,4 +1,6 @@
 import { ChevronRight, User } from 'lucide-react';
+
+import type { AssignmentRecord } from '@/modules/identity/types';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,
@@ -10,7 +12,7 @@ import {
 } from '@/shared/components/ui/table';
 
 interface DossierTableProps {
-    data: any[];
+    data: AssignmentRecord[];
     isLoading: boolean;
     selectedId: number | null;
     onSelect: (id: number) => void;
@@ -70,7 +72,7 @@ export default function DossierTable({
                         </TableCell>
                     </TableRow>
                 ) : (
-                    data.map((item: any) => (
+                    data.map((item) => (
                         <TableRow
                             key={item.id}
                             onClick={() => onSelect(item.id)}
@@ -140,13 +142,13 @@ export default function DossierTable({
                                     )}
                                 {(item.dossiers?.[0]?.approval_status === 2 ||
                                     !item.dossiers?.[0]) && (
-                                        <Badge
-                                            variant="outline"
-                                            className="h-5 border-none bg-amber-500 px-1.5 text-[9px] font-bold tracking-tighter text-white uppercase"
-                                        >
-                                            Pendiente
-                                        </Badge>
-                                    )}
+                                    <Badge
+                                        variant="outline"
+                                        className="h-5 border-none bg-amber-500 px-1.5 text-[9px] font-bold tracking-tighter text-white uppercase"
+                                    >
+                                        Pendiente
+                                    </Badge>
+                                )}
                             </TableCell>
 
                             <TableCell className="text-right">

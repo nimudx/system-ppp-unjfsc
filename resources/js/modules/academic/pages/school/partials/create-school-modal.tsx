@@ -28,7 +28,11 @@ interface Props {
     onOpenChange: (open: boolean) => void;
 }
 
-export default function CreateSchoolModal({ faculties, open, onOpenChange }: Props) {
+export default function CreateSchoolModal({
+    faculties,
+    open,
+    onOpenChange,
+}: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         faculty_id: '',
@@ -53,7 +57,8 @@ export default function CreateSchoolModal({ faculties, open, onOpenChange }: Pro
                     <DialogHeader>
                         <DialogTitle>Registrar Nueva Escuela</DialogTitle>
                         <DialogDescription>
-                            Ingrese los detalles para registrar una nueva escuela profesional.
+                            Ingrese los detalles para registrar una nueva
+                            escuela profesional.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -62,14 +67,26 @@ export default function CreateSchoolModal({ faculties, open, onOpenChange }: Pro
                             <Label htmlFor="faculty_id">Facultad</Label>
                             <Select
                                 value={data.faculty_id}
-                                onValueChange={(value) => setData('faculty_id', value)}
+                                onValueChange={(value) =>
+                                    setData('faculty_id', value)
+                                }
                             >
-                                <SelectTrigger id="faculty_id" className={errors.faculty_id ? 'border-destructive' : ''}>
+                                <SelectTrigger
+                                    id="faculty_id"
+                                    className={
+                                        errors.faculty_id
+                                            ? 'border-destructive'
+                                            : ''
+                                    }
+                                >
                                     <SelectValue placeholder="Seleccione una facultad" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {faculties.map((faculty) => (
-                                        <SelectItem key={faculty.id} value={faculty.id.toString()}>
+                                        <SelectItem
+                                            key={faculty.id}
+                                            value={faculty.id.toString()}
+                                        >
                                             {faculty.name}
                                         </SelectItem>
                                     ))}
@@ -87,9 +104,13 @@ export default function CreateSchoolModal({ faculties, open, onOpenChange }: Pro
                             <Input
                                 id="name"
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
                                 placeholder="Ej. Ingeniería de Sistemas"
-                                className={errors.name ? 'border-destructive' : ''}
+                                className={
+                                    errors.name ? 'border-destructive' : ''
+                                }
                             />
                             {errors.name && (
                                 <p className="text-xs font-medium text-destructive">
@@ -100,17 +121,23 @@ export default function CreateSchoolModal({ faculties, open, onOpenChange }: Pro
 
                         <div className="flex items-center justify-between rounded-lg border p-3 shadow-xs">
                             <div className="space-y-0.5">
-                                <Label htmlFor="status" className="cursor-pointer text-base">
+                                <Label
+                                    htmlFor="status"
+                                    className="cursor-pointer text-base"
+                                >
                                     Estado Activo
                                 </Label>
                                 <p className="text-xs text-muted-foreground">
-                                    Permite que la escuela sea seleccionada en otros módulos.
+                                    Permite que la escuela sea seleccionada en
+                                    otros módulos.
                                 </p>
                             </div>
                             <Switch
                                 id="status"
                                 checked={data.status}
-                                onCheckedChange={(checked) => setData('status', checked)}
+                                onCheckedChange={(checked) =>
+                                    setData('status', checked)
+                                }
                             />
                         </div>
                     </div>
@@ -124,7 +151,9 @@ export default function CreateSchoolModal({ faculties, open, onOpenChange }: Pro
                             Cancelar
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Registrando...' : 'Registrar Escuela'}
+                            {processing
+                                ? 'Registrando...'
+                                : 'Registrar Escuela'}
                         </Button>
                     </DialogFooter>
                 </form>

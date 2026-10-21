@@ -1,21 +1,26 @@
-import { router } from "@inertiajs/react";
-import { useState } from "react";
-import { toast } from "sonner";
-import dossiers from "@/routes/academic/dossiers";
-import { useConfigTable } from "@/shared/hooks/use-config-table";
-import { useItemDetail } from "@/shared/hooks/use-item-detail";
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+import type { AssignmentRecord, DossierDetail } from '@/modules/identity/types';
+import dossiers from '@/routes/academic/dossiers';
+import type { TableData } from '@/shared/hooks/use-config-table';
+import { useConfigTable } from '@/shared/hooks/use-config-table';
+import { useItemDetail } from '@/shared/hooks/use-item-detail';
 
 interface Props {
-    initialData: any;
+    initialData: TableData<AssignmentRecord>;
     target_role_id: number;
     isAdmin: boolean;
 }
 
-export function useDossierValidation(
-    { initialData, target_role_id, isAdmin }: Props
-) {
+export function useDossierValidation({
+    initialData,
+    target_role_id,
+    isAdmin,
+}: Props) {
     // 1. Manejo de la tabla (Sigue igual)
-    const tableManager = useConfigTable({
+    const tableManager = useConfigTable<AssignmentRecord>({
         endpoint: '/api/dossiers/filter',
         initialData,
         isAdmin,
@@ -23,25 +28,26 @@ export function useDossierValidation(
         extraParams: {
             target_role_id,
         },
-        onLocalSearch: (item: any, term: string) => {
-            const fullName = `${item.user?.person?.surnames} ${item.user?.person?.names}`.toLowerCase();
+        onLocalSearch: (item, term: string) => {
+            const fullName =
+                `${item.user?.person?.surnames} ${item.user?.person?.names}`.toLowerCase();
             const email = (item.user?.email || '').toLowerCase();
             return fullName.includes(term) || email.includes(term);
         },
     });
 
     // 2. Manejo del Detalle mediante el nuevo Motor (useItemDetail)
-    const { 
-        selectedId, 
-        detailData: itemDetail, 
+    const {
+        selectedId,
+        detailData: itemDetail,
         isLoading: isLoadingDetail,
-        actions: detailActions 
-    } = useItemDetail({
+        actions: detailActions,
+    } = useItemDetail<DossierDetail>({
         fetchUrl: (id) => dossiers.api.validations.url(id),
     });
 
-    const selectedItem = tableManager.displayData.find((item) =>
-        item.id === selectedId
+    const selectedItem = tableManager.displayData.find(
+        (item) => item.id === selectedId,
     );
 
     // 3. Estados locales específicos del flujo de Dossier
@@ -73,23 +79,24 @@ export function useDossierValidation(
 
                 // Refrescar tabla si es Admin para recuperar últimos estados
                 if (isAdmin) {
-                    const currentPath = (tableManager.data as any)?.path || '/api/dossiers/filter';
+                    const currentPath =
+                        tableManager.pagination?.path || '/api/dossiers/filter';
                     const params = {
                         target_role_id,
                         search: tableManager.search.trim(),
                         page: tableManager.localPage,
-                        ...(tableManager.activeFilters || {})
+                        ...(tableManager.activeFilters || {}),
                     };
                     tableManager.fetchData(currentPath, params);
                 }
             },
-            onError: (errors: any) => {
+            onError: (errors) => {
                 console.log(errors);
                 toast.error('Ocurrió un error al guardar la validación.');
             },
             onFinish: () => {
                 setIsSavingValidation(false);
-            }
+            },
         });
     };
 
@@ -102,7 +109,7 @@ export function useDossierValidation(
             isLoadingDetail,
             previewEnabled,
             isSavingValidation,
-            selectedType
+            selectedType,
         },
         actions: {
             // Mapeamos las acciones del motor a los nombres esperados por el componente
@@ -111,6 +118,6 @@ export function useDossierValidation(
             handleSaveValidation,
             setPreviewEnabled,
             setSelectedType,
-        }
+        },
     };
 }

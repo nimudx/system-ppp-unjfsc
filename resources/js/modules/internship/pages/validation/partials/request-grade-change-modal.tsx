@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
-import type { FormEvent} from 'react';
-import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import internship from '@/routes/academic/internship';
 import { Button } from '@/shared/components/ui/button';
@@ -22,41 +22,42 @@ interface Props {
     onSuccess?: () => void;
 }
 
-export default function RequestGradeChangeModal({ internshipId, open, onOpenChange, onSuccess }: Props) {
+function RequestGradeChangeModalContent({
+    internshipId,
+    open,
+    onOpenChange,
+    onSuccess,
+}: Props) {
     const [newGrade, setNewGrade] = useState('');
     const [reason, setReason] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState<any>({});
-
-    useEffect(() => {
-        if (open) {
-            setNewGrade('');
-            setReason('');
-            setErrors({});
-        }
-    }, [open]);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
         const url = internship.gradeChangeRequest.url(internshipId);
 
-        router.post(url, {
-            new_grade: newGrade,
-            reason: reason,
-        }, {
-            onBefore: () => setIsSubmitting(true),
-            onFinish: () => setIsSubmitting(false),
-            onSuccess: () => {
-                onOpenChange(false);
-                if (onSuccess) onSuccess();
+        router.post(
+            url,
+            {
+                new_grade: newGrade,
+                reason: reason,
             },
-            onError: (err) => {
-                setErrors(err);
-                if (err.message) toast.error(err.message);
-                if (err.error) toast.error(err.error);
-            }
-        });
+            {
+                onBefore: () => setIsSubmitting(true),
+                onFinish: () => setIsSubmitting(false),
+                onSuccess: () => {
+                    onOpenChange(false);
+                    if (onSuccess) onSuccess();
+                },
+                onError: (err) => {
+                    setErrors(err);
+                    if (err.message) toast.error(err.message);
+                    if (err.error) toast.error(err.error);
+                },
+            },
+        );
     };
 
     return (
@@ -66,13 +67,16 @@ export default function RequestGradeChangeModal({ internshipId, open, onOpenChan
                     <DialogHeader>
                         <DialogTitle>Solicitar Cambio de Nota</DialogTitle>
                         <DialogDescription>
-                            Envíe una justificación para solicitar el cambio de calificación final.
+                            Envíe una justificación para solicitar el cambio de
+                            calificación final.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="new_grade">Nueva Calificación</Label>
+                            <Label htmlFor="new_grade">
+                                Nueva Calificación
+                            </Label>
                             <Input
                                 id="new_grade"
                                 type="number"
@@ -91,13 +95,15 @@ export default function RequestGradeChangeModal({ internshipId, open, onOpenChan
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="reason">Motivo / Justificación</Label>
+                            <Label htmlFor="reason">
+                                Motivo / Justificación
+                            </Label>
                             <textarea
                                 id="reason"
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
                                 placeholder="Describa por qué es necesario corregir esta nota..."
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {errors.reason && (
                                 <p className="text-sm font-medium text-destructive">
@@ -116,7 +122,10 @@ export default function RequestGradeChangeModal({ internshipId, open, onOpenChan
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isSubmitting || !newGrade || !reason}>
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting || !newGrade || !reason}
+                        >
                             {isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
                         </Button>
                     </DialogFooter>
@@ -124,4 +133,10 @@ export default function RequestGradeChangeModal({ internshipId, open, onOpenChan
             </DialogContent>
         </Dialog>
     );
+}
+
+export default function RequestGradeChangeModal(props: Props) {
+    return props.open ? (
+        <RequestGradeChangeModalContent key={props.internshipId} {...props} />
+    ) : null;
 }

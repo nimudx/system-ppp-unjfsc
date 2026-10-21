@@ -1,16 +1,24 @@
 import { router } from '@inertiajs/react';
 import { Info, FileText, EyeOff, Eye } from 'lucide-react';
 import { useState } from 'react';
-import { RequirementsList, FilePreview, ValidationPanel } from '@/modules/documents';
+
+import {
+    RequirementsList,
+    FilePreview,
+    ValidationPanel,
+} from '@/modules/documents';
+
+import type { InternshipDetailData } from '@/modules/internship/types';
 import internship from '@/routes/academic/internship';
 import { Stepper } from '@/shared/components/stepper';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
+
 import { EvaluationView } from '../../submission/parts/EvaluationView';
 
 interface InternshipDetailProps {
-    detailData: any;
+    detailData: InternshipDetailData;
     loadDetail: (id?: number, step?: number) => void;
     onStatusUpdateSuccess: () => void;
 }
@@ -30,7 +38,7 @@ export default function InternshipDetail({
     const currentRequirement = requirements[selectedReqIndex] || null;
     const isViewingPastStep = viewStep !== detailData?.currentStep;
     const isEvalStage =
-        steps.find((s: any) => s.id === viewStep)?.is_evaluation ?? false;
+        steps.find((s) => s.id === viewStep)?.is_evaluation ?? false;
 
     const handleStepClick = (id: number) => {
         if (id <= detailData?.currentStep && id !== viewStep) {
@@ -149,7 +157,7 @@ export default function InternshipDetail({
                         variant="outline"
                         className="border-primary/20 bg-primary/5 px-3 font-bold text-primary"
                     >
-                        {steps.find((s: any) => s.id === viewStep)?.label ||
+                        {steps.find((s) => s.id === viewStep)?.label ||
                             `Etapa ${viewStep}`}
                     </Badge>
                     <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
@@ -167,8 +175,8 @@ export default function InternshipDetail({
                 {!isEvalStage && (
                     <span className="text-xs font-bold tracking-tighter text-muted-foreground uppercase">
                         Progreso:{' '}
-                        {requirements.filter((r: any) => r.status === 1).length}{' '}
-                        / {requirements.length} Aprobados
+                        {requirements.filter((r) => r.status === 1).length} /{' '}
+                        {requirements.length} Aprobados
                     </span>
                 )}
             </div>

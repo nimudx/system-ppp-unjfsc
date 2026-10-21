@@ -2,11 +2,15 @@ import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import type {
+    InternshipGroup,
+    Assignment,
+} from '@/modules/supervision/hooks/use-internship-group';
 import groups from '@/routes/academic/groups';
 
 interface UseStudentManagementProps {
-    group: any;
-    allGroups: any[];
+    group: InternshipGroup;
+    allGroups: InternshipGroup[];
 }
 
 export function useStudentManagement({
@@ -15,8 +19,10 @@ export function useStudentManagement({
 }: UseStudentManagementProps) {
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [availableStudents, setAvailableStudents] = useState<any[]>([]);
-    const [groupStudents, setGroupStudents] = useState<any[]>([]);
+    const [availableStudents, setAvailableStudents] = useState<Assignment[]>(
+        [],
+    );
+    const [groupStudents, setGroupStudents] = useState<Assignment[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [targetGroupId, setTargetGroupId] = useState<string>('');
     const [currentTab, setCurrentTab] = useState('add');
@@ -30,7 +36,7 @@ export function useStudentManagement({
                 groups.api.students.url(group.section.id),
             );
             setAvailableStudents(response.data.students || []);
-        } catch (error) {
+        } catch {
             toast.error('No se pudieron cargar los estudiantes disponibles');
         } finally {
             setLoading(false);
@@ -45,7 +51,7 @@ export function useStudentManagement({
                 groups.api.group_students.url(group.id),
             );
             setGroupStudents(response.data.students || []);
-        } catch (error) {
+        } catch {
             toast.error('No se pudieron cargar los estudiantes del grupo');
         } finally {
             setLoading(false);

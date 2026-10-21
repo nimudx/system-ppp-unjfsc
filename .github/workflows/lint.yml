@@ -50,6 +50,10 @@ jobs:
           composer install --no-interaction --no-progress --prefer-dist
           npm ci
 
+      # Wayfinder genera estos archivos ignorados por Git en cada clon limpio.
+      - name: Generate Typed Routes
+        run: php artisan wayfinder:generate --with-form
+
       # Comprobar formato PHP con Laravel Pint
       - name: Check PHP
         run: composer test:lint

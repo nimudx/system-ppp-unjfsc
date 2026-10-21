@@ -1,23 +1,27 @@
-import { Head, usePage } from "@inertiajs/react";
+import { Head, usePage } from '@inertiajs/react';
 import { CompanyResourceContent } from '@/modules/company';
-import AppLayout from "@/shared/layouts/app-layout";
-import AcademicResourceContent from "./academic-resource-content";
-import AdminResourceContent from "./admin-resource-content";
+import type {
+    ResourcePageProps,
+    ResourceItem,
+} from '@/modules/resources/types';
+import type { TableData } from '@/shared/hooks/use-config-table';
+import AppLayout from '@/shared/layouts/app-layout';
+import AcademicResourceContent from './academic-resource-content';
+import AdminResourceContent from './admin-resource-content';
 
-interface ResourceProps {
-    resources?: any;
-    documentTypes?: any;
-    roles?: any;
-    faculties?: any;
-    initialFilters?: any;
-}
+type ResourceProps = Partial<Omit<ResourcePageProps, 'resources'>> & {
+    resources?: TableData<ResourceItem>;
+};
 
 export default function Resource(props: ResourceProps) {
-    const { resources, documentTypes, roles, faculties, initialFilters } = props;
-    const { auth } = usePage().props as any;
+    const { resources, documentTypes, roles, faculties, initialFilters } =
+        props;
+    const { auth } = usePage().props;
 
     // Convertimos la posible respuesta objeto/arreglo a arreglo
-    const dataList = Array.isArray(resources) ? resources : (resources?.data || []);
+    const dataList = Array.isArray(resources)
+        ? resources
+        : resources?.data || [];
 
     if (auth.user.type_id === 1) {
         return (
@@ -34,10 +38,10 @@ export default function Resource(props: ResourceProps) {
                 <Head title="Recursos Académicos" />
                 <AcademicResourceContent
                     resources={dataList}
-                    documentTypes={documentTypes}
-                    roles={roles}
-                    faculties={faculties}
-                    initialFilters={initialFilters}
+                    documentTypes={documentTypes ?? []}
+                    roles={roles ?? []}
+                    faculties={faculties ?? []}
+                    initialFilters={initialFilters ?? null}
                 />
             </AppLayout>
         );

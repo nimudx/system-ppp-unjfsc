@@ -1,9 +1,12 @@
 import { Head, usePage } from '@inertiajs/react';
 import type { Faculty } from '@/modules/academic';
+import type { DocumentRequirement } from '@/modules/documents/types';
+import type { AssignmentRecord, DossierDetail } from '@/modules/identity/types';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
+import type { TableData } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
 import DossierDetailPanel from '../../components/dossier-detail-panel';
 import DossierTable from '../../components/dossier-table';
@@ -12,9 +15,9 @@ import { useDossierValidation } from '../../hooks/use-dossier-validation';
 interface Props {
     title: string;
     faculties: Faculty[];
-    assignments: any;
-    dossier: any;
-    requirements: any;
+    assignments: TableData<AssignmentRecord>;
+    dossier?: DossierDetail['dossier'];
+    requirements?: DocumentRequirement[];
     target_role_id: number;
 }
 
@@ -26,7 +29,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
         target_role_id,
     } = props;
 
-    const { role } = usePage().props as any;
+    const { role } = usePage().props;
     const isAdmin = [1, 2].includes(Number(role));
 
     const { tableManager, state, actions } = useDossierValidation({
@@ -68,7 +71,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
                                     faculties={faculties}
                                     onFilter={tableManager.handleFilter}
                                     isLoading={tableManager.isSearching}
-                                    initialValues={tableManager.activeFilters as any}
+                                    initialValues={tableManager.activeFilters}
                                 />
                             )}
                             <AcademicSearch
@@ -102,11 +105,9 @@ export default function DossierValidationIndex({ ...props }: Props) {
                                 isAdmin={isAdmin}
                                 isLoading={tableManager.isSearching}
                                 // Props para Admin (API)
-                                links={(tableManager.data as any)?.links}
-                                total={(tableManager.data as any)?.total}
-                                showing={
-                                    (tableManager.data as any)?.data?.length
-                                }
+                                links={tableManager.pagination?.links}
+                                total={tableManager.pagination?.total}
+                                showing={tableManager.pagination?.data?.length}
                                 onPageChange={tableManager.handlePageChange}
                                 // Props para Docente (Local)
                                 currentPage={tableManager.localPage}
@@ -123,10 +124,11 @@ export default function DossierValidationIndex({ ...props }: Props) {
                     </aside>
                     {/* PANEL DERECHO: Detalle de Gestión */}
                     <main
-                        className={`flex min-w-0 flex-1 flex-col transition-all duration-500 ease-in-out ${state.selectedId
+                        className={`flex min-w-0 flex-1 flex-col transition-all duration-500 ease-in-out ${
+                            state.selectedId
                                 ? 'translate-x-0 opacity-100'
                                 : 'pointer-events-none translate-x-12.5 opacity-0'
-                            }`}
+                        }`}
                     >
                         <DossierDetailPanel
                             selectedItem={state.selectedItem}

@@ -6,7 +6,7 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from "@/shared/components/ui/pagination";
+} from '@/shared/components/ui/pagination';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -44,15 +44,19 @@ interface AcademicPaginationProps {
 }
 
 // ─── Helper: genera números de páginas con elipsis ────────────────────────────
-function buildPageNumbers(current: number, total: number): (number | "...")[] {
+function buildPageNumbers(current: number, total: number): (number | '...')[] {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
 
-    const pages: (number | "...")[] = [1];
-    if (current > 3) pages.push("...");
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+    const pages: (number | '...')[] = [1];
+    if (current > 3) pages.push('...');
+    for (
+        let i = Math.max(2, current - 1);
+        i <= Math.min(total - 1, current + 1);
+        i++
+    ) {
         pages.push(i);
     }
-    if (current < total - 2) pages.push("...");
+    if (current < total - 2) pages.push('...');
     pages.push(total);
     return pages;
 }
@@ -74,54 +78,77 @@ export default function AcademicPagination({
     localTotal,
     onLocalPageChange,
 }: AcademicPaginationProps) {
-
     // ── Modo API (Admin) ──────────────────────────────────────────────────────
     if (isAdmin) {
         if (!links || links.length <= 3) return null; // Solo "prev/1/next" → no paginamos
 
         return (
-            <div className="px-4 py-2.5 bg-muted/5 flex flex-wrap gap-3 items-center justify-between border-t text-[11px] text-muted-foreground">
-                <span className="font-medium ml-1 shrink-0">
-                    Mostrando <strong>{showing ?? 0}</strong> de <strong>{total ?? 0}</strong> registros
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/5 px-4 py-2.5 text-[11px] text-muted-foreground">
+                <span className="ml-1 shrink-0 font-medium">
+                    Mostrando <strong>{showing ?? 0}</strong> de{' '}
+                    <strong>{total ?? 0}</strong> registros
                 </span>
                 <Pagination className="mx-0 w-auto">
                     <PaginationContent className="gap-0.5">
                         {links.map((link, idx) => {
-                            const isPrev    = link.label.includes("Previous");
-                            const isNext    = link.label.includes("Next");
-                            const isEllipsis = link.label === "...";
-                            const disabled  = !link.url || isLoading;
+                            const isPrev = link.label.includes('Previous');
+                            const isNext = link.label.includes('Next');
+                            const isEllipsis = link.label === '...';
+                            const disabled = !link.url || isLoading;
 
-                            if (isPrev) return (
-                                <PaginationItem key={idx}>
-                                    <PaginationPrevious
-                                        href="#"
-                                        onClick={(e) => { e.preventDefault(); if (link.url) onPageChange?.(link.url); }}
-                                        className={disabled ? "opacity-40 pointer-events-none" : "cursor-pointer"}
-                                    />
-                                </PaginationItem>
-                            );
-                            if (isNext) return (
-                                <PaginationItem key={idx}>
-                                    <PaginationNext
-                                        href="#"
-                                        onClick={(e) => { e.preventDefault(); if (link.url) onPageChange?.(link.url); }}
-                                        className={disabled ? "opacity-40 pointer-events-none" : "cursor-pointer"}
-                                    />
-                                </PaginationItem>
-                            );
-                            if (isEllipsis) return (
-                                <PaginationItem key={idx}>
-                                    <PaginationEllipsis />
-                                </PaginationItem>
-                            );
+                            if (isPrev)
+                                return (
+                                    <PaginationItem key={idx}>
+                                        <PaginationPrevious
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (link.url)
+                                                    onPageChange?.(link.url);
+                                            }}
+                                            className={
+                                                disabled
+                                                    ? 'pointer-events-none opacity-40'
+                                                    : 'cursor-pointer'
+                                            }
+                                        />
+                                    </PaginationItem>
+                                );
+                            if (isNext)
+                                return (
+                                    <PaginationItem key={idx}>
+                                        <PaginationNext
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (link.url)
+                                                    onPageChange?.(link.url);
+                                            }}
+                                            className={
+                                                disabled
+                                                    ? 'pointer-events-none opacity-40'
+                                                    : 'cursor-pointer'
+                                            }
+                                        />
+                                    </PaginationItem>
+                                );
+                            if (isEllipsis)
+                                return (
+                                    <PaginationItem key={idx}>
+                                        <PaginationEllipsis />
+                                    </PaginationItem>
+                                );
                             return (
                                 <PaginationItem key={idx}>
                                     <PaginationLink
                                         href="#"
                                         isActive={link.active}
-                                        onClick={(e) => { e.preventDefault(); if (link.url) onPageChange?.(link.url); }}
-                                        className={`text-xs ${disabled ? "opacity-40 pointer-events-none" : "cursor-pointer"}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            if (link.url)
+                                                onPageChange?.(link.url);
+                                        }}
+                                        className={`text-xs ${disabled ? 'pointer-events-none opacity-40' : 'cursor-pointer'}`}
                                     >
                                         {link.label}
                                     </PaginationLink>
@@ -140,22 +167,31 @@ export default function AcademicPagination({
     const pages = buildPageNumbers(currentPage, totalPages);
 
     return (
-        <div className="px-4 py-2.5 bg-muted/5 flex flex-wrap gap-3 items-center justify-between border-t text-[11px] text-muted-foreground">
-            <span className="font-medium ml-1 shrink-0">
-                Mostrando <strong>{localShowing ?? 0}</strong> de <strong>{localTotal ?? 0}</strong>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/5 px-4 py-2.5 text-[11px] text-muted-foreground">
+            <span className="ml-1 shrink-0 font-medium">
+                Mostrando <strong>{localShowing ?? 0}</strong> de{' '}
+                <strong>{localTotal ?? 0}</strong>
             </span>
             <Pagination className="mx-0 w-auto">
                 <PaginationContent className="gap-0.5">
                     <PaginationItem>
                         <PaginationPrevious
                             href="#"
-                            onClick={(e) => { e.preventDefault(); if (currentPage > 1) onLocalPageChange?.(currentPage - 1); }}
-                            className={currentPage <= 1 ? "opacity-40 pointer-events-none" : "cursor-pointer"}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage > 1)
+                                    onLocalPageChange?.(currentPage - 1);
+                            }}
+                            className={
+                                currentPage <= 1
+                                    ? 'pointer-events-none opacity-40'
+                                    : 'cursor-pointer'
+                            }
                         />
                     </PaginationItem>
 
                     {pages.map((p, i) =>
-                        p === "..." ? (
+                        p === '...' ? (
                             <PaginationItem key={`ellipsis-${i}`}>
                                 <PaginationEllipsis />
                             </PaginationItem>
@@ -164,20 +200,31 @@ export default function AcademicPagination({
                                 <PaginationLink
                                     href="#"
                                     isActive={currentPage === p}
-                                    onClick={(e) => { e.preventDefault(); onLocalPageChange?.(p as number); }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        onLocalPageChange?.(p as number);
+                                    }}
                                     className="cursor-pointer text-xs"
                                 >
                                     {p}
                                 </PaginationLink>
                             </PaginationItem>
-                        )
+                        ),
                     )}
 
                     <PaginationItem>
                         <PaginationNext
                             href="#"
-                            onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) onLocalPageChange?.(currentPage + 1); }}
-                            className={currentPage >= totalPages ? "opacity-40 pointer-events-none" : "cursor-pointer"}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage < totalPages)
+                                    onLocalPageChange?.(currentPage + 1);
+                            }}
+                            className={
+                                currentPage >= totalPages
+                                    ? 'pointer-events-none opacity-40'
+                                    : 'cursor-pointer'
+                            }
                         />
                     </PaginationItem>
                 </PaginationContent>

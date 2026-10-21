@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import type { BusinessError } from '@/shared/types/global';
 
 /**
  * ExceptionHandler — Fuente ÚNICA de toasts para respuestas Inertia.
@@ -19,7 +20,13 @@ export function ExceptionHandler() {
     useEffect(() => {
         // Escuchar cada visita Inertia exitosa
         const removeSuccessListener = router.on('success', (event) => {
-            const flash = (event.detail.page.props as any).flash;
+            const flash = event.detail.page.props.flash as
+                | {
+                      success?: string;
+                      message?: string;
+                      error?: string | BusinessError;
+                  }
+                | undefined;
             if (!flash) return;
 
             const successMsg = flash.success || flash.message;

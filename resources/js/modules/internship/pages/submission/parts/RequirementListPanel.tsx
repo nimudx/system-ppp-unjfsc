@@ -1,8 +1,8 @@
-import { AlertCircle } from "lucide-react";
 import { RequirementsList, AlertHelp } from '@/modules/documents';
+import type { DocumentRequirement } from '@/modules/documents/types';
 
 interface RequirementListPanelProps {
-    requirements: any[];
+    requirements: DocumentRequirement[];
     selectedType: number;
     onSelectType: (idx: number) => void;
     previewEnabled: boolean;
@@ -14,10 +14,10 @@ export function RequirementListPanel({
     selectedType,
     onSelectType,
     previewEnabled,
-    onTogglePreview
+    onTogglePreview,
 }: RequirementListPanelProps) {
     return (
-        <div className="w-full lg:w-64 xl:w-72 flex flex-col gap-4 shrink-0">
+        <div className="flex w-full shrink-0 flex-col gap-4 lg:w-64 xl:w-72">
             <RequirementsList
                 requirements={requirements}
                 selectedType={selectedType}

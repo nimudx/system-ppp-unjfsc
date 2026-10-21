@@ -1,4 +1,4 @@
-import { Info, ExternalLink } from "lucide-react";
+import { Info, ExternalLink } from 'lucide-react';
 
 export function AlertHelp() {
     return (
@@ -9,12 +9,14 @@ export function AlertHelp() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold leading-none">
+                    <span className="text-sm leading-none font-semibold">
                         ¿Necesitas ayuda con tus archivos?
                     </span>
 
                     <p className="text-xs leading-relaxed">
-                        Sube archivos <strong>PDF</strong> menores a <strong>10MB</strong>. Asegúrate de que el contenido sea legible.
+                        Sube archivos <strong>PDF</strong> menores a{' '}
+                        <strong>10MB</strong>. Asegúrate de que el contenido sea
+                        legible.
                     </p>
 
                     <div className="mt-2">
@@ -22,7 +24,7 @@ export function AlertHelp() {
                             href="https://www.ilovepdf.com/es/comprimir_pdf"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-medium underline-offset-4 hover:underline transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-medium underline-offset-4 transition-colors hover:underline"
                         >
                             Comprimir mi PDF aquí
                             <ExternalLink className="h-3 w-3" />

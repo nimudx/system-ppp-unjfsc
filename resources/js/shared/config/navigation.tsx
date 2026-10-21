@@ -132,7 +132,7 @@ export const ACADEMIC_NAV = [
         roles: [5],
     },
     {
-        title: "Estudiantes",
+        title: 'Estudiantes',
         href: groupSupervisionIndex().url,
         icon: Users,
         roles: [4],
@@ -141,7 +141,7 @@ export const ACADEMIC_NAV = [
         title: 'Evaluación',
         href: supervisionSubmissionIndex().url,
         icon: NotebookPen,
-        roles: [4]
+        roles: [4],
     },
     {
         title: 'Usuarios',
@@ -204,7 +204,7 @@ export const ACADEMIC_NAV = [
                 roles: [1, 2],
             },
         ],
-    }
+    },
 ];
 
 export const COMPANY_NAV = [
@@ -245,7 +245,6 @@ export const ACADEMIC_SETTINGS_NAV = [
         icon: FileText,
         roles: [1, 2],
     },
-
 ];
 
 export const FOOTER_NAV = [

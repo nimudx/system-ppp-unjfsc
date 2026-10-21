@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Enums\PersonStatus;
-use App\Models\Person;
+use App\Domains\Identity\Enums\PersonStatus;
+use App\Domains\Identity\Models\Person;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Person>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domains\Identity\Models\Person>
  */
 class PersonFactory extends Factory
 {
@@ -23,7 +23,7 @@ class PersonFactory extends Factory
         return [
             'dni' => fake()->unique()->numerify('########'),
             'names' => fake()->firstName(),
-            'surnames' => fake()->lastName() . ' ' . fake()->lastName(),
+            'surnames' => fake()->lastName().' '.fake()->lastName(),
             'phone' => fake()->numerify('9########'),
             'gender' => fake()->randomElement(['M', 'F']),
             'status' => PersonStatus::ACTIVE,

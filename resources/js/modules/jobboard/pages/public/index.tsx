@@ -36,8 +36,8 @@ export default function LoginEmpresa() {
             <main className="relative flex min-h-screen flex-col overflow-hidden bg-slate-50 text-slate-900 lg:flex-row">
                 {/* Panel institucional */}
                 <section className="relative flex flex-col justify-between overflow-hidden bg-[#102747] px-6 py-8 text-white sm:px-10 lg:min-h-screen lg:w-[48%] lg:px-16 lg:py-12">
-                    <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full border border-white/10" />
-                    <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10" />
+                    <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full border border-white/10" />
+                    <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full border border-white/10" />
                     <div className="pointer-events-none absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl" />
 
                     <Link
@@ -70,8 +70,8 @@ export default function LoginEmpresa() {
 
                         <p className="mt-6 max-w-lg text-base leading-7 text-blue-100/80 sm:text-lg">
                             Conecta con estudiantes y egresados de la
-                            Universidad Nacional José Faustino Sánchez Carrión
-                            y publica oportunidades para impulsar su futuro
+                            Universidad Nacional José Faustino Sánchez Carrión y
+                            publica oportunidades para impulsar su futuro
                             profesional.
                         </p>
 
@@ -181,9 +181,7 @@ export default function LoginEmpresa() {
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between gap-3">
-                                    <Label htmlFor="password">
-                                        Contraseña
-                                    </Label>
+                                    <Label htmlFor="password">Contraseña</Label>
 
                                     <button
                                         type="button"
@@ -286,7 +284,10 @@ export default function LoginEmpresa() {
                                         className="mt-3 inline-flex text-sm font-semibold text-blue-800 hover:text-blue-950"
                                     >
                                         Registrar empresa
-                                        <span className="ml-1" aria-hidden="true">
+                                        <span
+                                            className="ml-1"
+                                            aria-hidden="true"
+                                        >
                                             →
                                         </span>
                                     </Link>

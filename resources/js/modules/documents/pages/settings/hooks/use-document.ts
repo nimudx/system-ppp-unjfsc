@@ -16,7 +16,17 @@ export function useDocumentSetup() {
     const [editingDoc, setEditingDoc] = useState<DocumentType | null>(null);
     const [deletingDoc, setDeletingDoc] = useState<DocumentType | null>(null);
 
-    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+        clearErrors,
+    } = useForm({
         name: '',
         code: '',
         description: '',
@@ -36,7 +46,7 @@ export function useDocumentSetup() {
             name: doc.name,
             code: doc.code,
             description: doc.description || '',
-            roles: doc.roles.map(r => r.id),
+            roles: doc.roles.map((r) => r.id),
         });
         clearErrors();
         setIsFormOpen(true);
@@ -68,7 +78,7 @@ export function useDocumentSetup() {
                 },
                 onError: () => {
                     toast.error('Corrige los errores antes de continuar.');
-                }
+                },
             });
         } else {
             post('/settings/document', {
@@ -77,7 +87,7 @@ export function useDocumentSetup() {
                 },
                 onError: () => {
                     toast.error('Corrige los errores antes de continuar.');
-                }
+                },
             });
         }
     };
@@ -91,7 +101,7 @@ export function useDocumentSetup() {
             },
             onError: () => {
                 toast.error('Ocurrió un error al eliminar el documento.');
-            }
+            },
         });
     };
 
@@ -109,6 +119,6 @@ export function useDocumentSetup() {
         closeDelete,
         handleSubmit,
         confirmDelete,
-        form: { data, setData, processing, errors }
+        form: { data, setData, processing, errors },
     };
 }

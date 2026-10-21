@@ -1,16 +1,17 @@
-import { useForm } from "@inertiajs/react";
-import { useEffect } from "react";
+import { useForm } from '@inertiajs/react';
+
 import { SubmissionPanel } from '@/modules/documents';
-import supervision from "@/routes/academic/supervision";
+import type { DocumentFile } from '@/modules/documents/types';
+import supervision from '@/routes/academic/supervision';
 
 interface AnnexRequirement {
     code: string;
     title: string;
     status: number;
-    latest: any;
+    latest?: DocumentFile | null;
     grade?: number;
     supervision_id: number;
-    history?: any[];
+    history?: DocumentFile[];
 }
 
 interface SubmitFormProps {
@@ -24,7 +25,7 @@ interface SubmitFormProps {
     onSuccess: (message: string) => void;
 }
 
-export default function SubmitForm({
+function SubmitFormContent({
     annex,
     assignmentId,
     moduleId,
@@ -34,32 +35,31 @@ export default function SubmitForm({
     onRemoveTemp,
     onSuccess,
 }: SubmitFormProps) {
-    const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
-        grade: annex.grade != null ? String(annex.grade) : "",
-        comment: "",
-        file: null as File | null,
-        code: annex.code,
-        module_id: moduleId,
-    });
-
-    // Sincronizar estados
-    useEffect(() => {
-        setData({
-            ...data,
-            grade: annex.grade != null ? String(annex.grade) : "",
-            comment: "",
-            file: tempFile,
+    const { data, setData, post, processing, reset, errors, transform } =
+        useForm({
+            grade: annex.grade != null ? String(annex.grade) : '',
+            comment: '',
+            file: null as File | null,
             code: annex.code,
             module_id: moduleId,
         });
-        clearErrors();
-    }, [annex.code, annex.grade, tempFile, moduleId]);
+
+    // Sincronizar estados
 
     const handleSubmit = () => {
+        transform((current) => ({
+            ...current,
+            file: tempFile,
+            code: annex.code,
+            module_id: moduleId,
+        }));
         post(supervision.store.url(assignmentId), {
             forceFormData: true,
-            onSuccess: (page: any) => {
-                onSuccess(page.props.flash?.message ?? "Anexo enviado correctamente.");
+            onSuccess: (page) => {
+                onSuccess(
+                    (page.props.flash as { message?: string } | undefined)
+                        ?.message ?? 'Anexo enviado correctamente.',
+                );
                 reset();
             },
         });
@@ -78,8 +78,11 @@ export default function SubmitForm({
             {/* INYECTANDO LA NOTA Y EL COMENTARIO COMO CHILDREN AL SUBMISSION FORM */}
             <div className="space-y-4 py-2">
                 <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest block">
-                        Nota (0 – 20) {annex.status === 5 && <span className="text-red-500">(Bloqueado)</span>}
+                    <label className="block text-[11px] font-semibold tracking-widest text-muted-foreground uppercase">
+                        Nota (0 – 20){' '}
+                        {annex.status === 5 && (
+                            <span className="text-red-500">(Bloqueado)</span>
+                        )}
                     </label>
                     <input
                         type="number"
@@ -87,28 +90,51 @@ export default function SubmitForm({
                         max={20}
                         step={0.5}
                         value={data.grade}
-                        onChange={(e) => setData("grade", e.target.value)}
-                        className="w-full h-9 px-3 text-sm rounded-md border border-input bg-background shadow-sm placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-shadow"
+                        onChange={(e) => setData('grade', e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm transition-shadow placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
                         placeholder="Ej: 16.5"
                         readOnly={annex.status === 5}
                     />
-                    {errors.grade && <p className="text-[10px] text-destructive font-bold">{errors.grade}</p>}
+                    {errors.grade && (
+                        <p className="text-[10px] font-bold text-destructive">
+                            {errors.grade}
+                        </p>
+                    )}
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest block">
+                    <label className="block text-[11px] font-semibold tracking-widest text-muted-foreground uppercase">
                         Comentario (Opcional)
                     </label>
                     <textarea
                         value={data.comment}
-                        onChange={(e) => setData("comment", e.target.value)}
+                        onChange={(e) => setData('comment', e.target.value)}
                         rows={3}
-                        className="w-full p-3 text-sm rounded-md border border-input bg-background shadow-sm placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none transition-shadow"
+                        className="w-full resize-none rounded-md border border-input bg-background p-3 text-sm shadow-sm transition-shadow placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
                         placeholder="Observaciones o comentarios sobre este anexo..."
                     />
-                    {errors.comment && <p className="text-[10px] text-destructive font-bold">{errors.comment}</p>}
+                    {errors.comment && (
+                        <p className="text-[10px] font-bold text-destructive">
+                            {errors.comment}
+                        </p>
+                    )}
                 </div>
             </div>
         </SubmissionPanel>
+    );
+}
+
+export default function SubmitForm(props: SubmitFormProps) {
+    return (
+        <SubmitFormContent
+            key={[
+                props.assignmentId,
+                props.moduleId,
+                props.annex.code,
+                props.annex.grade,
+                props.annex.status,
+            ].join(':')}
+            {...props}
+        />
     );
 }

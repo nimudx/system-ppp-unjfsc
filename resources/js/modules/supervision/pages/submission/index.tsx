@@ -1,15 +1,19 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Tooltip, TooltipTrigger } from '@radix-ui/react-tooltip';
-import { ChevronRight, Info, ShieldCheck, User, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Info, ShieldCheck, User, X } from 'lucide-react';
+import { useState } from 'react';
+import type { Faculty } from '@/modules/academic';
+import type { GroupOption } from '@/modules/supervision/components/group-selector';
 
 import { GroupSelector } from '@/modules/supervision/components/group-selector';
 import { ModuleSelector } from '@/modules/supervision/components/module-selector';
+import type { StudentSupervision } from '@/modules/supervision/types';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { TooltipContent } from '@/shared/components/ui/tooltip';
+import type { TableData } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
 
 import SupervisionDetailPanel from '../../components/supervision-detail-panel';
@@ -18,9 +22,9 @@ import { useSupervision } from '../../hooks/use-supervision';
 import SubmitForm from './components/SubmitForm';
 
 interface Props {
-    faculties: any[];
-    groups: any[];
-    students: any;
+    faculties: Faculty[];
+    groups: GroupOption[];
+    students: TableData<StudentSupervision>;
 }
 
 const statusConfig: Record<number, { label: string; className: string }> = {
@@ -47,7 +51,7 @@ const breadcrumbs = [
 ];
 
 export default function SubmissionShow({ faculties, groups, students }: Props) {
-    const { role } = usePage().props as any;
+    const { role } = usePage().props;
     const isAdmin = [1, 2].includes(Number(role));
 
     const { tableManager, state, actions } = useSupervision({
@@ -82,24 +86,21 @@ export default function SubmissionShow({ faculties, groups, students }: Props) {
         setSelectedAnnexIdx,
     } = actions;
 
-    const {
-        isSearching,
-        search,
-        setSearch,
-        filterClearKey,
-        activeFilters,
-        fetchData,
-    } = tableManager;
+    const { isSearching, search, setSearch, filterClearKey, activeFilters } =
+        tableManager;
 
     // --- ESTADOS ESPECÍFICOS DE SUMISIÓN (Para el SubmitForm) ---
     const [tempFile, setTempFile] = useState<File | null>(null);
     const [isEditing, setIsEditing] = useState(false);
 
     // Limpiar estados temporales al cambiar de alumno o anexo
-    useEffect(() => {
+    const selectionKey = String(selectedId) + ':' + String(selectedAnnexIdx);
+    const [previousSelection, setPreviousSelection] = useState(selectionKey);
+    if (previousSelection !== selectionKey) {
+        setPreviousSelection(selectionKey);
         setTempFile(null);
         setIsEditing(false);
-    }, [selectedId, selectedAnnexIdx]);
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -131,7 +132,7 @@ export default function SubmissionShow({ faculties, groups, students }: Props) {
                                         faculties={faculties}
                                         onFilter={handleFilter}
                                         isLoading={isSearching}
-                                        initialValues={activeFilters as any}
+                                        initialValues={activeFilters}
                                     />
                                 )}
                                 <GroupSelector

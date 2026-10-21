@@ -1,6 +1,6 @@
-import { router, useForm } from '@inertiajs/react';
-import type { FormEvent} from 'react';
-import { useEffect, useState } from 'react';
+import { router } from '@inertiajs/react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -24,8 +24,8 @@ interface RequestModel {
         authenticable: {
             names: string;
             surnames: string;
-        }
-    }
+        };
+    };
 }
 
 interface Props {
@@ -35,41 +35,42 @@ interface Props {
     onSuccess?: () => void;
 }
 
-export default function PendingGradeChangeModal({ request, open, onOpenChange, onSuccess }: Props) {
+function PendingGradeChangeModalContent({
+    request,
+    open,
+    onOpenChange,
+    onSuccess,
+}: Props) {
     const [approvalStatus, setApprovalStatus] = useState('');
     const [justification, setJustification] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState<any>({});
-
-    useEffect(() => {
-        if (open) {
-            setApprovalStatus('');
-            setJustification('');
-            setErrors({});
-        }
-    }, [open]);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
         if (!request?.id) return;
 
-        router.patch(`/requests/${request.id}/management-status`, {
-            approval_status: approvalStatus,
-            justification: justification,
-        }, {
-            onBefore: () => setIsSubmitting(true),
-            onFinish: () => setIsSubmitting(false),
-            onSuccess: () => {
-                onOpenChange(false);
-                if (onSuccess) onSuccess();
+        router.patch(
+            `/requests/${request.id}/management-status`,
+            {
+                approval_status: approvalStatus,
+                justification: justification,
             },
-            onError: (err) => {
-                setErrors(err);
-                if (err.message) toast.error(err.message);
-                if (err.error) toast.error(err.error);
-            }
-        });
+            {
+                onBefore: () => setIsSubmitting(true),
+                onFinish: () => setIsSubmitting(false),
+                onSuccess: () => {
+                    onOpenChange(false);
+                    if (onSuccess) onSuccess();
+                },
+                onError: (err) => {
+                    setErrors(err);
+                    if (err.message) toast.error(err.message);
+                    if (err.error) toast.error(err.error);
+                },
+            },
+        );
     };
 
     return (
@@ -77,42 +78,58 @@ export default function PendingGradeChangeModal({ request, open, onOpenChange, o
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Revisar Solicitud de Cambio de Nota</DialogTitle>
+                        <DialogTitle>
+                            Revisar Solicitud de Cambio de Nota
+                        </DialogTitle>
                         <DialogDescription>
-                            El docente {request?.senderable?.authenticable?.names} ha solicitado modificar la calificación final.
+                            El docente{' '}
+                            {request?.senderable?.authenticable?.names} ha
+                            solicitado modificar la calificación final.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-md border">
+                        <div className="grid grid-cols-2 gap-4 rounded-md border bg-muted/30 p-3">
                             <div>
-                                <Label className="text-xs text-muted-foreground uppercase">Nota Actual</Label>
-                                <p className="text-xl font-bold line-through text-destructive">{request?.payload?.old_grade}</p>
+                                <Label className="text-xs text-muted-foreground uppercase">
+                                    Nota Actual
+                                </Label>
+                                <p className="text-xl font-bold text-destructive line-through">
+                                    {request?.payload?.old_grade}
+                                </p>
                             </div>
                             <div>
-                                <Label className="text-xs text-muted-foreground uppercase">Nueva Nota</Label>
-                                <p className="text-xl font-bold text-green-600">{request?.payload?.new_grade}</p>
+                                <Label className="text-xs text-muted-foreground uppercase">
+                                    Nueva Nota
+                                </Label>
+                                <p className="text-xl font-bold text-green-600">
+                                    {request?.payload?.new_grade}
+                                </p>
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <Label className="text-muted-foreground text-xs uppercase font-bold tracking-wider">
+                            <Label className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                 Motivo del Docente
                             </Label>
-                            <p className="text-sm border-l-2 border-primary pl-3 italic text-foreground/80">
+                            <p className="border-l-2 border-primary pl-3 text-sm text-foreground/80 italic">
                                 "{request?.reason}"
                             </p>
                         </div>
 
-                        <div className="grid gap-2 mt-2">
+                        <div className="mt-2 grid gap-2">
                             <Label htmlFor="approval_status">Veredicto</Label>
                             <select
                                 id="approval_status"
                                 value={approvalStatus}
-                                onChange={(e) => setApprovalStatus(e.target.value)}
-                                className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                onChange={(e) =>
+                                    setApprovalStatus(e.target.value)
+                                }
+                                className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                <option value="" disabled>Seleccione una opción</option>
+                                <option value="" disabled>
+                                    Seleccione una opción
+                                </option>
                                 <option value="1">Aprobar Solicitud</option>
                                 <option value="3">Rechazar Solicitud</option>
                             </select>
@@ -124,13 +141,17 @@ export default function PendingGradeChangeModal({ request, open, onOpenChange, o
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="justification">Comentario / Respuesta</Label>
+                            <Label htmlFor="justification">
+                                Comentario / Respuesta
+                            </Label>
                             <textarea
                                 id="justification"
                                 value={justification}
-                                onChange={(e) => setJustification(e.target.value)}
+                                onChange={(e) =>
+                                    setJustification(e.target.value)
+                                }
                                 placeholder="Escriba un comentario sobre su decisión..."
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {errors.justification && (
                                 <p className="text-sm font-medium text-destructive">
@@ -149,12 +170,30 @@ export default function PendingGradeChangeModal({ request, open, onOpenChange, o
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isSubmitting || !approvalStatus || !justification}>
-                            {isSubmitting ? 'Enviando...' : 'Confirmar Veredicto'}
+                        <Button
+                            type="submit"
+                            disabled={
+                                isSubmitting ||
+                                !approvalStatus ||
+                                !justification
+                            }
+                        >
+                            {isSubmitting
+                                ? 'Enviando...'
+                                : 'Confirmar Veredicto'}
                         </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
     );
+}
+
+export default function PendingGradeChangeModal(props: Props) {
+    return props.open ? (
+        <PendingGradeChangeModalContent
+            key={props.request?.id ?? 'none'}
+            {...props}
+        />
+    ) : null;
 }

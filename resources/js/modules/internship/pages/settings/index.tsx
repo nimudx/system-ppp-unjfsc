@@ -3,12 +3,10 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { Plus, Save, GitMerge } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import type { Faculty } from '@/modules/academic';
 import internship from '@/routes/academic/internship';
-import type {
-    AcademicFilterValues} from '@/shared/components/data-table/academic-filter';
-import {
-    AcademicFilter
-} from '@/shared/components/data-table/academic-filter';
+import type { AcademicFilterValues } from '@/shared/components/data-table/academic-filter';
+import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -18,6 +16,7 @@ import { BuilderCard } from './components/BuilderCard';
 import { EvaluationCard } from './components/EvaluationCard';
 import { JsonPreview } from './components/JsonPreview';
 import { StepperPreview } from './components/StepperPreview';
+import type { WorkflowStage } from './types';
 import { buildDragEndHandler, RestrictToVerticalAxis } from './useDragSort';
 import { useWorkflow } from './useWorkflow';
 
@@ -52,8 +51,13 @@ export default function InternshipSettingsIndex({
     setting,
     currentSectionId,
     availableDocuments = [],
-}: any) {
-    const { role } = usePage().props as any;
+}: {
+    faculties: Faculty[];
+    setting: { workflow_schema?: WorkflowStage[] } | null;
+    currentSectionId: number | null;
+    availableDocuments?: { id: number; name: string; code: string }[];
+}) {
+    const { role } = usePage().props;
     const {
         workflow,
         initializeWorkflow,
@@ -73,11 +77,11 @@ export default function InternshipSettingsIndex({
             return;
         }
         initializeWorkflow(
-            setting?.workflow_schema?.length > 0
-                ? setting.workflow_schema
+            (setting?.workflow_schema?.length ?? 0) > 0
+                ? (setting?.workflow_schema ?? [])
                 : createDefaultWorkflow(),
         );
-    }, [setting, currentSectionId]);
+    }, [setting, currentSectionId, initializeWorkflow]);
 
     // ── Handlers ──────────────────────────────────────────────────────────────
     const handleFilter = (values: AcademicFilterValues) => {
@@ -91,7 +95,7 @@ export default function InternshipSettingsIndex({
         if (!currentSectionId) return;
         router.put(
             internship.settings.update().url,
-            { section_id: currentSectionId, workflow_schema: workflow as any },
+            { section_id: currentSectionId, workflow_schema: workflow },
             {
                 onError: (errors) =>
                     toast.error(String(Object.values(errors)[0])),
@@ -106,8 +110,8 @@ export default function InternshipSettingsIndex({
     });
 
     // Separar etapas normales de la etapa de evaluación final
-    const regularStages = workflow.filter((s: any) => !s.is_evaluation);
-    const evaluationStage = workflow.find((s: any) => s.is_evaluation);
+    const regularStages = workflow.filter((s) => !s.is_evaluation);
+    const evaluationStage = workflow.find((s) => s.is_evaluation);
 
     // ── Render ────────────────────────────────────────────────────────────────
     const breadcrumbs = [
@@ -178,7 +182,7 @@ export default function InternshipSettingsIndex({
                                 {/* Panel Builder (izquierda) */}
                                 <div className="space-y-4 lg:col-span-7">
                                     {/* Etapas normales — arrastables */}
-                                    {regularStages.map((stage: any) => (
+                                    {regularStages.map((stage) => (
                                         <BuilderCard
                                             key={stage.id}
                                             stage={stage}

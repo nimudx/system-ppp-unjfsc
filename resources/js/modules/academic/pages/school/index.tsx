@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { usePage } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, GraduationCap } from 'lucide-react';
 import { useState } from 'react';
 import type { School, Faculty } from '@/modules/academic/types';
@@ -29,7 +28,6 @@ interface Props {
 }
 
 export default function Schools({ schools, faculties }: Props) {
-    const { role } = usePage().props as any;
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -42,7 +40,7 @@ export default function Schools({ schools, faculties }: Props) {
         localPage,
         setLocalPage,
         localTotalPages,
-        handlePageChange
+        handlePageChange,
     } = useAcademicTable<School>({
         endpoint: '',
         initialData: schools,
@@ -50,7 +48,7 @@ export default function Schools({ schools, faculties }: Props) {
         pageSize: 10,
         localSearchFn: (school, search) =>
             school.name.toLowerCase().includes(search) ||
-            (school.faculty?.name || '').toLowerCase().includes(search)
+            (school.faculty?.name || '').toLowerCase().includes(search),
     });
 
     const formatId = (id: number) => `#${id.toString().padStart(3, '0')}`;
@@ -85,10 +83,10 @@ export default function Schools({ schools, faculties }: Props) {
 
                 <div className="flex items-center justify-start">
                     <AcademicSearch
-                        role={role}
+                        isAdmin={false}
                         search={search}
                         setSearch={setSearch}
-                        placeholder='Busca una escuela'
+                        placeholder="Busca una escuela"
                     />
                 </div>
 

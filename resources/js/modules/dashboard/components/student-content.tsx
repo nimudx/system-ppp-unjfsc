@@ -1,5 +1,10 @@
 import { Clock, Calendar, FileCheck, Award } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/shared/components/ui/card';
 
 export default function StudentDashboardContent() {
     return (
@@ -110,12 +115,13 @@ export default function StudentDashboardContent() {
                                         </p>
                                     </div>
                                     <div
-                                        className={`h-2 w-2 rounded-full ${task.priority === 'high'
+                                        className={`h-2 w-2 rounded-full ${
+                                            task.priority === 'high'
                                                 ? 'bg-red-500'
                                                 : task.priority === 'medium'
-                                                    ? 'bg-orange-500'
-                                                    : 'bg-gray-400'
-                                            }`}
+                                                  ? 'bg-orange-500'
+                                                  : 'bg-gray-400'
+                                        }`}
                                     />
                                 </div>
                             ))}

@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import AdminContent from '@/modules/dashboard/components/admin-content';
 import { CompanyContent } from '@/modules/dashboard/components/company-content';
 import StudentContent from '@/modules/dashboard/components/student-content';
@@ -10,6 +10,7 @@ import { dashboard } from '@/routes';
 import { PlaceholderPattern } from '@/shared/components/ui/placeholder-pattern';
 import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
+import type { Auth } from '@/shared/types/auth';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,14 +19,25 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+function NoAcademicRole() {
+    return (
+        <div className="flex h-100 items-center justify-center p-4">
+            <p className="text-center text-muted-foreground">
+                No tienes un rol académico activo asignado.
+                <br />
+                Por favor, selecciona una asignación válida en el menú superior.
+            </p>
+        </div>
+    );
+}
+
 export default function Dashboard({
     auth,
     role,
 }: {
-    auth: any;
-    role?: number;
+    auth: Auth;
+    role?: number | null;
 }) {
-    const { auth: user } = usePage().props as any;
     const userType = auth.user.type;
 
     if (userType === 'Administrador') {
@@ -54,17 +66,7 @@ export default function Dashboard({
                 3: TeacherContent,
                 4: SupervisorContent,
                 5: StudentContent,
-            }[role || 0] ||
-            (() => (
-                <div className="flex h-100 items-center justify-center p-4">
-                    <p className="text-center text-muted-foreground">
-                        No tienes un rol académico activo asignado.
-                        <br />
-                        Por favor, selecciona una asignación válida en el menú
-                        superior.
-                    </p>
-                </div>
-            ));
+            }[role || 0] || NoAcademicRole;
 
         return (
             <AppLayout breadcrumbs={breadcrumbs}>

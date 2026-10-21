@@ -1,12 +1,15 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { router } from "@inertiajs/react"; // Importamos router directamente
-import axios from "axios";
-import { Loader2, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form"; // Importamos useForm de react-hook-form
-import { toast } from "sonner";
-import groups from "@/routes/academic/groups";
-import { Button } from "@/shared/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react'; // Importamos router directamente
+import axios from 'axios';
+import { Loader2, Plus } from 'lucide-react';
+import { useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form'; // Importamos useForm de react-hook-form
+import { toast } from 'sonner';
+import type { Assignment } from '@/modules/supervision/hooks/use-internship-group';
+import groups from '@/routes/academic/groups';
+import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -14,7 +17,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/shared/components/ui/dialog";
+} from '@/shared/components/ui/dialog';
 import {
     Form,
     FormControl,
@@ -23,18 +26,18 @@ import {
     FormLabel,
     FormMessage,
 } from '@/shared/components/ui/form';
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/shared/components/ui/select";
-import { StudentSelectorTable } from "../../../../components/student-selector-table";
-import type { StoreGroupValues } from "./store.schema";
-import { storeGroupSchema } from "./store.schema";
+} from '@/shared/components/ui/select';
+import { StudentSelectorTable } from '../../../../components/student-selector-table';
+import type { StoreGroupValues } from './store.schema';
+import { storeGroupSchema } from './store.schema';
 
 interface Faculty {
     id: number;
@@ -64,37 +67,103 @@ export default function CreateGroupModal({
     open,
     onOpenChange,
     faculties,
-    onSuccess
+    onSuccess,
 }: CreateGroupModalProps) {
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showStudents, setShowStudents] = useState(false);
-    const [teachers, setTeachers] = useState<any[]>([]);
-    const [supervisors, setSupervisors] = useState<any[]>([]);
-    const [availableStudents, setAvailableStudents] = useState<any[]>([]);
+    const [teachers, setTeachers] = useState<Assignment[]>([]);
+    const [supervisors, setSupervisors] = useState<Assignment[]>([]);
+    const [availableStudents, setAvailableStudents] = useState<Assignment[]>(
+        [],
+    );
 
     // 1. Inicializamos React Hook Form con el Resolver de Zod
     const form = useForm<StoreGroupValues>({
         resolver: zodResolver(storeGroupSchema),
         defaultValues: {
-            name: "",
-            teacher_assignment_id: "",
-            supervisor_assignment_id: "",
-            section_id: "",
-            faculty_id: "",
-            school_id: "",
+            name: '',
+            teacher_assignment_id: '',
+            supervisor_assignment_id: '',
+            section_id: '',
+            faculty_id: '',
+            school_id: '',
             student_ids: [],
         },
-        mode: "onChange",
+        mode: 'onChange',
+    });
+    const watchedField1 = useWatch({
+        control: form.control,
+        name: 'faculty_id',
+    });
+    const watchedField2 = useWatch({
+        control: form.control,
+        name: 'school_id',
+    });
+    const watchedField3 = useWatch({
+        control: form.control,
+        name: 'section_id',
+    });
+    const watchedField4 = useWatch({
+        control: form.control,
+        name: 'student_ids',
     });
 
     // Observamos los cambios para la cascada y carga de datos
-    const facultyId = form.watch("faculty_id");
-    const schoolId = form.watch("school_id");
-    const sectionId = form.watch("section_id");
+    const facultyId = watchedField1;
+    const schoolId = watchedField2;
+    const sectionId = watchedField3;
 
     const currentFaculty = faculties.find((f) => f.id.toString() === facultyId);
-    const currentSchool = currentFaculty?.schools.find((s) => s.id.toString() === schoolId);
+    const currentSchool = currentFaculty?.schools.find(
+        (s) => s.id.toString() === schoolId,
+    );
+
+    const fetchDependencies = useCallback(
+        async (id: number) => {
+            setLoading(true);
+            try {
+                const response = await axios.get(
+                    groups.api.dependencies.url(id),
+                );
+                const {
+                    teachers: teachersData,
+                    supervisors: supervisorsData,
+                    suggested_name,
+                } = response.data;
+
+                setTeachers(teachersData || []);
+                setSupervisors(supervisorsData || []);
+
+                // Seteamos valores sugeridos en el formulario
+                form.setValue('name', suggested_name || '');
+
+                if (teachersData?.length === 1) {
+                    form.setValue(
+                        'teacher_assignment_id',
+                        teachersData[0].id.toString(),
+                    );
+                }
+                if (supervisorsData?.length === 1) {
+                    form.setValue(
+                        'supervisor_assignment_id',
+                        supervisorsData[0].id.toString(),
+                    );
+                }
+
+                // Cargar estudiantes disponibles
+                const studentsResponse = await axios.get(
+                    groups.api.students.url(id),
+                );
+                setAvailableStudents(studentsResponse.data.students || []);
+            } catch {
+                toast.error('Error al cargar dependencias de la sección');
+            } finally {
+                setLoading(false);
+            }
+        },
+        [form],
+    );
 
     // Cargar docentes cuando cambia la sección
     useEffect(() => {
@@ -104,37 +173,7 @@ export default function CreateGroupModal({
             setTeachers([]);
             setSupervisors([]);
         }
-    }, [sectionId]);
-
-    const fetchDependencies = async (id: number) => {
-        setLoading(true);
-        try {
-            const response = await axios.get(groups.api.dependencies.url(id));
-            const { teachers: teachersData, supervisors: supervisorsData, suggested_name } = response.data;
-
-            setTeachers(teachersData || []);
-            setSupervisors(supervisorsData || []);
-
-            // Seteamos valores sugeridos en el formulario
-            form.setValue("name", suggested_name || "");
-
-            if (teachersData?.length === 1) {
-                form.setValue("teacher_assignment_id", teachersData[0].id.toString());
-            }
-            if (supervisorsData?.length === 1) {
-                form.setValue("supervisor_assignment_id", supervisorsData[0].id.toString());
-            }
-
-            // Cargar estudiantes disponibles
-            const studentsResponse = await axios.get(groups.api.students.url(id));
-            setAvailableStudents(studentsResponse.data.students || []);
-
-        } catch (error) {
-            toast.error("Error al cargar dependencias de la sección");
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [sectionId, fetchDependencies]);
 
     const onSubmit = (values: StoreGroupValues) => {
         setIsSubmitting(true);
@@ -146,7 +185,7 @@ export default function CreateGroupModal({
                 setAvailableStudents([]);
                 if (onSuccess) onSuccess();
             },
-            onFinish: () => setIsSubmitting(false)
+            onFinish: () => setIsSubmitting(false),
         });
     };
 
@@ -158,13 +197,14 @@ export default function CreateGroupModal({
                         <DialogHeader>
                             <DialogTitle>Nuevo Grupo de Prácticas</DialogTitle>
                             <DialogDescription>
-                                Crea un nuevo grupo vinculando una sección académica con sus docentes.
+                                Crea un nuevo grupo vinculando una sección
+                                académica con sus docentes.
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="grid gap-6 py-4">
                             {/* Selectores de Ubicación Académica */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <FormField
                                     control={form.control}
                                     name="faculty_id"
@@ -174,8 +214,14 @@ export default function CreateGroupModal({
                                             <Select
                                                 onValueChange={(v) => {
                                                     field.onChange(v);
-                                                    form.setValue("school_id", "");
-                                                    form.setValue("section_id", "");
+                                                    form.setValue(
+                                                        'school_id',
+                                                        '',
+                                                    );
+                                                    form.setValue(
+                                                        'section_id',
+                                                        '',
+                                                    );
                                                 }}
                                                 value={field.value}
                                             >
@@ -185,8 +231,11 @@ export default function CreateGroupModal({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {faculties.map((f: any) => (
-                                                        <SelectItem key={f.id} value={f.id.toString()}>
+                                                    {faculties.map((f) => (
+                                                        <SelectItem
+                                                            key={f.id}
+                                                            value={f.id.toString()}
+                                                        >
                                                             {f.name}
                                                         </SelectItem>
                                                     ))}
@@ -207,7 +256,10 @@ export default function CreateGroupModal({
                                                 disabled={!facultyId}
                                                 onValueChange={(v) => {
                                                     field.onChange(v);
-                                                    form.setValue("section_id", "");
+                                                    form.setValue(
+                                                        'section_id',
+                                                        '',
+                                                    );
                                                 }}
                                                 value={field.value}
                                             >
@@ -217,11 +269,16 @@ export default function CreateGroupModal({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {currentFaculty?.schools.map((s) => (
-                                                        <SelectItem key={s.id} value={s.id.toString()}>
-                                                            {s.name}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {currentFaculty?.schools.map(
+                                                        (s) => (
+                                                            <SelectItem
+                                                                key={s.id}
+                                                                value={s.id.toString()}
+                                                            >
+                                                                {s.name}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -246,11 +303,16 @@ export default function CreateGroupModal({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {currentSchool?.sections.map((sec) => (
-                                                        <SelectItem key={sec.id} value={sec.id.toString()}>
-                                                            {sec.name}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {currentSchool?.sections.map(
+                                                        (sec) => (
+                                                            <SelectItem
+                                                                key={sec.id}
+                                                                value={sec.id.toString()}
+                                                            >
+                                                                {sec.name}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -261,27 +323,49 @@ export default function CreateGroupModal({
 
                             {/* Asignación de Docentes */}
                             {sectionId && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border bg-muted/30 p-4">
+                                <div className="grid grid-cols-1 gap-4 rounded-lg border bg-muted/30 p-4 md:grid-cols-2">
                                     <FormField
                                         control={form.control}
                                         name="teacher_assignment_id"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Docente Titular</FormLabel>
+                                                <FormLabel>
+                                                    Docente Titular
+                                                </FormLabel>
                                                 <Select
                                                     disabled={loading}
-                                                    onValueChange={field.onChange}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
                                                     value={field.value}
                                                 >
                                                     <FormControl>
                                                         <SelectTrigger className="bg-background">
-                                                            <SelectValue placeholder={loading ? "Cargando..." : "Seleccionar"} />
+                                                            <SelectValue
+                                                                placeholder={
+                                                                    loading
+                                                                        ? 'Cargando...'
+                                                                        : 'Seleccionar'
+                                                                }
+                                                            />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
                                                         {teachers.map((t) => (
-                                                            <SelectItem key={t.id} value={t.id.toString()}>
-                                                                {t.user?.person?.surnames} {t.user?.person?.names}
+                                                            <SelectItem
+                                                                key={t.id}
+                                                                value={t.id.toString()}
+                                                            >
+                                                                {
+                                                                    t.user
+                                                                        ?.person
+                                                                        ?.surnames
+                                                                }{' '}
+                                                                {
+                                                                    t.user
+                                                                        ?.person
+                                                                        ?.names
+                                                                }
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -296,23 +380,47 @@ export default function CreateGroupModal({
                                         name="supervisor_assignment_id"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Docente Supervisor</FormLabel>
+                                                <FormLabel>
+                                                    Docente Supervisor
+                                                </FormLabel>
                                                 <Select
                                                     disabled={loading}
-                                                    onValueChange={field.onChange}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
                                                     value={field.value}
                                                 >
                                                     <FormControl>
                                                         <SelectTrigger className="bg-background">
-                                                            <SelectValue placeholder={loading ? "Cargando..." : "Seleccionar"} />
+                                                            <SelectValue
+                                                                placeholder={
+                                                                    loading
+                                                                        ? 'Cargando...'
+                                                                        : 'Seleccionar'
+                                                                }
+                                                            />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {supervisors.map((s) => (
-                                                            <SelectItem key={s.id} value={s.id.toString()}>
-                                                                {s.user?.person?.surnames} {s.user?.person?.names}
-                                                            </SelectItem>
-                                                        ))}
+                                                        {supervisors.map(
+                                                            (s) => (
+                                                                <SelectItem
+                                                                    key={s.id}
+                                                                    value={s.id.toString()}
+                                                                >
+                                                                    {
+                                                                        s.user
+                                                                            ?.person
+                                                                            ?.surnames
+                                                                    }{' '}
+                                                                    {
+                                                                        s.user
+                                                                            ?.person
+                                                                            ?.names
+                                                                    }
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                                 <FormMessage />
@@ -345,20 +453,26 @@ export default function CreateGroupModal({
                             {sectionId && (
                                 <div className="space-y-4">
                                     {!showStudents ? (
-                                        <div className="flex border-2 border-dashed rounded-lg p-6 bg-muted/20 items-center justify-center">
+                                        <div className="flex items-center justify-center rounded-lg border-2 border-dashed bg-muted/20 p-6">
                                             <Button
                                                 type="button"
                                                 variant="ghost"
-                                                onClick={() => setShowStudents(true)}
-                                                className="h-auto py-2 group"
+                                                onClick={() =>
+                                                    setShowStudents(true)
+                                                }
+                                                className="group h-auto py-2"
                                             >
                                                 <div className="flex flex-col items-center">
-                                                    <div className="bg-primary/10 p-2 rounded-full mb-2 group-hover:bg-primary/20 transition-colors">
+                                                    <div className="mb-2 rounded-full bg-primary/10 p-2 transition-colors group-hover:bg-primary/20">
                                                         <Plus className="h-4 w-4 text-primary" />
                                                     </div>
-                                                    <span className="text-xs font-semibold">Añadir Estudiantes</span>
-                                                    <span className="text-[10px] text-muted-foreground mt-1">
-                                                        Selecciona los alumnos que conformarán este grupo (Opcional)
+                                                    <span className="text-xs font-semibold">
+                                                        Añadir Estudiantes
+                                                    </span>
+                                                    <span className="mt-1 text-[10px] text-muted-foreground">
+                                                        Selecciona los alumnos
+                                                        que conformarán este
+                                                        grupo (Opcional)
                                                     </span>
                                                 </div>
                                             </Button>
@@ -366,14 +480,19 @@ export default function CreateGroupModal({
                                     ) : (
                                         <div className="space-y-3">
                                             <div className="flex items-center justify-between">
-                                                <Label className="text-[10px] uppercase font-bold text-primary">Selección de Estudiantes</Label>
+                                                <Label className="text-[10px] font-bold text-primary uppercase">
+                                                    Selección de Estudiantes
+                                                </Label>
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => {
                                                         setShowStudents(false);
-                                                        form.setValue("student_ids", []);
+                                                        form.setValue(
+                                                            'student_ids',
+                                                            [],
+                                                        );
                                                     }}
                                                     className="h-6 text-[10px] text-destructive hover:bg-destructive/10"
                                                 >
@@ -382,8 +501,15 @@ export default function CreateGroupModal({
                                             </div>
                                             <StudentSelectorTable
                                                 students={availableStudents}
-                                                selectedIds={form.watch("student_ids") || []}
-                                                onSelectionChange={(ids) => form.setValue("student_ids", ids)}
+                                                selectedIds={
+                                                    watchedField4 || []
+                                                }
+                                                onSelectionChange={(ids) =>
+                                                    form.setValue(
+                                                        'student_ids',
+                                                        ids,
+                                                    )
+                                                }
                                                 compact={false}
                                             />
                                         </div>
@@ -392,7 +518,7 @@ export default function CreateGroupModal({
                             )}
                         </div>
 
-                        <DialogFooter className="bg-muted/50 -mx-6 -mb-6 p-6 mt-4 border-t">
+                        <DialogFooter className="-mx-6 mt-4 -mb-6 border-t bg-muted/50 p-6">
                             <div className="flex w-full justify-end gap-3">
                                 <Button
                                     type="button"
@@ -402,8 +528,13 @@ export default function CreateGroupModal({
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={isSubmitting || !sectionId}>
-                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting || !sectionId}
+                                >
+                                    {isSubmitting && (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    )}
                                     Crear Grupo
                                 </Button>
                             </div>
@@ -411,6 +542,6 @@ export default function CreateGroupModal({
                     </form>
                 </Form>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     );
 }

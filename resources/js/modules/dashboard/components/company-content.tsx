@@ -1,5 +1,10 @@
 import { Briefcase, Users, FileCheck, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/shared/components/ui/card';
 
 export function CompanyContent() {
     return (

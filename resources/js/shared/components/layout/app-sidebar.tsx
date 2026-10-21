@@ -25,13 +25,13 @@ import type { NavItem } from '@/shared/types';
 import AppLogo from '../app-logo';
 
 export function AppSidebar() {
-    const { auth, role } = usePage().props as any;
+    const { auth, role } = usePage().props;
 
     const userType = auth?.user?.type || 'DEFAULT';
     const userTypeId = auth?.user?.type_id || 0;
 
     // Usamos directamente las constantes importadas en el objeto
-    const menuSelection: Record<string, any[]> = {
+    const menuSelection: Record<string, NavItem[]> = {
         Administrador: ADMIN_NAV,
         Académico: ACADEMIC_NAV,
         Empresa: COMPANY_NAV,
@@ -81,11 +81,11 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={filterItems(mainNavItems, role)} />
+                <NavMain items={filterItems(mainNavItems, role ?? 0)} />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={filterItems(footerNavItems, role)} />
+                <NavFooter items={filterItems(footerNavItems, role ?? 0)} />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

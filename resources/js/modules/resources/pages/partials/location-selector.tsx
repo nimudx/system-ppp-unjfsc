@@ -1,12 +1,14 @@
-import { useMemo } from "react";
-import { Label } from "@/shared/components/ui/label";
+import { useMemo } from 'react';
+import type { Faculty } from '@/modules/academic';
+import type { CompanyProfile } from '@/modules/company/types';
+import { Label } from '@/shared/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/shared/components/ui/select";
+} from '@/shared/components/ui/select';
 
 export interface LocationValue {
     location_id: number | null;
@@ -15,8 +17,8 @@ export interface LocationValue {
 interface LocationSelectorProps {
     /** El nivel seleccionado por el usuario (2=Fac, 3=Esc, 4=Sec, 5=Empresa) */
     level: number;
-    faculties: any[];
-    companies?: any[];
+    faculties: Faculty[];
+    companies?: CompanyProfile[];
     onChange: (value: LocationValue) => void;
     /** Estado interno controlado por el padre */
     selectedFacultyId: string;
@@ -45,22 +47,32 @@ export function LocationSelector({
     onCompanyChange,
     disabled = false,
 }: LocationSelectorProps) {
-
     // Aplanar escuelas y secciones a partir del árbol de facultades
-    const allSchools = useMemo(() =>
-        faculties.flatMap((f: any) => (f.schools ?? []).map((s: any) => ({ ...s, faculty_id: f.id }))),
-    [faculties]);
+    const allSchools = useMemo(
+        () =>
+            faculties.flatMap((f) =>
+                (f.schools ?? []).map((s) => ({ ...s, faculty_id: f.id })),
+            ),
+        [faculties],
+    );
 
-    const allSections = useMemo(() =>
-        allSchools.flatMap((s: any) => (s.sections ?? []).map((sec: any) => ({ ...sec, school_id: s.id }))),
-    [allSchools]);
+    const allSections = useMemo(
+        () =>
+            allSchools.flatMap((s) =>
+                (s.sections ?? []).map((sec) => ({
+                    ...sec,
+                    school_id: s.id,
+                })),
+            ),
+        [allSchools],
+    );
 
     const filteredSchools = selectedFacultyId
-        ? allSchools.filter(s => s.faculty_id === Number(selectedFacultyId))
+        ? allSchools.filter((s) => s.faculty_id === Number(selectedFacultyId))
         : [];
 
     const filteredSections = selectedSchoolId
-        ? allSections.filter(s => s.school_id === Number(selectedSchoolId))
+        ? allSections.filter((s) => s.school_id === Number(selectedSchoolId))
         : [];
 
     // Notifica al padre cada vez que cambia la selección final
@@ -85,7 +97,7 @@ export function LocationSelector({
                         <SelectValue placeholder="Selecciona la empresa..." />
                     </SelectTrigger>
                     <SelectContent>
-                        {companies.map((c: any) => (
+                        {companies.map((c) => (
                             <SelectItem key={c.id} value={c.id.toString()}>
                                 {c.name}
                             </SelectItem>
@@ -106,8 +118,8 @@ export function LocationSelector({
                     disabled={disabled}
                     onValueChange={(v) => {
                         onFacultyChange(v);
-                        onSchoolChange("");
-                        onSectionChange("");
+                        onSchoolChange('');
+                        onSectionChange('');
                         // Si el nivel objetivo es facultad, notificamos aquí
                         if (level === 2) notify(Number(v));
                     }}
@@ -116,7 +128,7 @@ export function LocationSelector({
                         <SelectValue placeholder="Selecciona una facultad..." />
                     </SelectTrigger>
                     <SelectContent>
-                        {faculties.map((f: any) => (
+                        {faculties.map((f) => (
                             <SelectItem key={f.id} value={f.id.toString()}>
                                 {f.name}
                             </SelectItem>
@@ -134,15 +146,21 @@ export function LocationSelector({
                         disabled={disabled || !selectedFacultyId}
                         onValueChange={(v) => {
                             onSchoolChange(v);
-                            onSectionChange("");
+                            onSectionChange('');
                             if (level === 3) notify(Number(v));
                         }}
                     >
                         <SelectTrigger>
-                            <SelectValue placeholder={!selectedFacultyId ? "Primero elige una facultad" : "Selecciona una escuela..."} />
+                            <SelectValue
+                                placeholder={
+                                    !selectedFacultyId
+                                        ? 'Primero elige una facultad'
+                                        : 'Selecciona una escuela...'
+                                }
+                            />
                         </SelectTrigger>
                         <SelectContent>
-                            {filteredSchools.map((s: any) => (
+                            {filteredSchools.map((s) => (
                                 <SelectItem key={s.id} value={s.id.toString()}>
                                     {s.name}
                                 </SelectItem>
@@ -165,10 +183,16 @@ export function LocationSelector({
                         }}
                     >
                         <SelectTrigger>
-                            <SelectValue placeholder={!selectedSchoolId ? "Primero elige una escuela" : "Selecciona una sección..."} />
+                            <SelectValue
+                                placeholder={
+                                    !selectedSchoolId
+                                        ? 'Primero elige una escuela'
+                                        : 'Selecciona una sección...'
+                                }
+                            />
                         </SelectTrigger>
                         <SelectContent>
-                            {filteredSections.map((s: any) => (
+                            {filteredSections.map((s) => (
                                 <SelectItem key={s.id} value={s.id.toString()}>
                                     {s.name}
                                 </SelectItem>

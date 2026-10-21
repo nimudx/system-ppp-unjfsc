@@ -1,18 +1,25 @@
-import { CheckCircle2, AlertCircle, RefreshCcw, LayoutPanelLeft } from "lucide-react";
-import Heading from "@/shared/components/heading";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import type { LucideIcon } from 'lucide-react';
+import { CheckCircle2, AlertCircle, LayoutPanelLeft } from 'lucide-react';
+import Heading from '@/shared/components/heading';
+
+import { Button } from '@/shared/components/ui/button';
 import {
     Card,
     CardAction,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
-} from "@/shared/components/ui/card"
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+} from '@/shared/components/ui/card';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 
 interface SummaryReportProps {
     report: {
@@ -29,7 +36,17 @@ interface SummaryReportProps {
     onFinish: () => void;
 }
 
-export function CardSmall({ title, value, icon: Icon, color }: any) {
+export function CardSmall({
+    title,
+    value,
+    icon: Icon,
+    color,
+}: {
+    title: string;
+    value: string | number;
+    icon: LucideIcon;
+    color: string;
+}) {
     return (
         <Card size="sm" className="mx-auto w-full max-w-sm">
             <CardHeader>
@@ -39,23 +56,22 @@ export function CardSmall({ title, value, icon: Icon, color }: any) {
                 </CardTitle>
 
                 <CardAction>
-                    <div className={`p-2 rounded-lg bg-white/50 border`}>
+                    <div className={`rounded-lg border bg-white/50 p-2`}>
                         <Icon className={`h-5 w-5 ${color}`} />
                     </div>
                 </CardAction>
             </CardHeader>
         </Card>
-    )
+    );
 }
-
 
 export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
     const hasErrors = report.failed_count > 0;
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="animate-in space-y-6 duration-300 fade-in">
             {/* Cabecera del Reporte */}
-            <div className="pb-2 border-b">
+            <div className="border-b pb-2">
                 <Heading
                     variant="small"
                     title="Reporte de Procesamiento Masivo"
@@ -64,7 +80,7 @@ export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
             </div>
 
             {/* Estadísticas en Cards Sobrias */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <CardSmall
                     title="Total Procesados"
                     value={report.total}
@@ -81,7 +97,7 @@ export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
                     title="Fallidos"
                     value={report.failed_count}
                     icon={AlertCircle}
-                    color={hasErrors ? "text-red-600" : "text-muted-foreground"}
+                    color={hasErrors ? 'text-red-600' : 'text-muted-foreground'}
                 />
             </div>
 
@@ -89,10 +105,14 @@ export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
                 <Card className="border-red-200">
                     <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
-                            <CardTitle className="text-xs font-bold uppercase tracking-tight">Detalles de inconsistencias</CardTitle>
+                            <CardTitle className="text-xs font-bold tracking-tight uppercase">
+                                Detalles de inconsistencias
+                            </CardTitle>
                         </div>
                         <CardDescription className="text-xs">
-                            Los siguientes registros no pudieron ser procesados debido a inconsistencias de datos o reglas de negocio.
+                            Los siguientes registros no pudieron ser procesados
+                            debido a inconsistencias de datos o reglas de
+                            negocio.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -108,14 +128,22 @@ export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
                                 <TableBody>
                                     {report.errors.map((error, idx) => (
                                         <TableRow key={idx}>
-                                            <TableCell className="font-medium">{error.row}</TableCell>
+                                            <TableCell className="font-medium">
+                                                {error.row}
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col">
-                                                    <span className="font-light">{error.dni}</span>
-                                                    <span className="text-[10px] text-muted-foreground">{error.email}</span>
+                                                    <span className="font-light">
+                                                        {error.dni}
+                                                    </span>
+                                                    <span className="text-[10px] text-muted-foreground">
+                                                        {error.email}
+                                                    </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-red-500">{error.message}</TableCell>
+                                            <TableCell className="text-red-500">
+                                                {error.message}
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -126,13 +154,16 @@ export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
             )}
 
             {!hasErrors && (
-                <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border-2 border-dashed bg-muted/20">
-                    <div className="p-4 bg-emerald-100 rounded-full mb-4 shadow-inner">
+                <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-muted/20 p-12 text-center">
+                    <div className="mb-4 rounded-full bg-emerald-100 p-4 shadow-inner">
                         <CheckCircle2 className="h-10 w-10 text-emerald-600" />
                     </div>
-                    <h3 className="font-bold text-lg text-foreground">¡Carga completa sin errores!</h3>
-                    <p className="text-sm text-muted-foreground max-w-sm mt-2 leading-relaxed">
-                        Todos los usuarios del archivo fueron registrados y asignados exitosamente al sistema.
+                    <h3 className="text-lg font-bold text-foreground">
+                        ¡Carga completa sin errores!
+                    </h3>
+                    <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                        Todos los usuarios del archivo fueron registrados y
+                        asignados exitosamente al sistema.
                     </p>
                 </div>
             )}
@@ -141,11 +172,11 @@ export function MassiveRStepThree({ report, onFinish }: SummaryReportProps) {
             <div className="flex justify-end pt-4">
                 <Button
                     onClick={onFinish}
-                    className="w-full sm:w-auto px-10 font-bold"
+                    className="w-full px-10 font-bold sm:w-auto"
                 >
                     Finalizar y Volver
                 </Button>
             </div>
-        </div >
+        </div>
     );
 }

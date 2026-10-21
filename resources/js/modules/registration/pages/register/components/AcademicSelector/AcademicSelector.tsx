@@ -1,53 +1,65 @@
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useWatch } from 'react-hook-form';
+import type { Faculty } from '@/modules/academic';
 import {
     FormControl,
     FormField,
     FormItem,
     FormLabel,
-    FormMessage
-} from "@/shared/components/ui/form";
+    FormMessage,
+} from '@/shared/components/ui/form';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/shared/components/ui/select";
+} from '@/shared/components/ui/select';
 
-import { useAcademicAutoResolver } from "./useAcademicAutoResolver";
+import { useAcademicAutoResolver } from './useAcademicAutoResolver';
 
 export function AcademicSelectorRHF({
     roleId,
     roleUser,
     faculties = [],
-}: any) {
+}: {
+    roleId: string;
+    roleUser: number | null;
+    faculties?: Faculty[];
+}) {
     const { control, setValue } = useFormContext();
 
-    const isSubadmin = roleId === "2";
+    const isSubadmin = roleId === '2';
     const isTeacher = roleUser === 3;
 
-    const facultyId = useWatch({ control, name: "faculty_id" });
-    const schoolId = useWatch({ control, name: "school_id" });
+    const facultyId = useWatch({ control, name: 'faculty_id' });
+    const schoolId = useWatch({ control, name: 'school_id' });
 
     const safeFaculties = Array.isArray(faculties) ? faculties : [];
 
     // Obtener la facultad seleccionada y sus escuelas
-    const selectedFaculty = safeFaculties.find((f: any) => f.id?.toString() === facultyId?.toString());
-    const filteredSchools = Array.isArray(selectedFaculty?.schools) ? selectedFaculty.schools : [];
+    const selectedFaculty = safeFaculties.find(
+        (f) => f.id?.toString() === facultyId?.toString(),
+    );
+    const filteredSchools = Array.isArray(selectedFaculty?.schools)
+        ? selectedFaculty.schools
+        : [];
 
     // Obtener la escuela seleccionada y sus secciones
-    const selectedSchool = filteredSchools.find((s: any) => s.id?.toString() === schoolId?.toString());
-    const filteredSections = Array.isArray(selectedSchool?.sections) ? selectedSchool.sections : [];
+    const selectedSchool = filteredSchools.find(
+        (s) => s.id?.toString() === schoolId?.toString(),
+    );
+    const filteredSections = Array.isArray(selectedSchool?.sections)
+        ? selectedSchool.sections
+        : [];
 
     // Lógica de auto-resolución para SubAdmin delegada al hook
     useAcademicAutoResolver({
         faculties: safeFaculties,
-        isSubadmin
+        isSubadmin,
     });
 
     return (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-
             {/* Facultad */}
             <FormField
                 control={control}
@@ -58,8 +70,8 @@ export function AcademicSelectorRHF({
                         <Select
                             onValueChange={(v) => {
                                 field.onChange(v);
-                                setValue("school_id", "");
-                                setValue("section_id", "");
+                                setValue('school_id', '');
+                                setValue('section_id', '');
                             }}
                             value={field.value}
                             disabled={isTeacher}
@@ -70,8 +82,11 @@ export function AcademicSelectorRHF({
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                {safeFaculties.map((f: any) => (
-                                    <SelectItem key={f.id} value={f.id?.toString()}>
+                                {safeFaculties.map((f) => (
+                                    <SelectItem
+                                        key={f.id}
+                                        value={f.id?.toString()}
+                                    >
                                         {f.name}
                                     </SelectItem>
                                 ))}
@@ -92,7 +107,7 @@ export function AcademicSelectorRHF({
                             <Select
                                 onValueChange={(v) => {
                                     field.onChange(v);
-                                    setValue("section_id", "");
+                                    setValue('section_id', '');
                                 }}
                                 value={field.value}
                                 disabled={!facultyId || isTeacher}
@@ -103,8 +118,11 @@ export function AcademicSelectorRHF({
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {filteredSchools.map((s: any) => (
-                                        <SelectItem key={s.id} value={s.id.toString()}>
+                                    {filteredSchools.map((s) => (
+                                        <SelectItem
+                                            key={s.id}
+                                            value={s.id.toString()}
+                                        >
                                             {s.name}
                                         </SelectItem>
                                     ))}
@@ -134,8 +152,11 @@ export function AcademicSelectorRHF({
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {filteredSections.map((s: any) => (
-                                        <SelectItem key={s.id} value={s.id.toString()}>
+                                    {filteredSections.map((s) => (
+                                        <SelectItem
+                                            key={s.id}
+                                            value={s.id.toString()}
+                                        >
                                             {s.name}
                                         </SelectItem>
                                     ))}
@@ -146,7 +167,6 @@ export function AcademicSelectorRHF({
                     )}
                 />
             )}
-
         </div>
     );
 }

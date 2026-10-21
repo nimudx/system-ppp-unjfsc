@@ -1,10 +1,19 @@
 import { Head } from '@inertiajs/react';
 import { Info } from 'lucide-react';
 import { useState } from 'react';
+
 import { SubmissionPanel } from '@/modules/documents';
+import type { DocumentRequirement } from '@/modules/documents/types';
+
+import type {
+    InternshipRecord,
+    InternshipStep,
+    InternshipAssignment,
+} from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';
 import { Stepper } from '@/shared/components/stepper';
 import { Badge } from '@/shared/components/ui/badge';
+
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 // Hook
@@ -16,11 +25,11 @@ import { RequirementListPanel } from './parts/RequirementListPanel';
 
 interface InternshipIndexProps {
     data: {
-        assignment: any;
-        internship: any;
-        steps: any[];
+        assignment: InternshipAssignment;
+        internship: InternshipRecord | null;
+        steps: InternshipStep[];
         currentStep: number;
-        requirements: any[];
+        requirements: DocumentRequirement[];
     };
 }
 
@@ -35,8 +44,6 @@ export default function InternshipIndex({ data }: InternshipIndexProps) {
         viewStep,
         selectedReqIndex,
         setSelectedReqIndex,
-        activeTab,
-        setActiveTab,
         isEditing,
         setIsEditing,
         tempFile,
@@ -55,7 +62,7 @@ export default function InternshipIndex({ data }: InternshipIndexProps) {
     });
 
     const isEvalStage =
-        data.steps.find((s: any) => s.id === viewStep)?.is_evaluation ?? false;
+        data.steps.find((s) => s.id === viewStep)?.is_evaluation ?? false;
 
     if (!data.steps || data.steps.length === 0) {
         return (
@@ -82,22 +89,47 @@ export default function InternshipIndex({ data }: InternshipIndexProps) {
                             <div className="mb-4 flex size-12 items-center justify-center rounded-full border border-dashed bg-muted/10">
                                 <Info className="size-6 text-muted-foreground" />
                             </div>
-                            <h3 className="text-sm font-bold tracking-tight uppercase">Etapas de prácticas no configuradas</h3>
-                            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                                Las etapas y requisitos del seguimiento de sus prácticas aún no han sido configurados por la coordinación académica de su escuela.
+                            <h3 className="text-sm font-bold tracking-tight uppercase">
+                                Etapas de prácticas no configuradas
+                            </h3>
+                            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                Las etapas y requisitos del seguimiento de sus
+                                prácticas aún no han sido configurados por la
+                                coordinación académica de su escuela.
                             </p>
 
                             {data.assignment?.section && (
-                                <div className="mt-6 w-full rounded-lg border bg-muted/20 p-4 text-left text-[11px] text-muted-foreground space-y-1">
-                                    <p className="font-bold text-foreground mb-1.5 uppercase tracking-wider text-[10px]">Información Académica:</p>
-                                    <p><span className="font-medium text-foreground">Facultad:</span> {data.assignment?.section?.school?.faculty?.name || 'N/A'}</p>
-                                    <p><span className="font-medium text-foreground">Escuela:</span> {data.assignment?.section?.school?.name || 'N/A'}</p>
-                                    <p><span className="font-medium text-foreground">Sección:</span> {data.assignment?.section?.name || 'N/A'}</p>
+                                <div className="mt-6 w-full space-y-1 rounded-lg border bg-muted/20 p-4 text-left text-[11px] text-muted-foreground">
+                                    <p className="mb-1.5 text-[10px] font-bold tracking-wider text-foreground uppercase">
+                                        Información Académica:
+                                    </p>
+                                    <p>
+                                        <span className="font-medium text-foreground">
+                                            Facultad:
+                                        </span>{' '}
+                                        {data.assignment?.section?.school
+                                            ?.faculty?.name || 'N/A'}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium text-foreground">
+                                            Escuela:
+                                        </span>{' '}
+                                        {data.assignment?.section?.school
+                                            ?.name || 'N/A'}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium text-foreground">
+                                            Sección:
+                                        </span>{' '}
+                                        {data.assignment?.section?.name ||
+                                            'N/A'}
+                                    </p>
                                 </div>
                             )}
 
-                            <p className="mt-6 text-xs font-semibold text-muted-foreground italic uppercase">
-                                Por favor, comuníquese con su coordinador académico para habilitar el flujo.
+                            <p className="mt-6 text-xs font-semibold text-muted-foreground uppercase italic">
+                                Por favor, comuníquese con su coordinador
+                                académico para habilitar el flujo.
                             </p>
                         </div>
                     </div>
@@ -138,7 +170,7 @@ export default function InternshipIndex({ data }: InternshipIndexProps) {
                                 variant="outline"
                                 className="border-primary/20 bg-primary/5 font-bold text-primary"
                             >
-                                {data.steps.find((s: any) => s.id === viewStep)
+                                {data.steps.find((s) => s.id === viewStep)
                                     ?.label || `Etapa ${viewStep}`}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
@@ -156,9 +188,8 @@ export default function InternshipIndex({ data }: InternshipIndexProps) {
                         {!isEvalStage && (
                             <span className="text-sm font-medium text-muted-foreground">
                                 {
-                                    requirements.filter(
-                                        (r: any) => r.status === 1,
-                                    ).length
+                                    requirements.filter((r) => r.status === 1)
+                                        .length
                                 }{' '}
                                 / {requirements.length} Aprobados
                             </span>

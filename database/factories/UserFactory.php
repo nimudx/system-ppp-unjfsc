@@ -2,15 +2,19 @@
 
 namespace Database\Factories;
 
+use App\Domains\Identity\Models\Person;
+use App\Domains\Identity\Models\TypeUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domains\Identity\Models\User>
  */
 class UserFactory extends Factory
 {
+    protected $model = \App\Domains\Identity\Models\User::class;
+
     /**
      * The current password being used by the factory.
      */
@@ -24,6 +28,10 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'person_id' => Person::factory(),
+            'type_user_id' => fn () => TypeUser::unguarded(
+                fn () => TypeUser::firstOrCreate(['id' => 2], ['name' => 'Académico', 'status' => 1])
+            )->id,
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),

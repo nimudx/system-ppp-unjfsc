@@ -1,6 +1,6 @@
 /**
  * useDragSort.ts
- * 
+ *
  * Encapsula toda la lógica de Drag & Drop para el builder de configuración de prácticas.
  * Usa @dnd-kit/react (v3 beta) con el OptimisticSortingPlugin activo por defecto.
  *
@@ -11,12 +11,12 @@
  *   - source.index        → posición final tras el reordenamiento optimista
  */
 
-import type { DragOperation } from '@dnd-kit/abstract';
 import { Modifier } from '@dnd-kit/abstract';
+import type { DragDropManager, DragEndEvent } from '@dnd-kit/react';
 
 // ─── Modificador: Restringir movimiento al eje vertical ──────────────────────
-export class RestrictToVerticalAxis extends Modifier<any> {
-    apply({ transform }: DragOperation): any {
+export class RestrictToVerticalAxis extends Modifier<DragDropManager> {
+    apply({ transform }: Parameters<Modifier<DragDropManager>['apply']>[0]) {
         return { x: 0, y: transform.y };
     }
 }
@@ -27,25 +27,40 @@ export class RestrictToVerticalAxis extends Modifier<any> {
 
 export type DragSortHandlers = {
     onReorderStage: (oldIndex: number, newIndex: number) => void;
-    onReorderRequirement: (stageId: string, type: 'development' | 'validation', oldIndex: number, newIndex: number) => void;
+    onReorderRequirement: (
+        stageId: string,
+        type: 'development' | 'validation',
+        oldIndex: number,
+        newIndex: number,
+    ) => void;
 };
 
 /**
  * Genera el handler onDragEnd listo para pasar al <DragDropProvider>.
  * Separa claramente el reordenamiento de Etapas del de Requisitos.
  */
-export function buildDragEndHandler({ onReorderStage, onReorderRequirement }: DragSortHandlers) {
-    return (event: any) => {
+export function buildDragEndHandler({
+    onReorderStage,
+    onReorderRequirement,
+}: DragSortHandlers) {
+    return (event: Parameters<DragEndEvent>[0]) => {
         if (event.canceled) return;
         if (!event.operation?.source) return;
 
-        const source = event.operation.source as any;
+        const source = event.operation.source;
 
         // Índice original (antes del drag) vs índice final (tras reordenamiento optimista)
-        const initialIdx = typeof source.initialIndex === 'number' ? source.initialIndex : -1;
-        const currentIdx = typeof source.index === 'number' ? source.index : -1;
+        const initialIdx =
+            'initialIndex' in source && typeof source.initialIndex === 'number'
+                ? source.initialIndex
+                : -1;
+        const currentIdx =
+            'index' in source && typeof source.index === 'number'
+                ? source.index
+                : -1;
 
-        if (initialIdx === -1 || currentIdx === -1 || initialIdx === currentIdx) return;
+        if (initialIdx === -1 || currentIdx === -1 || initialIdx === currentIdx)
+            return;
 
         const sourceId = String(source.id);
 

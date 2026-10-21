@@ -14,7 +14,7 @@ class RoleSeeder extends Seeder
     {
         $now = now();
 
-        // Los ids coinciden con App\Enums\Role y están referenciados literalmente
+        // Los ids coinciden con App\Shared\Enums\Role y están referenciados literalmente
         // en middlewares, servicios y en el frontend (nav/colores por rol).
         DB::table('roles')->upsert([
             ['id' => 1, 'name' => 'Administrador', 'status' => 1, 'created_at' => $now, 'updated_at' => $now],

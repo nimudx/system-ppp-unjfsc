@@ -1,4 +1,5 @@
 import { useForm, usePage } from '@inertiajs/react';
+import type { PersonProfile } from '@/modules/identity/types';
 import { update as updateDetails } from '@/routes/profile/details';
 import Heading from '@/shared/components/heading';
 import InputError from '@/shared/components/input-error';
@@ -6,8 +7,12 @@ import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
-export default function UpdatePersonProfileForm({ data }: { data: any }) {
-    const { auth } = usePage().props as any;
+export default function UpdatePersonProfileForm({
+    data,
+}: {
+    data: PersonProfile;
+}) {
+    const { auth } = usePage().props;
     const email = auth.user.email || '';
     const code = email.split('@')[0];
 

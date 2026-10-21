@@ -1,7 +1,12 @@
 import { Head, usePage } from '@inertiajs/react';
 import { X, Users, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { DetailHeader } from '@/modules/documents';
+import { useState } from 'react';
+import type { Faculty } from '@/modules/academic';
+import type {
+    InternshipGroup,
+    Assignment,
+} from '@/modules/supervision/hooks/use-internship-group';
+
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -20,17 +25,16 @@ import AppLayout from '@/shared/layouts/app-layout';
 import StudentManagementTabs from './partials/student-management-tabs';
 
 interface Props {
-    groups: any[];
-    students: any[];
-    faculties?: any[];
+    groups: InternshipGroup[];
+    students: Assignment[];
+    faculties?: Faculty[];
 }
 
 export default function StudentGroupIndex({
     groups = [],
-    students = [],
     faculties = [],
 }: Props) {
-    const { role } = usePage().props as any;
+    const { role } = usePage().props;
     const isAdmin = [1, 2].includes(Number(role));
 
     const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -96,7 +100,7 @@ export default function StudentGroupIndex({
                                     faculties={faculties}
                                     onFilter={handleFilter}
                                     isLoading={isSearching}
-                                    initialValues={activeFilters as any}
+                                    initialValues={activeFilters}
                                 />
                             )}
                             <AcademicSearch
@@ -144,7 +148,7 @@ export default function StudentGroupIndex({
                                 </TableHeader>
                                 <TableBody>
                                     {displayData.length > 0 ? (
-                                        displayData.map((group: any) => (
+                                        displayData.map((group) => (
                                             <TableRow
                                                 key={group.id}
                                                 onClick={() =>
@@ -253,9 +257,24 @@ export default function StudentGroupIndex({
                             <AcademicPagination
                                 isAdmin={isAdmin}
                                 isLoading={isSearching}
-                                links={(localGroups as any)?.links}
-                                total={(localGroups as any)?.total}
-                                showing={(localGroups as any)?.data?.length}
+                                links={
+                                    (Array.isArray(localGroups)
+                                        ? undefined
+                                        : localGroups
+                                    )?.links
+                                }
+                                total={
+                                    (Array.isArray(localGroups)
+                                        ? undefined
+                                        : localGroups
+                                    )?.total
+                                }
+                                showing={
+                                    (Array.isArray(localGroups)
+                                        ? undefined
+                                        : localGroups
+                                    )?.data?.length
+                                }
                                 onPageChange={handlePageChange}
                                 currentPage={localPage}
                                 totalPages={localTotalPages}
@@ -309,8 +328,9 @@ export default function StudentGroupIndex({
                                     <StudentManagementTabs
                                         group={selectedItem}
                                         allGroups={
-                                            (localGroups as any)?.data ||
-                                            localGroups
+                                            Array.isArray(localGroups)
+                                                ? localGroups
+                                                : (localGroups.data ?? [])
                                         }
                                     />
                                 </div>

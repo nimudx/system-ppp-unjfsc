@@ -1,4 +1,5 @@
 import { ChevronRight, User } from 'lucide-react';
+import type { GroupOption } from '@/modules/supervision/components/group-selector';
 import type { StudentSupervision } from '@/modules/supervision/types';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import { Badge } from '@/shared/components/ui/badge';
@@ -10,13 +11,14 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
+import type { TableData } from '@/shared/hooks/use-config-table';
 
 interface SupervisionTableProps {
     // El objeto retornado por useConfigTable
     tableManager: {
-        data: any;
+        data: TableData<StudentSupervision>;
         displayData: StudentSupervision[];
-        allLocalFiltered: any[];
+        allLocalFiltered: StudentSupervision[];
         isSearching: boolean;
         localPage: number;
         localTotalPages: number;
@@ -26,7 +28,7 @@ interface SupervisionTableProps {
     isAdmin: boolean;
     selectedId: number | null;
     selectedModuleId: number | null;
-    selectedGroup: any;
+    selectedGroup: GroupOption | null;
     statusConfig: Record<number, { label: string; className: string }>;
     onSelect: (id: number, moduleOverride?: number) => void;
 }
@@ -104,7 +106,7 @@ export default function SupervisionTable({
                             const cfg = statusConfig[status] ?? statusConfig[0];
                             const isSelected = student.search_module
                                 ? selectedId === student.id &&
-                                selectedModuleId === student.search_module
+                                  selectedModuleId === student.search_module
                                 : selectedId === student.id;
                             return (
                                 <TableRow
@@ -119,10 +121,11 @@ export default function SupervisionTable({
                                             student.search_module,
                                         )
                                     }
-                                    className={`group/row cursor-pointer transition-colors ${isSelected
-                                        ? 'border-l-2 border-l-primary bg-primary/5'
-                                        : 'hover:bg-muted/30'
-                                        }`}
+                                    className={`group/row cursor-pointer transition-colors ${
+                                        isSelected
+                                            ? 'border-l-2 border-l-primary bg-primary/5'
+                                            : 'hover:bg-muted/30'
+                                    }`}
                                 >
                                     <TableCell>
                                         <div className="flex items-center gap-3">
@@ -131,8 +134,14 @@ export default function SupervisionTable({
                                             </div>
                                             <div className="flex flex-col overflow-hidden">
                                                 <span className="max-w-37.5 truncate text-xs font-bold uppercase lg:max-w-none">
-                                                    {student.user?.person?.surnames}{' '}
-                                                    {student.user?.person?.names}
+                                                    {
+                                                        student.user?.person
+                                                            ?.surnames
+                                                    }{' '}
+                                                    {
+                                                        student.user?.person
+                                                            ?.names
+                                                    }
                                                 </span>
                                                 {!selectedId ? (
                                                     <span className="truncate text-[10px] text-muted-foreground">
@@ -141,10 +150,18 @@ export default function SupervisionTable({
                                                 ) : (
                                                     <div className="flex gap-2">
                                                         <span className="truncate text-[10px] text-muted-foreground">
-                                                            {student.section?.school?.name}
+                                                            {
+                                                                student.section
+                                                                    ?.school
+                                                                    ?.name
+                                                            }
                                                         </span>
                                                         <span className="truncate text-[10px] text-muted-foreground">
-                                                            - {student.section?.name}
+                                                            -{' '}
+                                                            {
+                                                                student.section
+                                                                    ?.name
+                                                            }
                                                         </span>
                                                     </div>
                                                 )}
@@ -155,11 +172,12 @@ export default function SupervisionTable({
                                     {!selectedId && (
                                         <>
                                             <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
-                                                {student.section?.school?.faculty?.name ||
-                                                    'N/A'}
+                                                {student.section?.school
+                                                    ?.faculty?.name || 'N/A'}
                                             </TableCell>
                                             <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
-                                                {student.section?.school?.name || 'N/A'}
+                                                {student.section?.school
+                                                    ?.name || 'N/A'}
                                             </TableCell>
                                             <TableCell className="hidden font-bold lg:table-cell">
                                                 {student.section?.name || 'N/A'}
@@ -176,10 +194,11 @@ export default function SupervisionTable({
                                     </TableCell>
                                     <TableCell>
                                         <ChevronRight
-                                            className={`size-4 text-muted-foreground transition-all ${isSelected
-                                                ? 'rotate-180 text-primary'
-                                                : 'opacity-0 group-hover/row:opacity-100'
-                                                }`}
+                                            className={`size-4 text-muted-foreground transition-all ${
+                                                isSelected
+                                                    ? 'rotate-180 text-primary'
+                                                    : 'opacity-0 group-hover/row:opacity-100'
+                                            }`}
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -220,9 +239,18 @@ export default function SupervisionTable({
             <AcademicPagination
                 isAdmin={isAdmin}
                 isLoading={isSearching}
-                links={(assignments as any)?.links}
-                total={(assignments as any)?.total}
-                showing={(assignments as any)?.data?.length}
+                links={
+                    (Array.isArray(assignments) ? undefined : assignments)
+                        ?.links
+                }
+                total={
+                    (Array.isArray(assignments) ? undefined : assignments)
+                        ?.total
+                }
+                showing={
+                    (Array.isArray(assignments) ? undefined : assignments)?.data
+                        ?.length
+                }
                 onPageChange={handlePageChange}
                 currentPage={localPage}
                 totalPages={localTotalPages}
@@ -233,4 +261,3 @@ export default function SupervisionTable({
         </div>
     );
 }
-

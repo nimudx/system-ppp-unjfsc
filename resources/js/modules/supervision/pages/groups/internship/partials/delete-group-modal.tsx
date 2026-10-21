@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import type { InternshipGroup } from '@/modules/supervision/hooks/use-internship-group';
 import groups from '@/routes/academic/groups';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -12,13 +13,18 @@ import {
 } from '@/shared/components/ui/dialog';
 
 interface Props {
-    group: any | null;
+    group: InternshipGroup | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
 }
 
-export default function DeleteGroupModal({ group, open, onOpenChange, onSuccess }: Props) {
+export default function DeleteGroupModal({
+    group,
+    open,
+    onOpenChange,
+    onSuccess,
+}: Props) {
     const { delete: destroyRequest, processing } = useForm();
 
     const handleSubmit = (e: FormEvent) => {
@@ -43,7 +49,8 @@ export default function DeleteGroupModal({ group, open, onOpenChange, onSuccess 
                         <span className="font-bold text-foreground">
                             {group?.name}
                         </span>
-                        ? Esta acción no se puede deshacer y solo es posible si el grupo no tiene estudiantes asignados.
+                        ? Esta acción no se puede deshacer y solo es posible si
+                        el grupo no tiene estudiantes asignados.
                     </DialogDescription>
                 </DialogHeader>
 

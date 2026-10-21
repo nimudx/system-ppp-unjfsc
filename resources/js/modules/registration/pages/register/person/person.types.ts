@@ -1,7 +1,12 @@
 import type { Faculty } from '@/modules/academic';
+import type {
+    RoleOption,
+    CsvRow,
+    RegistrationReport,
+} from '@/modules/registration/types';
 
 export interface PersonFlowProps {
-    roles: any[];
+    roles: RoleOption[];
     faculties: Faculty[];
     mode: 'individual' | 'masivo';
     onBack: () => void;
@@ -24,6 +29,7 @@ export interface PersonInitialState {
     surnames: string;
     gender: string;
 
-    rows: any[];
-    report: any;
+    rows: CsvRow[];
+    report: RegistrationReport | null;
+    file?: File;
 }

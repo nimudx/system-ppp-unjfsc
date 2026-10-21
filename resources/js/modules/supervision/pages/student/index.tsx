@@ -1,10 +1,10 @@
-import { Head } from "@inertiajs/react";
-import Heading from "@/shared/components/heading";
-import AppLayout from "@/shared/layouts/app-layout";
-import type { BreadcrumbItem } from "@/shared/types";
+import { Head } from '@inertiajs/react';
+import Heading from '@/shared/components/heading';
+import AppLayout from '@/shared/layouts/app-layout';
+import type { BreadcrumbItem } from '@/shared/types';
 
 export default function StudentSupervisionIndex() {
-    const title = "Seguimiento de Prácticas";
+    const title = 'Seguimiento de Prácticas';
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Prácticas Pre-Profesionales', href: '/internship' },
     ];

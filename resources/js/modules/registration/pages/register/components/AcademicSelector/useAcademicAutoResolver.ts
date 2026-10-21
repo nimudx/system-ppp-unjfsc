@@ -28,11 +28,15 @@ export function useAcademicAutoResolver({
 
         const safeFaculties = Array.isArray(faculties) ? faculties : [];
 
-        const selectedFaculty = safeFaculties.find((f) => f.id?.toString() === facultyId?.toString());
+        const selectedFaculty = safeFaculties.find(
+            (f) => f.id?.toString() === facultyId?.toString(),
+        );
         const firstSchool = selectedFaculty?.schools?.[0] ?? null;
 
         if (!firstSchool) {
-            toast.error('Esta facultad no tiene escuelas configuradas. Verifique la configuración académica.');
+            toast.error(
+                'Esta facultad no tiene escuelas configuradas. Verifique la configuración académica.',
+            );
             setValue('school_id', '');
             setValue('section_id', '');
             return;
@@ -41,7 +45,9 @@ export function useAcademicAutoResolver({
         const firstSection = firstSchool.sections?.[0] ?? null;
 
         if (!firstSection) {
-            toast.error('La primera escuela de esta facultad no tiene secciones configuradas. Verifique la configuración académica.');
+            toast.error(
+                'La primera escuela de esta facultad no tiene secciones configuradas. Verifique la configuración académica.',
+            );
             setValue('school_id', '');
             setValue('section_id', '');
             return;

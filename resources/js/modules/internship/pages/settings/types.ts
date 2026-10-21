@@ -1,17 +1,17 @@
-export interface Document {
+export type Document = {
     name: string;
     code: string;
-}
+};
 
-export interface RequirementDocs {
+export type RequirementDocs = {
     development: Document[];
     validation: Document[];
-}
+};
 
-export interface WorkflowStage {
+export type WorkflowStage = {
     id: string;
     step: number;
     name: string;
     is_evaluation: boolean;
     required_docs: RequirementDocs;
-}
+};

@@ -1,7 +1,7 @@
-import { router } from "@inertiajs/react";
-import { useState } from "react";
-import { toast } from "sonner";
-import resource from "@/routes/resource";
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import resource from '@/routes/resource';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,7 +11,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
+} from '@/shared/components/ui/alert-dialog';
 
 interface ResourceItem {
     id: number;
@@ -24,7 +24,11 @@ interface DeleteResourceAlertProps {
     onClose: () => void;
 }
 
-export function DeleteResourceAlert({ fres, isOpen, onClose }: DeleteResourceAlertProps) {
+export function DeleteResourceAlert({
+    fres,
+    isOpen,
+    onClose,
+}: DeleteResourceAlertProps) {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = () => {
@@ -45,14 +49,22 @@ export function DeleteResourceAlert({ fres, isOpen, onClose }: DeleteResourceAle
         <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                        ¿Estás completamente seguro?
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Esto eliminará permanentemente el recurso
-                        <strong className="text-foreground ml-1">{fres?.name}</strong> y removerá el archivo de nuestros servidores.
+                        Esta acción no se puede deshacer. Esto eliminará
+                        permanentemente el recurso
+                        <strong className="ml-1 text-foreground">
+                            {fres?.name}
+                        </strong>{' '}
+                        y removerá el archivo de nuestros servidores.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel variant="ghost" disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                    <AlertDialogCancel variant="ghost" disabled={isDeleting}>
+                        Cancelar
+                    </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={(e) => {
                             e.preventDefault();
@@ -62,7 +74,7 @@ export function DeleteResourceAlert({ fres, isOpen, onClose }: DeleteResourceAle
                         disabled={isDeleting}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                        {isDeleting ? "Eliminando..." : "Sí, eliminar recurso"}
+                        {isDeleting ? 'Eliminando...' : 'Sí, eliminar recurso'}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

@@ -1,9 +1,10 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Search, Loader2 } from "lucide-react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Search, Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import {
     Form,
     FormControl,
@@ -11,20 +12,20 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/shared/components/ui/form";
+} from '@/shared/components/ui/form';
 
-import { Input } from "@/shared/components/ui/input";
+import { Input } from '@/shared/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/shared/components/ui/select";
-import { Separator } from "@/shared/components/ui/separator";
+} from '@/shared/components/ui/select';
+import { Separator } from '@/shared/components/ui/separator';
 
-import type { PersonValues} from "./schema";
-import { personSchema } from "./schema";
+import type { PersonValues } from './schema';
+import { personSchema } from './schema';
 
 interface PersonFormProps {
     initialValues?: Partial<PersonValues>;
@@ -50,43 +51,47 @@ export function PersonFStepTwo({
     const form = useForm<PersonValues>({
         resolver: zodResolver(personSchema),
         defaultValues: {
-            names: "",
-            surnames: "",
-            dni: "",
-            gender: "",
+            names: '',
+            surnames: '',
+            dni: '',
+            gender: '',
             ...initialValues,
         },
-        mode: "onChange",
+        mode: 'onChange',
     });
+    const watchedField1 = useWatch({ control: form.control, name: 'dni' });
 
     // Sincronizar el estado interno con las props del padre (Especialmente tras búsqueda de DNI)
     useEffect(() => {
         if (initialValues && initialValues.dni) {
             form.reset({
-                names: initialValues.names || "",
-                surnames: initialValues.surnames || "",
-                dni: initialValues.dni || "",
-                gender: initialValues.gender || form.getValues("gender") || "M",
+                names: initialValues.names || '',
+                surnames: initialValues.surnames || '',
+                dni: initialValues.dni || '',
+                gender: initialValues.gender || form.getValues('gender') || 'M',
             });
         }
     }, [initialValues, form]);
-
 
     return (
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6 animate-in fade-in duration-300"
+                className="animate-in space-y-6 duration-300 fade-in"
             >
                 <div className="space-y-1">
-                    <p className="text-sm font-medium">Validación de Identidad</p>
-                    <p className="text-xs text-muted-foreground">Ingrese el DNI para buscar o registrar.</p>
+                    <p className="text-sm font-medium">
+                        Validación de Identidad
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        Ingrese el DNI para buscar o registrar.
+                    </p>
                 </div>
 
                 {/* DNI Search */}
                 <div className="flex gap-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Número de DNI..."
                             className="pl-9"
@@ -94,15 +99,24 @@ export function PersonFStepTwo({
                             maxLength={8}
                             onChange={(e) => setSearchDni(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") {
+                                if (e.key === 'Enter') {
                                     e.preventDefault();
                                     onSearch();
                                 }
                             }}
                         />
                     </div>
-                    <Button type="button" variant="outline" onClick={onSearch} disabled={isLoading}>
-                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Consultar"}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onSearch}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            'Consultar'
+                        )}
                     </Button>
                 </div>
 
@@ -163,15 +177,22 @@ export function PersonFStepTwo({
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Género</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                >
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccione" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="M">Masculino</SelectItem>
-                                        <SelectItem value="F">Femenino</SelectItem>
+                                        <SelectItem value="M">
+                                            Masculino
+                                        </SelectItem>
+                                        <SelectItem value="F">
+                                            Femenino
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -181,11 +202,22 @@ export function PersonFStepTwo({
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                    <Button type="button" variant="outline" onClick={onPrev} className="flex-1">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onPrev}
+                        className="flex-1"
+                    >
                         Regresar
                     </Button>
-                    <Button type="submit" className="flex-1" disabled={!form.watch("dni") || isLoading}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button
+                        type="submit"
+                        className="flex-1"
+                        disabled={!watchedField1 || isLoading}
+                    >
+                        {isLoading && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
                         Ir al Resumen
                     </Button>
                 </div>

@@ -1,5 +1,5 @@
-import { Head, usePage } from '@inertiajs/react';
-import { GraduationCap, LayoutGrid, Plus } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { GraduationCap, Plus } from 'lucide-react';
 import { useState } from 'react';
 import type { School } from '@/modules/academic/types';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
@@ -24,8 +24,9 @@ interface Props {
 }
 
 export default function Sections({ schools }: Props) {
-    const { role } = usePage().props as any;
-    const [selectedSchoolId, setSelectedSchoolId] = useState<number | null>(null);
+    const [selectedSchoolId, setSelectedSchoolId] = useState<number | null>(
+        null,
+    );
     const [isManageOpen, setIsManageOpen] = useState(false);
 
     const {
@@ -35,18 +36,19 @@ export default function Sections({ schools }: Props) {
         localPage,
         setLocalPage,
         localTotalPages,
-        handlePageChange
+        handlePageChange,
     } = useAcademicTable<School>({
         endpoint: '',
         initialData: schools,
         isAdmin: false,
         pageSize: 10,
-        localSearchFn: (school, search) => 
-            school.name.toLowerCase().includes(search) || 
-            (school.faculty?.name || '').toLowerCase().includes(search)
+        localSearchFn: (school, search) =>
+            school.name.toLowerCase().includes(search) ||
+            (school.faculty?.name || '').toLowerCase().includes(search),
     });
 
-    const selectedSchool = schools.find(s => s.id === selectedSchoolId) || null;
+    const selectedSchool =
+        schools.find((s) => s.id === selectedSchoolId) || null;
 
     const formatId = (id: number) => `#${id.toString().padStart(3, '0')}`;
 
@@ -69,7 +71,7 @@ export default function Sections({ schools }: Props) {
 
                 <div className="flex items-center justify-start">
                     <AcademicSearch
-                        role={role}
+                        isAdmin={false}
                         search={search}
                         setSearch={setSearch}
                     />
@@ -123,16 +125,19 @@ export default function Sections({ schools }: Props) {
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1.5">
-                                                {(school.sections && school.sections.length > 0) ? (
-                                                    school.sections.map((section) => (
-                                                        <Badge
-                                                            key={section.id}
-                                                            variant="default"
-                                                            className="bg-primary/10 text-primary hover:bg-primary/20"
-                                                        >
-                                                            {section.name}
-                                                        </Badge>
-                                                    ))
+                                                {school.sections &&
+                                                school.sections.length > 0 ? (
+                                                    school.sections.map(
+                                                        (section) => (
+                                                            <Badge
+                                                                key={section.id}
+                                                                variant="default"
+                                                                className="bg-primary/10 text-primary hover:bg-primary/20"
+                                                            >
+                                                                {section.name}
+                                                            </Badge>
+                                                        ),
+                                                    )
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground italic">
                                                         Sin secciones
@@ -144,7 +149,9 @@ export default function Sections({ schools }: Props) {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => handleManage(school)}
+                                                onClick={() =>
+                                                    handleManage(school)
+                                                }
                                                 className="h-8 gap-1.5 text-xs font-semibold"
                                             >
                                                 <Plus className="h-3.5 w-3.5" />

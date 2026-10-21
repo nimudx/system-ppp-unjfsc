@@ -1,11 +1,19 @@
 import { Head } from '@inertiajs/react';
 import { Building2, Loader2, Save } from 'lucide-react';
-import { RequirementsList, AlertHelp, SubmissionForm as ContentDetailsDocument, SubmissionPanel } from '@/modules/documents';
+
+import {
+    RequirementsList,
+    AlertHelp,
+    SubmissionPanel,
+} from '@/modules/documents';
+import type { DocumentRequirement } from '@/modules/documents/types';
+
+import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 import CompanyForm from './components/company-form';
@@ -15,8 +23,8 @@ import { usePlacementSubmission } from './hooks/use-placement-submission';
 
 interface PlacementProps {
     data: {
-        placement: any | null;
-        requirements: any[];
+        placement: PlacementRecord | null;
+        requirements: DocumentRequirement[];
         isApproved: boolean;
     };
     title: string;
@@ -28,7 +36,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 function getContextLabel(
     activeContext: 'empresa' | number,
-    requirements: any[],
+    requirements: DocumentRequirement[],
 ): string {
     if (activeContext === 'empresa') return 'Información de Empresa';
     const req = requirements[activeContext];
@@ -98,27 +106,35 @@ export default function PlacementIndex({ data }: PlacementProps) {
                     <main className="flex min-w-0 flex-1 flex-col">
                         <SectionCard>
                             <SectionCard.Header>
-                                <div className="flex flex-row items-center justify-between w-full">
+                                <div className="flex w-full flex-row items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-primary/5 border-primary/20">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/5">
                                             <Building2 className="size-4 text-primary" />
                                         </div>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
-                                                <Badge className="border-none bg-blue-500 text-[9px] h-4 px-1.5 text-white uppercase font-bold">
+                                                <Badge className="h-4 border-none bg-blue-500 px-1.5 text-[9px] font-bold text-white uppercase">
                                                     Formalización
                                                 </Badge>
-                                                <h3 className="text-sm font-bold leading-none tracking-tight">
-                                                    {getContextLabel(activeContext, data.requirements)}
+                                                <h3 className="text-sm leading-none font-bold tracking-tight">
+                                                    {getContextLabel(
+                                                        activeContext,
+                                                        data.requirements,
+                                                    )}
                                                 </h3>
                                             </div>
-                                            <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold tracking-tighter">
-                                                {TYPE_LABELS[type]} {origin && `→ ${TYPE_LABELS[origin]}`}
+                                            <p className="mt-1 text-[10px] font-bold tracking-tighter text-muted-foreground uppercase">
+                                                {TYPE_LABELS[type]}{' '}
+                                                {origin &&
+                                                    `→ ${TYPE_LABELS[origin]}`}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="text-[10px] font-medium border-muted-foreground/20">
+                                        <Badge
+                                            variant="outline"
+                                            className="border-muted-foreground/20 text-[10px] font-medium"
+                                        >
                                             En proceso
                                         </Badge>
                                     </div>
@@ -126,7 +142,7 @@ export default function PlacementIndex({ data }: PlacementProps) {
                             </SectionCard.Header>
 
                             <SectionCard.Body>
-                                <div className="flex flex-1 flex-col items-stretch justify-start overflow-y-auto h-full">
+                                <div className="flex h-full flex-1 flex-col items-stretch justify-start overflow-y-auto">
                                     {activeContext === 'empresa' ? (
                                         <CompanyForm
                                             placement={data.placement}
@@ -147,7 +163,9 @@ export default function PlacementIndex({ data }: PlacementProps) {
                                             onClearTemp={() => {
                                                 setTempFile(null);
                                                 if (previewUrl)
-                                                    URL.revokeObjectURL(previewUrl);
+                                                    URL.revokeObjectURL(
+                                                        previewUrl,
+                                                    );
                                             }}
                                         />
                                     ) : null}
@@ -155,7 +173,6 @@ export default function PlacementIndex({ data }: PlacementProps) {
                             </SectionCard.Body>
                         </SectionCard>
                     </main>
-
 
                     {/* COL 3: Panel Derecho (Empresa + Requerimientos + Tabs) ── */}
                     <aside className="flex h-full w-full shrink-0 flex-col gap-4 overflow-y-auto lg:w-64 xl:w-72">
@@ -181,9 +198,10 @@ export default function PlacementIndex({ data }: PlacementProps) {
                                     </div>
                                     <Badge
                                         variant="secondary"
-                                        className={`ml-2 text-[9px] ${hasPlacement && data.placement.approval_status === 1 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}
+                                        className={`ml-2 text-[9px] ${hasPlacement && data.placement?.approval_status === 1 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}
                                     >
-                                        {hasPlacement && data.placement.approval_status === 1
+                                        {hasPlacement &&
+                                        data.placement?.approval_status === 1
                                             ? 'Aprobado'
                                             : 'Pendiente'}
                                     </Badge>
@@ -213,7 +231,7 @@ export default function PlacementIndex({ data }: PlacementProps) {
                                         Empresa
                                     </div>
                                 </SectionCard.Header>
-                                <SectionCard.Body className='flex justify-center'>
+                                <SectionCard.Body className="flex justify-center">
                                     <Button
                                         type="submit"
                                         form="form-company"
@@ -221,7 +239,7 @@ export default function PlacementIndex({ data }: PlacementProps) {
                                         className="h-9 gap-2 text-xs font-bold uppercase shadow-sm"
                                         disabled={
                                             loading ||
-                                            (data.placement &&
+                                            (!!data.placement &&
                                                 data.placement
                                                     .approval_status === 1)
                                         }
@@ -234,8 +252,8 @@ export default function PlacementIndex({ data }: PlacementProps) {
                                         {loading
                                             ? 'Guardando...'
                                             : data.placement
-                                                ? 'Guardar Cambios'
-                                                : 'Registrar Empresa'}
+                                              ? 'Guardar Cambios'
+                                              : 'Registrar Empresa'}
                                     </Button>
                                 </SectionCard.Body>
                             </SectionCard>
@@ -250,7 +268,7 @@ export default function PlacementIndex({ data }: PlacementProps) {
                                 uploading={loading}
                                 showFileInfo={{
                                     name: activeRequirement.latest?.name,
-                                    meta: "Documento adjunto",
+                                    meta: 'Documento adjunto',
                                     size: activeRequirement.latest?.size,
                                 }}
                                 onSubmit={handleSaveDocument}

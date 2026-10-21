@@ -2,11 +2,15 @@ import { router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
+import type { DocumentRequirement } from '@/modules/documents/types';
+
+import type { InternshipStep } from '@/modules/internship/types';
+
 interface UseInternshipSubmissionProps {
     initialData: {
-        steps: any[];
+        steps: InternshipStep[];
         currentStep: number;
-        requirements: any[];
+        requirements: DocumentRequirement[];
     };
     internshipId?: number;
 }
@@ -16,7 +20,7 @@ export function useInternshipSubmission({
     internshipId,
 }: UseInternshipSubmissionProps) {
     const [viewStep, setViewStep] = useState(initialData.currentStep);
-    const [selectedReqIndex, setSelectedReqIndex] = useState(0);
+    const [selectedReqIndex, setSelectedReqIndexState] = useState(0);
     const [activeTab, setActiveTab] = useState<'estado' | 'historial'>(
         'estado',
     );
@@ -28,20 +32,28 @@ export function useInternshipSubmission({
     const requirements = initialData.requirements || [];
     const currentRequirement = requirements[selectedReqIndex] || null;
 
-    // Sincronizar viewStep si la etapa real cambia
-    useEffect(() => {
+    const [previousStep, setPreviousStep] = useState(initialData.currentStep);
+    if (previousStep !== initialData.currentStep) {
+        setPreviousStep(initialData.currentStep);
         setViewStep(initialData.currentStep);
-    }, [initialData.currentStep]);
-
-    // Cleanup de archivos temporales al cambiar de requerimiento
-    useEffect(() => {
+        setSelectedReqIndexState(0);
         setIsEditing(false);
         setTempFile(null);
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-            setPreviewUrl(null);
-        }
-    }, [selectedReqIndex]);
+        setPreviewUrl(null);
+    }
+
+    useEffect(
+        () => () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        },
+        [previewUrl],
+    );
+
+    const setSelectedReqIndex = (index: number) => {
+        if (index === selectedReqIndex) return;
+        removeTempFile();
+        setSelectedReqIndexState(index);
+    };
 
     const handleStepClick = (id: number) => {
         if (id <= initialData.currentStep && id !== viewStep) {

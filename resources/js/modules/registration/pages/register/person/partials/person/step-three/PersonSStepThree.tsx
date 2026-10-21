@@ -1,3 +1,6 @@
+import type { Faculty } from '@/modules/academic';
+import type { PersonInitialState } from '@/modules/registration/pages/register/person/person.types';
+import type { RoleOption } from '@/modules/registration/types';
 function SummaryRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-center justify-between py-2 text-xs">
@@ -11,14 +14,24 @@ export function PersonSStepThree({
     data,
     roles,
     faculties,
-}: any) {
-    const getLabel = (arr: any[], id: number) =>
-        arr?.find((i) => i.id.toString() === id?.toString())?.name || '—';
+}: {
+    data: PersonInitialState;
+    roles: RoleOption[];
+    faculties: Faculty[];
+}) {
+    const getLabel = (
+        arr: { id: number; name: string }[] | undefined,
+        id: string | number,
+    ) => arr?.find((i) => i.id.toString() === id?.toString())?.name || '—';
 
-    const selectedFaculty = faculties.find((f: any) => f.id.toString() === data.faculty_id?.toString());
+    const selectedFaculty = faculties.find(
+        (f) => f.id.toString() === data.faculty_id?.toString(),
+    );
     const schoolName = getLabel(selectedFaculty?.schools, data.school_id);
 
-    const selectedSchool = selectedFaculty?.schools?.find((s: any) => s.id.toString() === data.school_id?.toString());
+    const selectedSchool = selectedFaculty?.schools?.find(
+        (s) => s.id.toString() === data.school_id?.toString(),
+    );
     const sectionName = getLabel(selectedSchool?.sections, data.section_id);
 
     return (
@@ -50,14 +63,8 @@ export function PersonSStepThree({
                         label="Facultad"
                         value={getLabel(faculties, data.faculty_id)}
                     />
-                    <SummaryRow
-                        label="Escuela"
-                        value={schoolName}
-                    />
-                    <SummaryRow
-                        label="Sección"
-                        value={sectionName}
-                    />
+                    <SummaryRow label="Escuela" value={schoolName} />
+                    <SummaryRow label="Sección" value={sectionName} />
                 </div>
             </div>
         </div>

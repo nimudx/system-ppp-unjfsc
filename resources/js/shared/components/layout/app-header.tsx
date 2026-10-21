@@ -3,7 +3,11 @@ import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
 import { dashboard } from '@/routes';
 import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import { UserMenuContent } from '@/shared/components/layout/user-menu-content';
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import {
     DropdownMenu,

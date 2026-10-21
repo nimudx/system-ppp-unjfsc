@@ -112,7 +112,9 @@ export default function CompanyRegister() {
                         </div>
                     </Link>
                     <Button variant="outline" asChild>
-                        <Link href="/login">¿Ya tienes cuenta? Inicia sesión</Link>
+                        <Link href="/login">
+                            ¿Ya tienes cuenta? Inicia sesión
+                        </Link>
                     </Button>
                 </div>
             </header>
@@ -124,11 +126,13 @@ export default function CompanyRegister() {
                             <Building2 className="h-8 w-8" />
                         </div>
                         <h1 className="max-w-2xl text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                            Registra tu empresa como entidad receptora de prácticas
+                            Registra tu empresa como entidad receptora de
+                            prácticas
                         </h1>
                         <p className="mx-auto max-w-xl text-lg text-muted-foreground">
-                            Ofrece plazas de prácticas pre profesionales a los estudiantes de la UNJFSC y gestiona
-                            todo el proceso desde un solo lugar.
+                            Ofrece plazas de prácticas pre profesionales a los
+                            estudiantes de la UNJFSC y gestiona todo el proceso
+                            desde un solo lugar.
                         </p>
                     </div>
                 </section>
@@ -152,8 +156,12 @@ export default function CompanyRegister() {
                                             <b.icon className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold">{b.title}</p>
-                                            <p className="text-xs text-muted-foreground">{b.text}</p>
+                                            <p className="text-sm font-semibold">
+                                                {b.title}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {b.text}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -166,12 +174,16 @@ export default function CompanyRegister() {
                                     ¿Qué necesitas para registrarte?
                                 </CardTitle>
                                 <CardDescription>
-                                    Ten a la mano esta información antes de completar el formulario.
+                                    Ten a la mano esta información antes de
+                                    completar el formulario.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 {requirements.map((r) => (
-                                    <div key={r} className="flex items-start gap-3 text-sm">
+                                    <div
+                                        key={r}
+                                        className="flex items-start gap-3 text-sm"
+                                    >
                                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                                         <span>{r}</span>
                                     </div>
@@ -181,7 +193,9 @@ export default function CompanyRegister() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">¿Cómo funciona?</CardTitle>
+                                <CardTitle className="text-lg">
+                                    ¿Cómo funciona?
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-5">
                                 {process.map((p, i) => (
@@ -190,8 +204,12 @@ export default function CompanyRegister() {
                                             {i + 1}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold">{p.title}</p>
-                                            <p className="text-xs text-muted-foreground">{p.text}</p>
+                                            <p className="text-sm font-semibold">
+                                                {p.title}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {p.text}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -208,16 +226,21 @@ export default function CompanyRegister() {
                         )}
 
                         {submitted ? (
-                            <Card className="animate-in fade-in text-center">
+                            <Card className="animate-in text-center fade-in">
                                 <CardContent className="flex flex-col items-center gap-4 py-12">
                                     <div className="rounded-full bg-primary/10 p-4">
                                         <CheckCircle2 className="h-10 w-10 text-primary" />
                                     </div>
                                     <div className="space-y-1">
-                                        <h2 className="text-xl font-semibold">Solicitud enviada</h2>
+                                        <h2 className="text-xl font-semibold">
+                                            Solicitud enviada
+                                        </h2>
                                         <p className="text-sm text-muted-foreground">
-                                            Un administrador revisará la información y activará el acceso de tu
-                                            empresa. Las credenciales llegarán al correo del encargado registrado.
+                                            Un administrador revisará la
+                                            información y activará el acceso de
+                                            tu empresa. Las credenciales
+                                            llegarán al correo del encargado
+                                            registrado.
                                         </p>
                                     </div>
                                     <Button asChild>
@@ -230,54 +253,98 @@ export default function CompanyRegister() {
                                 <CardHeader>
                                     <CardTitle>Datos de la empresa</CardTitle>
                                     <CardDescription>
-                                        Información legal y de contacto de la entidad receptora.
+                                        Información legal y de contacto de la
+                                        entidad receptora.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Nombre comercial</Label>
-                                        <Input id="name" placeholder="Ej. Grupo Constructor SAC" />
+                                        <Label htmlFor="name">
+                                            Nombre comercial
+                                        </Label>
+                                        <Input
+                                            id="name"
+                                            placeholder="Ej. Grupo Constructor SAC"
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="ruc">RUC</Label>
-                                        <Input id="ruc" placeholder="20123456789" maxLength={11} />
+                                        <Input
+                                            id="ruc"
+                                            placeholder="20123456789"
+                                            maxLength={11}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="razon">Razón social</Label>
-                                        <Input id="razon" placeholder="Razón social registrada en SUNAT" />
+                                        <Label htmlFor="razon">
+                                            Razón social
+                                        </Label>
+                                        <Input
+                                            id="razon"
+                                            placeholder="Razón social registrada en SUNAT"
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="address">Dirección</Label>
-                                        <Input id="address" placeholder="Av. Ejemplo 123, Huacho" />
+                                        <Label htmlFor="address">
+                                            Dirección
+                                        </Label>
+                                        <Input
+                                            id="address"
+                                            placeholder="Av. Ejemplo 123, Huacho"
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Teléfono</Label>
-                                        <Input id="phone" placeholder="01 234 5678" />
+                                        <Input
+                                            id="phone"
+                                            placeholder="01 234 5678"
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="website">Sitio web (opcional)</Label>
-                                        <Input id="website" placeholder="https://miempresa.com" />
+                                        <Label htmlFor="website">
+                                            Sitio web (opcional)
+                                        </Label>
+                                        <Input
+                                            id="website"
+                                            placeholder="https://miempresa.com"
+                                        />
                                     </div>
 
                                     <Separator />
 
                                     <div className="space-y-1">
-                                        <h3 className="text-sm font-semibold">Encargado de la cuenta</h3>
+                                        <h3 className="text-sm font-semibold">
+                                            Encargado de la cuenta
+                                        </h3>
                                         <p className="text-xs text-muted-foreground">
-                                            Esta persona recibirá las credenciales de acceso y gestionará las
-                                            postulaciones de tu empresa dentro del sistema.
+                                            Esta persona recibirá las
+                                            credenciales de acceso y gestionará
+                                            las postulaciones de tu empresa
+                                            dentro del sistema.
                                         </p>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="contact_name">Nombre completo</Label>
-                                        <Input id="contact_name" placeholder="Nombre del encargado" />
+                                        <Label htmlFor="contact_name">
+                                            Nombre completo
+                                        </Label>
+                                        <Input
+                                            id="contact_name"
+                                            placeholder="Nombre del encargado"
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="contact_position">Cargo</Label>
-                                        <Input id="contact_position" placeholder="Jefe de Recursos Humanos" />
+                                        <Label htmlFor="contact_position">
+                                            Cargo
+                                        </Label>
+                                        <Input
+                                            id="contact_position"
+                                            placeholder="Jefe de Recursos Humanos"
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="contact_email">Correo electrónico</Label>
+                                        <Label htmlFor="contact_email">
+                                            Correo electrónico
+                                        </Label>
                                         <Input
                                             id="contact_email"
                                             type="email"
@@ -285,20 +352,30 @@ export default function CompanyRegister() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="contact_phone">Teléfono directo</Label>
-                                        <Input id="contact_phone" placeholder="987 654 321" />
+                                        <Label htmlFor="contact_phone">
+                                            Teléfono directo
+                                        </Label>
+                                        <Input
+                                            id="contact_phone"
+                                            placeholder="987 654 321"
+                                        />
                                     </div>
                                 </CardContent>
                                 <CardFooter className="justify-end">
-                                    <Button onClick={() => setStep(2)}>Continuar</Button>
+                                    <Button onClick={() => setStep(2)}>
+                                        Continuar
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         ) : (
                             <Card className="animate-in fade-in">
                                 <CardHeader>
-                                    <CardTitle>Resumen de la solicitud</CardTitle>
+                                    <CardTitle>
+                                        Resumen de la solicitud
+                                    </CardTitle>
                                     <CardDescription>
-                                        Verifica que los datos sean correctos antes de enviar.
+                                        Verifica que los datos sean correctos
+                                        antes de enviar.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -308,18 +385,25 @@ export default function CompanyRegister() {
                                                 key={label}
                                                 className="flex items-center justify-between text-sm"
                                             >
-                                                <span className="text-muted-foreground">{label}</span>
-                                                <span className="font-medium">—</span>
+                                                <span className="text-muted-foreground">
+                                                    {label}
+                                                </span>
+                                                <span className="font-medium">
+                                                    —
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        * Vista de diseño: aquí se mostrarán los datos ingresados en el paso
-                                        anterior.
+                                        * Vista de diseño: aquí se mostrarán los
+                                        datos ingresados en el paso anterior.
                                     </p>
                                 </CardContent>
                                 <CardFooter className="justify-between">
-                                    <Button variant="outline" onClick={() => setStep(1)}>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setStep(1)}
+                                    >
                                         Editar
                                     </Button>
                                     <Button onClick={() => setSubmitted(true)}>
@@ -331,7 +415,8 @@ export default function CompanyRegister() {
 
                         <p className="text-center text-xs text-muted-foreground">
                             <FileText className="mr-1 inline h-3 w-3" />
-                            Tu solicitud será revisada por un administrador antes de activar el acceso.
+                            Tu solicitud será revisada por un administrador
+                            antes de activar el acceso.
                         </p>
                     </div>
                 </section>

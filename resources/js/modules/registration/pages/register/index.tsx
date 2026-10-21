@@ -1,9 +1,10 @@
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
+import type { RoleOption } from '@/modules/registration/types';
 import Heading from '@/shared/components/heading';
 import AppLayout from '@/shared/layouts/app-layout';
-import { type BreadcrumbItem } from "@/shared/types";
+import { type BreadcrumbItem } from '@/shared/types';
 
 // Layouts & UI Base
 
@@ -15,12 +16,14 @@ import { ToggleGroup } from './components/ToggleGroup';
 import { PersonFlow } from './person/PersonFlow';
 
 interface PageProps {
-    roles: any[];
+    roles: RoleOption[];
     faculties: Faculty[];
 }
 
 export default function UserRegistration(props: PageProps) {
-    const [entityType, setEntityType] = useState<'persona' | 'empresa'>('persona');
+    const [entityType, setEntityType] = useState<'persona' | 'empresa'>(
+        'persona',
+    );
     const [mode, setMode] = useState<'individual' | 'masivo'>('individual');
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -30,7 +33,10 @@ export default function UserRegistration(props: PageProps) {
     ];
 
     if (mode) {
-        breadcrumbs.push({ title: mode === 'individual' ? 'Individual' : 'Masivo', href: '#' });
+        breadcrumbs.push({
+            title: mode === 'individual' ? 'Individual' : 'Masivo',
+            href: '#',
+        });
     }
 
     const handleEntityChange = (type: 'persona' | 'empresa') => {
@@ -54,7 +60,7 @@ export default function UserRegistration(props: PageProps) {
                         onChange={handleEntityChange}
                         options={[
                             { code: 'persona', title: 'Persona' },
-                            { code: 'empresa', title: 'Empresa' }
+                            { code: 'empresa', title: 'Empresa' },
                         ]}
                     />
                 </div>
@@ -62,9 +68,12 @@ export default function UserRegistration(props: PageProps) {
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
                         <div>
-
                             {entityType === 'persona' && (
-                                <PersonFlow {...props} mode={mode} onBack={() => { }} />
+                                <PersonFlow
+                                    {...props}
+                                    mode={mode}
+                                    onBack={() => {}}
+                                />
                             )}
 
                             {entityType === 'empresa' && (

@@ -1,3 +1,7 @@
+# Diseño de referencia del backend
+
+La reorganización del código existente se describe en [BackendMigration.md](BackendMigration.md). Los elementos marcados como nuevos son propuestas; sus carpetas están reservadas sin implementar funcionalidades.
+
 📁 system-ppp-unjfsc
 ├── 📁 app
 │   │

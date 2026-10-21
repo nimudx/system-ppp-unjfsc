@@ -1,5 +1,5 @@
 import { CheckCircle2 } from 'lucide-react';
-import { Fragment } from "react";
+import { Fragment } from 'react';
 import { cn } from '@/shared/lib/utils';
 
 interface StepItem {
@@ -28,11 +28,11 @@ function StepBadge({
                 className={cn(
                     'flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold transition-all',
                     status === 'completed' &&
-                    'border-primary bg-primary text-primary-foreground',
+                        'border-primary bg-primary text-primary-foreground',
                     status === 'active' &&
-                    'border-primary text-primary bg-background',
+                        'border-primary bg-background text-primary',
                     status === 'pending' &&
-                    'border-border text-muted-foreground bg-background',
+                        'border-border bg-background text-muted-foreground',
                 )}
             >
                 {status === 'completed' ? (
@@ -65,7 +65,6 @@ function StepConnector({ completed }: { completed: boolean }) {
     );
 }
 
-
 export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
     return (
         <div className="flex items-center gap-2">
@@ -73,24 +72,27 @@ export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
                 const isCompleted = currentStep > step.id;
                 const isActive = currentStep === step.id;
 
-                const status: 'active' | 'completed' | 'pending' =
-                    isCompleted ? 'completed' : isActive ? 'active' : 'pending';
+                const status: 'active' | 'completed' | 'pending' = isCompleted
+                    ? 'completed'
+                    : isActive
+                      ? 'active'
+                      : 'pending';
 
                 const canClick = onStepClick && (isCompleted || isActive);
 
                 return (
                     <Fragment key={step.id}>
                         {i > 0 && (
-                            <StepConnector
-                                completed={currentStep >= step.id}
-                            />
+                            <StepConnector completed={currentStep >= step.id} />
                         )}
 
                         <div
                             onClick={() => canClick && onStepClick(step.id)}
                             className={cn(
-                                "transition-all duration-200",
-                                canClick ? "cursor-pointer hover:opacity-80 active:scale-95" : "cursor-default"
+                                'transition-all duration-200',
+                                canClick
+                                    ? 'cursor-pointer hover:opacity-80 active:scale-95'
+                                    : 'cursor-default',
                             )}
                         >
                             <StepBadge

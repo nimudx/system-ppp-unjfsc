@@ -22,18 +22,28 @@ interface Props {
 
 const AVAILABLE_SECTION_NAMES = ['A', 'B', 'C', 'D'];
 
-export default function ManageSectionsModal({ school, open, onOpenChange }: Props) {
+export default function ManageSectionsModal({
+    school,
+    open,
+    onOpenChange,
+}: Props) {
     if (!school) return null;
 
     const currentSections = school.sections || [];
-    const currentNames = currentSections.map(s => s.name);
-    const pendingNames = AVAILABLE_SECTION_NAMES.filter(name => !currentNames.includes(name));
+    const currentNames = currentSections.map((s) => s.name);
+    const pendingNames = AVAILABLE_SECTION_NAMES.filter(
+        (name) => !currentNames.includes(name),
+    );
 
     const handleAdd = (name: string) => {
-        router.post(store({ school: school.id }).url, { name }, {
-            preserveScroll: true,
-            preserveState: true,
-        });
+        router.post(
+            store({ school: school.id }).url,
+            { name },
+            {
+                preserveScroll: true,
+                preserveState: true,
+            },
+        );
     };
 
     const handleRemove = (sectionId: number) => {
@@ -49,14 +59,18 @@ export default function ManageSectionsModal({ school, open, onOpenChange }: Prop
                 <DialogHeader>
                     <DialogTitle>Gestionar Secciones</DialogTitle>
                     <DialogDescription>
-                        Añade o quita secciones para <span className="font-bold text-foreground">{school.name}</span> en el semestre actual.
+                        Añade o quita secciones para{' '}
+                        <span className="font-bold text-foreground">
+                            {school.name}
+                        </span>{' '}
+                        en el semestre actual.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
                     {/* List Current Sections */}
                     <div className="space-y-3">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        <Label className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                             Secciones Actuales
                         </Label>
                         <div className="flex flex-wrap gap-2">
@@ -65,13 +79,15 @@ export default function ManageSectionsModal({ school, open, onOpenChange }: Prop
                                     <Badge
                                         key={section.id}
                                         variant="outline"
-                                        className="flex items-center gap-1.5 py-1.5 pl-3 pr-1 text-sm font-semibold"
+                                        className="flex items-center gap-1.5 py-1.5 pr-1 pl-3 text-sm font-semibold"
                                     >
                                         Sección {section.name}
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => handleRemove(section.id)}
+                                            onClick={() =>
+                                                handleRemove(section.id)
+                                            }
                                             className="h-5 w-5 rounded-full hover:bg-destructive hover:text-white"
                                         >
                                             <X className="h-3 w-3" />
@@ -79,7 +95,7 @@ export default function ManageSectionsModal({ school, open, onOpenChange }: Prop
                                     </Badge>
                                 ))
                             ) : (
-                                <p className="text-sm italic text-muted-foreground">
+                                <p className="text-sm text-muted-foreground italic">
                                     No hay secciones asignadas.
                                 </p>
                             )}
@@ -88,7 +104,7 @@ export default function ManageSectionsModal({ school, open, onOpenChange }: Prop
 
                     {/* Add New Sections */}
                     <div className="space-y-3">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        <Label className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                             Añadir Sección
                         </Label>
                         <div className="flex flex-wrap gap-2">
@@ -106,8 +122,9 @@ export default function ManageSectionsModal({ school, open, onOpenChange }: Prop
                                     </Button>
                                 ))
                             ) : (
-                                <p className="text-sm italic text-muted-foreground">
-                                    Todas las secciones posibles han sido añadidas.
+                                <p className="text-sm text-muted-foreground italic">
+                                    Todas las secciones posibles han sido
+                                    añadidas.
                                 </p>
                             )}
                         </div>

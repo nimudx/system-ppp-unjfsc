@@ -5,7 +5,7 @@ export interface StepItem {
 
 export const getRegistrationSteps = (
     entityType: 'persona' | 'empresa',
-    mode: 'individual' | 'masivo'
+    mode: 'individual' | 'masivo',
 ): StepItem[] => {
     if (entityType === 'empresa') {
         return [
@@ -26,6 +26,6 @@ export const getRegistrationSteps = (
     return [
         { id: 1, label: 'Configuración' },
         { id: 2, label: 'Resumen' },
-        { id: 3, label: 'Reporte' }
+        { id: 3, label: 'Reporte' },
     ];
 };

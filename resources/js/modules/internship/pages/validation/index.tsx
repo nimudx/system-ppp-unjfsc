@@ -1,7 +1,10 @@
 import { Head } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import { User, ChevronRight, Building2, Loader2 } from 'lucide-react';
+import type { Faculty } from '@/modules/academic';
 import { DetailHeader } from '@/modules/documents';
+
+import type { InternshipAssignment } from '@/modules/internship/types';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -15,14 +18,15 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
+import type { TableData } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
 import { useValidation } from './hooks/use-validation';
 import InternshipDetail from './partials/internship-detail';
 import PlacementDetail from './partials/placement-detail';
 
 interface Props {
-    assignments: any;
-    faculties?: any[];
+    assignments: TableData<InternshipAssignment>;
+    faculties?: Faculty[];
     title: string;
 }
 
@@ -31,7 +35,7 @@ export default function InternshipValidationIndex({
     faculties = [],
     title,
 }: Props) {
-    const { role } = usePage().props as any;
+    const { role } = usePage().props;
     const isAdmin = [1, 2].includes(Number(role));
 
     const { tableManager, state, actions } = useValidation({
@@ -77,9 +81,7 @@ export default function InternshipValidationIndex({
                                     faculties={faculties}
                                     onFilter={tableManager.handleFilter}
                                     isLoading={tableManager.isSearching}
-                                    initialValues={
-                                        tableManager.activeFilters as any
-                                    }
+                                    initialValues={tableManager.activeFilters}
                                 />
                             )}
                             <AcademicSearch
@@ -136,137 +138,130 @@ export default function InternshipValidationIndex({
                                 </TableHeader>
                                 <TableBody>
                                     {tableManager.displayData.length > 0 ? (
-                                        tableManager.displayData.map(
-                                            (item: any) => (
-                                                <TableRow
-                                                    key={item.id}
-                                                    onClick={() =>
-                                                        actions.handleSelect(
-                                                            item.id,
-                                                        )
-                                                    }
-                                                    className={`group cursor-pointer transition-colors ${state.selectedId === item.id ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
-                                                >
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex size-8 items-center justify-center rounded-full bg-muted">
-                                                                <User className="size-4 text-muted-foreground" />
-                                                            </div>
-                                                            <div className="flex flex-col overflow-hidden">
-                                                                <span className="max-w-37.5 truncate text-xs font-bold uppercase lg:max-w-none">
+                                        tableManager.displayData.map((item) => (
+                                            <TableRow
+                                                key={item.id}
+                                                onClick={() =>
+                                                    actions.handleSelect(
+                                                        item.id,
+                                                    )
+                                                }
+                                                className={`group cursor-pointer transition-colors ${state.selectedId === item.id ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
+                                            >
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex size-8 items-center justify-center rounded-full bg-muted">
+                                                            <User className="size-4 text-muted-foreground" />
+                                                        </div>
+                                                        <div className="flex flex-col overflow-hidden">
+                                                            <span className="max-w-37.5 truncate text-xs font-bold uppercase lg:max-w-none">
+                                                                {
+                                                                    item.user
+                                                                        ?.person
+                                                                        ?.surnames
+                                                                }{' '}
+                                                                {
+                                                                    item.user
+                                                                        ?.person
+                                                                        ?.names
+                                                                }
+                                                            </span>
+                                                            {!state.selectedId ? (
+                                                                <span className="truncate text-[10px] text-muted-foreground">
                                                                     {
                                                                         item
                                                                             .user
-                                                                            ?.person
-                                                                            ?.surnames
-                                                                    }{' '}
-                                                                    {
-                                                                        item
-                                                                            .user
-                                                                            ?.person
-                                                                            ?.names
+                                                                            ?.email
                                                                     }
                                                                 </span>
-                                                                {!state.selectedId ? (
+                                                            ) : (
+                                                                <div className="flex gap-2">
                                                                     <span className="truncate text-[10px] text-muted-foreground">
                                                                         {
                                                                             item
-                                                                                .user
-                                                                                ?.email
+                                                                                .section
+                                                                                ?.school
+                                                                                ?.name
                                                                         }
                                                                     </span>
-                                                                ) : (
-                                                                    <div className="flex gap-2">
-                                                                        <span className="truncate text-[10px] text-muted-foreground">
-                                                                            {
-                                                                                item
-                                                                                    .section
-                                                                                    ?.school
-                                                                                    ?.name
-                                                                            }
-                                                                        </span>
-                                                                        <span className="truncate text-[10px] text-muted-foreground">
-                                                                            -{' '}
-                                                                            {
-                                                                                item
-                                                                                    .section
-                                                                                    ?.name
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
+                                                                    <span className="truncate text-[10px] text-muted-foreground">
+                                                                        -{' '}
+                                                                        {
+                                                                            item
+                                                                                .section
+                                                                                ?.name
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    </TableCell>
+                                                    </div>
+                                                </TableCell>
 
-                                                    {/* Columnas que desaparecen en modo split */}
-                                                    {!state.selectedId && (
-                                                        <>
-                                                            <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
-                                                                {item.section
-                                                                    ?.school
-                                                                    ?.faculty
-                                                                    ?.name ||
-                                                                    'N/A'}
-                                                            </TableCell>
-                                                            <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
-                                                                {item.section
-                                                                    ?.school
-                                                                    ?.name ||
-                                                                    'N/A'}
-                                                            </TableCell>
-                                                            <TableCell className="hidden font-bold lg:table-cell">
-                                                                {item.section
-                                                                    ?.name ||
-                                                                    'N/A'}
-                                                            </TableCell>
-                                                        </>
+                                                {/* Columnas que desaparecen en modo split */}
+                                                {!state.selectedId && (
+                                                    <>
+                                                        <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
+                                                            {item.section
+                                                                ?.school
+                                                                ?.faculty
+                                                                ?.name || 'N/A'}
+                                                        </TableCell>
+                                                        <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
+                                                            {item.section
+                                                                ?.school
+                                                                ?.name || 'N/A'}
+                                                        </TableCell>
+                                                        <TableCell className="hidden font-bold lg:table-cell">
+                                                            {item.section
+                                                                ?.name || 'N/A'}
+                                                        </TableCell>
+                                                    </>
+                                                )}
+
+                                                <TableCell className="text-center">
+                                                    {!item.placement ? (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-none bg-slate-100 text-[9px] font-bold text-slate-500"
+                                                        >
+                                                            NO INICIADO
+                                                        </Badge>
+                                                    ) : item.placement
+                                                          ?.approval_status ===
+                                                      1 ? (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-none bg-green-500 text-[9px] font-bold text-white"
+                                                        >
+                                                            PROCESO
+                                                        </Badge>
+                                                    ) : item.placement
+                                                          ?.approval_status ===
+                                                      3 ? (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-none bg-red-500 text-[9px] font-bold text-white"
+                                                        >
+                                                            OBSERVADO
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-none bg-amber-500 text-[9px] font-bold text-white uppercase"
+                                                        >
+                                                            Formalización
+                                                        </Badge>
                                                     )}
+                                                </TableCell>
 
-                                                    <TableCell className="text-center">
-                                                        {!item.placement ? (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="border-none bg-slate-100 text-[9px] font-bold text-slate-500"
-                                                            >
-                                                                NO INICIADO
-                                                            </Badge>
-                                                        ) : item.placement
-                                                              ?.approval_status ===
-                                                          1 ? (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="border-none bg-green-500 text-[9px] font-bold text-white"
-                                                            >
-                                                                PROCESO
-                                                            </Badge>
-                                                        ) : item.placement
-                                                              ?.approval_status ===
-                                                          3 ? (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="border-none bg-red-500 text-[9px] font-bold text-white"
-                                                            >
-                                                                OBSERVADO
-                                                            </Badge>
-                                                        ) : (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="border-none bg-amber-500 text-[9px] font-bold text-white uppercase"
-                                                            >
-                                                                Formalización
-                                                            </Badge>
-                                                        )}
-                                                    </TableCell>
-
-                                                    <TableCell className="text-right">
-                                                        <ChevronRight
-                                                            className={`size-4 text-muted-foreground transition-transform ${state.selectedId === item.id ? 'rotate-180 text-primary' : ''}`}
-                                                        />
-                                                    </TableCell>
-                                                </TableRow>
-                                            ),
-                                        )
+                                                <TableCell className="text-right">
+                                                    <ChevronRight
+                                                        className={`size-4 text-muted-foreground transition-transform ${state.selectedId === item.id ? 'rotate-180 text-primary' : ''}`}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
                                     ) : (
                                         <TableRow>
                                             <TableCell
@@ -284,11 +279,9 @@ export default function InternshipValidationIndex({
                             <AcademicPagination
                                 isAdmin={isAdmin}
                                 isLoading={tableManager.isSearching}
-                                links={(tableManager.data as any)?.links}
-                                total={(tableManager.data as any)?.total}
-                                showing={
-                                    (tableManager.data as any)?.data?.length
-                                }
+                                links={tableManager.pagination?.links}
+                                total={tableManager.pagination?.total}
+                                showing={tableManager.pagination?.data?.length}
                                 onPageChange={tableManager.handlePageChange}
                                 currentPage={tableManager.localPage}
                                 totalPages={tableManager.localTotalPages}

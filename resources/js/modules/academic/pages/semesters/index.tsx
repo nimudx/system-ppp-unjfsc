@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { usePage } from '@inertiajs/react';
 import { Pencil, Calendar, Plus, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import type { Semester } from '@/modules/academic/types';
@@ -28,7 +27,6 @@ interface Props {
 }
 
 export default function Semesters({ semesters }: Props) {
-    const { role } = usePage().props as any;
     const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
         null,
     );
@@ -43,15 +41,15 @@ export default function Semesters({ semesters }: Props) {
         localPage,
         setLocalPage,
         localTotalPages,
-        handlePageChange
+        handlePageChange,
     } = useAcademicTable<Semester>({
         endpoint: '',
         initialData: semesters,
         isAdmin: false,
         pageSize: 10,
-        localSearchFn: (semester, search) => 
-            semester.code.toLowerCase().includes(search) || 
-            semester.cycle.toLowerCase().includes(search)
+        localSearchFn: (semester, search) =>
+            semester.code.toLowerCase().includes(search) ||
+            semester.cycle.toLowerCase().includes(search),
     });
 
     const formatId = (id: number) => `#${id.toString().padStart(3, '0')}`;
@@ -95,7 +93,7 @@ export default function Semesters({ semesters }: Props) {
 
                 <div className="flex items-center justify-start">
                     <AcademicSearch
-                        role={role}
+                        isAdmin={false}
                         search={search}
                         setSearch={setSearch}
                     />

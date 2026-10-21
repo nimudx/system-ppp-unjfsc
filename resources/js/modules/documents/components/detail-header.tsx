@@ -1,13 +1,17 @@
-import { Building2, User, X } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { SectionCard } from "@/shared/components/ui/section-card";
+import { Building2, User, X } from 'lucide-react';
+
+import { Button } from '@/shared/components/ui/button';
+import { SectionCard } from '@/shared/components/ui/section-card';
 
 export function DetailHeader({
     selectedItem,
     handleCloseSelected,
     children,
 }: {
-    selectedItem: any;
+    selectedItem: {
+        user?: { person?: { names: string; surnames: string } };
+        section?: { name: string; school?: { name: string } } | null;
+    };
     handleCloseSelected: () => void;
     children?: React.ReactNode;
 }) {
@@ -20,31 +24,26 @@ export function DetailHeader({
                     </div>
                     <div className="flex flex-col">
                         <h2 className="text-sm leading-none font-bold tracking-tight uppercase">
-                            {
-                                selectedItem.user
-                                    ?.person?.surnames
-                            }
-                            ,{' '}
-                            {
-                                selectedItem.user
-                                    ?.person?.names
-                            }
+                            {selectedItem.user?.person?.surnames},{' '}
+                            {selectedItem.user?.person?.names}
                         </h2>
                         <span className="mt-1 flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
                             <Building2 className="size-3 text-primary/60" />
-                            {
-                                selectedItem.section
-                                    ?.school?.name
-                            }{' '}
-                            • {selectedItem?.section?.name}
+                            {selectedItem.section?.school?.name} •{' '}
+                            {selectedItem?.section?.name}
                             {children}
                         </span>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" className="size-8 hover:bg-stone-200/50" onClick={handleCloseSelected}>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 hover:bg-stone-200/50"
+                    onClick={handleCloseSelected}
+                >
                     <X className="size-4" />
                 </Button>
             </div>
         </SectionCard>
-    )
+    );
 }

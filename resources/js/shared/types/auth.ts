@@ -1,9 +1,11 @@
+import type { Semester } from '@/modules/academic';
+import type { NotificationSummary } from '@/modules/notifications/types';
 export type Assignment = {
     id: number;
     role: string;
     initials: string;
     context: string;
-    color: string;
+    color?: string;
     selected: boolean;
 };
 
@@ -25,6 +27,14 @@ export type User = {
 
 export type Auth = {
     user: User;
+    profiles?: { academic: Assignment[]; staff: Assignment[] };
+    academic?: {
+        semesters: Semester[];
+        assignments: Assignment[];
+        role_id: number | null;
+        selected_semester_id: number | null;
+    };
+    notifications?: NotificationSummary[];
 };
 
 export type TwoFactorSetupData = {

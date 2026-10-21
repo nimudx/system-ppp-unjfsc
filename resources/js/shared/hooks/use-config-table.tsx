@@ -1,3 +1,5 @@
+import axios from 'axios';
+import { useCallback, useRef } from 'react';
 /**
  * Hook custom main for paginate and filtering table.
  * @param endpoint - API endpoint.
@@ -6,21 +8,24 @@
  * @param pageSize - Page size.
  * @param extraParams - Additional parameters.
  * @param onLocalSearch - Local search function.
- * 
+ *
  * Maintain synchronize the URL of the address bar with the state of the paginator and filters.
- * 
+ *
  * Att: Ing. Martin Nicasio
  * P.D. Explain well to Geppeto...
  */
 
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import type { AcademicFilterValues } from '@/shared/components/data-table/academic-filter';
 
 export interface PaginatedResponse<T> {
     data?: T[];
-    students?: T[];
-    assignments?: T[];
+    students?: TableData<T>;
+    assignments?: TableData<T>;
+    groups?: TableData<T>;
+    path?: string;
+    links?: { url: string | null; label: string; active: boolean }[];
     current_page?: number;
     last_page?: number;
     total?: number;
@@ -47,48 +52,94 @@ export function useConfigTable<T>({
     onLocalSearch,
 }: UseConfigTableOptions<T>) {
     const getInitialParams = () => {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(
+            typeof window === 'undefined' ? '' : window.location.search,
+        );
         const search = params.get('search') || '';
         const page = parseInt(params.get('page') || '1', 10);
 
         // Capturar filtros académicos comunes
-        const filters: Record<string, any> = {};
-        ['faculty_id', 'school_id', 'section_id'].forEach(key => {
+        const filters: AcademicFilterValues = {
+            faculty_id: '',
+            school_id: '',
+            section_id: '',
+        };
+        ['faculty_id', 'school_id', 'section_id'].forEach((key) => {
             const val = params.get(key);
             if (val) filters[key] = val;
         });
 
-        return { search, page, filters: Object.keys(filters).length > 0 ? filters : null };
+        return {
+            search,
+            page,
+            filters: Object.values(filters).some(Boolean) ? filters : null,
+        };
     };
 
-    const initialParams = getInitialParams();
+    const [initialParams] = useState(getInitialParams);
 
     const [data, setData] = useState<TableData<T>>(initialData);
     const [isSearching, setIsSearching] = useState(false);
     const [search, setSearch] = useState(initialParams.search);
-    const [activeFilters, setActiveFilters] = useState<Record<
-        string,
-        unknown
-    > | null>(initialParams.filters);
+    const [activeFilters, setActiveFilters] =
+        useState<AcademicFilterValues | null>(initialParams.filters);
     const [filterClearKey, setFilterClearKey] = useState(0);
     const [localPage, setLocalPage] = useState(initialParams.page);
 
     const isLocalPagination = Array.isArray(data);
 
+    const requestConfig = useRef({ endpoint, extraParams });
+    useEffect(() => {
+        requestConfig.current = { endpoint, extraParams };
+    }, [endpoint, extraParams]);
+    const fetchData = useCallback(
+        async (url?: string, params: Record<string, unknown> = {}) => {
+            const {
+                endpoint: currentEndpoint,
+                extraParams: currentExtraParams,
+            } = requestConfig.current;
+            const targetUrl = url ?? currentEndpoint;
+            try {
+                setIsSearching(true);
+                const mergedParams = { ...currentExtraParams, ...params };
+                const res = await axios.get(targetUrl, {
+                    params: mergedParams,
+                });
+
+                const responseData = res.data as PaginatedResponse<T>;
+                const result =
+                    responseData.groups ||
+                    responseData.assignments ||
+                    responseData.students ||
+                    responseData.data ||
+                    responseData;
+                setData(result as TableData<T>);
+            } catch {
+                toast.error('Error al obtener los datos.');
+            } finally {
+                setIsSearching(false);
+            }
+        },
+        [],
+    );
+
     // --- Initial Load for Admins (Deep Linking) ---
     useEffect(() => {
         if (isAdmin) {
             // If there is something in the URL that is not the default, we load data
-            const hasParams = initialParams.search || initialParams.page > 1 || initialParams.filters;
+            const hasParams =
+                initialParams.search ||
+                initialParams.page > 1 ||
+                initialParams.filters;
             if (hasParams) {
                 fetchData(endpoint, {
                     page: initialParams.page,
                     search: initialParams.search,
-                    ...initialParams.filters
+                    ...initialParams.filters,
                 });
             }
         }
-    }, []);
+    }, [isAdmin, initialParams, endpoint, fetchData]);
 
     // --- Synchronization with URL (Deep Linking) ---
     useEffect(() => {
@@ -98,7 +149,7 @@ export function useConfigTable<T>({
         if (search.trim()) {
             url.searchParams.set('search', search);
             // If there is a search, we aggressively clean the URL filters
-            academicKeys.forEach(key => url.searchParams.delete(key));
+            academicKeys.forEach((key) => url.searchParams.delete(key));
         } else {
             url.searchParams.delete('search');
         }
@@ -107,13 +158,13 @@ export function useConfigTable<T>({
         else url.searchParams.delete('page');
 
         if (activeFilters && !search.trim()) {
-            academicKeys.forEach(key => {
+            academicKeys.forEach((key) => {
                 const val = activeFilters[key];
                 if (val) url.searchParams.set(key, val.toString());
                 else url.searchParams.delete(key);
             });
         } else if (!activeFilters) {
-            academicKeys.forEach(key => url.searchParams.delete(key));
+            academicKeys.forEach((key) => url.searchParams.delete(key));
         }
 
         window.history.replaceState({}, '', url.toString());
@@ -129,31 +180,7 @@ export function useConfigTable<T>({
         }
     }, [initialData, isAdmin]);
 
-    const fetchData = async (
-        url: string = endpoint,
-        params: Record<string, unknown> = {},
-    ) => {
-        try {
-            setIsSearching(true);
-            const mergedParams = { ...extraParams, ...params };
-            const res = await axios.get(url, { params: mergedParams });
-
-            const responseData = res.data as PaginatedResponse<T>;
-            const result =
-                responseData.groups ||
-                responseData.assignments ||
-                responseData.students ||
-                responseData.data ||
-                responseData;
-            setData(result as TableData<T>);
-        } catch {
-            toast.error('Error al obtener los datos.');
-        } finally {
-            setIsSearching(false);
-        }
-    };
-
-    const handleFilter = (values: Record<string, unknown>) => {
+    const handleFilter = (values: AcademicFilterValues) => {
         const isEmpty = Object.values(values).every((v) => !v);
         if (isEmpty) {
             // If admin and empty, we send an object with empty data to comply with the type
@@ -197,9 +224,9 @@ export function useConfigTable<T>({
     // --- Data Computation ---
     const allLocalFiltered = isLocalPagination
         ? (data as T[]).filter((item: T) => {
-            if (!search.trim()) return true;
-            return onLocalSearch(item, search.toLowerCase());
-        })
+              if (!search.trim()) return true;
+              return onLocalSearch(item, search.toLowerCase());
+          })
         : [];
 
     const localTotalPages = isLocalPagination
@@ -208,9 +235,9 @@ export function useConfigTable<T>({
 
     const displayData: T[] = isLocalPagination
         ? allLocalFiltered.slice(
-            (localPage - 1) * pageSize,
-            localPage * pageSize,
-        )
+              (localPage - 1) * pageSize,
+              localPage * pageSize,
+          )
         : (data as PaginatedResponse<T>)?.data || [];
 
     return {
@@ -220,7 +247,8 @@ export function useConfigTable<T>({
         isSearching,
         search,
         setSearch,
-        activeFilters,
+        activeFilters: activeFilters ?? undefined,
+        pagination: Array.isArray(data) ? undefined : data,
         filterClearKey,
         setFilterClearKey,
         localPage,

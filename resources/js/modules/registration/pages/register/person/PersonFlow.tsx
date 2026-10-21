@@ -1,9 +1,10 @@
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Stepper } from '@/shared/components/stepper';
 import { Button } from '@/shared/components/ui/button';
+import { apiErrorBody } from '@/shared/lib/api-error';
 import { RegistrationModeSelector } from '../components/RegistrationModeSelector';
 import { getRegistrationSteps } from '../components/steps.config';
 
@@ -11,6 +12,7 @@ import { PersonVStepOne } from './partials/person/step-one/PersonVStepOne';
 import type { PersonInitValues } from './partials/person/step-one/schema';
 import { PersonSStepThree } from './partials/person/step-three/PersonSStepThree';
 import { PersonFStepTwo } from './partials/person/step-two/PersonFStepTwo';
+import type { PersonValues } from './partials/person/step-two/schema';
 import { MassiveVStepOne } from './partials/person-massive/step-one/MassiveVStepOne';
 import type { MassivePersonInitValues } from './partials/person-massive/step-one/schema';
 import { MassiveRStepThree } from './partials/person-massive/step-three/MassiveRStepThree';
@@ -18,11 +20,7 @@ import { MassiveSStepTwo } from './partials/person-massive/step-two/MassiveSStep
 import { personService } from './person.service';
 import type { PersonFlowProps, PersonInitialState } from './person.types';
 
-export function PersonFlow({
-    roles,
-    faculties,
-    mode,
-}: PersonFlowProps) {
+export function PersonFlow({ roles, faculties, mode }: PersonFlowProps) {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [searchDni, setSearchDni] = useState('');
@@ -30,7 +28,8 @@ export function PersonFlow({
 
     const steps = getRegistrationSteps('persona', currentMode);
 
-    const defaultFacultyId = faculties?.length === 1 ? faculties[0].id.toString() : '';
+    const defaultFacultyId =
+        faculties?.length === 1 ? faculties[0].id.toString() : '';
 
     // Solo autollenar escuela si hay una única facultad y esa facultad tiene una única escuela
     const defaultSchoolId =
@@ -86,7 +85,7 @@ export function PersonFlow({
 
             setData((prev) => ({
                 ...prev,
-                person_exists: result.user_exists,
+                person_exists: result.user_exists ?? false,
                 user_id: result.user_id ?? null,
                 person_id: result.person?.id ?? null,
                 names: result.person?.names ?? prev.names,
@@ -95,10 +94,8 @@ export function PersonFlow({
             }));
 
             setStep(2);
-        } catch (error: any) {
-            toast.error(
-                error.response?.data?.message ?? 'Error en la solicitud',
-            );
+        } catch (error) {
+            toast.error(apiErrorBody(error).message ?? 'Error en la solicitud');
         } finally {
             setIsLoading(false);
         }
@@ -124,22 +121,22 @@ export function PersonFlow({
             setData((prev) => ({
                 ...prev,
                 dni: searchDni,
-                person_exists: result.person_exists,
+                person_exists: result.person_exists ?? false,
                 person_id: result.person?.id ?? null,
                 names: result.person?.names ?? '',
                 surnames: result.person?.surnames ?? '',
             }));
             setSearchDni('');
-        } catch (error: any) {
+        } catch (error) {
             toast.error(
-                error.response?.data?.message ?? 'Error al consultar DNI',
+                apiErrorBody(error).message ?? 'Error al consultar DNI',
             );
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleStepTwo = (values: any) => {
+    const handleStepTwo = (values: PersonValues) => {
         setData((prev: PersonInitialState) => ({
             ...prev,
             ...values,
@@ -168,9 +165,9 @@ export function PersonFlow({
                 reset();
                 setStep(1);
             },
-            onError: (error: any) => {
+            onError: (error) => {
                 toast.error(
-                    error.response?.data?.message ?? 'Error en la solicitud',
+                    apiErrorBody(error).message ?? 'Error en la solicitud',
                 );
             },
         });
@@ -215,9 +212,9 @@ export function PersonFlow({
             }));
 
             setStep(3);
-        } catch (error: any) {
-            const serverMessage = error.response?.data?.message;
-            const validationErrors = error.response?.data?.errors;
+        } catch (error) {
+            const serverMessage = apiErrorBody(error).message;
+            const validationErrors = apiErrorBody(error).errors;
 
             if (validationErrors) {
                 toast.error(
@@ -352,7 +349,7 @@ export function PersonFlow({
                                 </div>
                             </div>
                         )}
-                        {currentMode === 'masivo' && (
+                        {currentMode === 'masivo' && data.report && (
                             <MassiveRStepThree
                                 report={data.report}
                                 onFinish={handleProcessComplete}

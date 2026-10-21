@@ -1,17 +1,17 @@
-import { ChevronDown, CheckCircle2, Clock, Lock } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { ChevronDown, CheckCircle2, Clock, Lock } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+} from '@/shared/components/ui/dropdown-menu';
 
 const TOTAL_MODULES = 4;
 
 export interface ModuleOption {
     id: number;
     label: string;
-    status: "completed" | "current" | "locked";
+    status: 'completed' | 'current' | 'locked';
 }
 
 interface ModuleSelectorProps {
@@ -25,35 +25,35 @@ interface ModuleSelectorProps {
 
 const statusConfig = {
     completed: {
-        label: "Completado",
+        label: 'Completado',
         icon: CheckCircle2,
-        iconClass: "text-green-500",
-        badgeClass: "bg-green-500/10 text-green-700",
-        rowClass: "hover:bg-muted/60",
+        iconClass: 'text-green-500',
+        badgeClass: 'bg-green-500/10 text-green-700',
+        rowClass: 'hover:bg-muted/60',
     },
     current: {
-        label: "Pendiente",
+        label: 'Pendiente',
         icon: Clock,
-        iconClass: "text-amber-500",
-        badgeClass: "bg-amber-500/10 text-amber-700",
-        rowClass: "hover:bg-muted/60",
+        iconClass: 'text-amber-500',
+        badgeClass: 'bg-amber-500/10 text-amber-700',
+        rowClass: 'hover:bg-muted/60',
     },
     locked: {
-        label: "No habilitado",
+        label: 'No habilitado',
         icon: Lock,
-        iconClass: "text-muted-foreground/40",
-        badgeClass: "bg-muted/40 text-muted-foreground/50",
-        rowClass: "opacity-40 cursor-not-allowed",
+        iconClass: 'text-muted-foreground/40',
+        badgeClass: 'bg-muted/40 text-muted-foreground/50',
+        rowClass: 'opacity-40 cursor-not-allowed',
     },
 };
 
 function buildModules(groupModuleId: number): ModuleOption[] {
     return Array.from({ length: TOTAL_MODULES }, (_, i) => {
         const id = i + 1;
-        let status: ModuleOption["status"];
-        if (id < groupModuleId) status = "completed";
-        else if (id === groupModuleId) status = "current";
-        else status = "locked";
+        let status: ModuleOption['status'];
+        if (id < groupModuleId) status = 'completed';
+        else if (id === groupModuleId) status = 'current';
+        else status = 'locked';
         return { id, label: `Módulo ${id}`, status };
     });
 }
@@ -69,27 +69,27 @@ export function ModuleSelector({
 
     const buttonLabel = selected
         ? `${selected.label} — ${statusConfig[selected.status].label}`
-        : "Seleccionar módulo";
+        : 'Seleccionar módulo';
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
-                    variant={selected ? "default" : "outline"}
+                    variant={selected ? 'default' : 'outline'}
                     size="sm"
                     className="gap-2 transition-all"
                     disabled={disabled}
                 >
-                    {selected ? (
-                        (() => {
-                            const Icon = statusConfig[selected.status].icon;
-                            return <Icon className="size-3.5 shrink-0" />;
-                        })()
-                    ) : null}
-                    <span className="text-xs font-semibold truncate max-w-[180px]">
+                    {selected
+                        ? (() => {
+                              const Icon = statusConfig[selected.status].icon;
+                              return <Icon className="size-3.5 shrink-0" />;
+                          })()
+                        : null}
+                    <span className="max-w-[180px] truncate text-xs font-semibold">
                         {buttonLabel}
                     </span>
-                    <ChevronDown className="size-3.5 text-muted-foreground shrink-0" />
+                    <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
                 </Button>
             </DropdownMenuTrigger>
 
@@ -99,11 +99,11 @@ export function ModuleSelector({
                 onCloseAutoFocus={(e) => e.preventDefault()}
             >
                 {/* Header */}
-                <div className="pb-2 mb-2 border-b">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                <div className="mb-2 border-b pb-2">
+                    <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
                         Módulo académico
                     </p>
-                    <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                    <p className="mt-0.5 text-[10px] text-muted-foreground/70">
                         Solo puedes acceder hasta el módulo {groupModuleId}
                     </p>
                 </div>
@@ -114,38 +114,44 @@ export function ModuleSelector({
                         const cfg = statusConfig[mod.status];
                         const Icon = cfg.icon;
                         const isSelected = selectedModuleId === mod.id;
-                        const isLocked = mod.status === "locked";
+                        const isLocked = mod.status === 'locked';
 
                         return (
                             <button
                                 key={mod.id}
                                 disabled={isLocked}
                                 onClick={() => !isLocked && onSelect(mod.id)}
-                                className={`w-full text-left rounded-md px-3 py-2.5 transition-colors flex items-center gap-3 ${
+                                className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors ${
                                     isLocked
                                         ? cfg.rowClass
                                         : isSelected
-                                        ? "bg-primary text-primary-foreground"
-                                        : cfg.rowClass
+                                          ? 'bg-primary text-primary-foreground'
+                                          : cfg.rowClass
                                 }`}
                             >
                                 <Icon
                                     className={`size-4 shrink-0 ${
-                                        isSelected ? "text-primary-foreground" : cfg.iconClass
+                                        isSelected
+                                            ? 'text-primary-foreground'
+                                            : cfg.iconClass
                                     }`}
                                 />
-                                <div className="flex flex-col min-w-0 flex-1">
+                                <div className="flex min-w-0 flex-1 flex-col">
                                     <span
-                                        className={`text-xs font-bold leading-tight ${
-                                            isSelected ? "text-primary-foreground" : "text-foreground"
+                                        className={`text-xs leading-tight font-bold ${
+                                            isSelected
+                                                ? 'text-primary-foreground'
+                                                : 'text-foreground'
                                         }`}
                                     >
                                         {mod.label}
                                     </span>
                                 </div>
                                 <span
-                                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
-                                        isSelected ? "bg-white/20 text-primary-foreground" : cfg.badgeClass
+                                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
+                                        isSelected
+                                            ? 'bg-white/20 text-primary-foreground'
+                                            : cfg.badgeClass
                                     }`}
                                 >
                                     {cfg.label}

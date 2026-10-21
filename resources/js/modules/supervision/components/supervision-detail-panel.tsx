@@ -1,13 +1,19 @@
-import { ChevronRight, FileText, User, X, Eye, EyeOff } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { RequirementsList, DocumentViewer, DetailHeader } from '@/modules/documents';
+import { FileText, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import {
+    RequirementsList,
+    DocumentViewer,
+    DetailHeader,
+} from '@/modules/documents';
+import type { SupervisionAnnex } from '@/modules/supervision/types';
 import type { StudentSupervision } from '@/modules/supervision/types';
 import { SectionCard } from '@/shared/components/ui/section-card';
+import { useFilePreview } from '@/shared/hooks/use-file-preview';
 
 interface SupervisionDetailPanelProps {
     selectedItem: StudentSupervision;
     selectedModuleId: number;
-    annexes: any[];
+    annexes: SupervisionAnnex[];
     isLoading: boolean;
     onClose: () => void;
     selectedIdx: number;
@@ -15,7 +21,7 @@ interface SupervisionDetailPanelProps {
     canUpload?: boolean;
     onUpload?: (file: File) => void;
     tempFile?: File | null;
-    renderActionForm: (annex: any) => React.ReactNode;
+    renderActionForm: (annex: SupervisionAnnex) => React.ReactNode;
     actionTitle?: string;
 }
 
@@ -28,22 +34,11 @@ export default function SupervisionDetailPanel({
     selectedIdx,
     onSelectIdx,
     canUpload = false,
-    onUpload = () => { },
+    onUpload = () => {},
     tempFile = null,
     renderActionForm,
-    actionTitle = "Validación"
 }: SupervisionDetailPanelProps) {
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (tempFile) {
-            const url = URL.createObjectURL(tempFile);
-            setPreviewUrl(url);
-            return () => URL.revokeObjectURL(url);
-        } else {
-            setPreviewUrl(null);
-        }
-    }, [tempFile]);
+    const previewUrl = useFilePreview(tempFile);
 
     const [previewEnabled, setPreviewEnabled] = useState(false);
 
@@ -55,13 +50,12 @@ export default function SupervisionDetailPanel({
                 selectedItem={selectedItem}
                 handleCloseSelected={onClose}
             >
-                •
-                <span className="font-bold">Módulo {selectedModuleId}</span>
+                •<span className="font-bold">Módulo {selectedModuleId}</span>
             </DetailHeader>
 
-            <div className="flex-1 flex gap-6 mt-4 overflow-hidden relative pr-1">
+            <div className="relative mt-4 flex flex-1 gap-6 overflow-hidden pr-1">
                 {isLoading ? (
-                    <div className="flex flex-1 items-center justify-center animate-pulse text-muted-foreground font-medium">
+                    <div className="flex flex-1 animate-pulse items-center justify-center font-medium text-muted-foreground">
                         Cargando información del estudiante...
                     </div>
                 ) : (
@@ -72,30 +66,66 @@ export default function SupervisionDetailPanel({
                                 <SectionCard.Header>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className={`flex size-8 items-center justify-center rounded-md border ${tempFile || currentAnnex?.latest ? 'border-primary/20 bg-primary/10' : 'bg-muted/50'}`}>
-                                                <FileText className={`size-4 ${tempFile || currentAnnex?.latest ? 'text-primary' : 'text-muted-foreground'}`} />
+                                            <div
+                                                className={`flex size-8 items-center justify-center rounded-md border ${tempFile || currentAnnex?.latest ? 'border-primary/20 bg-primary/10' : 'bg-muted/50'}`}
+                                            >
+                                                <FileText
+                                                    className={`size-4 ${tempFile || currentAnnex?.latest ? 'text-primary' : 'text-muted-foreground'}`}
+                                                />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-bold leading-none tracking-tight">
-                                                    {currentAnnex?.title || 'Seleccionar anexo'}
+                                                <span className="text-xs leading-none font-bold tracking-tight">
+                                                    {currentAnnex?.title ||
+                                                        'Seleccionar anexo'}
                                                 </span>
-                                                <span className="mt-1 text-[10px] text-muted-foreground font-medium uppercase">
-                                                    {tempFile ? 'Vista previa local' : currentAnnex?.latest ? 'Archivo cargado' : 'Sin archivo'}
+                                                <span className="mt-1 text-[10px] font-medium text-muted-foreground uppercase">
+                                                    {tempFile
+                                                        ? 'Vista previa local'
+                                                        : currentAnnex?.latest
+                                                          ? 'Archivo cargado'
+                                                          : 'Sin archivo'}
                                                 </span>
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => setPreviewEnabled((p) => !p)}
-                                            className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground transition-colors hover:text-primary uppercase tracking-tighter"
+                                            onClick={() =>
+                                                setPreviewEnabled((p) => !p)
+                                            }
+                                            className="flex items-center gap-1.5 text-[11px] font-bold tracking-tighter text-muted-foreground uppercase transition-colors hover:text-primary"
                                         >
-                                            {previewEnabled ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                                            {previewEnabled ? 'Ocultar' : 'Previsualizar'}
+                                            {previewEnabled ? (
+                                                <EyeOff className="size-4" />
+                                            ) : (
+                                                <Eye className="size-4" />
+                                            )}
+                                            {previewEnabled
+                                                ? 'Ocultar'
+                                                : 'Previsualizar'}
                                         </button>
                                     </div>
                                 </SectionCard.Header>
                                 <SectionCard.Body>
                                     <DocumentViewer
-                                        currentFile={tempFile ? { ...currentAnnex, latest: { path: previewUrl, name: tempFile.name } } : (currentAnnex ? { ...currentAnnex, latest: currentAnnex.latest } : { code: '', title: '', latest: null })}
+                                        currentFile={
+                                            tempFile
+                                                ? {
+                                                      ...currentAnnex,
+                                                      latest: {
+                                                          path: previewUrl,
+                                                          name: tempFile.name,
+                                                      },
+                                                  }
+                                                : currentAnnex
+                                                  ? {
+                                                        ...currentAnnex,
+                                                        latest: currentAnnex.latest,
+                                                    }
+                                                  : {
+                                                        code: '',
+                                                        title: '',
+                                                        latest: null,
+                                                    }
+                                        }
                                         canUpload={canUpload}
                                         onUpload={onUpload}
                                         previewEnabled={previewEnabled}
@@ -105,13 +135,15 @@ export default function SupervisionDetailPanel({
                         </div>
 
                         {/* 3. Panel Lateral: Lista y Panel Inyectado (Submission/Validation) */}
-                        <aside className="hidden md:flex w-64 shrink-0 flex-col gap-4 xl:w-72 overflow-hidden">
+                        <aside className="hidden w-64 shrink-0 flex-col gap-4 overflow-hidden md:flex xl:w-72">
                             <RequirementsList
                                 requirements={annexes}
                                 selectedType={selectedIdx}
                                 onSelectType={onSelectIdx}
                                 previewEnabled={previewEnabled}
-                                onTogglePreview={() => setPreviewEnabled(!previewEnabled)}
+                                onTogglePreview={() =>
+                                    setPreviewEnabled(!previewEnabled)
+                                }
                             />
 
                             {/* El Form/Panel se inyecta directamente, ya que traen sus propios Tabs */}

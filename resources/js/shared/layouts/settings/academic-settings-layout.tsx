@@ -8,8 +8,10 @@ import { ACADEMIC_SETTINGS_NAV } from '@/shared/config/navigation';
 import { useCurrentUrl } from '@/shared/hooks/use-current-url';
 import { cn, toUrl } from '@/shared/lib/utils';
 
-export default function AcademicSettingsLayout({ children }: PropsWithChildren) {
-    const { role } = usePage().props as any;
+export default function AcademicSettingsLayout({
+    children,
+}: PropsWithChildren) {
+    const { role } = usePage().props;
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
@@ -25,7 +27,10 @@ export default function AcademicSettingsLayout({ children }: PropsWithChildren) 
                         className="flex flex-col space-y-1 space-x-0"
                         aria-label="Settings"
                     >
-                        {ACADEMIC_SETTINGS_NAV.filter((item) => !item.roles || item.roles.includes(role)).map((item, index) => (
+                        {ACADEMIC_SETTINGS_NAV.filter(
+                            (item) =>
+                                !item.roles || item.roles.includes(role ?? 0),
+                        ).map((item, index) => (
                             <Button
                                 key={`${toUrl(item.href)}-${index}`}
                                 size="sm"
@@ -49,9 +54,7 @@ export default function AcademicSettingsLayout({ children }: PropsWithChildren) 
                 <Separator className="my-6 lg:hidden" />
 
                 <div className="flex-1 md:max-w-4xl">
-                    <section className="space-y-12">
-                        {children}
-                    </section>
+                    <section className="space-y-12">{children}</section>
                 </div>
             </div>
         </div>

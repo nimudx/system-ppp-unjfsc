@@ -14,7 +14,7 @@ export interface UseItemDetailOptions<T> {
     onError?: (error: unknown) => void;
 }
 
-export function useItemDetail<T = any>({
+export function useItemDetail<T = unknown>({
     fetchUrl,
     urlQueryKey = 'a',
     onLoaded,
@@ -38,58 +38,57 @@ export function useItemDetail<T = any>({
         return id ? Number(id) : null;
     });
 
-    // Sincronizar el estado si la URL cambia externamente (ej. por una navegación de Inertia)
-    useEffect(() => {
-        const searchPart = url.split('?')[1] || '';
-        const params = new URLSearchParams(searchPart);
+    const [previousUrl, setPreviousUrl] = useState(url);
+    if (previousUrl !== url) {
+        setPreviousUrl(url);
+        const params = new URLSearchParams(url.split('?')[1] || '');
         const id = params.get(urlQueryKey);
-        const numericId = id ? Number(id) : null;
-        
-        if (numericId !== selectedId) {
-            setSelectedId(numericId);
-        }
-    }, [url, urlQueryKey]);
+        setSelectedId(id ? Number(id) : null);
+    }
 
     // 3. Estados de detalle
     const [detailData, setDetailData] = useState<T | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     // 4. Función central de carga de datos (con manejo de Race Conditions)
-    const loadDetail = useCallback(async (idToLoad?: number, params?: Record<string, any>) => {
-        const targetId = idToLoad || selectedId;
-        if (!targetId) return;
+    const loadDetail = useCallback(
+        async (idToLoad?: number, params?: Record<string, unknown>) => {
+            const targetId = idToLoad || selectedId;
+            if (!targetId) return;
 
-        // Cancelar petición previa si existe (Evita Race Conditions)
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
-        abortControllerRef.current = new AbortController();
-
-        setIsLoading(true);
-        try {
-            const { fetchUrl, onLoaded } = configRef.current;
-            const res = await axios.get(fetchUrl(targetId), {
-                params,
-                signal: abortControllerRef.current.signal
-            });
-            
-            setDetailData(res.data);
-            if (onLoaded) onLoaded(res.data);
-        } catch (error) {
-            // Si el error es por cancelación, no hacemos nada (es intencional)
-            if (axios.isCancel(error)) return;
-
-            const { onError } = configRef.current;
-            if (onError) {
-                onError(error);
-            } else {
-                toast.error('No se pudo cargar la información detallada.');
+            // Cancelar petición previa si existe (Evita Race Conditions)
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
             }
-            setDetailData(null);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [selectedId]);
+            abortControllerRef.current = new AbortController();
+
+            setIsLoading(true);
+            try {
+                const { fetchUrl, onLoaded } = configRef.current;
+                const res = await axios.get(fetchUrl(targetId), {
+                    params,
+                    signal: abortControllerRef.current.signal,
+                });
+
+                setDetailData(res.data);
+                if (onLoaded) onLoaded(res.data);
+            } catch (error) {
+                // Si el error es por cancelación, no hacemos nada (es intencional)
+                if (axios.isCancel(error)) return;
+
+                const { onError } = configRef.current;
+                if (onError) {
+                    onError(error);
+                } else {
+                    toast.error('No se pudo cargar la información detallada.');
+                }
+                setDetailData(null);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [selectedId],
+    );
 
     // 5. Efecto de auto-carga y limpieza al unmount
     useEffect(() => {
@@ -117,28 +116,31 @@ export function useItemDetail<T = any>({
     }, [urlQueryKey]);
 
     // 7. Handlers de Interfaz
-    /** 
+    /**
      * @param id ID del item a seleccionar
      * @param initialData Datos opcionales para mostrar inmediatamente (Optimistic UI)
      */
-    const handleSelect = useCallback((id: number, initialData?: Partial<T>) => {
-        if (selectedId === id) return;
-        
-        // Si tenemos datos iniciales (ej. nombre del alumno desde la tabla), los ponemos ya
-        setDetailData(initialData as T || null); 
-        setSelectedId(id);
-        
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set(urlQueryKey, id.toString());
-        window.history.pushState({ id }, '', newUrl.toString());
-    }, [selectedId, urlQueryKey]);
+    const handleSelect = useCallback(
+        (id: number, initialData?: Partial<T>) => {
+            if (selectedId === id) return;
+
+            // Si tenemos datos iniciales (ej. nombre del alumno desde la tabla), los ponemos ya
+            setDetailData((initialData as T) || null);
+            setSelectedId(id);
+
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set(urlQueryKey, id.toString());
+            window.history.pushState({ id }, '', newUrl.toString());
+        },
+        [selectedId, urlQueryKey],
+    );
 
     const handleClose = useCallback(() => {
         if (selectedId === null) return;
 
         setSelectedId(null);
         setDetailData(null);
-        
+
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.delete(urlQueryKey);
         window.history.pushState({}, '', newUrl.toString());
@@ -153,7 +155,7 @@ export function useItemDetail<T = any>({
             handleClose,
             reloadDetail: loadDetail,
             setDetailData,
-            setSelectedId
-        }
+            setSelectedId,
+        },
     };
 }

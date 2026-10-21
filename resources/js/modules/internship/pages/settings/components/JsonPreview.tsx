@@ -1,5 +1,5 @@
-import { Code2 } from "lucide-react";
-import type { WorkflowStage } from "../types";
+import { Code2 } from 'lucide-react';
+import type { WorkflowStage } from '../types';
 
 interface JsonPreviewProps {
     workflow: WorkflowStage[];
@@ -7,12 +7,12 @@ interface JsonPreviewProps {
 
 export function JsonPreview({ workflow }: JsonPreviewProps) {
     return (
-        <div className="bg-slate-950 border border-slate-800 rounded-lg shadow-sm p-4 text-xs font-mono text-slate-300 overflow-hidden">
-            <div className="flex justify-between items-center mb-2 text-slate-500 uppercase tracking-widest text-[10px]">
+        <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950 p-4 font-mono text-xs text-slate-300 shadow-sm">
+            <div className="mb-2 flex items-center justify-between text-[10px] tracking-widest text-slate-500 uppercase">
                 <span>Configuración actual (JSON)</span>
-                <Code2 className="w-3 h-3" />
+                <Code2 className="h-3 w-3" />
             </div>
-            <pre className="max-h-[300px] overflow-auto custom-scrollbar">
+            <pre className="custom-scrollbar max-h-[300px] overflow-auto">
                 {JSON.stringify(workflow, null, 2)}
             </pre>
         </div>

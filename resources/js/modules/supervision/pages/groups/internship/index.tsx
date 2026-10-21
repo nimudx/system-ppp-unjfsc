@@ -1,5 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { MoreHorizontal, Plus, Users, Pencil, Trash2 } from 'lucide-react';
+import type { Faculty } from '@/modules/academic';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -21,21 +22,19 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
+import type { TableData } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
-import type {
-    InternshipGroup} from '../../../hooks/use-internship-group';
-import {
-    useInternshipGroup
-} from '../../../hooks/use-internship-group';
+import type { InternshipGroup } from '../../../hooks/use-internship-group';
+import { useInternshipGroup } from '../../../hooks/use-internship-group';
 import CreateGroupModal from './partials/create-group-modal';
 import DeleteGroupModal from './partials/delete-group-modal';
 import EditGroupModal from './partials/edit-group-modal';
 
 interface Props {
-    groups: any;
-    faculties: any[];
+    groups: TableData<InternshipGroup>;
+    faculties: Faculty[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -47,7 +46,7 @@ export default function InternshipGroupsIndex({
     groups = [],
     faculties,
 }: Props) {
-    const { role } = usePage().props as any;
+    const { role } = usePage().props;
     const isAdmin = [1, 2].includes(Number(role));
 
     // --- USAMOS EL NUEVO HOOK ESPECÍFICO ---
@@ -96,7 +95,7 @@ export default function InternshipGroupsIndex({
                             faculties={faculties}
                             onFilter={handleFilter}
                             isLoading={isSearching}
-                            initialValues={tableManager.activeFilters as any}
+                            initialValues={tableManager.activeFilters}
                         />
                     )}
                     <AcademicSearch
@@ -305,9 +304,18 @@ export default function InternshipGroupsIndex({
                 <AcademicPagination
                     isAdmin={isAdmin}
                     isLoading={isSearching}
-                    links={(backendData as any)?.links}
-                    total={(backendData as any)?.total}
-                    showing={(backendData as any)?.data?.length}
+                    links={
+                        (Array.isArray(backendData) ? undefined : backendData)
+                            ?.links
+                    }
+                    total={
+                        (Array.isArray(backendData) ? undefined : backendData)
+                            ?.total
+                    }
+                    showing={
+                        (Array.isArray(backendData) ? undefined : backendData)
+                            ?.data?.length
+                    }
                     onPageChange={handlePageChange}
                     currentPage={localPage}
                     totalPages={localTotalPages}

@@ -5,6 +5,7 @@ import {
     Loader2,
     Info,
 } from 'lucide-react';
+import type { InternshipGroup } from '@/modules/supervision/hooks/use-internship-group';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
@@ -15,12 +16,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from '@/shared/components/ui/tabs';
 import { StudentSelectorTable } from '../../../../components/student-selector-table';
 import { useStudentManagement } from '../../../../hooks/use-student-management';
 interface StudentManagementTabsProps {
-    group: any;
-    allGroups: any[];
+    group: InternshipGroup;
+    allGroups: InternshipGroup[];
 }
 
 export default function StudentManagementTabs({

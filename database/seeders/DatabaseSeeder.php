@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Assignment\AssignmentAccessStatus;
-use App\Enums\Assignment\AssignmentApprovalStatus;
-use App\Enums\Assignment\AssignmentReviewStatus;
-use App\Enums\Assignment\AssignmentStatus;
-use App\Enums\PersonStatus;
-use App\Enums\Role;
-use App\Models\Assignment;
-use App\Models\Person;
-use App\Models\Semester;
-use App\Models\User;
+use App\Domains\Academic\Models\Semester;
+use App\Domains\Identity\Enums\AssignmentAccessStatus;
+use App\Domains\Identity\Enums\AssignmentApprovalStatus;
+use App\Domains\Identity\Enums\AssignmentReviewStatus;
+use App\Domains\Identity\Enums\AssignmentStatus;
+use App\Domains\Identity\Enums\PersonStatus;
+use App\Domains\Identity\Models\Assignment;
+use App\Domains\Identity\Models\Person;
+use App\Domains\Identity\Models\User;
+use App\Shared\Enums\Role;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;

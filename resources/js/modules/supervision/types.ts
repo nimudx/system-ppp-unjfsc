@@ -1,3 +1,4 @@
+import type { DocumentRequirement } from '@/modules/documents/types';
 export interface Faculties {
     id: number;
     name: string;
@@ -29,4 +30,10 @@ export interface StudentSupervision {
     };
     search_module?: number;
     supervision: Supervision;
+}
+
+export interface SupervisionAnnex extends DocumentRequirement {
+    evaluation_id?: number;
+    supervision_id: number;
+    grade?: number;
 }
