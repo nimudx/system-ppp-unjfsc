@@ -1,4 +1,4 @@
-#Formato PHP, ESLint, Prettier y tipos TypeScript.
+#Formato PHP, ESLint, Prettier y tipos TypeScript
 
 name: Calidad del Codigo - Lint
 
@@ -9,12 +9,14 @@ on:
       - main
       - master
       - workos
+      - "**"
   pull_request:
     branches:
       - develop
       - main
       - master
       - workos
+      - "**"
 
 permissions:
   contents: read
@@ -26,7 +28,7 @@ jobs:
     steps:
       # Descargar el código del repositorio
       - name: Checkout
-      - uses: actions/checkout@v6
+        uses: actions/checkout@v6
 
       # Configurar PHP 8.4
       - name: Setup PHP

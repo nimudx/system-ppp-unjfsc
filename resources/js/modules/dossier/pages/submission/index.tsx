@@ -1,0 +1,259 @@
+import React, { useEffect, useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import AppLayout from '@/shared/layouts/app-layout';
+import { BreadcrumbItem } from '@/shared/types';
+import Heading from '@/shared/components/heading';
+import {
+    FileText,
+    Maximize2,
+    ArrowRight,
+    AlertCircle,
+    Download,
+    FileDown
+} from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import { Spinner } from '@/shared/components/ui/spinner';
+import DocumentViewer from '@/shared/components/document/DocumentViewer';
+import FileHistory from '@/shared/components/document/FileHistory';
+
+import dossiers from '@/routes/academic/dossiers';
+import { toast } from 'sonner';
+import RequirementsList from '@/shared/components/academic/requirements-list';
+import { AlertHelp } from '@/shared/components/document/AlertHelp';
+import ContentDetailsDocument from '@/shared/components/academic/submission-form';
+import { SectionCard } from '@/shared/components/ui/section-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { SubmissionPanel } from '../../../../components/academic/submission-panel';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Documentación',
+        href: dossiers.submission.toString(),
+    },
+];
+
+export default function MyDossier({ assignment, requirements, dossier }: any) {
+    const [selectedType, setSelectedType] = useState(0);
+    const [previewEnabled, setPreviewEnabled] = useState(false);
+    const [activeTab, setActiveTab] = useState('estado');
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempFile, setTempFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    const currentFile = requirements[selectedType];
+
+    console.log(currentFile.latest?.path);
+
+    const { data, setData, post, processing, transform } = useForm({
+        file: null as File | null,
+        code: '',
+        target_id: dossier,
+    });
+    // FUNCIÓN: Maneja la previsualización local antes de subir
+    const onUpload = (file: File) => {
+        setTempFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    };
+
+    // Limpiar estados cuando cambiamos de archivo a la izquierda
+    useEffect(() => {
+        setIsEditing(false);
+        setTempFile(null);
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+        }
+    }, [selectedType]);
+
+    // Lógica para decidir si mostrar UploadZone o Preview
+    const canUpload = (!currentFile?.latest || isEditing) && !tempFile;
+
+    //const requirements = getRequirements(assignment?.role_id);
+    //const currentFile = requirements[selectedType];
+
+    /*const handleSubmit = () => {
+        const payload = {
+            file: tempFile,
+            code: currentFile.code,
+            target_id: dossier,
+        }
+        post(dossiers.document.store.url, payload);
+    }*/
+
+    const removeTempFile = () => {
+        setTempFile(null);
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+        }
+        setIsEditing(false);
+    };
+
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
+        if (!tempFile) {
+            toast.error('Por favor, selecciona un archivo antes de enviar.');
+            return;
+        }
+
+        // Aseguramos que el código y el target_id estén actualizados en el payload
+        transform((data) => ({
+            ...data,
+            code: currentFile.code,
+            file: tempFile
+        }));
+
+        post(dossiers.document.store().url, {
+            onSuccess: () => {
+                setTempFile(null);
+                setPreviewUrl(null);
+                setIsEditing(false);
+            },
+            onError: (errors) => {
+                const firstError = Object.values(errors)[0] as string;
+                toast.error(firstError || 'Error al procesar la solicitud');
+            },
+        });
+    };
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Documentación" />
+
+            {/* Fondo gris de toda la app (Lienzo infinito) */}
+            <div className="flex flex-col flex-1 min-h-screen p-4 md:p-6 lg:p-8 gap-6">
+
+                {/* Header Superior Libre */}
+                <div className="flex items-end justify-between">
+                    <Heading
+                        variant="small"
+                        title="Validación de Documentos"
+                        description="Gestione y valide los archivos requeridos para su expediente."
+                    />
+                    <div className="hidden md:flex flex-col items-end">
+                        <span className="text-sm font-medium">
+                            {requirements.filter((r: any) => r.status === 1).length} / {requirements.length} Listos
+                        </span>
+                        <p className="text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors mt-0.5">Ver detalles</p>
+                    </div>
+                </div>
+
+                {/* Contenedor Principal (Flex Row) */}
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
+
+                    {/* 1. PANEL IZQUIERDO (Navegación Vertical) */}
+                    <div className="w-full lg:w-64 xl:w-72 flex flex-col gap-6 shrink-0">
+                        {/* Tarjeta de Requisitos usando componentes base Shadcn (Card) */}
+                        <RequirementsList
+                            requirements={requirements || []}
+                            selectedType={selectedType}
+                            onSelectType={setSelectedType}
+                            previewEnabled={previewEnabled}
+                            onTogglePreview={() => setPreviewEnabled(!previewEnabled)}
+                        />
+
+                        {/* Plantilla Disponible Card */}
+                        {currentFile?.hasTemplate && (
+                            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+                                <div className="p-4 flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <h3 className="font-semibold tracking-tight text-sm">Plantilla Disponible</h3>
+                                    <FileDown className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                                <div className="p-4 pt-0">
+                                    <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+                                        Descarga el formato oficial, complétalo y súbelo.
+                                    </p>
+                                    <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 w-full shadow-sm">
+                                        <Download className="mr-2 h-3.5 w-3.5" />
+                                        Descargar formato
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        <AlertHelp />
+                    </div>
+
+                    {/* 2. PANEL CENTRAL (Visor del Documento) */}
+                    <div className="flex-1 w-full h-full overflow-hidden relative">
+                        {/* Loader opcional de Inertia mientras sube */}
+                        {processing && (
+                            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Spinner className="animate-spin text-primary" />
+                                    <span className="text-xs font-medium">Subiendo documento...</span>
+                                </div>
+                            </div>
+                        )}
+
+                        <SectionCard>
+                            <SectionCard.Header>
+                                {/* Header del Card (Dinamizado y Compacto) */}
+                                <div className="flex flex-row items-center justify-between backdrop-blur-sm">
+                                    <div className="flex items-center gap-3">
+                                        {/* Ícono más pequeño y sutil */}
+                                        <div className={`flex h-9 w-9 items-center justify-center rounded-md border ${tempFile || currentFile?.latest ? 'bg-primary/5 border-primary/20' : 'bg-muted/50'
+                                            }`}>
+                                            <FileText className={`size-4 ${tempFile || currentFile?.latest ? 'text-primary' : 'text-muted-foreground'}`} />
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            <h3 className="text-sm font-semibold leading-none tracking-tight">
+                                                {currentFile?.title}
+                                            </h3>
+                                            <p className="text-[11px] text-muted-foreground mt-1">
+                                                {tempFile ? 'Archivo listo para subir' : currentFile?.latest ? 'Cargado correctamente' : 'Subida pendiente'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Acciones reducidas a botones compactos */}
+                                    <div className="flex items-center gap-2">
+                                        {(tempFile || currentFile?.latest) && (
+                                            <Button variant="ghost" size="sm" className="h-8 text-xs px-2.5">
+                                                <Maximize2 className="size-3.5 mr-2 text-muted-foreground" />
+                                                Expandir
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            </SectionCard.Header>
+                            <SectionCard.Body className="p-0">
+                                <DocumentViewer
+                                    currentFile={{
+                                        ...currentFile,
+                                        latest: tempFile ? { ...tempFile, path: previewUrl, name: tempFile.name } : currentFile?.latest
+                                    }}
+                                    canUpload={canUpload}
+                                    onUpload={onUpload}
+                                    previewEnabled={previewEnabled}
+                                />
+                            </SectionCard.Body>
+                        </SectionCard>
+                    </div>
+
+
+                    {/* 3. PANEL DERECHO (Detalles y Acciones) */}
+                    <div className="w-full lg:w-64 xl:w-72 flex flex-col gap-6 shrink-0">
+                        <SubmissionPanel
+                            status={currentFile?.status}
+                            currentRequirement={currentFile}
+                            tempFile={tempFile}
+                            isEditing={isEditing}
+                            onSetEditing={setIsEditing}
+                            onRemoveTemp={removeTempFile}
+                            uploading={processing}
+                            showFileInfo={{
+                                name: currentFile?.latest?.name,
+                                meta: "Documento Oficial",
+                                size: currentFile?.latest?.size,
+                            }}
+                            onSubmit={handleSubmit}
+                        />
+                    </div>
+                </div>
+            </div>
+        </AppLayout>
+    );
+}

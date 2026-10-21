@@ -46,7 +46,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Geist&display=swap" rel="stylesheet">
 
     @viteReactRefresh
-    @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+    @vite(['resources/js/app.tsx'])
     @inertiaHead
 </head>
 

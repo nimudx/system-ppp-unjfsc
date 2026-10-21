@@ -146,7 +146,7 @@
 │   │   │   └── 📄 update-company-profile-form.tsx
 │   │   ├── 📁 hooks
 │   │   │   └── 📄 use-two-factor-auth.ts
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts -- encontrar
 │   │
 │   ├── 📁 registration                                # Alta de usuarios
 │   │   ├── 📁 pages
@@ -175,7 +175,7 @@
 │   │   │                   ├── 📁 step-one   (MassiveVStepOne.tsx, schema.ts, csv.schema.ts, csv.utils.ts, components/CsvPreview.tsx, components/CsvUploader.tsx)
 │   │   │                   ├── 📁 step-two   (MassiveSStepTwo.tsx, partials/DataPreviewModal.tsx)
 │   │   │                   └── 📁 step-three (MassiveRStepThree.tsx)
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts -- encontrar
 │   │
 │   ├── 📁 dashboard
 │   │   ├── 📁 pages
@@ -203,7 +203,7 @@
 │   │   │       ├── 📄 index.tsx
 │   │   │       └── 📁 partials (back-, close-, update-semester-modal.tsx)
 │   │   ├── 📄 types.ts                                ← types/models.ts
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts -- encontrar
 │   │
 │   ├── 📁 documents                                   # UI de revisión y carga de documentos (la usan 3 módulos)
 │   │   ├── 📁 pages
@@ -225,7 +225,7 @@
 │   │   │   ├── 📄 validation-form.tsx
 │   │   │   ├── 📄 validation-panel.tsx
 │   │   │   └── 🗑️ status-form.tsx                     # sin uso
-│   │   └── 📄 index.ts                                # exporta lo que dossier/internship/supervision pueden usar
+│   │   └── 📄 index.ts       --encontrar              # exporta lo que dossier/internship/supervision pueden usar
 │   │
 │   ├── 📁 dossier
 │   │   ├── 📁 pages
@@ -233,7 +233,7 @@
 │   │   │   └── 📁 validation (index.tsx)
 │   │   ├── 📁 components (dossier-detail-panel.tsx, dossier-table.tsx)
 │   │   ├── 📁 hooks (use-dossier-validation.ts)
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts   -- encontrar
 │   │
 │   ├── 📁 internship
 │   │   ├── 📁 pages
@@ -255,7 +255,7 @@
 │   │   │       ├── 📄 useWorkflow.ts
 │   │   │       └── 📁 components (BuilderCard, EvaluationCard, JsonPreview, RequirementColumn, StepperPreview .tsx)
 │   │   │   # 🗑️ pages/academic/settings/internship.tsx y hooks/use-student-group.ts están vacíos
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts  -- encontrar
 │   │
 │   ├── 📁 supervision                                 # Supervisión + grupos
 │   │   ├── 📁 pages
@@ -283,14 +283,14 @@
 │   │   │   ├── 📄 use-internship-group.ts
 │   │   │   └── 📄 use-student-management.ts
 │   │   ├── 📄 types.ts                                ← types/data.tsx
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts  -- encontrar
 │   │
 │   ├── 📁 resources
 │   │   ├── 📁 pages
 │   │   │   ├── 📄 index.tsx                           ← pages/resource.tsx (despachador por tipo de usuario)
 │   │   │   ├── 📄 academic-resource-content.tsx       ← pages/academic/resource/resource-content.tsx
 │   │   │   └── 📁 partials (create-resource-sheet, edit-resource-sheet, delete-resource-alert, location-selector .tsx)
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts  -- encontrar
 │   │
 │   ├── 📁 notifications
 │   │   ├── 📁 pages
@@ -299,7 +299,7 @@
 │   │   │   └── 📄 notification-dropdown.tsx
 │   │   ├── 📁 config
 │   │   │   └── 📄 notification.tsx                    ← config/notification.tsx
-│   │   └── 📄 index.ts
+│   │   └── 📄 index.ts  -- encontrar
 │   │
 │   ├── 📁 company
 │   │   ├── 📁 pages
