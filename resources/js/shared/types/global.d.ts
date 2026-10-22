@@ -1,5 +1,6 @@
-import type { Semester } from '@/modules/academic';
 import type { Auth } from '@/shared/types/auth';
+import type { Semester } from '@/shared/types/session';
+
 export interface BusinessError {
     message: string;
     code?: string;

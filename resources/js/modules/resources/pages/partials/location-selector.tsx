@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Faculty } from '@/modules/academic';
-import type { CompanyProfile } from '@/modules/company/types';
+import type { CompanyProfile } from '@/modules/company';
 import { Label } from '@/shared/components/ui/label';
 import {
     Select,

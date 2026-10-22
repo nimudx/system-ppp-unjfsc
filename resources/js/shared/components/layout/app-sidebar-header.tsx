@@ -1,6 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
-import type { Semester } from '@/modules/academic';
 import { NotificationDropdown } from '@/modules/notifications';
 import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import {
@@ -13,7 +12,10 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
-import type { BreadcrumbItem as BreadcrumbItemType } from '@/shared/types';
+import type {
+    BreadcrumbItem as BreadcrumbItemType,
+    Semester,
+} from '@/shared/types';
 import type { Assignment } from '@/shared/types/auth';
 
 const ROLE_COLORS: Record<string, string> = {

@@ -3,7 +3,7 @@ import { Info } from 'lucide-react';
 import { useState } from 'react';
 
 import { SubmissionPanel } from '@/modules/documents';
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 
 import type {
     InternshipRecord,

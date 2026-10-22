@@ -1,5 +1,5 @@
-import type { Semester } from '@/modules/academic';
-import type { NotificationSummary } from '@/modules/notifications/types';
+import type { NotificationSummary, Semester } from './session';
+
 export type Assignment = {
     id: number;
     role: string;
