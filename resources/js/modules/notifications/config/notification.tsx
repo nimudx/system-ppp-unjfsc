@@ -1,14 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
 import { CheckCircle2, FileUp, AlertCircle, Bell } from 'lucide-react';
+import type { NotificationMeta } from '@/shared/types/session';
 
-export interface NotificationMeta {
-    title?: string;
-    role?: string;
-    document?: string;
-    status?: number | null;
-    comment?: string | null;
-    entity?: string | null;
-}
+export type { NotificationMeta };
 
 export interface NotificationConfig {
     icon: LucideIcon | ((status?: number | null) => LucideIcon);

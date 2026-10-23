@@ -319,10 +319,12 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                 <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
                                         <h2 className="text-base font-semibold">
-                                            Relación de {isPlan ? 'planes' : 'informes'}
+                                            Relación de{' '}
+                                            {isPlan ? 'planes' : 'informes'}
                                         </h2>
                                         <p className="mt-1 text-xs text-muted-foreground">
-                                            Busca un estudiante para ver su {singular}.
+                                            Busca un estudiante para ver su{' '}
+                                            {singular}.
                                         </p>
                                     </div>
                                     <span className="w-fit rounded-lg bg-muted px-2.5 py-1.5 text-xs font-medium">
@@ -351,13 +353,16 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                         value={statusFilter}
                                         onChange={(event) =>
                                             setStatusFilter(
-                                                event.target.value as StatusFilter,
+                                                event.target
+                                                    .value as StatusFilter,
                                             )
                                         }
                                         aria-label="Filtrar por estado"
                                         className="h-10 rounded-lg border bg-background px-3 text-sm outline-none focus:border-primary sm:w-44"
                                     >
-                                        <option value="Todos">Todos los estados</option>
+                                        <option value="Todos">
+                                            Todos los estados
+                                        </option>
                                         <option value="2">Pendiente</option>
                                         <option value="3">Observado</option>
                                         <option value="1">Aprobado</option>
@@ -368,11 +373,21 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                     <table className="w-full min-w-[680px] text-left text-sm">
                                         <thead className="bg-muted/50 text-xs text-muted-foreground">
                                             <tr>
-                                                <th className="px-4 py-3 font-medium">Estudiante</th>
-                                                <th className="px-4 py-3 font-medium">Empresa</th>
-                                                <th className="px-4 py-3 font-medium">Fecha</th>
-                                                <th className="px-4 py-3 font-medium">Estado</th>
-                                                <th className="px-4 py-3 text-right font-medium">Detalle</th>
+                                                <th className="px-4 py-3 font-medium">
+                                                    Estudiante
+                                                </th>
+                                                <th className="px-4 py-3 font-medium">
+                                                    Empresa
+                                                </th>
+                                                <th className="px-4 py-3 font-medium">
+                                                    Fecha
+                                                </th>
+                                                <th className="px-4 py-3 font-medium">
+                                                    Estado
+                                                </th>
+                                                <th className="px-4 py-3 text-right font-medium">
+                                                    Detalle
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y">
@@ -384,7 +399,9 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                                             ? 'bg-primary/5'
                                                             : ''
                                                     }`}
-                                                    onClick={() => setSelectedId(item.id)}
+                                                    onClick={() =>
+                                                        setSelectedId(item.id)
+                                                    }
                                                 >
                                                     <td className="px-4 py-3.5">
                                                         <div className="flex items-center gap-3">
@@ -392,30 +409,45 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                                                 <UserRound className="size-4 text-muted-foreground" />
                                                             </div>
                                                             <div>
-                                                                <p className="font-medium">{item.student}</p>
+                                                                <p className="font-medium">
+                                                                    {
+                                                                        item.student
+                                                                    }
+                                                                </p>
                                                                 <p className="mt-1 text-xs text-muted-foreground">
-                                                                    DNI: {item.code ?? 'Sin dato'}
+                                                                    DNI:{' '}
+                                                                    {item.code ??
+                                                                        'Sin dato'}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3.5 text-muted-foreground">
-                                                        {item.company ?? 'Sin empresa'}
+                                                        {item.company ??
+                                                            'Sin empresa'}
                                                     </td>
                                                     <td className="px-4 py-3.5 whitespace-nowrap text-muted-foreground">
-                                                        {formatDate(item.submitted_at)}
+                                                        {formatDate(
+                                                            item.submitted_at,
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3.5">
-                                                        <StatusBadge status={item.status} />
+                                                        <StatusBadge
+                                                            status={item.status}
+                                                        />
                                                     </td>
                                                     <td className="px-4 py-3.5 text-right">
                                                         <Button
                                                             type="button"
                                                             size="sm"
                                                             variant="outline"
-                                                            onClick={(event) => {
+                                                            onClick={(
+                                                                event,
+                                                            ) => {
                                                                 event.stopPropagation();
-                                                                setSelectedId(item.id);
+                                                                setSelectedId(
+                                                                    item.id,
+                                                                );
                                                             }}
                                                         >
                                                             <Eye className="mr-1.5 size-3.5" />
@@ -427,15 +459,20 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
 
                                             {filtered.length === 0 && (
                                                 <tr>
-                                                    <td colSpan={5} className="px-4 py-12 text-center">
+                                                    <td
+                                                        colSpan={5}
+                                                        className="px-4 py-12 text-center"
+                                                    >
                                                         <Search className="mx-auto mb-3 size-8 text-muted-foreground/50" />
                                                         <p className="text-sm font-medium">
-                                                            {submissions.length === 0
+                                                            {submissions.length ===
+                                                            0
                                                                 ? `Aún no hay ${isPlan ? 'planes' : 'informes'} entregados`
                                                                 : 'No se encontraron resultados'}
                                                         </p>
                                                         <p className="mt-1 text-xs text-muted-foreground">
-                                                            {submissions.length === 0
+                                                            {submissions.length ===
+                                                            0
                                                                 ? 'Aparecerán cuando tus estudiantes los envíen.'
                                                                 : 'Cambia la búsqueda o selecciona otro estado.'}
                                                         </p>
@@ -469,7 +506,9 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                                     </p>
                                                 </div>
                                             </div>
-                                            <StatusBadge status={selected.status} />
+                                            <StatusBadge
+                                                status={selected.status}
+                                            />
                                         </div>
                                     </SectionCard.Header>
 
@@ -478,10 +517,16 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                             <div className="flex items-start gap-3">
                                                 <UserRound className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground">Estudiante</p>
-                                                    <p className="mt-1 text-sm font-medium">{selected.student}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Estudiante
+                                                    </p>
+                                                    <p className="mt-1 text-sm font-medium">
+                                                        {selected.student}
+                                                    </p>
                                                     <p className="mt-1 text-xs text-muted-foreground">
-                                                        DNI: {selected.code ?? 'Sin dato'}
+                                                        DNI:{' '}
+                                                        {selected.code ??
+                                                            'Sin dato'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -489,24 +534,40 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                             <div className="flex items-start gap-3">
                                                 <GraduationCap className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground">Escuela profesional</p>
-                                                    <p className="mt-1 text-sm">{selected.career ?? 'Sin dato'}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Escuela profesional
+                                                    </p>
+                                                    <p className="mt-1 text-sm">
+                                                        {selected.career ??
+                                                            'Sin dato'}
+                                                    </p>
                                                 </div>
                                             </div>
 
                                             <div className="flex items-start gap-3">
                                                 <Building2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground">Centro de prácticas</p>
-                                                    <p className="mt-1 text-sm">{selected.company ?? 'Sin empresa'}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Centro de prácticas
+                                                    </p>
+                                                    <p className="mt-1 text-sm">
+                                                        {selected.company ??
+                                                            'Sin empresa'}
+                                                    </p>
                                                 </div>
                                             </div>
 
                                             <div className="flex items-start gap-3">
                                                 <CalendarDays className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground">Fecha de entrega</p>
-                                                    <p className="mt-1 text-sm">{formatDate(selected.submitted_at)}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Fecha de entrega
+                                                    </p>
+                                                    <p className="mt-1 text-sm">
+                                                        {formatDate(
+                                                            selected.submitted_at,
+                                                        )}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -519,7 +580,9 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                                 className="flex items-center gap-2 rounded-lg border p-3 text-sm text-primary hover:bg-muted/40"
                                             >
                                                 <ExternalLink className="size-4 shrink-0" />
-                                                <span className="break-all">{selected.file.name}</span>
+                                                <span className="break-all">
+                                                    {selected.file.name}
+                                                </span>
                                             </a>
                                         )}
                                     </SectionCard.Body>
@@ -529,32 +592,46 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                     <SectionCard.Header>
                                         <div className="flex items-center gap-2">
                                             <MessageSquare className="size-4" />
-                                            <h2 className="text-sm font-semibold">Evaluación</h2>
+                                            <h2 className="text-sm font-semibold">
+                                                Evaluación
+                                            </h2>
                                         </div>
                                     </SectionCard.Header>
                                     <SectionCard.Body>
                                         {selected.can_review ? (
-                                            <ReviewForm key={selected.id} submission={selected} />
+                                            <ReviewForm
+                                                key={selected.id}
+                                                submission={selected}
+                                            />
                                         ) : (
                                             <div className="space-y-4">
                                                 <div className="rounded-lg border p-3">
-                                                    <p className="text-xs text-muted-foreground">Calificación</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Calificación
+                                                    </p>
                                                     <p className="mt-1 text-2xl font-semibold">
                                                         {selected.grade ?? '—'}{' '}
-                                                        <span className="text-sm font-normal text-muted-foreground">/ 20</span>
+                                                        <span className="text-sm font-normal text-muted-foreground">
+                                                            / 20
+                                                        </span>
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p className="mb-2 text-xs font-medium">Observaciones</p>
+                                                    <p className="mb-2 text-xs font-medium">
+                                                        Observaciones
+                                                    </p>
                                                     <div className="rounded-lg bg-muted/40 p-3">
                                                         <p className="text-xs leading-relaxed text-muted-foreground">
-                                                            {selected.comment ?? 'Sin observaciones.'}
+                                                            {selected.comment ??
+                                                                'Sin observaciones.'}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 {selected.status === 3 && (
                                                     <p className="text-xs text-muted-foreground">
-                                                        Esperando que el estudiante reenvíe el documento.
+                                                        Esperando que el
+                                                        estudiante reenvíe el
+                                                        documento.
                                                     </p>
                                                 )}
                                             </div>
@@ -567,33 +644,62 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                         <SectionCard.Header>
                                             <div className="flex items-center gap-2">
                                                 <History className="size-4" />
-                                                <h2 className="text-sm font-semibold">Entregas anteriores</h2>
+                                                <h2 className="text-sm font-semibold">
+                                                    Entregas anteriores
+                                                </h2>
                                             </div>
                                         </SectionCard.Header>
                                         <SectionCard.Body>
                                             <ul className="space-y-3">
-                                                {selected.history.map((item) => (
-                                                    <li key={item.id} className="rounded-lg border p-3 text-xs">
-                                                        <div className="flex items-center justify-between gap-2">
-                                                            <span className="font-medium">{formatDate(item.submitted_at)}</span>
-                                                            <span className="text-muted-foreground">{item.status_label}</span>
-                                                        </div>
-                                                        {item.comment && (
-                                                            <p className="mt-1 text-muted-foreground">{item.comment}</p>
-                                                        )}
-                                                        {item.file && (
-                                                            <a
-                                                                href={item.file.url}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="mt-2 inline-flex items-center gap-1 text-primary hover:underline"
-                                                            >
-                                                                <ExternalLink className="size-3" />
-                                                                <span className="break-all">{item.file.name}</span>
-                                                            </a>
-                                                        )}
-                                                    </li>
-                                                ))}
+                                                {selected.history.map(
+                                                    (item) => (
+                                                        <li
+                                                            key={item.id}
+                                                            className="rounded-lg border p-3 text-xs"
+                                                        >
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <span className="font-medium">
+                                                                    {formatDate(
+                                                                        item.submitted_at,
+                                                                    )}
+                                                                </span>
+                                                                <span className="text-muted-foreground">
+                                                                    {
+                                                                        item.status_label
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            {item.comment && (
+                                                                <p className="mt-1 text-muted-foreground">
+                                                                    {
+                                                                        item.comment
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                            {item.file && (
+                                                                <a
+                                                                    href={
+                                                                        item
+                                                                            .file
+                                                                            .url
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    className="mt-2 inline-flex items-center gap-1 text-primary hover:underline"
+                                                                >
+                                                                    <ExternalLink className="size-3" />
+                                                                    <span className="break-all">
+                                                                        {
+                                                                            item
+                                                                                .file
+                                                                                .name
+                                                                        }
+                                                                    </span>
+                                                                </a>
+                                                            )}
+                                                        </li>
+                                                    ),
+                                                )}
                                             </ul>
                                         </SectionCard.Body>
                                     </SectionCard>
@@ -603,9 +709,12 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                             <SectionCard>
                                 <SectionCard.Body className="flex flex-col items-center py-12 text-center">
                                     <FileText className="mb-3 size-10 text-muted-foreground/50" />
-                                    <h3 className="text-sm font-semibold">Selecciona una entrega</h3>
+                                    <h3 className="text-sm font-semibold">
+                                        Selecciona una entrega
+                                    </h3>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        Elige un registro de la tabla para ver su detalle.
+                                        Elige un registro de la tabla para ver
+                                        su detalle.
                                     </p>
                                 </SectionCard.Body>
                             </SectionCard>

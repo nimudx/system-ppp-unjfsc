@@ -10,3 +10,4 @@ export {
     useTwoFactorAuth,
     type UseTwoFactorAuthReturn,
 } from './hooks/use-two-factor-auth';
+export type * from './types';

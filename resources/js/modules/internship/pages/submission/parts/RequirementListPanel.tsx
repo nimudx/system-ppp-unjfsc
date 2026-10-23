@@ -1,5 +1,5 @@
 import { RequirementsList, AlertHelp } from '@/modules/documents';
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 
 interface RequirementListPanelProps {
     requirements: DocumentRequirement[];

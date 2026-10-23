@@ -1,6 +1,6 @@
 import { ChevronRight, User } from 'lucide-react';
 
-import type { AssignmentRecord } from '@/modules/identity/types';
+import type { AssignmentRecord } from '@/modules/identity';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,

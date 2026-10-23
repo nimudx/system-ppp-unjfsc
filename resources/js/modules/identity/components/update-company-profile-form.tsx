@@ -1,5 +1,5 @@
 import { useForm, usePage } from '@inertiajs/react';
-import type { CompanyProfile } from '@/modules/company/types';
+import type { CompanyProfile } from '@/modules/company';
 import { update as updateDetails } from '@/routes/profile/details';
 import Heading from '@/shared/components/heading';
 import InputError from '@/shared/components/input-error';

@@ -17,7 +17,6 @@ use App\Domains\Supervision\Models\StudentGroup;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class PracticeSubmissionService
 {
@@ -250,7 +249,7 @@ class PracticeSubmissionService
             'file' => $document ? [
                 'id' => $document->id,
                 'name' => $document->name,
-                'url' => Storage::url($document->path),
+                'url' => $document->signedFileUrl(),
             ] : null,
         ];
     }

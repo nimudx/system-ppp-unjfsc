@@ -1,7 +1,7 @@
 import { FileText } from 'lucide-react';
 
 import { DocumentViewer } from '@/modules/documents';
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 
 import { Spinner } from '@/shared/components/ui/spinner';
 

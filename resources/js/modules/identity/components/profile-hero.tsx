@@ -191,7 +191,7 @@ export default function ProfileHero({
                         <button
                             type="button"
                             className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
-                            aria-label="Edit profile photo"
+                            aria-label="Cambiar foto de perfil"
                         >
                             <Camera className="h-8 w-8 text-white" />
                         </button>
@@ -221,7 +221,7 @@ export default function ProfileHero({
                     className="hidden"
                     accept="image/*"
                     onChange={handlePhotoChange}
-                    aria-label="Upload profile photo"
+                    aria-label="Subir foto de perfil"
                 />
             </div>
 
