@@ -11,6 +11,7 @@ use App\Domains\Identity\Models\Assignment;
 use App\Domains\Internship\Models\Internship;
 use App\Domains\Internship\Models\Placement;
 use App\Domains\Supervision\Models\Evaluation;
+use App\Domains\Supervision\Models\PracticeSubmission;
 use App\Shared\Exceptions\ResourceNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,7 @@ class DocumentService
         'evaluation' => Evaluation::class,
         'internship' => Internship::class,
         'placement' => Placement::class,
+        'practice_submission' => PracticeSubmission::class,
     ];
 
     /**
