@@ -100,14 +100,15 @@
     --chart-4: var(--color-lochmara-900);
     --chart-5: var(--color-lochmara-400);
     --radius: 0.625rem;
-    --sidebar: var(--color-lochmara-50);
-    --sidebar-foreground: var(--color-lochmara-950);
-    --sidebar-primary: var(--color-lochmara-700);
-    --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: var(--color-lochmara-100);
-    --sidebar-accent-foreground: var(--color-lochmara-800);
-    --sidebar-border: var(--color-lochmara-200);
-    --sidebar-ring: var(--color-lochmara-400);
+    /* Barra lateral azul institucional: texto 9:1, ítem activo un tono más claro */
+    --sidebar: var(--color-lochmara-800);
+    --sidebar-foreground: var(--color-lochmara-50);
+    --sidebar-primary: oklch(1 0 0);
+    --sidebar-primary-foreground: var(--color-lochmara-800);
+    --sidebar-accent: var(--color-lochmara-600);
+    --sidebar-accent-foreground: var(--color-lochmara-50);
+    --sidebar-border: var(--color-lochmara-700);
+    --sidebar-ring: var(--color-lochmara-300);
 }
 
 .dark {
