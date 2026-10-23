@@ -169,6 +169,19 @@ class UserRegistrationService
             ]);
         }
 
+        // VALIDACIÓN NUEVA: Evitar cuentas diferentes con el mismo DNI
+        $existingUser = User::query()
+            ->where('person_id', $person->id)
+            ->where('email', '!=', $data['email'])
+            ->first();
+
+        if ($existingUser) {
+            throw ValidationException::withMessages([
+                'person.dni' =>
+                    'Este DNI ya pertenece a otra cuenta. Verifique los datos antes de registrar al usuario.',
+            ]);
+        }
+
         // 2. Buscar/Crear Usuario por Email
         $user = User::where('email', $data['email'])->first();
 

@@ -19,18 +19,34 @@ class StorePersonMassiveRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         return [
-            'role_id' => 'required|exists:roles,id',
-            'section_id' => 'required|exists:sections,id',
-            'rows' => 'required|array',
-            'rows.*.email' => 'required|string|max:255',
-            'rows.*.dni' => 'required|string|max:8|min:8',
-            'rows.*.names' => 'required|string|max:255',
-            'rows.*.surnames' => 'required|string|max:255',
+            'role_id' => ['required', 'exists:roles,id'],
+            'section_id' => ['required', 'exists:sections,id'],
+
+            'rows' => ['required', 'array', 'min:1'],
+
+            'rows.*.email' => [
+                'required',
+                'email',
+                'max:255',
+                'distinct:ignore_case',
+            ],
+
+            'rows.*.dni' => [
+                'required',
+                'string',
+                'regex:/^[0-9]{8}$/',
+                'distinct:strict',
+            ],
+
+            'rows.*.names' => ['required', 'string', 'max:255'],
+            'rows.*.surnames' => ['required', 'string', 'max:255'],
         ];
     }
+
 
     public function messages(): array
     {
@@ -54,6 +70,10 @@ class StorePersonMassiveRequest extends FormRequest
             'rows.*.surnames.required' => 'Los apellidos son requeridos',
             'rows.*.surnames.string' => 'Los apellidos deben ser un string',
             'rows.*.surnames.max' => 'Los apellidos deben tener como máximo 255 caracteres',
+            'rows.*.dni.distinct' => 'El DNI está repetido en el archivo CSV.',
+            'rows.*.dni.regex' => 'El DNI debe contener exactamente 8 dígitos.',
+            'rows.*.email.distinct' => 'El correo está repetido en el archivo CSV.',
+            'rows.*.email.email' => 'El correo electrónico no es válido.',
         ];
     }
 }
