@@ -3,13 +3,16 @@ import {
     BookOpen,
     Building2,
     CheckCircle2,
+    ChevronRight,
     ClipboardList,
     Facebook,
     FileText,
     Globe,
     GraduationCap,
     HelpCircle,
+    Info,
     Layers,
+    ListChecks,
     LayoutDashboard,
     LogIn,
     Menu,
@@ -19,6 +22,7 @@ import {
     Star,
     Users,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
 import AppearanceToggleTab from '@/shared/components/appearance-tabs';
@@ -230,10 +234,30 @@ function AccessButton({
     );
 }
 
-// En celular, el acceso y el selector de tema van en un panel lateral.
+// Iconos de cada sección en el menú del celular.
+const navIcons: Record<string, LucideIcon> = {
+    about: Info,
+    roles: Users,
+    process: ListChecks,
+    faq: HelpCircle,
+};
+
+// En celular: secciones, tema y acceso en un panel lateral.
 function MobileMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
+    const [open, setOpen] = useState(false);
+
+    // Se cierra el panel y luego se desplaza: mientras está abierto la página
+    // tiene el scroll bloqueado.
+    const goToSection = (id: string) => {
+        setOpen(false);
+        window.setTimeout(() => {
+            smoothScrollToSection(id);
+            window.history.replaceState(null, '', `#${id}`);
+        }, 300);
+    };
+
     return (
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
                 <Button
                     variant="ghost"
@@ -244,7 +268,11 @@ function MobileMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
                     <Menu className="size-6" />
                 </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 gap-0">
+            <SheetContent
+                side="right"
+                className="w-80 gap-0"
+                onCloseAutoFocus={(event) => event.preventDefault()}
+            >
                 <SheetHeader className="border-b p-5">
                     <div className="flex items-center gap-3">
                         <AppLogoIcon className="size-9 fill-current" />
@@ -259,18 +287,42 @@ function MobileMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
                     </div>
                 </SheetHeader>
 
-                <div className="flex flex-col gap-6 p-5">
+                <nav aria-label="Secciones" className="p-3">
+                    {navLinks.map(({ id, label }) => {
+                        const Icon = navIcons[id];
+
+                        return (
+                            <a
+                                key={id}
+                                href={`#${id}`}
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    goToSection(id);
+                                }}
+                                className="group flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:bg-accent focus-visible:outline-none"
+                            >
+                                <span className="flex size-8 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                    <Icon className="size-4" />
+                                </span>
+                                {label}
+                                <ChevronRight className="ml-auto size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" />
+                            </a>
+                        );
+                    })}
+                </nav>
+
+                <div className="space-y-3 border-t px-5 py-4">
+                    <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                        Tema
+                    </p>
+                    <AppearanceToggleTab className="w-full [&>button]:flex-1 [&>button]:justify-center" />
+                </div>
+
+                <div className="mt-auto border-t p-5">
                     <AccessButton
                         isAuthenticated={isAuthenticated}
                         className="w-full"
                     />
-
-                    <div className="space-y-3">
-                        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                            Tema
-                        </p>
-                        <AppearanceToggleTab />
-                    </div>
                 </div>
             </SheetContent>
         </Sheet>
