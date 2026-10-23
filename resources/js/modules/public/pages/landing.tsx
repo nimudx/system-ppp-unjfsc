@@ -12,6 +12,7 @@ import {
     Layers,
     LayoutDashboard,
     LogIn,
+    Menu,
     Search,
     ShieldCheck,
     Smartphone,
@@ -37,6 +38,14 @@ import {
     CardTitle,
 } from '@/shared/components/ui/card';
 import { Separator } from '@/shared/components/ui/separator';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/shared/components/ui/sheet';
 import {
     Tabs,
     TabsContent,
@@ -196,6 +205,78 @@ function SlidingNavLinks() {
     );
 }
 
+// "Acceder" para visitantes o "Ir al Panel" si ya hay sesión.
+function AccessButton({
+    isAuthenticated,
+    className,
+}: {
+    isAuthenticated: boolean;
+    className?: string;
+}) {
+    return isAuthenticated ? (
+        <Button asChild variant="secondary" className={className}>
+            <Link href="/dashboard" className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Ir al Panel</span>
+            </Link>
+        </Button>
+    ) : (
+        <Button asChild className={className}>
+            <Link href="/login" className="flex items-center gap-2">
+                <LogIn className="h-4 w-4" />
+                <span>Acceder</span>
+            </Link>
+        </Button>
+    );
+}
+
+// En celular, el acceso y el selector de tema van en un panel lateral.
+function MobileMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
+    return (
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="sm:hidden"
+                    aria-label="Abrir menú"
+                >
+                    <Menu className="size-6" />
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80 gap-0">
+                <SheetHeader className="border-b p-5">
+                    <div className="flex items-center gap-3">
+                        <AppLogoIcon className="size-9 fill-current" />
+                        <div>
+                            <SheetTitle className="text-sm leading-none font-bold">
+                                Sistema de Prácticas
+                            </SheetTitle>
+                            <SheetDescription className="mt-1 text-[10px] font-medium tracking-widest uppercase">
+                                UNJFSC
+                            </SheetDescription>
+                        </div>
+                    </div>
+                </SheetHeader>
+
+                <div className="flex flex-col gap-6 p-5">
+                    <AccessButton
+                        isAuthenticated={isAuthenticated}
+                        className="w-full"
+                    />
+
+                    <div className="space-y-3">
+                        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                            Tema
+                        </p>
+                        <AppearanceToggleTab />
+                    </div>
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+}
+
 export default function Landing() {
     const { auth } = usePage().props;
 
@@ -298,53 +379,47 @@ export default function Landing() {
                             className="hidden h-6 sm:block"
                         />
 
-                        {auth.user ? (
-                            <Button asChild variant="secondary">
-                                <Link
-                                    href="/dashboard"
-                                    className="flex items-center gap-2"
-                                >
-                                    <LayoutDashboard className="h-4 w-4" />
-                                    <span>Ir al Panel</span>
-                                </Link>
-                            </Button>
-                        ) : (
-                            <Button asChild>
-                                <Link
-                                    href="/login"
-                                    className="flex items-center gap-2"
-                                >
-                                    <LogIn className="h-4 w-4" />
-                                    <span>Acceder</span>
-                                </Link>
-                            </Button>
-                        )}
+                        <div className="hidden sm:block">
+                            <AccessButton isAuthenticated={!!auth.user} />
+                        </div>
+
+                        <MobileMenu isAuthenticated={!!auth.user} />
                     </nav>
                 </div>
             </header>
 
             <main className="flex-1">
                 {/* Hero Section */}
-                {/* Foto del campus de fondo; en celular va arriba y la tarjeta debajo. */}
+                {/* Foto del campus de fondo. En celular se usa una toma vertical
+                    centrada en el busto y la tarjeta se monta sobre su parte baja. */}
                 <section className="relative isolate border-b bg-muted/20">
-                    <img
-                        src="/images/home/campus-unjfsc-1280.webp"
-                        srcSet="/images/home/campus-unjfsc-768.webp 768w, /images/home/campus-unjfsc-1280.webp 1280w, /images/home/campus-unjfsc-1920.webp 1920w"
-                        sizes="100vw"
-                        width={1920}
-                        height={1253}
-                        fetchPriority="high"
-                        decoding="async"
-                        alt="Campus de la UNJFSC con el busto de José Faustino Sánchez Carrión rodeado de jardines"
-                        className="aspect-[16/10] w-full object-cover object-[42%_center] sm:aspect-[16/9] lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto lg:h-full"
-                    />
+                    <picture>
+                        <source
+                            media="(max-width: 639px)"
+                            srcSet="/images/home/campus-unjfsc-mobile-480.webp 480w, /images/home/campus-unjfsc-mobile-800.webp 800w"
+                            sizes="100vw"
+                            width={800}
+                            height={1000}
+                        />
+                        <img
+                            src="/images/home/campus-unjfsc-1280.webp"
+                            srcSet="/images/home/campus-unjfsc-768.webp 768w, /images/home/campus-unjfsc-1280.webp 1280w, /images/home/campus-unjfsc-1920.webp 1920w"
+                            sizes="100vw"
+                            width={1920}
+                            height={1253}
+                            fetchPriority="high"
+                            decoding="async"
+                            alt="Campus de la UNJFSC con el busto de José Faustino Sánchez Carrión rodeado de jardines"
+                            className="aspect-[4/5] w-full object-cover object-[center_38%] sm:aspect-[16/9] sm:object-[42%_center] lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto lg:h-full"
+                        />
+                    </picture>
                     {/* Degradado hacia la tarjeta para mantener el contraste sin oscurecer el busto. */}
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-0 -z-10 hidden bg-gradient-to-l from-lochmara-950/55 via-lochmara-950/10 to-transparent lg:block"
                     />
 
-                    <div className="relative page-container -mt-14 pb-12 sm:-mt-24 lg:mt-0 lg:flex lg:min-h-[640px] lg:items-center lg:justify-end lg:py-20 xl:min-h-[700px]">
+                    <div className="relative page-container -mt-28 pb-12 sm:-mt-24 lg:mt-0 lg:flex lg:min-h-[640px] lg:items-center lg:justify-end lg:py-20 xl:min-h-[700px]">
                         <div className="animate-in rounded-2xl border bg-card/95 p-7 shadow-2xl duration-700 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-10 lg:max-w-xl lg:bg-card/90 lg:backdrop-blur-md">
                             <Badge
                                 variant="secondary"
