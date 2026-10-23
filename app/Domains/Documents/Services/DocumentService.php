@@ -109,7 +109,7 @@ class DocumentService
         $folder = "{$context}s/{$semester}/{$identifier}/{$typeDocument->code}";
         $filename = "type_{$typeDocument->code}_".Str::uuid().".{$file->extension()}";
 
-        return $file->storeAs($folder, $filename, 'public');
+        return $file->storeAs($folder, $filename, Document::DISK);
     }
 
     /**
@@ -153,7 +153,7 @@ class DocumentService
     public function removerDocument(Document $document): void
     {
         // remove phisical file
-        Storage::disk('public')->delete($document->path);
+        Storage::disk(Document::DISK)->delete($document->path);
         // remove document from database
         $document->delete();
     }
