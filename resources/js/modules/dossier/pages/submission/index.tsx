@@ -8,8 +8,8 @@ import {
     AlertHelp,
     SubmissionPanel,
 } from '@/modules/documents';
-import type { DocumentRequirement } from '@/modules/documents/types';
-import type { AssignmentRecord } from '@/modules/identity/types';
+import type { DocumentRequirement } from '@/modules/documents';
+import type { AssignmentRecord } from '@/modules/identity';
 
 import dossiers from '@/routes/academic/dossiers';
 import Heading from '@/shared/components/heading';

@@ -39,7 +39,7 @@ export function AppSidebar() {
 
     const mainNavItems = menuSelection[userType] || [
         {
-            title: 'Dashboard',
+            title: 'Panel',
             href: dashboard(),
             icon: LayoutGrid,
         },

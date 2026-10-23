@@ -11,7 +11,6 @@ use App\Shared\Enums\Role;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class DossierService
 {
@@ -50,8 +49,8 @@ class DossierService
                     return null;
                 }
                 $data = $doc->toArray();
-                // Transformamos el path a una URL pública
-                $data['path'] = Storage::url($doc->path);
+                // URL firmada y temporal para la vista previa
+                $data['path'] = $doc->signedFileUrl();
 
                 return $data;
             };

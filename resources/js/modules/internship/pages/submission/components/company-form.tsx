@@ -534,7 +534,7 @@ export default function CompanyForm({
                                     render={({ field }) => (
                                         <FormItem className="space-y-1.5">
                                             <FormLabel className={labelStyle}>
-                                                Email corporativo
+                                                Correo corporativo
                                             </FormLabel>
                                             <FormControl>
                                                 <Input

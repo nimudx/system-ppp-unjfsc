@@ -80,6 +80,7 @@
 │   │   ├── 📄 use-clipboard.ts
 │   │   ├── 📄 use-config-table.tsx                    # ⚠️ unificar con use-academic-table (hacen casi lo mismo)
 │   │   ├── 📄 use-current-url.ts
+│   │   ├── 📄 use-file-preview.ts                     # URL de vista previa de archivos subidos
 │   │   ├── 📄 use-initials.tsx
 │   │   ├── 📄 use-item-detail.tsx
 │   │   ├── 📄 use-mobile-navigation.ts
@@ -98,6 +99,7 @@
 │   │       ├── 📄 layout.tsx
 │   │       └── 📄 academic-settings-layout.tsx        ← layouts/academic/settings-layout.tsx
 │   ├── 📁 lib
+│   │   ├── 📄 api-error.ts                            # mensaje legible de errores de axios/Laravel
 │   │   ├── 📄 inertia.ts                              # nombre de página → modules/<módulo>/pages (ver nota al final)
 │   │   └── 📄 utils.ts
 │   └── 📁 types
@@ -105,6 +107,7 @@
 │       ├── 📄 global.d.ts
 │       ├── 📄 index.ts
 │       ├── 📄 navigation.ts
+│       ├── 📄 session.ts                              # datos de sesión compartidos: Semester, notificaciones
 │       ├── 📄 ui.ts
 │       └── 📄 vite-env.d.ts
 │
@@ -147,6 +150,7 @@
 │   │   │   └── 📄 update-company-profile-form.tsx
 │   │   ├── 📁 hooks
 │   │   │   └── 📄 use-two-factor-auth.ts
+│   │   ├── 📄 types.ts
 │   │   └── 📄 index.ts
 │   │
 │   ├── 📁 registration                                # Alta de usuarios
@@ -176,6 +180,7 @@
 │   │   │                   ├── 📁 step-one   (MassiveVStepOne.tsx, schema.ts, csv.schema.ts, csv.utils.ts, components/CsvPreview.tsx, components/CsvUploader.tsx)
 │   │   │                   ├── 📁 step-two   (MassiveSStepTwo.tsx, partials/DataPreviewModal.tsx)
 │   │   │                   └── 📁 step-three (MassiveRStepThree.tsx)
+│   │   ├── 📄 types.ts
 │   │   └── 📄 index.ts
 │   │
 │   ├── 📁 dashboard
@@ -226,6 +231,7 @@
 │   │   │   ├── 📄 validation-form.tsx
 │   │   │   ├── 📄 validation-panel.tsx
 │   │   │   └── 🗑️ status-form.tsx                     # sin uso
+│   │   ├── 📄 types.ts
 │   │   └── 📄 index.ts                                # exporta lo que dossier/internship/supervision pueden usar
 │   │
 │   ├── 📁 dossier
@@ -256,6 +262,7 @@
 │   │   │       ├── 📄 useWorkflow.ts
 │   │   │       └── 📁 components (BuilderCard, EvaluationCard, JsonPreview, RequirementColumn, StepperPreview .tsx)
 │   │   │   # 🗑️ pages/academic/settings/internship.tsx y hooks/use-student-group.ts están vacíos
+│   │   ├── 📄 types.ts
 │   │   └── 📄 index.ts
 │   │
 │   ├── 📁 supervision                                 # Supervisión + grupos
@@ -292,6 +299,7 @@
 │   │   │   ├── 📄 academic-resource-content.tsx       ← pages/academic/resource/resource-content.tsx
 │   │   │   ├── 📄 admin-resource-content.tsx          ← pages/admin/resource-content.tsx
 │   │   │   └── 📁 partials (create-resource-sheet, edit-resource-sheet, delete-resource-alert, location-selector .tsx)
+│   │   ├── 📄 types.ts
 │   │   └── 📄 index.ts
 │   │
 │   ├── 📁 notifications
@@ -301,6 +309,8 @@
 │   │   │   └── 📄 notification-dropdown.tsx
 │   │   ├── 📁 config
 │   │   │   └── 📄 notification.tsx                    ← config/notification.tsx
+│   │   ├── 📄 resolve-url.ts                          # ruta de destino de cada notificación
+│   │   ├── 📄 types.ts                                # reexporta los tipos de shared/types/session
 │   │   └── 📄 index.ts
 │   │
 │   ├── 📁 company
@@ -308,6 +318,7 @@
 │   │   │   ├── 📄 register.tsx                        ✏️ hoy es solo diseño: falta conectarlo al backend
 │   │   │   ├── 📄 resource-content.tsx                # ⚠️ placeholder
 │   │   │   └── 🆕 📁 approval                         # pantalla admin para aprobar empresas
+│   │   ├── 📄 types.ts
 │   │   └── 📄 index.ts
 │   │
 │   └── 📁 jobboard                                    # 🆕 Bolsa laboral
@@ -355,7 +366,10 @@ Reglas:
 - Al crear una página nueva, se usa ese mismo nombre en el controlador; no hay que
   registrar alias.
 - `resources/views/app.blade.php` precarga la página con la misma regla.
-- Entre módulos se importa por su `index.ts` (`import { ValidationPanel } from '@/modules/documents'`),
-  nunca por rutas internas de otro módulo.
-- `shared/` no importa de `modules/`. Excepciones actuales: `app-sidebar-header` usa
-  `NotificationDropdown` y `academic-filter` usa el tipo `Faculty`.
+- Entre módulos se importa por su `index.ts`, también los tipos
+  (`import { ValidationPanel, type DocumentRequirement } from '@/modules/documents'`),
+  nunca por rutas internas de otro módulo. Cada `index.ts` exporta sus `types.ts`.
+- `shared/` no importa de `modules/`. Si un tipo lo necesitan shared y los módulos
+  (por ejemplo, los datos de sesión `Semester` o `NotificationSummary`), se define en
+  `shared/types` y el módulo lo reexporta. Única excepción: `app-sidebar-header` muestra el
+  `NotificationDropdown` del módulo de notificaciones.

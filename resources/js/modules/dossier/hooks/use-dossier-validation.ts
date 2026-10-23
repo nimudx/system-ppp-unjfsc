@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import type { AssignmentRecord, DossierDetail } from '@/modules/identity/types';
+import type { AssignmentRecord, DossierDetail } from '@/modules/identity';
 import dossiers from '@/routes/academic/dossiers';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';

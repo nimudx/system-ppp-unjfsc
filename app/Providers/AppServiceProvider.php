@@ -56,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
             'App\\Models\\StudentGroup' => \App\Domains\Supervision\Models\StudentGroup::class,
             'App\\Models\\Supervision' => \App\Domains\Supervision\Models\Supervision::class,
             'App\\Models\\TypeUser' => \App\Domains\Identity\Models\TypeUser::class,
+            'practice_submission' => \App\Domains\Supervision\Models\PracticeSubmission::class,
             'App\\Models\\User' => \App\Domains\Identity\Models\User::class,
             'App\\Models\\UserRequest' => \App\Domains\Requests\Models\UserRequest::class,
         ]);

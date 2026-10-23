@@ -12,7 +12,6 @@ use App\Domains\Internship\Models\Placement;
 use App\Domains\Notifications\Services\NotificationService;
 use App\Shared\Enums\Role;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class PlacementService
 {
@@ -87,7 +86,7 @@ class PlacementService
                 'latest' => $latest ? [
                     'id' => $latest->id,
                     'name' => $latest->name,
-                    'path' => Storage::url($latest->path),
+                    'path' => $latest->signedFileUrl(),
                     'approval_status' => $latest->approval_status,
                     'comment' => $latest->comment,
                     'created_at' => $latest->created_at,

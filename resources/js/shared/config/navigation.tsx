@@ -25,6 +25,7 @@ import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
 import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
 import { validation as internshipValidationIndex } from '@/routes/academic/internship';
+import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 import { index as schoolsIndex } from '@/routes/academic/schools';
 import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
@@ -37,11 +38,10 @@ import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
 import { index as registerIndex } from '@/routes/register';
 import { index as resourceIndex } from '@/routes/resource';
-import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 
 export const ACADEMIC_NAV = [
     {
-        title: 'Dashboard',
+        title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
@@ -236,7 +236,7 @@ export const ACADEMIC_NAV = [
 
 export const COMPANY_NAV = [
     {
-        title: 'Dashboard',
+        title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
@@ -249,7 +249,7 @@ export const COMPANY_NAV = [
 
 export const ADMIN_NAV = [
     {
-        title: 'Dashboard',
+        title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
@@ -301,14 +301,14 @@ export const FOOTER_NAV = [
         roles: [1, 2, 3],
     },
     {
-        title: 'Repository',
+        title: 'Repositorio',
         href: 'https://github.com/martii-n/system-ppp-unjfsc',
         icon: Folder,
         userTypes: [1, 2],
         roles: [1, 2],
     },
     {
-        title: 'Documentation',
+        title: 'Documentación',
         href: 'https://laravel.com/docs/starter-kits#react',
         icon: BookOpen,
         userTypes: [1, 2],

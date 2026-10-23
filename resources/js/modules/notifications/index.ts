@@ -6,3 +6,4 @@ export {
     type NotificationConfig,
     type NotificationMeta,
 } from './config/notification';
+export type * from './types';
