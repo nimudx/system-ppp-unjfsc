@@ -13,6 +13,7 @@ use App\Domains\Supervision\Exceptions\PracticeSubmissionAlreadyReviewedExceptio
 use App\Domains\Supervision\Exceptions\PracticeSubmissionLockedException;
 use App\Domains\Supervision\Models\InternshipGroup;
 use App\Domains\Supervision\Models\PracticeSubmission;
+use App\Domains\Supervision\Models\StudentGroup;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -136,6 +137,51 @@ class PracticeSubmissionService
 
             return $submission;
         });
+    }
+
+    /**
+     * Docente supervisor: última entrega de cada estudiante de sus grupos (plan o informe),
+     * con el resto de entregas de ese estudiante como historial.
+     */
+    public function getSupervisorData(Assignment $supervisor, PracticeSubmissionType $type): array
+    {
+        $studentIds = StudentGroup::query()
+            ->whereHas('internshipGroup', fn ($q) => $q->where('supervisor_assignment_id', $supervisor->id))
+            ->pluck('student_assignment_id');
+
+        $byStudent = PracticeSubmission::query()
+            ->whereIn('assignment_id', $studentIds)
+            ->where('type', $type->value)
+            ->with([
+                'document',
+                'reviewer.user.person',
+                'assignment.user.person',
+                'assignment.section.school',
+                'assignment.placement.company',
+            ])
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('assignment_id');
+
+        $items = $byStudent->map(function (Collection $history) {
+            /** @var PracticeSubmission $latest */
+            $latest = $history->first();
+            $student = $latest->assignment;
+            $person = $student?->user?->person;
+
+            return array_merge($this->transform($latest), [
+                'student' => $person
+                    ? trim($person->names.' '.$person->surnames)
+                    : ($student?->user?->name ?? 'Estudiante'),
+                'code' => $person?->dni,
+                'career' => $student?->section?->school?->name,
+                'company' => $student?->placement?->company?->name,
+                'can_review' => $latest->approval_status === PracticeSubmissionStatus::PENDING,
+                'history' => $history->skip(1)->map(fn ($s) => $this->transform($s))->values(),
+            ]);
+        })->sortByDesc('submitted_at')->values();
+
+        return ['submissions' => $items];
     }
 
     private function canSubmit(?PracticeSubmission $latest): bool

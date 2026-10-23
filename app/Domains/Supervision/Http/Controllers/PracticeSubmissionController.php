@@ -44,6 +44,29 @@ class PracticeSubmissionController extends Controller
     }
 
     /**
+     * Docente supervisor: planes de prácticas de sus estudiantes.
+     */
+    public function plansIndex(): Response
+    {
+        return $this->supervisorIndex(PracticeSubmissionType::PLAN, 'internship/practice-plans');
+    }
+
+    /**
+     * Docente supervisor: informes de prácticas de sus estudiantes.
+     */
+    public function reportsIndex(): Response
+    {
+        return $this->supervisorIndex(PracticeSubmissionType::REPORT, 'internship/practice-reports');
+    }
+
+    private function supervisorIndex(PracticeSubmissionType $type, string $page): Response
+    {
+        $supervisor = Assignment::query()->findOrFail(session('assignment_id'));
+
+        return Inertia::render($page, $this->service->getSupervisorData($supervisor, $type));
+    }
+
+    /**
      * Docente supervisor: calificar u observar una entrega.
      */
     public function review(ReviewPracticeSubmissionRequest $request, PracticeSubmission $submission): RedirectResponse

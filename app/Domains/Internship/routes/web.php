@@ -50,10 +50,10 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
         // Docente supervisor: consulta de planes e informes
         Route::middleware(['role:4'])->group(function () {
 
-            Route::get('/internship/practice-plans', [InternshipController::class, 'PracticePlansIndex'])
+            Route::get('/internship/practice-plans', [PracticeSubmissionController::class, 'plansIndex'])
                 ->name('internship.practice-plans');
 
-            Route::get('/internship/practice-reports', [InternshipController::class, 'PracticeReportsIndex'])
+            Route::get('/internship/practice-reports', [PracticeSubmissionController::class, 'reportsIndex'])
                 ->name('internship.practice-reports');
         });
 
