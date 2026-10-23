@@ -325,34 +325,63 @@ export default function Landing() {
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative overflow-hidden border-b bg-muted/20 py-20 lg:py-32">
-                    <div className="page-container">
-                        <div className="flex flex-col items-center space-y-8 text-center">
+                {/* Foto del campus de fondo; en celular va arriba y la tarjeta debajo. */}
+                <section className="relative isolate border-b bg-muted/20">
+                    <img
+                        src="/images/home/campus-unjfsc-1280.webp"
+                        srcSet="/images/home/campus-unjfsc-768.webp 768w, /images/home/campus-unjfsc-1280.webp 1280w, /images/home/campus-unjfsc-1920.webp 1920w"
+                        sizes="100vw"
+                        width={1920}
+                        height={1253}
+                        fetchPriority="high"
+                        decoding="async"
+                        alt="Campus de la UNJFSC con el busto de José Faustino Sánchez Carrión rodeado de jardines"
+                        className="aspect-[16/10] w-full object-cover object-[42%_center] sm:aspect-[16/9] lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto lg:h-full"
+                    />
+                    {/* Degradado hacia la tarjeta para mantener el contraste sin oscurecer el busto. */}
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 -z-10 hidden bg-gradient-to-l from-lochmara-950/55 via-lochmara-950/10 to-transparent lg:block"
+                    />
+
+                    <div className="relative page-container -mt-14 pb-12 sm:-mt-24 lg:mt-0 lg:flex lg:min-h-[640px] lg:items-center lg:justify-end lg:py-20 xl:min-h-[700px]">
+                        <div className="animate-in rounded-2xl border bg-card/95 p-7 shadow-2xl duration-700 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-10 lg:max-w-xl lg:bg-card/90 lg:backdrop-blur-md">
                             <Badge
-                                variant="outline"
-                                className="animate-in px-4 py-1 duration-500 fade-in slide-in-from-bottom-2"
+                                variant="secondary"
+                                className="mb-5 max-w-full px-3 py-1 text-xs whitespace-normal"
                             >
                                 Universidad Nacional José Faustino Sánchez
                                 Carrión
                             </Badge>
 
-                            <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
-                                Sistema de Gestión de <br />
+                            <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-foreground sm:text-4xl xl:text-5xl">
+                                Sistema de Gestión de{' '}
                                 <span className="tracking-tighter text-primary">
                                     Prácticas Pre Profesionales
                                 </span>
                             </h1>
 
-                            <p className="mx-auto h-auto max-w-2xl text-xl leading-relaxed text-muted-foreground">
+                            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
                                 Optimización administrativa y seguimiento
                                 académico centralizado para todas las
                                 facultades. Conecta tu potencial académico con
                                 el sector productivo líder en el país.
                             </p>
 
-                            <div className="flex flex-wrap items-center justify-center gap-4">
+                            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                                 <Button size="lg" asChild>
-                                    <a href="#roles">
+                                    <a
+                                        href="#roles"
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            smoothScrollToSection('roles');
+                                            window.history.replaceState(
+                                                null,
+                                                '',
+                                                '#roles',
+                                            );
+                                        }}
+                                    >
                                         Explorar Funcionalidades
                                     </a>
                                 </Button>
@@ -361,13 +390,15 @@ export default function Landing() {
                                         Acceder al Sistema
                                     </Link>
                                 </Button>
-                                <Button size="lg" variant="ghost" asChild>
-                                    <Link href="/registro-empresa">
-                                        <Building2 className="h-4 w-4" />
-                                        Registrar mi empresa
-                                    </Link>
-                                </Button>
                             </div>
+
+                            <Link
+                                href="/registro-empresa"
+                                className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                            >
+                                <Building2 className="h-4 w-4" />
+                                ¿Eres empresa? Registrar mi empresa
+                            </Link>
                         </div>
                     </div>
                 </section>
