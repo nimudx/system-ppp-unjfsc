@@ -25,6 +25,7 @@ import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
 import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
 import { validation as internshipValidationIndex } from '@/routes/academic/internship';
+import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 import { index as schoolsIndex } from '@/routes/academic/schools';
 import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
@@ -37,7 +38,6 @@ import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
 import { index as registerIndex } from '@/routes/register';
 import { index as resourceIndex } from '@/routes/resource';
-import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 
 export const ACADEMIC_NAV = [
     {

@@ -358,7 +358,7 @@ export default function ReportReview({
                                                 <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center">
                                                     <FileCheck className="size-6 shrink-0 text-primary" />
                                                     <div className="min-w-0 flex-1">
-                                                        <p className="break-all text-sm font-medium">
+                                                        <p className="text-sm font-medium break-all">
                                                             {selectedFile.name}
                                                         </p>
                                                         <p className="text-xs text-muted-foreground">
@@ -375,11 +375,13 @@ export default function ReportReview({
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
-                                                            setFiles((prev) => ({
-                                                                ...prev,
-                                                                [selectedType]:
-                                                                    null,
-                                                            }))
+                                                            setFiles(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [selectedType]:
+                                                                        null,
+                                                                }),
+                                                            )
                                                         }
                                                     >
                                                         Quitar
@@ -496,8 +498,8 @@ export default function ReportReview({
                                         </p>
                                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                             Aquí aparecerán las fechas de
-                                            entrega, las revisiones, las notas
-                                            y las observaciones anteriores.
+                                            entrega, las revisiones, las notas y
+                                            las observaciones anteriores.
                                         </p>
                                     </div>
                                 ) : (
