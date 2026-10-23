@@ -37,6 +37,7 @@ import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
 import { index as registerIndex } from '@/routes/register';
 import { index as resourceIndex } from '@/routes/resource';
+import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 
 export const ACADEMIC_NAV = [
     {
@@ -129,6 +130,12 @@ export const ACADEMIC_NAV = [
         title: 'Rev. Prácticas',
         href: studentSupervisionIndex().url,
         icon: NotebookPen,
+        roles: [5],
+    },
+    {
+        title: 'Rev. informe',
+        href: reportReviewIndex().url,
+        icon: FileText,
         roles: [5],
     },
     {

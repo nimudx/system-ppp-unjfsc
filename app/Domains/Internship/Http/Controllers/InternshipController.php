@@ -285,4 +285,9 @@ class InternshipController extends Controller
     {
         return Inertia::render('internship/settings/index');
     }
+
+    public function ReportReviewIndex()
+{
+    return Inertia::render('internship/report-review');
+}
 }
