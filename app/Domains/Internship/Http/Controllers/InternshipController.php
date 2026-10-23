@@ -187,8 +187,7 @@ class InternshipController extends Controller
      */
     public function storeDocumentInternship(UploadDocumentInternshipRequest $request): RedirectResponse
     {
-        $user = Auth::user() ?? User::first();
-        $assignment = $user->activeAssignment;
+        $assignment = app(\App\Domains\Company\Support\CompanyWorkflowAccess::class)->assignment($request->user(), 5, true);
 
         $data = $request->validated();
 
@@ -285,7 +284,6 @@ class InternshipController extends Controller
     {
         return Inertia::render('internship/settings/index');
     }
-
     public function PracticePlansIndex(): Response
     {
         return Inertia::render('internship/practice-plans');

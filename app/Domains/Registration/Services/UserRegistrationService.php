@@ -212,35 +212,7 @@ class UserRegistrationService
      */
     public function registerUserCompany(array $data): User
     {
-        return DB::transaction(function () use ($data) {
-            $company = Company::query()->find($data['ruc']);
-
-            if ($company) {
-                throw new \Exception('Company already exists');
-            }
-
-            $company = Company::query()->create([
-                'name' => $data['name'],
-                'ruc' => $data['ruc'],
-                'razon' => $data['razon'],
-                'address' => $data['address'],
-                'phone' => $data['phone'],
-                'email' => $data['email'],
-            ]);
-
-            $temporaryPassword = '12345678';
-
-            $user = User::query()->create([
-                'authenticable_id' => $company->id,
-                'authenticable_type' => Company::class,
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($temporaryPassword),
-                'type_user_id' => 3,
-            ]);
-
-            return $user->load('company');
-        });
+        abort(409, 'Las empresas se registran desde la solicitud del estudiante, la aprobación del titular y la activación por invitación.');
     }
 
     private function authorizeUserAction(Assignment $authAssignment, int $targetRoleId, int $targetSectionId): void

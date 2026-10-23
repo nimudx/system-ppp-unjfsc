@@ -26,6 +26,7 @@ class StorePlacementRequest extends FormRequest
         $companyId = $this->input('company.id');
 
         return [
+            'practice_declaration_accepted' => ['required', 'accepted'],
             'internship_type' => 'required|in:development,validation',
             // origin: solo requerido y validado si el tipo es 'development'
             'origin_type' => [
@@ -38,7 +39,7 @@ class StorePlacementRequest extends FormRequest
             ],
 
             // Si ya tenemos company.id, no crear ni validar RUC como único
-            'company.id' => 'nullable|exists:companies,id',
+            'company.id' => 'required|integer|exists:companies,id',
             'company.ruc' => [
                 'required_if:company.id,null',
                 'string',
@@ -54,10 +55,10 @@ class StorePlacementRequest extends FormRequest
             'company.email' => 'nullable|email|max:255',
 
             'placement.staff_id' => 'nullable|exists:staffs,id',
-            'placement.boss_name' => 'required_if:placement.staff_id,null|string|max:255',
-            'placement.boss_position' => 'nullable|string|max:255',
-            'placement.boss_email' => 'nullable|email|max:255',
-            'placement.boss_phone' => 'nullable|string|max:255',
+            'placement.boss_name' => 'required|string|max:255',
+            'placement.boss_position' => 'required|string|max:255',
+            'placement.boss_email' => 'required|email|max:255',
+            'placement.boss_phone' => 'required|string|max:30',
 
             'placement.area_id' => 'nullable|exists:areas,id',
             'placement.area_name' => 'required_if:placement.area_id,null|string|max:255',
@@ -66,7 +67,7 @@ class StorePlacementRequest extends FormRequest
             'placement.position' => 'required|string|max:255',
             'placement.description' => 'nullable|string|max:1000',
             'placement.start_date' => 'required|date',
-            'placement.end_date' => 'nullable|date|after:placement.start_date',
+            'placement.end_date' => 'required|date|after:placement.start_date',
         ];
     }
 

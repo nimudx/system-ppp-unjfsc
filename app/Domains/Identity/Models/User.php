@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -70,9 +69,9 @@ class User extends Authenticatable
         return $this->belongsTo(Person::class);
     }
 
-    public function company(): MorphTo
+    public function company(): HasOne
     {
-        return $this->morphTo('authenticable');
+        return $this->hasOne(\App\Domains\Company\Models\Company::class, 'account_user_id');
     }
 
     public function assignments(): HasMany
