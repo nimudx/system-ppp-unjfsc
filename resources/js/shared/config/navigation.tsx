@@ -98,6 +98,26 @@ export const ACADEMIC_NAV = [
         ],
     },
     {
+        title: 'Documentos de prácticas',
+        href: '#',
+        icon: Folder,
+        roles: [4],
+        items: [
+            {
+                title: 'Planes de prácticas',
+                href: '/internship/practice-plans',
+                icon: FileText,
+                roles: [4],
+            },
+            {
+                title: 'Informes de prácticas',
+                href: '/internship/practice-reports',
+                icon: FileText,
+                roles: [4],
+            },
+        ],
+    },
+    {
         title: 'Seguimiento',
         href: '#',
         icon: BookMarked,
