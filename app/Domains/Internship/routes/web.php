@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Domains\Internship\Http\Controllers\InternshipController;
@@ -13,6 +12,7 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
 
         // Estudiante: presentación y formalización de prácticas
         Route::middleware(['role:1,5'])->group(function () {
+
             Route::get('/internship', [InternshipController::class, 'SubmissionIndex'])
                 ->middleware(['role:5'])
                 ->name('internship.submission');
@@ -47,8 +47,19 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
                 ->name('internship.documents.store');
         });
 
+        // Docente supervisor: consulta de planes e informes
+        Route::middleware(['role:4'])->group(function () {
+
+            Route::get('/internship/practice-plans', [InternshipController::class, 'PracticePlansIndex'])
+                ->name('internship.practice-plans');
+
+            Route::get('/internship/practice-reports', [InternshipController::class, 'PracticeReportsIndex'])
+                ->name('internship.practice-reports');
+        });
+
         // Validación y calificación de prácticas
         Route::middleware(['role:1,2,3'])->group(function () {
+
             Route::get('/internship/validation', [InternshipController::class, 'ValidationIndex'])
                 ->name('internship.validation');
 
@@ -76,6 +87,7 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
 
         // Configuración de prácticas
         Route::middleware(['role:1,2,3'])->group(function () {
+
             Route::get('/internship/settings', [InternshipSettingController::class, 'index'])
                 ->name('internship.settings');
 
@@ -89,6 +101,7 @@ Route::middleware(['auth', 'type:1,2', 'approved', 'role:1,2,3'])
     ->name('settings.academic.')
     ->prefix('settings')
     ->group(function () {
+
         Route::get('internship', [InternshipSettingController::class, 'index'])
             ->name('internship');
     });
