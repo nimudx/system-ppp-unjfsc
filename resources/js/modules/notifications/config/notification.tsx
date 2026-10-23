@@ -36,6 +36,20 @@ export const NOTIFICATION_CONFIG: Record<string, NotificationConfig> = {
             return `El documento <strong>'${meta.document}'</strong> ha sido rechazado.`;
         },
     },
+    PRACTICE_REVIEW: {
+        icon: (status?: number | null) =>
+            status === 1 ? CheckCircle2 : AlertCircle,
+        color: (status?: number | null) =>
+            status === 1 ? 'text-green-500' : 'text-amber-500',
+        bg: (status?: number | null) =>
+            status === 1
+                ? 'bg-green-500/10 dark:bg-green-500/20'
+                : 'bg-amber-500/10 dark:bg-amber-500/20',
+        render: (meta) =>
+            meta.status === 1
+                ? `Tu <strong>'${meta.document}'</strong> fue <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`
+                : `Tu <strong>'${meta.document}'</strong> fue observado: <em class="text-neutral-600 dark:text-neutral-400">"${meta.comment}"</em>.`,
+    },
     PLACEMENT_REGISTER: {
         icon: FileUp,
         color: 'text-blue-500',

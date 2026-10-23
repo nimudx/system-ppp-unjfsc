@@ -3,6 +3,7 @@
 use App\Domains\Internship\Http\Controllers\InternshipController;
 use App\Domains\Internship\Http\Controllers\InternshipSettingController;
 use App\Domains\Internship\Http\Controllers\PlacementController;
+use App\Domains\Supervision\Http\Controllers\PracticeSubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'type:1,2', 'approved'])
@@ -17,9 +18,14 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
                 ->name('internship.submission');
 
             // Estudiante: revisión del informe
-            Route::get('/internship/report-review', [InternshipController::class, 'ReportReviewIndex'])
+            Route::get('/internship/report-review', [PracticeSubmissionController::class, 'reportReview'])
                 ->middleware(['role:5'])
                 ->name('internship.report-review');
+
+            // Estudiante: entregar plan / informe de prácticas
+            Route::post('/internship/report-review/submissions', [PracticeSubmissionController::class, 'store'])
+                ->middleware(['role:5'])
+                ->name('internship.report-review.store');
 
             // Placement: formalización previa al Internship
             Route::post('/internship/placements', [PlacementController::class, 'store'])
@@ -44,10 +50,10 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
         // Docente supervisor: consulta de planes e informes
         Route::middleware(['role:4'])->group(function () {
 
-            Route::get('/internship/practice-plans', [InternshipController::class, 'PracticePlansIndex'])
+            Route::get('/internship/practice-plans', [PracticeSubmissionController::class, 'plansIndex'])
                 ->name('internship.practice-plans');
 
-            Route::get('/internship/practice-reports', [InternshipController::class, 'PracticeReportsIndex'])
+            Route::get('/internship/practice-reports', [PracticeSubmissionController::class, 'reportsIndex'])
                 ->name('internship.practice-reports');
         });
 
