@@ -442,8 +442,9 @@ export default function Landing() {
 
             <main className="flex-1">
                 {/* Hero Section */}
-                {/* Foto del campus de fondo. En celular se usa una toma vertical
-                    centrada en el busto y la tarjeta se monta sobre su parte baja. */}
+                {/* Foto del campus de fondo en todos los tamaños. En celular se usa
+                    una toma vertical y la tarjeta queda centrada sobre la foto; en
+                    escritorio la tarjeta va a la derecha. */}
                 <section className="relative isolate border-b bg-muted/20">
                     <picture>
                         <source
@@ -462,17 +463,18 @@ export default function Landing() {
                             fetchPriority="high"
                             decoding="async"
                             alt="Campus de la UNJFSC con el busto de José Faustino Sánchez Carrión rodeado de jardines"
-                            className="aspect-[4/5] w-full object-cover object-[center_38%] sm:aspect-[16/9] sm:object-[42%_center] lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto lg:h-full"
+                            className="absolute inset-0 -z-10 h-full w-full object-cover object-[center_38%] sm:object-[42%_center]"
                         />
                     </picture>
-                    {/* Degradado hacia la tarjeta para mantener el contraste sin oscurecer el busto. */}
+                    {/* Velo suave para integrar la tarjeta; en escritorio es un
+                        degradado hacia la derecha para no oscurecer el busto. */}
                     <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 -z-10 hidden bg-gradient-to-l from-lochmara-950/55 via-lochmara-950/10 to-transparent lg:block"
+                        className="pointer-events-none absolute inset-0 -z-10 bg-lochmara-950/30 lg:bg-transparent lg:bg-gradient-to-l lg:from-lochmara-950/55 lg:via-lochmara-950/10 lg:to-transparent"
                     />
 
-                    <div className="relative page-container -mt-28 pb-12 sm:-mt-24 lg:mt-0 lg:flex lg:min-h-[640px] lg:items-center lg:justify-end lg:py-20 xl:min-h-[700px]">
-                        <div className="animate-in rounded-2xl border bg-card/95 p-7 shadow-2xl duration-700 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-10 lg:max-w-xl lg:bg-card/90 lg:backdrop-blur-md">
+                    <div className="relative page-container flex min-h-[calc(100svh-4rem)] items-center justify-center py-10 sm:py-14 lg:min-h-[640px] lg:justify-end lg:py-20 xl:min-h-[700px]">
+                        <div className="w-full max-w-xl animate-in rounded-2xl border bg-card/85 p-6 shadow-2xl backdrop-blur-md duration-700 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-10 lg:bg-card/90">
                             <Badge
                                 variant="secondary"
                                 className="mb-5 max-w-full px-3 py-1 text-xs whitespace-normal"
