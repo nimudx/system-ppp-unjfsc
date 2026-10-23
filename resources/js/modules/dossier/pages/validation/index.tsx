@@ -39,7 +39,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
     });
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Panel', href: '/dashboard' },
         { title: title, href: '#' },
     ];
 

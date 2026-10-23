@@ -75,7 +75,7 @@ export function CsvPreview({ data, errors }: CsvPreviewProps) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Email</TableHead>
+                                <TableHead>Correo electrónico</TableHead>
                                 <TableHead>DNI</TableHead>
                                 <TableHead>Apellidos</TableHead>
                                 <TableHead>Nombres</TableHead>

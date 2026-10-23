@@ -222,7 +222,10 @@ const AvatarStack = ({
                         <span className="text-xs font-medium tracking-wider text-muted-foreground">
                             Perfil Activo
                         </span>
-                        <span className="max-w-[120px] truncate text-sm font-semibold tracking-tight uppercase">
+                        <span
+                            className="max-w-[12rem] truncate text-sm font-semibold tracking-tight uppercase"
+                            title={selectedProfile?.role}
+                        >
                             {selectedProfile?.role || 'Seleccionar'}
                         </span>
                     </div>
