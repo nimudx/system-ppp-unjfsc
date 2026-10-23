@@ -19,7 +19,14 @@ class Company extends Model
         'path_photo',
         'path_banner',
         'status',
+        'account_user_id', 'representative_name', 'representative_phone', 'activated_at',
+        'approved_by_assignment_id', 'approved_at',
     ];
+
+    protected function casts(): array
+    {
+        return ['activated_at' => 'datetime', 'approved_at' => 'datetime'];
+    }
 
     /**
      * Get the bosses associated with the company.

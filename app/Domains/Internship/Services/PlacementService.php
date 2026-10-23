@@ -3,7 +3,6 @@
 namespace App\Domains\Internship\Services;
 
 use App\Domains\Company\Models\Area;
-use App\Domains\Company\Models\Company;
 use App\Domains\Company\Services\CompanyService;
 use App\Domains\Documents\Models\DocumentType;
 use App\Domains\Documents\Services\DocumentService;
@@ -107,18 +106,13 @@ class PlacementService
     public function registerPlacement(array $data, Assignment $assignment): Placement
     {
         return DB::transaction(function () use ($data, $assignment) {
-            // Resolver company_id: usar el ID provisto, buscarlo por RUC, o crear uno nuevo
-            $companyId = $data['company']['id'] ?? null;
-
-            if (! $companyId) {
-                // Buscar si ya existe un empresa con ese RUC antes de crear
-                $existing = Company::where('ruc', $data['company']['ruc'])->first();
-                if ($existing) {
-                    $companyId = $existing->id;
-                } else {
-                    $company = $this->companyService->registerCompany($data['company']);
-                    $companyId = $company->id;
-                }
+            $confirmation = app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->accepted($assignment, isset($data['company']['id']) ? (int) $data['company']['id'] : null);
+            $companyId = $confirmation->company_id;
+            Assignment::whereKey($assignment->id)->lockForUpdate()->firstOrFail();
+            $previous = Placement::where('assignment_id', $assignment->id)->first();
+            abort_if($previous && ($previous->approval_status === 1 || $previous->validation_status === 1), 409, 'La formalización aprobada no se puede reemplazar.');
+            if (! empty($data['placement']['area_id'])) {
+                abort_unless(Area::whereKey($data['placement']['area_id'])->where('company_id', $companyId)->exists(), 422, 'El área no pertenece a la empresa confirmada.');
             }
 
             $areaId = $data['placement']['area_id'] ?? null;
@@ -135,6 +129,9 @@ class PlacementService
                 ['assignment_id' => $assignment->id],
                 [
                     'company_id' => $companyId,
+                    'company_validation_request_id' => $confirmation->id,
+                    'practice_declared_at' => now(),
+                    'practice_declaration_text' => \App\Domains\Company\Services\CompanyAcceptanceService::PRACTICE_DECLARATION,
                     'area_id' => $areaId,
                     'boss_name' => $data['placement']['boss_name'] ?? null,
                     'boss_position' => $data['placement']['boss_position'] ?? null,
@@ -150,6 +147,13 @@ class PlacementService
                     'approval_status' => 2, // 2: Pending (Data)
                     'validation_status' => 2, // 2: Pending (Global)
                 ]
+            );
+
+            // La aceptación empresarial y los datos completos habilitan el expediente documental.
+            // Esto no aprueba documentos ni califica la práctica.
+            Internship::firstOrCreate(
+                ['placement_id' => $placement->id, 'assignment_id' => $assignment->id],
+                ['internship_step' => 1, 'status' => 1]
             );
 
             $this->notificationService->notify(
@@ -186,15 +190,15 @@ class PlacementService
                 throw new \Exception('El placement ya esta aprobado, no se puede editar');
             }
 
-            // Actualizar datos de empresa (sin tocar el RUC)
-            if (isset($data['company'])) {
-                $placement->company->update([
-                    'name' => $data['company']['name'] ?? $placement->company->name,
-                    'address' => $data['company']['address'] ?? $placement->company->address,
-                    'phone' => $data['company']['phone'] ?? $placement->company->phone,
-                    'email' => $data['company']['email'] ?? $placement->company->email,
-                ]);
+            abort_unless($placement->assignment_id === $assignment->id, 403, 'La práctica no pertenece al estudiante.');
+            app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->accepted($assignment, $placement->company_id);
+            if (isset($data['company']['id'])) {
+                abort_unless((int) $data['company']['id'] === $placement->company_id, 422, 'La empresa confirmada no puede cambiarse.');
             }
+            if (! empty($data['placement']['area_id'])) {
+                abort_unless(Area::whereKey($data['placement']['area_id'])->where('company_id', $placement->company_id)->exists(), 422, 'El área no pertenece a la empresa.');
+            }
+            // El estudiante no puede modificar el catálogo de empresas al editar su práctica.
 
             // Guardamos el ID del área anterior para limpieza posterior
             $oldAreaId = $placement->area_id;
@@ -209,6 +213,8 @@ class PlacementService
                 'description' => $data['placement']['description'] ?? $placement->description,
                 'start_date' => $data['placement']['start_date'] ?? $placement->start_date,
                 'end_date' => $data['placement']['end_date'] ?? $placement->end_date,
+                'practice_declared_at' => now(),
+                'practice_declaration_text' => \App\Domains\Company\Services\CompanyAcceptanceService::PRACTICE_DECLARATION,
                 'approval_status' => 2, // Reset a Pendiente (Data)
                 'validation_status' => 2, // Reset Global a Pendiente
             ]);
@@ -395,7 +401,7 @@ class PlacementService
             $placement->update(['validation_status' => 1]);
 
             // Crear el registro de Internship (Etapa 2)
-            Internship::updateOrCreate(
+            Internship::firstOrCreate(
                 ['placement_id' => $placement->id, 'assignment_id' => $placement->assignment_id],
                 [
                     'internship_step' => 1,

@@ -107,6 +107,8 @@ class InternshipService
             }
 
             $placement = $assignment->placement;
+            abort_unless($placement, 409, 'Primero registra los datos de la práctica.');
+            app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->documents($assignment, $placement);
 
             $internship = Internship::query()->create([
                 'assignment_id' => $assignment->id,

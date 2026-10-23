@@ -31,6 +31,7 @@ class DocumentService
      */
     public function registerDocument(array $data, Assignment $assignment, Model $model): Document
     {
+        $this->checkCompanyConfirmation($model, $assignment);
         $maxSizeInBytes = 10 * 1024 * 1024;
 
         if (isset($data['file']) && $data['file']->getSize() > $maxSizeInBytes) {
@@ -61,6 +62,7 @@ class DocumentService
     {
         return DB::transaction(function () use ($data, $assignment) {
             $model = $this->validateOwnership($data['context'], $data['target_id'], $assignment);
+            $this->checkCompanyConfirmation($model, $assignment);
 
             return $this->saveToDatabase($model, $data, $data['path'], $assignment);
         });
@@ -92,6 +94,16 @@ class DocumentService
          }*/
 
         return $model;
+    }
+
+    private function checkCompanyConfirmation(Model $model, Assignment $assignment): void
+    {
+        if ($assignment->role_id === 5 && ($model instanceof Placement || $model instanceof Internship)) {
+            abort_unless($model->assignment_id === $assignment->id, 403, 'El documento no pertenece al estudiante.');
+            $placement = $model instanceof Placement ? $model : $model->placement;
+            abort_unless($placement, 409, 'Primero registra los datos de la práctica.');
+            app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->documents($assignment, $placement);
+        }
     }
 
     /**

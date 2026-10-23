@@ -27,10 +27,20 @@ class NotificationService
             }
         }
     */
+    public function actorName(?Model $actor): string
+    {
+        $user = $actor instanceof \App\Domains\Identity\Models\User ? $actor : $actor?->user;
+        if ($user?->person) {
+            return trim($user->person->names.' '.$user->person->surnames);
+        }
+
+        return $user?->company?->name ?? $user?->name ?? 'Sistema';
+    }
+
     public function getNotifications(int $userId): Collection
     {
         return NotificationRecipient::where('user_id', $userId)
-            ->with(['notification.actor.user.person'])
+            ->with(['notification.actor' => fn (\Illuminate\Database\Eloquent\Relations\MorphTo $morph) => $morph->morphWith([Assignment::class => ['user.person'], \App\Domains\Identity\Models\User::class => ['person', 'company']])])
             ->get()
             ->unique('notification_id') // Evita duplicados si es necesario
             ->map(function ($recipient) {
@@ -41,7 +51,7 @@ class NotificationService
                     return null;
                 }
 
-                $actorName = trim($notification->actor->user->person->names.' '.$notification->actor->user->person->surnames);
+                $actorName = $this->actorName($notification->actor);
 
                 return [
                     'id' => $recipient->id,
