@@ -12,6 +12,7 @@ import {
     Plus,
     X,
     Loader2,
+    FileText,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -71,6 +72,8 @@ export default function CompanyForm({
     const [companyFound, setCompanyFound] = useState<boolean | null>(
         placement?.company?.id ? true : null,
     );
+    const [companyConfirmed, setCompanyConfirmed] = useState(!!placement);
+    const [declarationAccepted, setDeclarationAccepted] = useState(false);
     const [companyAreas, setCompanyAreas] = useState<CompanyArea[]>([]);
     const [rucInput, setRucInput] = useState('');
     const [areaMode, setAreaMode] = useState<'select' | 'new'>('select');
@@ -109,11 +112,23 @@ export default function CompanyForm({
     useEffect(() => {
         if (placement?.company?.ruc) {
             fetch(internship.api.company.verify.url(placement.company.ruc))
-                .then((r) => r.json())
+                .then((r) => {
+                    if (!r.ok) {
+                        throw new Error(
+                            'No se pudieron cargar las áreas de la empresa.',
+                        );
+                    }
+                    return r.json();
+                })
                 .then((res) => {
                     if (res.found) setCompanyAreas(res.areas ?? []);
                 })
-                .catch(() => {});
+                .catch((error: unknown) => {
+                    console.error('Company details lookup failed:', error);
+                    toast.error(
+                        'No se pudieron cargar las áreas de la empresa.',
+                    );
+                });
         }
 
         // Sincronizar el formulario con los datos que vienen del servidor (Inertia reload)
@@ -148,6 +163,7 @@ export default function CompanyForm({
                 form.setValue('company.email', json.company.email ?? '');
                 setCompanyAreas(json.areas ?? []);
                 setCompanyFound(true);
+                setCompanyConfirmed(false);
                 setAreaMode('select');
                 toast.success(`Empresa encontrada: ${json.company.name}`);
                 setRucInput(''); // Limpiar solo en éxito
@@ -160,6 +176,7 @@ export default function CompanyForm({
                 form.setValue('company.email', '');
                 setCompanyAreas([]);
                 setCompanyFound(false);
+                setCompanyConfirmed(false);
                 setAreaMode('new');
                 toast.info(
                     'RUC no registrado. Complete los datos de la nueva empresa.',
@@ -201,6 +218,23 @@ export default function CompanyForm({
     };
 
     const onSubmit = (data: PlacementFormValues) => {
+        if (!placement && companyFound === null) {
+            toast.warning('Primero verifica el RUC de la empresa.');
+            return;
+        }
+
+        if (!placement && companyFound && !companyConfirmed) {
+            toast.warning(
+                'Confirma que los datos corresponden a la empresa seleccionada.',
+            );
+            return;
+        }
+
+        if (!placement && !declarationAccepted) {
+            toast.warning('Debes aceptar la declaración de veracidad.');
+            return;
+        }
+
         const payload = {
             internship_type: type,
             origin_type: origin,
@@ -467,87 +501,146 @@ export default function CompanyForm({
                                     )}
                                 />
 
-                                <FormField
-                                    control={form.control}
-                                    name="company.name"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className={labelStyle}>
-                                                Nombre / Razón Social *
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    placeholder="Ej. Tech Solutions S.A.C."
-                                                    className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-[10px] font-bold uppercase" />
-                                        </FormItem>
-                                    )}
-                                />
+                                {companyFound === null && !placement ? (
+                                    <div className="col-span-full flex items-start gap-3 rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                                        <Search className="mt-0.5 size-4 shrink-0" />
+                                        <p>
+                                            Verifica primero el RUC. Si la
+                                            empresa ya existe, cargaremos sus
+                                            datos; si no, podrás registrarla
+                                            para esta solicitud.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="col-span-full grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
+                                        {companyFound === true &&
+                                            !placement && (
+                                                <div className="col-span-full flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                                                    <Checkbox
+                                                        id="confirm-company"
+                                                        checked={
+                                                            companyConfirmed
+                                                        }
+                                                        onCheckedChange={(
+                                                            checked,
+                                                        ) =>
+                                                            setCompanyConfirmed(
+                                                                checked ===
+                                                                    true,
+                                                            )
+                                                        }
+                                                        className="mt-0.5"
+                                                    />
+                                                    <div className="space-y-1">
+                                                        <Label
+                                                            htmlFor="confirm-company"
+                                                            className="cursor-pointer text-sm font-semibold"
+                                                        >
+                                                            Confirmo que usaré
+                                                            esta empresa
+                                                        </Label>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Revisa la razón
+                                                            social, el RUC y los
+                                                            datos de contacto
+                                                            cargados antes de
+                                                            continuar.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                <FormField
-                                    control={form.control}
-                                    name="company.address"
-                                    render={({ field }) => (
-                                        <FormItem className="col-span-1 space-y-1.5 md:col-span-2">
-                                            <FormLabel className={labelStyle}>
-                                                Dirección Fiscal / Sede
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    placeholder="Ej. Av. Larco 123, Miraflores"
-                                                    className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-[10px] font-bold uppercase" />
-                                        </FormItem>
-                                    )}
-                                />
+                                        <FormField
+                                            control={form.control}
+                                            name="company.name"
+                                            render={({ field }) => (
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel
+                                                        className={labelStyle}
+                                                    >
+                                                        Nombre / Razón Social *
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            placeholder="Ej. Tech Solutions S.A.C."
+                                                            className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage className="text-[10px] font-bold uppercase" />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                                <FormField
-                                    control={form.control}
-                                    name="company.phone"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className={labelStyle}>
-                                                Teléfono Corporativo
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    type="tel"
-                                                    placeholder="Ej. +51 999 999 999"
-                                                    className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-[10px] font-bold uppercase" />
-                                        </FormItem>
-                                    )}
-                                />
+                                        <FormField
+                                            control={form.control}
+                                            name="company.address"
+                                            render={({ field }) => (
+                                                <FormItem className="col-span-1 space-y-1.5 md:col-span-2">
+                                                    <FormLabel
+                                                        className={labelStyle}
+                                                    >
+                                                        Dirección Fiscal / Sede
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            placeholder="Ej. Av. Larco 123, Miraflores"
+                                                            className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage className="text-[10px] font-bold uppercase" />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                                <FormField
-                                    control={form.control}
-                                    name="company.email"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className={labelStyle}>
-                                                Correo corporativo
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    type="email"
-                                                    placeholder="Ej. contacto@empresa.com"
-                                                    className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-[10px] font-bold uppercase" />
-                                        </FormItem>
-                                    )}
-                                />
+                                        <FormField
+                                            control={form.control}
+                                            name="company.phone"
+                                            render={({ field }) => (
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel
+                                                        className={labelStyle}
+                                                    >
+                                                        Teléfono Corporativo
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            type="tel"
+                                                            placeholder="Ej. +51 999 999 999"
+                                                            className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage className="text-[10px] font-bold uppercase" />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="company.email"
+                                            render={({ field }) => (
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel
+                                                        className={labelStyle}
+                                                    >
+                                                        Correo corporativo
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            type="email"
+                                                            placeholder="Ej. contacto@empresa.com"
+                                                            className="h-10 transition-all focus:ring-2 focus:ring-primary/20"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage className="text-[10px] font-bold uppercase" />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -990,7 +1083,16 @@ export default function CompanyForm({
                         {!placement && (
                             <div className="border-t pt-6">
                                 <div className="flex items-start gap-4 rounded-xl border bg-muted/30 p-4">
-                                    <Checkbox id="terms" className="mt-1" />
+                                    <Checkbox
+                                        id="terms"
+                                        checked={declarationAccepted}
+                                        onCheckedChange={(checked) =>
+                                            setDeclarationAccepted(
+                                                checked === true,
+                                            )
+                                        }
+                                        className="mt-1"
+                                    />
                                     <div className="space-y-1">
                                         <Label
                                             htmlFor="terms"
@@ -999,13 +1101,24 @@ export default function CompanyForm({
                                             Declarar veracidad de la información
                                         </Label>
                                         <p className="text-[11px] text-muted-foreground">
-                                            Confirmo que los datos
-                                            proporcionados son reales y
-                                            corresponden a mi situación laboral
-                                            actual para este proceso de
-                                            prácticas.
+                                            Declaro que la información de la
+                                            empresa, del jefe inmediato y de la
+                                            práctica consignada en esta
+                                            solicitud es veraz y autorizo su
+                                            revisión por la coordinación
+                                            académica.
                                         </p>
                                     </div>
+                                </div>
+                                <div className="mt-3 flex items-start gap-3 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+                                    <FileText className="mt-0.5 size-4 shrink-0" />
+                                    <p>
+                                        Ficha RUC (opcional): la carga aún no
+                                        está conectada. El backend actual solo
+                                        recibe los datos de formalización y los
+                                        documentos configurados en el módulo
+                                        documental.
+                                    </p>
                                 </div>
                             </div>
                         )}
@@ -1017,7 +1130,12 @@ export default function CompanyForm({
                             size="sm"
                             className="h-9 gap-2 text-xs font-bold uppercase shadow-sm"
                             disabled={
-                                loading || placement?.approval_status === 1
+                                loading ||
+                                placement?.approval_status === 1 ||
+                                (!placement &&
+                                    (companyFound === null ||
+                                        (companyFound && !companyConfirmed) ||
+                                        !declarationAccepted))
                             }
                         >
                             {loading ? (

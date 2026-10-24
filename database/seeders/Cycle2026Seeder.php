@@ -6,7 +6,9 @@ use App\Domains\Academic\Models\Faculty;
 use App\Domains\Academic\Models\School;
 use App\Domains\Academic\Models\Section;
 use App\Domains\Academic\Models\Semester;
+use App\Domains\Company\Models\Company;
 use App\Domains\Company\Models\Position;
+use App\Domains\Company\Models\Staff;
 use App\Domains\Documents\Models\DocumentType;
 use App\Domains\Identity\Enums\AssignmentAccessStatus;
 use App\Domains\Identity\Enums\AssignmentApprovalStatus;
@@ -40,6 +42,7 @@ class Cycle2026Seeder extends Seeder
         $this->seedModules();
         $this->seedDocumentTypes();
         $this->seedPositions();
+        $this->seedDemoCompany();
         $this->seedSampleUsers($sections);
     }
 
@@ -168,9 +171,58 @@ class Cycle2026Seeder extends Seeder
 
     private function seedPositions(): void
     {
-        foreach (['Administrador', 'Reclutador', 'Jefe'] as $name) {
+        foreach (['Administrador', 'Reclutador', 'Jefe', 'Gerente General'] as $name) {
             Position::firstOrCreate(['name' => $name], ['status' => 1]);
         }
+    }
+
+    private function seedDemoCompany(): void
+    {
+        $company = Company::firstOrCreate(
+            ['ruc' => '20345678901'],
+            [
+                'name' => 'Empresa Demo S.A.C.',
+                'razon' => 'Empresa Demo S.A.C.',
+                'address' => 'Jr. Los Olivos 123, Lima',
+                'phone' => '987654321',
+                'email' => 'empresa.demo@unjfsc.edu.pe',
+                'status' => 1,
+            ]
+        );
+
+        $position = Position::firstOrCreate(['name' => 'Gerente General'], ['status' => 1]);
+
+        $person = Person::firstOrCreate(
+            ['dni' => '20123456'],
+            [
+                'names' => 'Laura',
+                'surnames' => 'Pérez Rojas',
+                'phone' => '998877665',
+                'gender' => 'female',
+                'status' => PersonStatus::ACTIVE,
+            ]
+        );
+
+        $user = User::firstOrCreate(
+            ['email' => 'empresa.demo@unjfsc.edu.pe'],
+            [
+                'person_id' => $person->id,
+                'name' => 'empresa.demo',
+                'password' => Hash::make(self::DEFAULT_PASSWORD),
+                'type_user_id' => 3,
+            ]
+        );
+
+        Staff::firstOrCreate(
+            ['company_id' => $company->id, 'user_id' => $user->id],
+            [
+                'position_id' => $position->id,
+                'email' => $user->email,
+                'phone' => $company->phone,
+                'status' => 1,
+                'is_select' => true,
+            ]
+        );
     }
 
     /**
