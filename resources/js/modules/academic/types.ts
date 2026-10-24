@@ -1,9 +1,4 @@
-export interface Semester {
-    id: number;
-    code: string;
-    cycle: string;
-    status: number;
-}
+export type { Semester } from '@/shared/types/session';
 
 export interface Section {
     id: number;

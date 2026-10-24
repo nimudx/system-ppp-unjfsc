@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
-export type Appearance = ResolvedAppearance | 'system';
+export type Appearance = ResolvedAppearance;
 
 export type UseAppearanceReturn = {
     readonly appearance: Appearance;
@@ -10,7 +10,7 @@ export type UseAppearanceReturn = {
 };
 
 const listeners = new Set<() => void>();
-let currentAppearance: Appearance = 'system';
+let currentAppearance: Appearance = 'light';
 
 const prefersDark = (): boolean => {
     if (typeof window === 'undefined') return false;
@@ -24,15 +24,19 @@ const setCookie = (name: string, value: string, days = 365): void => {
     document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
 };
 
+// Antes existía el modo "system". Quien lo tenía guardado conserva el tema
+// que estaba viendo; quien entra por primera vez empieza en claro.
 const getStoredAppearance = (): Appearance => {
-    if (typeof window === 'undefined') return 'system';
+    if (typeof window === 'undefined') return 'light';
 
-    return (localStorage.getItem('appearance') as Appearance) || 'system';
+    const stored = localStorage.getItem('appearance');
+
+    if (stored === 'light' || stored === 'dark') return stored;
+
+    return stored === 'system' && prefersDark() ? 'dark' : 'light';
 };
 
-const isDarkMode = (appearance: Appearance): boolean => {
-    return appearance === 'dark' || (appearance === 'system' && prefersDark());
-};
+const isDarkMode = (appearance: Appearance): boolean => appearance === 'dark';
 
 const applyTheme = (appearance: Appearance): void => {
     if (typeof document === 'undefined') return;
@@ -51,37 +55,20 @@ const subscribe = (callback: () => void) => {
 
 const notify = (): void => listeners.forEach((listener) => listener());
 
-const mediaQuery = (): MediaQueryList | null => {
-    if (typeof window === 'undefined') return null;
-
-    return window.matchMedia('(prefers-color-scheme: dark)');
-};
-
-const handleSystemThemeChange = (): void => {
-    applyTheme(currentAppearance);
-    notify();
-};
-
 export function initializeTheme(): void {
     if (typeof window === 'undefined') return;
 
-    if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'system');
-        setCookie('appearance', 'system');
-    }
-
     currentAppearance = getStoredAppearance();
+    localStorage.setItem('appearance', currentAppearance);
+    setCookie('appearance', currentAppearance);
     applyTheme(currentAppearance);
-
-    // Set up system theme change listener
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 
 export function useAppearance(): UseAppearanceReturn {
     const appearance: Appearance = useSyncExternalStore(
         subscribe,
         () => currentAppearance,
-        () => 'system',
+        () => 'light',
     );
 
     const resolvedAppearance: ResolvedAppearance = useMemo(

@@ -6,7 +6,7 @@ import {
     DetailHeader,
 } from '@/modules/documents';
 
-import type { AssignmentRecord, DossierDetail } from '@/modules/identity/types';
+import type { AssignmentRecord, DossierDetail } from '@/modules/identity';
 
 import { SectionCard } from '@/shared/components/ui/section-card';
 

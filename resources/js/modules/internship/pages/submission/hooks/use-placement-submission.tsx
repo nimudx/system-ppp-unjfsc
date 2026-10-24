@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 
 import type { PlacementRecord } from '@/modules/internship/types';
 import internship from '@/routes/academic/internship';

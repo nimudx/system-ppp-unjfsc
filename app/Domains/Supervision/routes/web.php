@@ -1,6 +1,7 @@
 <?php
 
 use App\Domains\Supervision\Http\Controllers\InternshipGroupController;
+use App\Domains\Supervision\Http\Controllers\PracticeSubmissionController;
 use App\Domains\Supervision\Http\Controllers\SupervisionController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +49,13 @@ Route::middleware(['auth', 'type:1,2', 'approved'])->name('academic.')->group(fu
         Route::patch('evaluations/{evaluation}/status', [SupervisionController::class, 'updateEvaluationStatus'])->name('supervision.update');
     });
 
+    // Estudiante: Rev. Prácticas (pantalla vacía por ahora)
     Route::middleware(['role:5'])->group(function () {
         Route::get('supervision/student', [SupervisionController::class, 'studentIndex'])->name('supervision.student');
+    });
+
+    // Docente supervisor: calificar plan e informe
+    Route::middleware(['role:4'])->group(function () {
+        Route::patch('supervision/practice-submissions/{submission}/review', [PracticeSubmissionController::class, 'review'])->name('supervision.practice.review');
     });
 });

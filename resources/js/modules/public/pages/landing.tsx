@@ -1,23 +1,22 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
-    BookOpen,
     Building2,
     CheckCircle2,
-    ClipboardList,
+    ChevronRight,
     Facebook,
     FileText,
     Globe,
     GraduationCap,
     HelpCircle,
-    Layers,
+    Info,
+    ListChecks,
     LayoutDashboard,
     LogIn,
-    Search,
+    Menu,
     ShieldCheck,
-    Smartphone,
-    Star,
     Users,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
 import AppearanceToggleTab from '@/shared/components/appearance-tabs';
@@ -32,11 +31,18 @@ import { Button } from '@/shared/components/ui/button';
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from '@/shared/components/ui/card';
 import { Separator } from '@/shared/components/ui/separator';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/shared/components/ui/sheet';
 import {
     Tabs,
     TabsContent,
@@ -196,70 +202,347 @@ function SlidingNavLinks() {
     );
 }
 
+// "Acceder" para visitantes o "Ir al Panel" si ya hay sesión.
+function AccessButton({
+    isAuthenticated,
+    className,
+}: {
+    isAuthenticated: boolean;
+    className?: string;
+}) {
+    return isAuthenticated ? (
+        <Button asChild variant="secondary" className={className}>
+            <Link href="/dashboard" className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Ir al Panel</span>
+            </Link>
+        </Button>
+    ) : (
+        <Button asChild className={className}>
+            <Link href="/login" className="flex items-center gap-2">
+                <LogIn className="h-4 w-4" />
+                <span>Acceder</span>
+            </Link>
+        </Button>
+    );
+}
+
+// Iconos de cada sección en el menú del celular.
+const navIcons: Record<string, LucideIcon> = {
+    about: Info,
+    roles: Users,
+    process: ListChecks,
+    faq: HelpCircle,
+};
+
+// En celular: secciones, tema y acceso en un panel lateral.
+function MobileMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
+    const [open, setOpen] = useState(false);
+
+    // Se cierra el panel y luego se desplaza: mientras está abierto la página
+    // tiene el scroll bloqueado.
+    const goToSection = (id: string) => {
+        setOpen(false);
+        window.setTimeout(() => {
+            smoothScrollToSection(id);
+            window.history.replaceState(null, '', `#${id}`);
+        }, 300);
+    };
+
+    return (
+        <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="sm:hidden"
+                    aria-label="Abrir menú"
+                >
+                    <Menu className="size-6" />
+                </Button>
+            </SheetTrigger>
+            <SheetContent
+                side="right"
+                className="w-80 gap-0"
+                onCloseAutoFocus={(event) => event.preventDefault()}
+            >
+                <SheetHeader className="border-b p-5">
+                    <div className="flex items-center gap-3">
+                        <AppLogoIcon className="size-9 fill-current" />
+                        <div>
+                            <SheetTitle className="text-sm leading-none font-bold">
+                                Sistema de Prácticas
+                            </SheetTitle>
+                            <SheetDescription className="mt-1 text-[10px] font-medium tracking-widest uppercase">
+                                UNJFSC
+                            </SheetDescription>
+                        </div>
+                    </div>
+                </SheetHeader>
+
+                <nav aria-label="Secciones" className="p-3">
+                    {navLinks.map(({ id, label }) => {
+                        const Icon = navIcons[id];
+
+                        return (
+                            <a
+                                key={id}
+                                href={`#${id}`}
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    goToSection(id);
+                                }}
+                                className="group flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-primary focus-visible:bg-accent focus-visible:outline-none"
+                            >
+                                <span className="flex size-8 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                                    <Icon className="size-4" />
+                                </span>
+                                {label}
+                                <ChevronRight className="ml-auto size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" />
+                            </a>
+                        );
+                    })}
+                </nav>
+
+                <div className="space-y-3 border-t px-5 py-4">
+                    <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                        Tema
+                    </p>
+                    <AppearanceToggleTab className="w-full [&>button]:flex-1 [&>button]:justify-center" />
+                </div>
+
+                <div className="mt-auto border-t p-5">
+                    <AccessButton
+                        isAuthenticated={isAuthenticated}
+                        className="w-full"
+                    />
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+}
+
+type RoleKey = 'estudiante' | 'titular' | 'supervisor' | 'empresa';
+
+interface RoleInfo {
+    key: RoleKey;
+    label: string;
+    icon: LucideIcon;
+    summary: string;
+    services: string[];
+    // Captura del sistema para ese rol (sin captura se muestra el registro de empresas).
+    screenshot?: { slug: string; alt: string };
+}
+
+// Servicios según el menú real de cada rol en el sistema.
+const platformRoles: RoleInfo[] = [
+    {
+        key: 'estudiante',
+        label: 'Estudiante',
+        icon: GraduationCap,
+        summary: 'Gestiona su expediente y el avance de sus prácticas.',
+        services: [
+            'Carga de documentos de su expediente y seguimiento de su estado',
+            'Registro de su práctica y del centro donde la realiza',
+            'Revisión del avance de sus prácticas',
+            'Envío y revisión de informes',
+            'Avisos cuando un documento se aprueba o se observa',
+        ],
+        screenshot: {
+            slug: 'estudiante',
+            alt: 'Pantalla de documentación del estudiante con la ficha de matrícula aprobada',
+        },
+    },
+    {
+        key: 'titular',
+        label: 'Docente Titular',
+        icon: ShieldCheck,
+        summary: 'Valida expedientes y organiza a estudiantes y supervisores.',
+        services: [
+            'Validación de expedientes de estudiantes y supervisores',
+            'Organización de grupos por práctica y por estudiante',
+            'Seguimiento, evaluación y revisión de las prácticas',
+            'Registro de estudiantes y docentes supervisores',
+            'Carga de su propia documentación (horario y carga lectiva)',
+        ],
+        screenshot: {
+            slug: 'docente-titular',
+            alt: 'Pantalla de validación de estudiantes del docente titular con un documento observado',
+        },
+    },
+    {
+        key: 'supervisor',
+        label: 'Docente Supervisor',
+        icon: Users,
+        summary: 'Acompaña y evalúa a los estudiantes de sus grupos.',
+        services: [
+            'Consulta de los estudiantes de sus grupos asignados',
+            'Revisión de planes e informes de prácticas',
+            'Evaluación de las prácticas de cada estudiante',
+            'Carga de su documentación (horario, carga lectiva y resolución)',
+        ],
+        screenshot: {
+            slug: 'docente-supervisor',
+            alt: 'Pantalla de supervisión con el listado de estudiantes a supervisar',
+        },
+    },
+    {
+        key: 'empresa',
+        label: 'Empresa',
+        icon: Building2,
+        summary: 'Recibe practicantes de la universidad.',
+        services: [
+            'Registro de razón social y datos de sede',
+            'Identificación de tutores y jefes directos',
+            'Validación de convenios institucionales',
+            'Control de ubicación de centros de práctica',
+        ],
+    },
+];
+
+// Estructura de la plataforma: roles a la izquierda y, a la derecha, la
+// pantalla del sistema de ese rol dentro de un marco de navegador.
+function PlatformStructure() {
+    const [active, setActive] = useState<RoleKey>('estudiante');
+    const current = platformRoles.find((role) => role.key === active)!;
+
+    return (
+        <Tabs
+            value={active}
+            onValueChange={(value) => setActive(value as RoleKey)}
+            orientation="vertical"
+            className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center"
+        >
+            <div className="space-y-6">
+                <TabsList className="grid h-auto w-full grid-cols-2 gap-2 bg-transparent p-0 lg:grid-cols-1">
+                    {platformRoles.map(
+                        ({ key, label, icon: Icon, summary }) => (
+                            <TabsTrigger
+                                key={key}
+                                value={key}
+                                className="group h-auto w-full justify-start gap-3 rounded-xl border bg-card px-4 py-3 text-left whitespace-normal shadow-xs transition-all duration-300 hover:border-primary/40 hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md motion-reduce:transition-none dark:data-[state=active]:border-primary dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                            >
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-primary transition-colors group-data-[state=active]:bg-white/15 group-data-[state=active]:text-primary-foreground">
+                                    <Icon className="size-5" />
+                                </span>
+                                <span className="min-w-0">
+                                    <span className="block text-sm font-semibold">
+                                        {label}
+                                    </span>
+                                    <span className="hidden text-xs font-normal opacity-80 lg:block">
+                                        {summary}
+                                    </span>
+                                </span>
+                            </TabsTrigger>
+                        ),
+                    )}
+                </TabsList>
+
+                {platformRoles.map(({ key, label, services }) => (
+                    <TabsContent
+                        key={key}
+                        value={key}
+                        className="animate-in rounded-xl border bg-card p-6 shadow-xs duration-500 fade-in motion-reduce:animate-none"
+                    >
+                        <div className="mb-4 flex flex-wrap items-center gap-2">
+                            <h3 className="text-lg font-bold">
+                                Servicios para {label.toLowerCase()}
+                            </h3>
+                            {key === 'empresa' && (
+                                <Badge variant="secondary">Próximamente</Badge>
+                            )}
+                        </div>
+                        <ul className="space-y-3">
+                            {services.map((service) => (
+                                <li
+                                    key={service}
+                                    className="flex items-start gap-3 text-sm"
+                                >
+                                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
+                                    <span>{service}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </TabsContent>
+                ))}
+            </div>
+
+            {/* Vista del sistema: las capturas se apilan y la activa aparece con un fundido. */}
+            <div aria-live="polite">
+                {current.screenshot ? (
+                    <figure className="overflow-hidden rounded-xl border bg-card shadow-xl">
+                        <div
+                            aria-hidden="true"
+                            className="flex items-center gap-2 border-b bg-muted/60 px-4 py-2.5"
+                        >
+                            <span className="size-2.5 rounded-full bg-red-400/80" />
+                            <span className="size-2.5 rounded-full bg-amber-400/80" />
+                            <span className="size-2.5 rounded-full bg-emerald-400/80" />
+                            <span className="ml-3 truncate rounded-md bg-background px-3 py-0.5 text-xs text-muted-foreground">
+                                practicaspre.kerpun.com
+                            </span>
+                        </div>
+                        <div className="relative aspect-[1515/720] bg-muted">
+                            {platformRoles
+                                .filter((role) => role.screenshot)
+                                .map(({ key, screenshot }) => (
+                                    <img
+                                        key={key}
+                                        src={`/images/home/roles/${screenshot!.slug}-1280.webp`}
+                                        srcSet={`/images/home/roles/${screenshot!.slug}-768.webp 768w, /images/home/roles/${screenshot!.slug}-1280.webp 1280w`}
+                                        sizes="(min-width: 1024px) 55vw, 90vw"
+                                        width={1280}
+                                        height={608}
+                                        loading="lazy"
+                                        decoding="async"
+                                        alt={
+                                            key === active
+                                                ? screenshot!.alt
+                                                : ''
+                                        }
+                                        aria-hidden={key !== active}
+                                        className={`absolute inset-0 h-full w-full object-cover object-top-left transition-opacity duration-500 motion-reduce:transition-none ${
+                                            key === active
+                                                ? 'opacity-100'
+                                                : 'opacity-0'
+                                        }`}
+                                    />
+                                ))}
+                        </div>
+                        <figcaption className="border-t px-4 py-3 text-xs text-muted-foreground">
+                            Vista de {current.label.toLowerCase()} en el sistema
+                        </figcaption>
+                    </figure>
+                ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-5 rounded-xl border border-dashed bg-card p-10 text-center">
+                        <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                            <Building2 className="size-7" />
+                        </span>
+                        <div className="space-y-2">
+                            <p className="text-lg font-semibold">
+                                ¿Tu empresa quiere recibir practicantes?
+                            </p>
+                            <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                                Regístrala en minutos. El módulo para empresas
+                                está en desarrollo y pronto podrás gestionar tus
+                                practicantes desde aquí.
+                            </p>
+                        </div>
+                        <Button asChild>
+                            <Link href="/registro-empresa">
+                                <Building2 className="h-4 w-4" />
+                                Registrar empresa
+                            </Link>
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </Tabs>
+    );
+}
+
 export default function Landing() {
     const { auth } = usePage().props;
-
-    const sections = {
-        roles: {
-            estudiante: [
-                {
-                    icon: Users,
-                    text: 'Registro de datos personales y académicos',
-                },
-                { icon: FileText, text: 'Carga de documentos de acreditación' },
-                {
-                    icon: Smartphone,
-                    text: 'Seguimiento de la etapa de desarrollo',
-                },
-                {
-                    icon: ClipboardList,
-                    text: 'Registro de informes y evidencias',
-                },
-                { icon: Star, text: 'Consulta de calificación y estado final' },
-            ],
-            docente: [
-                {
-                    icon: Users,
-                    text: 'Gestión de grupos de práctica asignados',
-                },
-                {
-                    icon: ShieldCheck,
-                    text: 'Validación de documentos de estudiantes',
-                },
-                {
-                    icon: Search,
-                    text: 'Monitoreo presencial y remoto (Supervisión)',
-                },
-                {
-                    icon: LayoutDashboard,
-                    text: 'Calificación de etapas y resultados',
-                },
-                { icon: FileText, text: 'Generación de actas de evaluación' },
-            ],
-            empresa: [
-                {
-                    icon: Building2,
-                    text: 'Registro de Razón Social y datos de sede',
-                },
-                {
-                    icon: Users,
-                    text: 'Identificación de tutores y jefes directos',
-                },
-                {
-                    icon: Layers,
-                    text: 'Validación de convenios institucionales',
-                },
-                {
-                    icon: Globe,
-                    text: 'Control de ubicación de centros de práctica',
-                },
-                {
-                    icon: BookOpen,
-                    text: 'Banco de datos de empresas receptoras',
-                },
-            ],
-        },
-    };
 
     return (
         <div className="flex min-h-screen flex-col bg-background selection:bg-primary/10">
@@ -298,61 +581,86 @@ export default function Landing() {
                             className="hidden h-6 sm:block"
                         />
 
-                        {auth.user ? (
-                            <Button asChild variant="secondary">
-                                <Link
-                                    href="/dashboard"
-                                    className="flex items-center gap-2"
-                                >
-                                    <LayoutDashboard className="h-4 w-4" />
-                                    <span>Ir al Panel</span>
-                                </Link>
-                            </Button>
-                        ) : (
-                            <Button asChild>
-                                <Link
-                                    href="/login"
-                                    className="flex items-center gap-2"
-                                >
-                                    <LogIn className="h-4 w-4" />
-                                    <span>Acceder</span>
-                                </Link>
-                            </Button>
-                        )}
+                        <div className="hidden sm:block">
+                            <AccessButton isAuthenticated={!!auth.user} />
+                        </div>
+
+                        <MobileMenu isAuthenticated={!!auth.user} />
                     </nav>
                 </div>
             </header>
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative overflow-hidden border-b bg-muted/20 py-20 lg:py-32">
-                    <div className="page-container">
-                        <div className="flex flex-col items-center space-y-8 text-center">
+                {/* Foto del campus de fondo en todos los tamaños. En celular se usa
+                    una toma vertical y la tarjeta queda centrada sobre la foto; en
+                    escritorio la tarjeta va a la derecha. */}
+                <section className="relative isolate border-b bg-muted/20">
+                    <picture>
+                        <source
+                            media="(max-width: 639px)"
+                            srcSet="/images/home/campus-unjfsc-mobile-480.webp 480w, /images/home/campus-unjfsc-mobile-800.webp 800w"
+                            sizes="100vw"
+                            width={800}
+                            height={1000}
+                        />
+                        <img
+                            src="/images/home/campus-unjfsc-1280.webp"
+                            srcSet="/images/home/campus-unjfsc-768.webp 768w, /images/home/campus-unjfsc-1280.webp 1280w, /images/home/campus-unjfsc-1920.webp 1920w"
+                            sizes="100vw"
+                            width={1920}
+                            height={1253}
+                            fetchPriority="high"
+                            decoding="async"
+                            alt="Campus de la UNJFSC con el busto de José Faustino Sánchez Carrión rodeado de jardines"
+                            className="absolute inset-0 -z-10 h-full w-full object-cover object-[center_38%] sm:object-[42%_center]"
+                        />
+                    </picture>
+                    {/* Velo suave para integrar la tarjeta; en escritorio es un
+                        degradado hacia la derecha para no oscurecer el busto. */}
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 -z-10 bg-lochmara-950/30 lg:bg-transparent lg:bg-gradient-to-l lg:from-lochmara-950/55 lg:via-lochmara-950/10 lg:to-transparent"
+                    />
+
+                    <div className="relative page-container flex min-h-[calc(100svh-4rem)] items-center justify-center py-10 sm:py-14 lg:min-h-[640px] lg:justify-end lg:py-20 xl:min-h-[700px]">
+                        <div className="w-full max-w-xl animate-in rounded-2xl border bg-card/85 p-6 shadow-2xl backdrop-blur-md duration-700 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-10 lg:bg-card/90">
                             <Badge
-                                variant="outline"
-                                className="animate-in px-4 py-1 duration-500 fade-in slide-in-from-bottom-2"
+                                variant="secondary"
+                                className="mb-5 max-w-full px-3 py-1 text-xs whitespace-normal"
                             >
                                 Universidad Nacional José Faustino Sánchez
                                 Carrión
                             </Badge>
 
-                            <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
-                                Sistema de Gestión de <br />
+                            <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-foreground sm:text-4xl xl:text-5xl">
+                                Sistema de Gestión de{' '}
                                 <span className="tracking-tighter text-primary">
                                     Prácticas Pre Profesionales
                                 </span>
                             </h1>
 
-                            <p className="mx-auto h-auto max-w-2xl text-xl leading-relaxed text-muted-foreground">
+                            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
                                 Optimización administrativa y seguimiento
                                 académico centralizado para todas las
                                 facultades. Conecta tu potencial académico con
                                 el sector productivo líder en el país.
                             </p>
 
-                            <div className="flex flex-wrap items-center justify-center gap-4">
+                            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                                 <Button size="lg" asChild>
-                                    <a href="#roles">
+                                    <a
+                                        href="#roles"
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            smoothScrollToSection('roles');
+                                            window.history.replaceState(
+                                                null,
+                                                '',
+                                                '#roles',
+                                            );
+                                        }}
+                                    >
                                         Explorar Funcionalidades
                                     </a>
                                 </Button>
@@ -361,13 +669,15 @@ export default function Landing() {
                                         Acceder al Sistema
                                     </Link>
                                 </Button>
-                                <Button size="lg" variant="ghost" asChild>
-                                    <Link href="/registro-empresa">
-                                        <Building2 className="h-4 w-4" />
-                                        Registrar mi empresa
-                                    </Link>
-                                </Button>
                             </div>
+
+                            <Link
+                                href="/registro-empresa"
+                                className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                            >
+                                <Building2 className="h-4 w-4" />
+                                ¿Eres empresa? Registrar mi empresa
+                            </Link>
                         </div>
                     </div>
                 </section>
@@ -431,110 +741,13 @@ export default function Landing() {
                             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                                 Estructura de la Plataforma
                             </h2>
-                            <p className="text-muted-foreground italic">
-                                Servicios centralizados diseñados para cada
-                                pilar del proceso.
+                            <p className="mx-auto max-w-2xl text-muted-foreground">
+                                Cada perfil tiene su propio espacio dentro del
+                                sistema. Elige uno para ver qué puede hacer.
                             </p>
                         </div>
 
-                        <Tabs
-                            defaultValue="estudiante"
-                            className="ring-offset-background"
-                        >
-                            <TabsList className="grid h-12 w-full grid-cols-3">
-                                <TabsTrigger
-                                    value="estudiante"
-                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                                >
-                                    Estudiante
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="docente"
-                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                                >
-                                    Docente
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="empresa"
-                                    className="text-sm font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                                >
-                                    Empresa
-                                </TabsTrigger>
-                            </TabsList>
-
-                            {Object.entries(sections.roles).map(
-                                ([role, items]) => (
-                                    <TabsContent
-                                        key={role}
-                                        value={role}
-                                        className="mt-8"
-                                    >
-                                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                                            <Card className="border-none bg-transparent py-6 shadow-none">
-                                                <CardHeader className="px-6">
-                                                    <CardTitle className="text-2xl font-bold capitalize">
-                                                        Servicios para el {role}
-                                                    </CardTitle>
-                                                    <CardDescription>
-                                                        Principales acciones y
-                                                        herramientas
-                                                        disponibles.
-                                                    </CardDescription>
-                                                </CardHeader>
-                                                <CardContent className="px-6">
-                                                    <div className="grid gap-4 md:grid-cols-2">
-                                                        {items.map(
-                                                            (item, idx) => (
-                                                                <div
-                                                                    key={idx}
-                                                                    className="group flex items-center gap-4 rounded-lg border bg-background p-4 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                                                                >
-                                                                    <div className="rounded-md bg-muted p-2 transition-colors group-hover:bg-white/15 group-hover:text-primary-foreground">
-                                                                        <item.icon className="h-5 w-5" />
-                                                                    </div>
-                                                                    <span className="text-sm font-medium">
-                                                                        {
-                                                                            item.text
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-
-                                            {role === 'empresa' && (
-                                                <div className="flex flex-col items-center justify-between gap-4 rounded-lg border bg-background p-6 text-center sm:flex-row sm:text-left">
-                                                    <div>
-                                                        <p className="font-semibold">
-                                                            ¿Tu empresa quiere
-                                                            recibir
-                                                            practicantes?
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Regístrala en
-                                                            minutos y empieza a
-                                                            recibir
-                                                            postulaciones.
-                                                        </p>
-                                                    </div>
-                                                    <Button
-                                                        className="shrink-0"
-                                                        asChild
-                                                    >
-                                                        <Link href="/registro-empresa">
-                                                            <Building2 className="h-4 w-4" />
-                                                            Registrar empresa
-                                                        </Link>
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </TabsContent>
-                                ),
-                            )}
-                        </Tabs>
+                        <PlatformStructure />
                     </div>
                 </section>
 

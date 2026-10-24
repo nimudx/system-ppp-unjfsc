@@ -1,4 +1,4 @@
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 export interface PersonProfile {
     id: number;
     names: string;

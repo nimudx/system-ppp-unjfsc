@@ -15,6 +15,7 @@ class Placement extends Model
     protected $fillable = [
         'assignment_id',
         'company_id',
+        'company_validation_request_id', 'practice_declared_at', 'practice_declaration_text',
         'staff_id',
         'area_id',
         'boss_name',
@@ -32,6 +33,11 @@ class Placement extends Model
         'observation',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return ['practice_declared_at' => 'datetime'];
+    }
 
     public function documents()
     {
