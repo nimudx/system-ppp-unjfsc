@@ -24,7 +24,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
 
     return (
         <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
                     const hasItems = item.items && item.items.length > 0;

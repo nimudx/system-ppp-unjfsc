@@ -28,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Preserve polymorphic keys already stored before the domain reorganization.
         Relation::enforceMorphMap([
+            'company_validation_request' => \App\Domains\Company\Models\CompanyValidationRequest::class,
             'App\\Models\\Area' => \App\Domains\Company\Models\Area::class,
             'App\\Models\\Assignment' => \App\Domains\Identity\Models\Assignment::class,
             'App\\Models\\Boss' => \App\Domains\Company\Models\Boss::class,
@@ -55,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
             'App\\Models\\StudentGroup' => \App\Domains\Supervision\Models\StudentGroup::class,
             'App\\Models\\Supervision' => \App\Domains\Supervision\Models\Supervision::class,
             'App\\Models\\TypeUser' => \App\Domains\Identity\Models\TypeUser::class,
+            'practice_submission' => \App\Domains\Supervision\Models\PracticeSubmission::class,
             'App\\Models\\User' => \App\Domains\Identity\Models\User::class,
             'App\\Models\\UserRequest' => \App\Domains\Requests\Models\UserRequest::class,
         ]);

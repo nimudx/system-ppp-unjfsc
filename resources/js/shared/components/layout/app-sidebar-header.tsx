@@ -1,6 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
-import type { Semester } from '@/modules/academic';
 import { NotificationDropdown } from '@/modules/notifications';
 import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import {
@@ -13,7 +12,10 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
-import type { BreadcrumbItem as BreadcrumbItemType } from '@/shared/types';
+import type {
+    BreadcrumbItem as BreadcrumbItemType,
+    Semester,
+} from '@/shared/types';
 import type { Assignment } from '@/shared/types/auth';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -220,7 +222,10 @@ const AvatarStack = ({
                         <span className="text-xs font-medium tracking-wider text-muted-foreground">
                             Perfil Activo
                         </span>
-                        <span className="max-w-[120px] truncate text-sm font-semibold tracking-tight uppercase">
+                        <span
+                            className="max-w-[12rem] truncate text-sm font-semibold tracking-tight uppercase"
+                            title={selectedProfile?.role}
+                        >
                             {selectedProfile?.role || 'Seleccionar'}
                         </span>
                     </div>

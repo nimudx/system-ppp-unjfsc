@@ -1,6 +1,5 @@
 import { Filter, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import type { Faculty } from '@/modules/academic';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -23,8 +22,22 @@ export interface AcademicFilterValues {
     [key: string]: unknown;
 }
 
+// Forma mínima que necesita el filtro; acepta los Faculty del módulo academic.
+interface FilterOption {
+    id: number;
+    name: string;
+}
+
+interface FilterSchool extends FilterOption {
+    sections: FilterOption[];
+}
+
+interface FilterFaculty extends FilterOption {
+    schools: FilterSchool[];
+}
+
 interface AcademicFilterProps {
-    faculties: Faculty[];
+    faculties: FilterFaculty[];
     onFilter: (values: AcademicFilterValues) => void;
     isLoading?: boolean;
     /** Incrementar este valor desde el padre para forzar un reset interno del filtro */

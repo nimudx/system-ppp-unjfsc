@@ -1,6 +1,6 @@
 import type { z } from 'zod';
-import type { DocumentRequirement } from '@/modules/documents/types';
-import type { AssignmentRecord } from '@/modules/identity/types';
+import type { DocumentRequirement } from '@/modules/documents';
+import type { AssignmentRecord } from '@/modules/identity';
 import type { stepDetailsSchema } from './pages/submission/schemas/detail.schema';
 
 export type PlacementFormValues = z.infer<typeof stepDetailsSchema>;

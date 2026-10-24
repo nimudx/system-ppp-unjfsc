@@ -1,6 +1,6 @@
 import type { Faculty } from '@/modules/academic';
-import type { DocumentTypeOption } from '@/modules/documents/types';
-import type { RoleOption } from '@/modules/registration/types';
+import type { DocumentTypeOption } from '@/modules/documents';
+import type { RoleOption } from '@/modules/registration';
 export interface ResourceItem {
     id: number;
     name: string;

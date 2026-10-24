@@ -64,7 +64,7 @@ export default function NotificationIndex({ notifications }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Panel', href: '/dashboard' },
         { title: 'Notificaciones', href: '#' },
     ];
 

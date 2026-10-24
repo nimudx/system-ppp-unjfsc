@@ -102,7 +102,7 @@ export function PersonVStepOne({
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>Correo electrónico</FormLabel>
                                 <FormControl>
                                     <Input {...field} />
                                 </FormControl>

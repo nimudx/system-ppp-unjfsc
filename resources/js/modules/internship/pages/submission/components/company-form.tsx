@@ -625,7 +625,7 @@ export default function CompanyForm({
                                                     <FormLabel
                                                         className={labelStyle}
                                                     >
-                                                        Email corporativo
+                                                        Correo corporativo
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input

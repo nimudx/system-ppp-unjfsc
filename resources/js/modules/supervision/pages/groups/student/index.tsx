@@ -70,7 +70,7 @@ export default function StudentGroupIndex({
     const selectedItem = displayData.find((item) => item.id === selectedId);
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Panel', href: '/dashboard' },
         { title: 'Grupos por Estudiante', href: '#' },
     ];
 
