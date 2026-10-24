@@ -19,7 +19,6 @@ class StorePersonMassiveRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
         return [
@@ -46,7 +45,6 @@ class StorePersonMassiveRequest extends FormRequest
             'rows.*.surnames' => ['required', 'string', 'max:255'],
         ];
     }
-
 
     public function messages(): array
     {

@@ -177,8 +177,7 @@ class UserRegistrationService
 
         if ($existingUser) {
             throw ValidationException::withMessages([
-                'person.dni' =>
-                    'Este DNI ya pertenece a otra cuenta. Verifique los datos antes de registrar al usuario.',
+                'person.dni' => 'Este DNI ya pertenece a otra cuenta. Verifique los datos antes de registrar al usuario.',
             ]);
         }
 
