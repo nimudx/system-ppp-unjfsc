@@ -19,7 +19,7 @@ type Props = {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Two-Factor Authentication',
+        title: 'Verificación en dos pasos',
         href: show.url(),
     },
 ];
@@ -42,25 +42,27 @@ export default function TwoFactor({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Two-Factor Authentication" />
+            <Head title="Verificación en dos pasos" />
 
-            <h1 className="sr-only">Two-Factor Authentication Settings</h1>
+            <h1 className="sr-only">
+                Configuración de verificación en dos pasos
+            </h1>
 
             <SettingsLayout>
                 <div className="space-y-6">
                     <Heading
                         variant="small"
-                        title="Two-Factor Authentication"
-                        description="Manage your two-factor authentication settings"
+                        title="Verificación en dos pasos"
+                        description="Administra la verificación en dos pasos de tu cuenta"
                     />
                     {twoFactorEnabled ? (
                         <div className="flex flex-col items-start justify-start space-y-4">
-                            <Badge variant="default">Enabled</Badge>
+                            <Badge variant="default">Activada</Badge>
                             <p className="text-muted-foreground">
-                                With two-factor authentication enabled, you will
-                                be prompted for a secure, random pin during
-                                login, which you can retrieve from the
-                                TOTP-supported application on your phone.
+                                Con la verificación en dos pasos activada, al
+                                iniciar sesión se te pedirá un código seguro que
+                                obtienes desde una aplicación de autenticación
+                                (TOTP) en tu celular.
                             </p>
 
                             <TwoFactorRecoveryCodes
@@ -77,7 +79,8 @@ export default function TwoFactor({
                                             type="submit"
                                             disabled={processing}
                                         >
-                                            <ShieldBan /> Disable 2FA
+                                            <ShieldBan /> Desactivar
+                                            verificación
                                         </Button>
                                     )}
                                 </Form>
@@ -85,12 +88,12 @@ export default function TwoFactor({
                         </div>
                     ) : (
                         <div className="flex flex-col items-start justify-start space-y-4">
-                            <Badge variant="destructive">Disabled</Badge>
+                            <Badge variant="destructive">Desactivada</Badge>
                             <p className="text-muted-foreground">
-                                When you enable two-factor authentication, you
-                                will be prompted for a secure pin during login.
-                                This pin can be retrieved from a TOTP-supported
-                                application on your phone.
+                                Si activas la verificación en dos pasos, al
+                                iniciar sesión se te pedirá un código seguro que
+                                obtienes desde una aplicación de autenticación
+                                (TOTP) en tu celular.
                             </p>
 
                             <div>
@@ -99,7 +102,7 @@ export default function TwoFactor({
                                         onClick={() => setShowSetupModal(true)}
                                     >
                                         <ShieldCheck />
-                                        Continue Setup
+                                        Continuar configuración
                                     </Button>
                                 ) : (
                                     <Form
@@ -114,7 +117,7 @@ export default function TwoFactor({
                                                 disabled={processing}
                                             >
                                                 <ShieldCheck />
-                                                Enable 2FA
+                                                Activar verificación
                                             </Button>
                                         )}
                                     </Form>

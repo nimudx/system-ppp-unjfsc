@@ -11,6 +11,7 @@ use App\Domains\Identity\Models\Assignment;
 use App\Domains\Internship\Models\Internship;
 use App\Domains\Internship\Models\Placement;
 use App\Domains\Supervision\Models\Evaluation;
+use App\Domains\Supervision\Models\PracticeSubmission;
 use App\Shared\Exceptions\ResourceNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,7 @@ class DocumentService
         'evaluation' => Evaluation::class,
         'internship' => Internship::class,
         'placement' => Placement::class,
+        'practice_submission' => PracticeSubmission::class,
     ];
 
     /**
@@ -31,6 +33,7 @@ class DocumentService
      */
     public function registerDocument(array $data, Assignment $assignment, Model $model): Document
     {
+        $this->checkCompanyConfirmation($model, $assignment);
         $maxSizeInBytes = 10 * 1024 * 1024;
 
         if (isset($data['file']) && $data['file']->getSize() > $maxSizeInBytes) {
@@ -61,6 +64,7 @@ class DocumentService
     {
         return DB::transaction(function () use ($data, $assignment) {
             $model = $this->validateOwnership($data['context'], $data['target_id'], $assignment);
+            $this->checkCompanyConfirmation($model, $assignment);
 
             return $this->saveToDatabase($model, $data, $data['path'], $assignment);
         });
@@ -94,6 +98,16 @@ class DocumentService
         return $model;
     }
 
+    private function checkCompanyConfirmation(Model $model, Assignment $assignment): void
+    {
+        if ($assignment->role_id === 5 && ($model instanceof Placement || $model instanceof Internship)) {
+            abort_unless($model->assignment_id === $assignment->id, 403, 'El documento no pertenece al estudiante.');
+            $placement = $model instanceof Placement ? $model : $model->placement;
+            abort_unless($placement, 409, 'Primero registra los datos de la práctica.');
+            app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->documents($assignment, $placement);
+        }
+    }
+
     /**
      * Upload a physical file to the storage.
      *
@@ -109,7 +123,7 @@ class DocumentService
         $folder = "{$context}s/{$semester}/{$identifier}/{$typeDocument->code}";
         $filename = "type_{$typeDocument->code}_".Str::uuid().".{$file->extension()}";
 
-        return $file->storeAs($folder, $filename, 'public');
+        return $file->storeAs($folder, $filename, Document::DISK);
     }
 
     /**
@@ -153,7 +167,7 @@ class DocumentService
     public function removerDocument(Document $document): void
     {
         // remove phisical file
-        Storage::disk('public')->delete($document->path);
+        Storage::disk(Document::DISK)->delete($document->path);
         // remove document from database
         $document->delete();
     }

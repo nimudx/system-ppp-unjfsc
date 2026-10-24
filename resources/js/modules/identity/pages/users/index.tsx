@@ -112,7 +112,7 @@ export default function UserManagementIndex({
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-[50px]">#</TableHead>
-                                <TableHead>Email</TableHead>
+                                <TableHead>Correo electrónico</TableHead>
                                 <TableHead>Apellidos y Nombres</TableHead>
                                 {isSubadmin && <TableHead>Facultad</TableHead>}
                                 {!isSubadmin && (

@@ -9,7 +9,7 @@ import type { BreadcrumbItem } from '@/shared/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Profile settings',
+        title: 'Perfil',
         href: edit().url,
     },
 ];
@@ -24,9 +24,9 @@ export default function Profile({
 }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
+            <Head title="Perfil" />
 
-            <h1 className="sr-only">Profile Settings</h1>
+            <h1 className="sr-only">Configuración del perfil</h1>
 
             <SettingsLayout>
                 <ProfileHero profileData={profileData} />

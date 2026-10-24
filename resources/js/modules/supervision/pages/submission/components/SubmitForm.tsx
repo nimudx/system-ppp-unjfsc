@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 
 import { SubmissionPanel } from '@/modules/documents';
-import type { DocumentFile } from '@/modules/documents/types';
+import type { DocumentFile } from '@/modules/documents';
 import supervision from '@/routes/academic/supervision';
 
 interface AnnexRequirement {
