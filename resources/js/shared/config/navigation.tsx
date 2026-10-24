@@ -5,6 +5,7 @@ import {
     BookOpen,
     Boxes,
     Briefcase,
+    Building2,
     Folder,
     LayoutDashboard,
     NotebookPen,
@@ -23,6 +24,7 @@ import { index as facultiesIndex } from '@/routes/academic/faculties';
 import { internship as internshipIndex } from '@/routes/academic/groups';
 import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
+import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
 import { validation as internshipValidationIndex } from '@/routes/academic/internship';
 import { index as schoolsIndex } from '@/routes/academic/schools';
@@ -37,7 +39,6 @@ import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
 import { index as registerIndex } from '@/routes/register';
 import { index as resourceIndex } from '@/routes/resource';
-import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 
 export const ACADEMIC_NAV = [
     {
@@ -159,6 +160,12 @@ export const ACADEMIC_NAV = [
         roles: [5],
     },
     {
+        title: 'Registrar empresa',
+        href: '/estudiante/registro-empresa',
+        icon: Building2,
+        roles: [5],
+    },
+    {
         title: 'Estudiantes',
         href: groupSupervisionIndex().url,
         icon: Users,
@@ -205,6 +212,12 @@ export const ACADEMIC_NAV = [
         ],
     },
     {
+        title: 'Empresas',
+        href: '/empresas',
+        icon: Building2,
+        roles: [3],
+    },
+    {
         title: 'Academico',
         href: '#',
         icon: Folder,
@@ -241,9 +254,9 @@ export const COMPANY_NAV = [
         icon: LayoutDashboard,
     },
     {
-        title: 'Mis vacantes',
-        href: '#',
-        icon: Briefcase,
+        title: 'Perfil empresarial',
+        href: '/settings/profile',
+        icon: Building2,
     },
 ];
 

@@ -1,5 +1,13 @@
 import { Head } from '@inertiajs/react';
-import { Building2, Loader2, Save } from 'lucide-react';
+import {
+    Building2,
+    CheckCircle2,
+    Clock3,
+    FileText,
+    Loader2,
+    Save,
+    TriangleAlert,
+} from 'lucide-react';
 
 import {
     RequirementsList,
@@ -12,6 +20,7 @@ import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent } from '@/shared/components/ui/card';
 import { SectionCard } from '@/shared/components/ui/section-card';
 
 import AppLayout from '@/shared/layouts/app-layout';
@@ -44,6 +53,38 @@ function getContextLabel(
 }
 
 export default function PlacementIndex({ data }: PlacementProps) {
+    const reviewStatus =
+        data.placement?.approval_status === 1
+            ? {
+                  label: 'Aprobada por la coordinación académica',
+                  description:
+                      'La información de formalización fue aprobada por el docente titular.',
+                  icon: CheckCircle2,
+                  className:
+                      'border-emerald-200 bg-emerald-50/70 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300',
+              }
+            : data.placement?.approval_status === 3
+              ? {
+                    label: 'Requiere correcciones',
+                    description:
+                        'La coordinación observó la solicitud. Revisa los datos y vuelve a guardarlos; el motivo de la observación no está incluido en la respuesta actual del servidor.',
+                    icon: TriangleAlert,
+                    className:
+                        'border-amber-200 bg-amber-50/70 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300',
+                }
+              : {
+                    label: data.placement
+                        ? 'Pendiente de revisión académica'
+                        : 'Solicitud aún no enviada',
+                    description: data.placement
+                        ? 'El docente titular (coordinador académico) revisará los datos registrados.'
+                        : 'Consulta el RUC y completa la información para enviar la solicitud.',
+                    icon: Clock3,
+                    className:
+                        'border-sky-200 bg-sky-50/70 text-sky-900 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-300',
+                };
+    const ReviewIcon = reviewStatus.icon;
+
     const {
         type,
         origin,
@@ -80,9 +121,42 @@ export default function PlacementIndex({ data }: PlacementProps) {
                     <Heading
                         variant="small"
                         title="Formalización de Prácticas"
-                        description="Registre su empresa y suba los documentos para iniciar sus prácticas."
+                        description="Consulta el RUC, registra la empresa y completa los datos de tu práctica."
                     />
                 </div>
+
+                <Card>
+                    <CardContent className="grid gap-4 p-4 md:grid-cols-2">
+                        <div
+                            className={`flex items-start gap-3 rounded-lg border p-4 ${reviewStatus.className}`}
+                        >
+                            <ReviewIcon className="mt-0.5 size-5 shrink-0" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-semibold">
+                                    {reviewStatus.label}
+                                </p>
+                                <p className="text-xs opacity-90">
+                                    {reviewStatus.description}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-3 rounded-lg border border-dashed p-4">
+                            <FileText className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-semibold">
+                                    Invitación y respuesta de la empresa
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    Este paso requiere endpoints y estados de
+                                    invitación/aceptación que aún no están
+                                    disponibles. La formalización existente
+                                    solicita los datos del jefe y de la práctica
+                                    desde esta pantalla.
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Layout de 3 columnas */}
                 <div className="relative flex flex-1 gap-6 overflow-hidden">
