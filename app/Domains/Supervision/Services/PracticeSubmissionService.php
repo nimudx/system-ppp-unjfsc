@@ -32,6 +32,7 @@ class PracticeSubmissionService
      */
     public function getStudentData(Assignment $assignment): array
     {
+        $canUpload = app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->canUploadDocuments($assignment);
         $byType = PracticeSubmission::query()
             ->where('assignment_id', $assignment->id)
             ->with(['document', 'reviewer.user.person'])
@@ -39,7 +40,7 @@ class PracticeSubmissionService
             ->get()
             ->groupBy(fn (PracticeSubmission $s) => $s->type->value);
 
-        $documents = collect(PracticeSubmissionType::cases())->map(function (PracticeSubmissionType $type) use ($byType) {
+        $documents = collect(PracticeSubmissionType::cases())->map(function (PracticeSubmissionType $type) use ($byType, $canUpload) {
             /** @var Collection<int, PracticeSubmission> $history */
             $history = $byType->get($type->value, collect());
             $latest = $history->first();
@@ -48,7 +49,7 @@ class PracticeSubmissionService
                 'id' => $type->value,
                 'title' => $type->title(),
                 'description' => $type->description(),
-                'can_submit' => $this->canSubmit($latest),
+                'can_submit' => $canUpload && $this->canSubmit($latest),
                 'latest' => $latest ? $this->transform($latest) : null,
                 'history' => $history->map(fn ($s) => $this->transform($s))->values(),
             ];
@@ -56,6 +57,7 @@ class PracticeSubmissionService
 
         return [
             'documents' => $documents,
+            'can_upload_documents' => $canUpload,
             'required_count' => count(PracticeSubmissionType::cases()),
             'delivered_count' => $documents->filter(fn ($d) => $d['latest'] !== null)->count(),
         ];
@@ -67,6 +69,10 @@ class PracticeSubmissionService
      */
     public function submit(Assignment $assignment, PracticeSubmissionType $type, UploadedFile $file): PracticeSubmission
     {
+        $placement = $assignment->placement;
+        abort_unless($placement, 409, 'Primero espera la aceptación de la empresa y registra el jefe inmediato y los datos de práctica.');
+        app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->documents($assignment, $placement);
+
         return DB::transaction(function () use ($assignment, $type, $file) {
             $latest = PracticeSubmission::query()
                 ->where('assignment_id', $assignment->id)

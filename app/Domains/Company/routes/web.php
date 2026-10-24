@@ -17,9 +17,28 @@ Route::middleware(['auth', 'type:1,2', 'approved', 'role:3'])->group(function ()
 
 Route::middleware(['auth', 'type:1,2', 'approved', 'role:5'])->group(function () {
     Route::get('/estudiante/registro-empresa', function () {
-        return Inertia::render('company/student-registration');
+        return redirect()->route('academic.internship.submission');
     })->name('student.company-registration');
 });
+
+Route::middleware(['auth', 'type:3'])->group(function () {
+    Route::get('/empresa/solicitudes', function () {
+        return Inertia::render('company/requests');
+    })->name('company.requests');
+});
+
+// Notifications open an HTML screen, never the JSON API resource.
+Route::get('/solicitudes-empresa/{companyRequest}', function (\Illuminate\Http\Request $request, int $companyRequest) {
+    if ($request->user()->type_user_id === 3) {
+        return redirect()->route('company.requests', ['request' => $companyRequest]);
+    }
+    $assignment = $request->user()->assignments()->whereKey(session('assignment_id'))->firstOrFail();
+    if ($assignment->role_id === 3) {
+        return redirect()->route('academic.companies.index', ['request' => $companyRequest]);
+    }
+
+    return redirect()->route('academic.internship.submission');
+})->whereNumber('companyRequest')->middleware('auth')->name('company.request-screen');
 
 Route::get('/empresa/activar', function () {
     return Inertia::render('company/activation');
@@ -28,18 +47,13 @@ Route::get('/empresa/activar', function () {
 Route::get('/dev/vista-previa/registro-empresa', function () {
     abort_unless(app()->environment('local'), 404);
 
-    return Inertia::render('company/student-registration', [
-        'standalonePreview' => true,
-    ]);
+    return redirect()->route('academic.internship.submission');
 })->name('company.registration.preview');
 
 Route::get('/dev/vista-previa/empresas', function () {
     abort_unless(app()->environment('local'), 404);
 
-    return Inertia::render('company/index', [
-        'companies' => [],
-        'standalonePreview' => true,
-    ]);
+    return redirect()->route('academic.companies.index');
 })->name('company.management.preview');
 
 // JSON con sesión web y CSRF, para el frontend Inertia/React del mismo dominio.

@@ -49,6 +49,7 @@ type Props = {
     documents: PracticeDocument[];
     required_count: number;
     delivered_count: number;
+    can_upload_documents: boolean;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -87,6 +88,7 @@ export default function ReportReview({
     documents,
     required_count,
     delivered_count,
+    can_upload_documents,
 }: Props) {
     const [selectedType, setSelectedType] = useState<DocumentId>('plan');
     const [files, setFiles] = useState<Record<DocumentId, File | null>>({
@@ -107,6 +109,7 @@ export default function ReportReview({
     };
 
     const handleSubmit = () => {
+        if (!can_upload_documents || !current.can_submit) return;
         if (!selectedFile) return;
 
         router.post(
@@ -298,9 +301,11 @@ export default function ReportReview({
                                     {!current.can_submit ? (
                                         <div className="space-y-3 rounded-xl border p-5">
                                             <p className="text-sm font-medium">
-                                                {latest?.status === 1
-                                                    ? 'Este documento ya fue aprobado.'
-                                                    : 'Tu documento está en revisión por el docente supervisor.'}
+                                                {!can_upload_documents
+                                                    ? 'La empresa debe aceptarte y debes registrar el jefe inmediato y los datos de práctica en Pasantía antes de presentar archivos.'
+                                                    : latest?.status === 1
+                                                      ? 'Este documento ya fue aprobado.'
+                                                      : 'Tu documento está en revisión por el docente supervisor.'}
                                             </p>
                                             {latest?.file && (
                                                 <a

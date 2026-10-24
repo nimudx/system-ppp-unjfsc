@@ -74,16 +74,22 @@ export function AppSidebarHeader({
                         currentId={selectedSemester?.id}
                     />
                 )}
-                <AvatarStack
-                    profiles={allProfiles}
-                    onSelect={(id: number, type: string) => {
-                        const route =
-                            type === 'academic'
-                                ? `/assignments/${id}/select`
-                                : `/staffs/${id}/select`;
-                        router.patch(route, {}, { preserveState: false });
-                    }}
-                />
+                {auth?.user?.type_id === 3 ? (
+                    <div className="rounded-md border px-3 py-2 text-sm font-semibold">
+                        Empresa
+                    </div>
+                ) : (
+                    <AvatarStack
+                        profiles={allProfiles}
+                        onSelect={(id: number, type: string) => {
+                            const route =
+                                type === 'academic'
+                                    ? `/assignments/${id}/select`
+                                    : `/staffs/${id}/select`;
+                            router.patch(route, {}, { preserveState: false });
+                        }}
+                    />
+                )}
             </div>
         </header>
     );

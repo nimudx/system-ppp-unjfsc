@@ -160,12 +160,6 @@ export const ACADEMIC_NAV = [
         roles: [5],
     },
     {
-        title: 'Registrar empresa',
-        href: '/estudiante/registro-empresa',
-        icon: Building2,
-        roles: [5],
-    },
-    {
         title: 'Estudiantes',
         href: groupSupervisionIndex().url,
         icon: Users,
@@ -252,6 +246,11 @@ export const COMPANY_NAV = [
         title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
+    },
+    {
+        title: 'Solicitudes de estudiantes',
+        href: '/empresa/solicitudes',
+        icon: Users,
     },
     {
         title: 'Perfil empresarial',

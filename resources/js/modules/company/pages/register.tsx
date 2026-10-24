@@ -51,9 +51,9 @@ export default function CompanyRegister() {
                             Incorporación de empresas
                         </CardTitle>
                         <CardDescription className="max-w-xl">
-                            La solicitud de incorporación es independiente de la
-                            formalización de prácticas. Inicia sesión con tu
-                            cuenta de estudiante para abrirla desde el menú.
+                            Inicia sesión con tu cuenta de estudiante y abre
+                            Pasantía para solicitar la incorporación de tu
+                            empresa.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-5">
@@ -67,12 +67,11 @@ export default function CompanyRegister() {
                                     Acceso al flujo de estudiante
                                 </p>
                                 <p className="text-sm">
-                                    Después de iniciar sesión, abre Dashboard →
-                                    Registrar empresa. La consulta de RUC usa el
-                                    registro local de empresas; no consulta
-                                    SUNAT. La API independiente para enviar y
-                                    dar seguimiento a una solicitud aún está
-                                    pendiente en el backend.
+                                    Después de iniciar sesión, abre Pasantía.
+                                    Consulta el RUC, envía la solicitud y revisa
+                                    su estado. La consulta utiliza el catálogo
+                                    local; la comprobación de una empresa nueva
+                                    corresponde al docente titular.
                                 </p>
                             </div>
                         </div>
@@ -86,9 +85,9 @@ export default function CompanyRegister() {
                                     </p>
                                     <p>
                                         Se consultan los datos de empresas que
-                                        ya existen en el sistema. Para nuevas
-                                        empresas, la solicitud aún no se
-                                        persiste.
+                                        ya existen en el sistema. Las empresas
+                                        nuevas requieren una solicitud de
+                                        incorporación.
                                     </p>
                                 </div>
                             </div>
@@ -113,9 +112,9 @@ export default function CompanyRegister() {
                                 pública.
                             </p>
                             <p className="mt-1">
-                                El formulario de estudiante está separado del
-                                registro de prácticas y disponible después de
-                                iniciar sesión.
+                                El registro de empresa se realiza desde
+                                Pasantía, después de iniciar sesión como
+                                estudiante.
                             </p>
                         </div>
 

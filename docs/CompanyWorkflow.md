@@ -1,68 +1,56 @@
-# Flujo de incorporación y gestión de empresas
+# Integración de empresas y Pasantía
 
-## Pantallas y vista previa local
+Actualización: 24 de octubre de 2026. El frontend utiliza las APIs descritas en [CompanyValidationBackend.md](CompanyValidationBackend.md).
 
-- `/estudiante/registro-empresa`: pantalla independiente para consultar el RUC,
-  revisar datos de una empresa existente o completar una solicitud nueva, y
-  consultar visualmente el estado.
-- `/empresas`: listado académico de empresas registradas y espacio para revisar
-  solicitudes de incorporación.
-- `/empresa/activar`: vista de activación empresarial. No activa cuentas sin el
-  contrato del token definido por el backend.
-- `/dev/vista-previa/registro-empresa` y `/dev/vista-previa/empresas`: accesos
-  locales sin autenticación para revisar las pantallas de estudiante y docente.
-  Las rutas responden únicamente en `APP_ENV=local`.
-- El panel empresarial incluye una opción **Vista previa** solo en desarrollo.
-  Los datos de esa vista son ilustrativos, no se guardan y no simulan respuestas
-  exitosas del servidor.
+## Ubicación y responsabilidades
 
-Para revisar las pantallas sin depender de los endpoints pendientes, inicia
-Laravel y Vite como de costumbre, ingresa con una cuenta de estudiante para
-`/estudiante/registro-empresa` o con una cuenta docente titular para `/empresas`,
-y selecciona **Vista previa**. La consulta real del RUC permanece conectada al
-endpoint existente y consulta únicamente la tabla local `companies`.
-Para inspeccionar las pantallas sin iniciar sesión ni llamar a las API de negocio,
-abre directamente `http://localhost:8000/dev/vista-previa/registro-empresa` o
-`http://localhost:8000/dev/vista-previa/empresas`. Estas rutas requieren que
-Laravel esté ejecutándose, pero solo están disponibles en entorno local.
+- **Estudiante → Pasantía (`/internship`)**: consulta RUC, solicitud de empresa nueva o confirmación de empresa existente, declaración, ficha RUC opcional, estado e historial, correcciones, reenvío de correo y registro de jefe inmediato/práctica después de la aceptación.
+- **Titular → Empresas (`/empresas`)**: solicitudes de su escuela y semestre, filtros y paginación, detalle, descarga privada de ficha y aprobación/observación/rechazo.
+- **Invitación → `/empresa/activar?token=…`**: consulta la invitación, muestra empresa/alumno/términos, recibe representante, celular y contraseña, y activa la cuenta. La empresa no acepta al estudiante al activar su cuenta.
+- **Empresa → Solicitudes de estudiantes (`/empresa/solicitudes`)**: listado, detalle y aceptación/rechazo del estudiante. El correo y las notificaciones abren esta pantalla.
+- **Estudiante → Rev. informe (`/internship/report-review`)**: conserva el módulo de plan e informe desarrollado por el equipo; las cargas requieren aceptación empresarial y datos de práctica registrados. El supervisor mantiene la evaluación existente.
 
-## Contratos existentes verificados
+El menú independiente «Registrar empresa» se retiró. Su URL anterior redirige a Pasantía. Las antiguas URLs de vista previa local redirigen a las pantallas autenticadas; no hay estados de demostración que habiliten acciones.
 
-| Operación | Contrato disponible | Límite para el flujo de incorporación |
-|---|---|---|
-| Consultar RUC | `GET /api/internship/companies/verify/{ruc}` | Busca una empresa existente localmente; no consulta SUNAT. Retorna `found`, `company` y `areas`. |
-| Registrar formalización | `POST /internship/placements` | Crea una formalización de prácticas; no crea una solicitud de incorporación empresarial independiente. |
-| Revisar formalización | `PATCH /internship/placements/{placement}/status` | Solo permite aprobación (`approval_status=1`) u observación (`approval_status=3`). No aprueba/rechaza solicitudes de empresa. |
-| Crear cuenta empresarial existente | `POST /register/company` | Requiere usuario académico verificado con rol 1, 2 o 3; crea empresa y usuario directamente con contraseña temporal fija. No se usa para la solicitud del estudiante ni como invitación. |
-| Subir documentos de formalización | `POST /internship/placements/{placement}/documents` | Recibe `code` (`fut`, `carta_presentacion`, `carta_aceptacion`) y PDF de hasta 2 MB. No cubre ficha RUC, plan ni informe. |
+## Conexión con el backend
 
-## Contratos que debe completar el backend
+`resources/js/modules/company/services/company-workflow.ts` concentra los 13 endpoints: consulta de RUC, solicitud actual, envío/corrección, listado/detalle, revisión, reenvío, decisión empresarial, práctica y consulta/activación de invitación. La ficha privada se descarga mediante la URL autorizada que devuelve el recurso.
 
-El repositorio no contiene contratos verificables para las operaciones siguientes.
-Las pantallas muestran explícitamente estos pendientes y no envían peticiones a
-URLs supuestas:
+Las peticiones JSON usan sesión, cookies del mismo origen y CSRF de Laravel. Los errores 422 muestran los mensajes de validación; los estados 401/403/409/410/419/429 se presentan sin simular éxito. Después de activar se realiza una navegación completa para cargar la nueva sesión empresarial. Las pantallas permiten actualizar el estado de manera explícita.
 
-- Crear, listar, consultar, observar, reenviar o rechazar una solicitud de
-  incorporación de empresa, incluyendo observación, estudiante solicitante,
-  documento RUC y estado independiente de la formalización.
-- Enviar confirmación a una empresa existente y notificar al docente titular.
-- Aprobar una solicitud de incorporación y activar el correo de invitación.
-- Validar token de activación, expiración y uso previo; recibir los campos
-  definitivos para activar la cuenta y establecer contraseña.
-- Listar métricas y solicitudes para el panel empresarial; aceptar a un
-  estudiante y actualizar su estado.
-- Guardar los datos de jefe inmediato y práctica después de la aceptación.
-- Listar, cargar, consultar y descargar FUT, carta de presentación, carta de
-  aceptación, plan e informe, con reglas de acceso y estado.
+La consulta utiliza `/api/company-validation/companies/{ruc}`. La API antigua de consulta permanece disponible por compatibilidad; ya no dirige la solicitud nueva ni confunde un mensaje informativo con un error.
 
-Antes de conectar esos controles, el backend debe definir método, ruta, permiso,
-payload, respuesta, códigos de error y reglas de idempotencia. La invitación no
-debe duplicar un mecanismo existente: en el estado actual del repositorio no se
-encontró uno.
+## Flujo para probar
 
-## Acceso empresarial de demostración
+1. Ingresar como estudiante aprobado, con escuela y semestre activos. Abrir Pasantía, verificar un RUC nuevo, completar datos y declaración y enviar solicitud. No debe crearse la empresa ni enviarse invitación antes de la aprobación.
+2. Ingresar como titular de la misma escuela y semestre. En Empresas, abrir la solicitud. Observar o rechazar requiere comentario; el estudiante puede corregir y reenviar. Aprobar crea la empresa y encola la invitación.
+3. Abrir el enlace recibido como visitante. Completar representante, celular, contraseña y términos. Un token inválido, vencido o utilizado debe mostrar el error del servidor.
+4. Como empresa, abrir Solicitudes de estudiantes y aceptar al alumno. Rechazar requiere motivo y permite que el alumno presente otra propuesta corregida.
+5. Como estudiante, actualizar el estado en Pasantía. Solo después de la aceptación, guardar jefe inmediato, área, cargo, funciones, fechas y declaración de práctica.
+6. Comprobar que se habilitan los documentos de formalización y la carga de plan/informe en su módulo. Antes de estos requisitos, tanto el frontend como el servidor deben impedir la carga, incluso por petición directa.
+7. Repetir con un RUC existente: sus datos se cargan del catálogo y se envía la confirmación directamente a la empresa, sin una segunda revisión del titular.
 
-El seeder `Cycle2026Seeder` crea `empresa.demo@unjfsc.edu.pe` con contraseña
-temporal `12345678` y un vínculo de personal empresarial. No se requiere correo
-para iniciar sesión con esa cuenta local. La contraseña solo corresponde a los
-datos de desarrollo del seeder; no debe usarse como credencial de producción.
+## Preparación del entorno
+
+No se agrega una migración nueva en esta integración. Deben estar aplicadas las migraciones existentes de validación de empresas y de `practice_submissions`.
+
+Para el módulo de plan/informe, si aún faltan sus tipos documentales:
+
+```sh
+php artisan db:seed --class=PracticeDocumentTypeSeeder
+```
+
+Este seeder existente agrega los tipos por código sin borrar los demás. Si se utiliza `DocumentTypeRoleSeeder`, ejecutar `PracticeDocumentTypeSeeder` después porque el primero reinicia el pivote de permisos.
+
+Configurar SMTP y remitente institucional para enviar correo real. `MAIL_MAILER=log` solo escribe el mensaje en el log. Con cola en base de datos, mantener `php artisan queue:work --tries=3`. Las pruebas automáticas simulan correo y almacenamiento; no prueban la entrega SMTP real.
+
+El seeder de desarrollo vincula explícitamente la empresa demo con su usuario para poder usar las mismas comprobaciones de propiedad de las cuentas activadas. No se adjudican empresas reales automáticamente por coincidencia de correo.
+
+## Validación de esta integración
+
+- Suite completa: 122 pruebas aprobadas, 1.067 aserciones.
+- Empresas: 33 pruebas aprobadas, incluyendo navegación por rol y bloqueo/habilitación del plan e informe.
+- TypeScript, ESLint del repositorio, Prettier de `resources/`, Laravel Pint y compilación Vite: correctos.
+- Navegador sobre SQLite temporal con usuarios sintéticos: solicitud nueva desde Pasantía, revisión/aprobación del titular, lectura de la invitación, aceptación empresarial, guardado/persistencia del jefe y la práctica, habilitación documental y acceso al módulo de planes/informes. También se comprobó el RUC existente y su confirmación directa, sin revisión del titular.
+- La activación y los tokens se comprueban además en las pruebas HTTP; no se verificó la entrega de correo mediante SMTP real.
+- La comprobación en navegador no modificó la base de desarrollo ni envió mensajes a terceros.
