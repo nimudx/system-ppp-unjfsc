@@ -13,11 +13,13 @@ export type PlacementContext = 'empresa' | number;
 interface UsePlacementSubmissionProps {
     placement: PlacementRecord | null;
     requirements: DocumentRequirement[];
+    documentsEnabled?: boolean;
 }
 
 export function usePlacementSubmission({
     placement,
     requirements,
+    documentsEnabled = false,
 }: UsePlacementSubmissionProps) {
     const hasPlacement = !!placement;
 
@@ -78,13 +80,20 @@ export function usePlacementSubmission({
             : null;
 
     // Lógica para decidir si mostrar UploadZone o Preview
-    const canUploadDocument = activeRequirement
-        ? (!activeRequirement?.latest || isEditing) && !tempFile
-        : false;
+    const canUploadDocument =
+        documentsEnabled && activeRequirement
+            ? (!activeRequirement?.latest || isEditing) && !tempFile
+            : false;
 
     const [loading, setLoading] = useState(false);
 
     const handleSaveDocument = () => {
+        if (!documentsEnabled) {
+            toast.error(
+                'La empresa debe aceptarte y debes registrar los datos de práctica antes de cargar archivos.',
+            );
+            return;
+        }
         if (!placement) {
             toast.error('Primero debe registrar la empresa y jefe inmediato.');
             return;

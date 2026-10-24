@@ -87,6 +87,48 @@ test('a missing RUC opens the new company path without sending mail or creating 
     expect($item->declared_at)->not->toBeNull()->and($item->declaration_text)->toContain('válidos y correctos')->and($item->events()->count())->toBe(1);
 });
 
+test('student entry points and company notifications open the appropriate HTML screens', function () {
+    $student = companyProfile(5);
+    companyLogin($this, $student);
+    $this->get('/estudiante/registro-empresa')->assertRedirect(route('academic.internship.submission'));
+    $this->get('/internship')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/placementIndex'));
+    $this->get('/solicitudes-empresa/1')->assertRedirect(route('academic.internship.submission'));
+
+    companyLogin($this, companyProfile(3));
+    $this->get('/solicitudes-empresa/1')->assertRedirect(route('academic.companies.index', ['request' => 1]));
+    $this->get('/empresas')->assertOk()->assertInertia(fn ($page) => $page->component('company/index'));
+
+    $company = User::where('email', 'empresa.demo@unjfsc.edu.pe')->firstOrFail();
+    $this->actingAs($company);
+    $this->get('/solicitudes-empresa/1')->assertRedirect(route('company.requests', ['request' => 1]));
+    $this->get('/empresa/solicitudes')->assertOk()->assertInertia(fn ($page) => $page->component('company/requests'));
+    $this->getJson(route('company-validation.requests.index'))->assertOk();
+});
+
+test('plan and report uploads remain blocked until acceptance and practice registration', function (string $type) {
+    $student = companyProfile(5);
+    companyLogin($this, $student);
+    $this->get('/internship/report-review')->assertOk()->assertInertia(fn ($page) => $page
+        ->where('can_upload_documents', false)->where('documents.0.can_submit', false));
+    $this->post('/internship/report-review/submissions', ['type' => $type, 'file' => UploadedFile::fake()->create('practica.pdf', 20, 'application/pdf')])->assertStatus(409);
+    $this->assertDatabaseCount('practice_submissions', 0);
+
+    $item = companySubmit($this);
+    companyApprove($this, $item);
+    $account = companyActivate($this);
+    $this->actingAs($account)->patchJson(route('company-validation.requests.decision', $item), ['decision' => 'accept'])->assertOk();
+    companyLogin($this, $student);
+    $this->post('/internship/report-review/submissions', ['type' => $type, 'file' => UploadedFile::fake()->create('practica.pdf', 20, 'application/pdf')])->assertStatus(409);
+    $this->postJson(route('company-validation.placement.store'), companyPlacementPayload($item->fresh()->company_id))->assertCreated();
+
+    $enum = \App\Domains\Supervision\Enums\PracticeSubmissionType::from($type);
+    DocumentType::firstOrCreate(['code' => $enum->documentTypeCode()], ['name' => 'Documento de práctica', 'description' => 'Documento de prueba', 'status' => 1]);
+    $this->get('/internship/report-review')->assertOk()->assertInertia(fn ($page) => $page
+        ->where('can_upload_documents', true)->where('documents.0.can_submit', true));
+    $this->post('/internship/report-review/submissions', ['type' => $type, 'file' => UploadedFile::fake()->create('practica.pdf', 20, 'application/pdf')])->assertRedirect();
+    $this->assertDatabaseHas('practice_submissions', ['assignment_id' => $student->id, 'type' => $type]);
+})->with(['plan', 'report']);
+
 test('submission requires the declaration and valid RUC and corporate fields', function () {
     companyLogin($this, companyProfile(5));
     $this->postJson(route('company-validation.requests.store'), ['ruc' => '123', 'declaration_accepted' => false])->assertUnprocessable()->assertJsonValidationErrors(['ruc', 'name', 'email', 'declaration_accepted']);

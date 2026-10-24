@@ -17,8 +17,8 @@ export default function CompanyResourceContent() {
                 <div className="rounded-lg border bg-muted/40 p-4">
                     <h2 className="font-medium">Cronograma del proceso</h2>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Consulta los pasos de revisión, aceptación del estudiante y
-                        seguimiento del plan de prácticas.
+                        Consulta los pasos de revisión, aceptación del
+                        estudiante y seguimiento del plan de prácticas.
                     </p>
                 </div>
             </div>

@@ -213,6 +213,16 @@ class Cycle2026Seeder extends Seeder
             ]
         );
 
+        // Demo account ownership must match the same explicit binding used by activation.
+        if ($company->account_user_id === null && $user->type_user_id === 3) {
+            $company->update([
+                'account_user_id' => $user->id,
+                'representative_name' => $person->names.' '.$person->surnames,
+                'representative_phone' => $company->phone,
+                'activated_at' => now(),
+            ]);
+        }
+
         Staff::firstOrCreate(
             ['company_id' => $company->id, 'user_id' => $user->id],
             [

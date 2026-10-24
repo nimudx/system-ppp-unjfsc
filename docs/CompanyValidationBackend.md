@@ -1,6 +1,6 @@
 # Validación de empresas y confirmación de practicantes — backend
 
-Implementación del 23 de octubre de 2026. No incluye frontend, bolsa laboral ni evaluación de planes e informes que desarrolla el otro equipo. Los ejemplos son datos ficticios.
+Backend implementado el 23 de octubre de 2026; frontend integrado el 24 de octubre. Consulta [CompanyWorkflow.md](CompanyWorkflow.md) para las pantallas y la prueba conjunta. La bolsa laboral y la evaluación de planes/informes conservan sus módulos del equipo. Los ejemplos son datos ficticios.
 
 ## Flujo acordado
 
@@ -208,11 +208,11 @@ Los documentos de acreditación/dossier y el seguimiento del supervisor conserva
 
 ## Integración y despliegue conjunto
 
-No se modificaron archivos React. El compañero debe implementar las pantallas y conectar los endpoints; las URLs del correo son configurables en `config/company_validation.php`:
+El frontend está conectado desde Pasantía, Empresas del titular y Solicitudes de estudiantes de la empresa; las URLs del correo son configurables en `config/company_validation.php`:
 
 - `/empresa/activar?token=...`: pantalla que consulta el GET de invitación y envía el POST de activación.
 - `/empresa/solicitudes?request=...`: pantalla protegida que inicia sesión si hace falta, lista solicitudes y permite decidir.
-- Notificaciones nuevas: `entity = company_validation`, con `action.route = company-validation.requests.show` y parámetro `companyRequest`; el frontend debe abrir la pantalla apropiada para el rol, no mostrar la respuesta JSON como página.
+- Notificaciones nuevas: `entity = company_validation`, con `action.route = company-validation.requests.show` y parámetro `companyRequest`; el resolvedor abre `/solicitudes-empresa/{id}`, que redirige a la pantalla apropiada para el rol sin mostrar JSON.
 
 El endpoint antiguo `POST /register/company` devuelve 409 y remite a este flujo: ya no crea cuentas con contraseña predeterminada ni empresas por fuera de la solicitud/aprobación.
 
@@ -236,7 +236,7 @@ composer test:lint
 
 Las pruebas se ejecutan con SQLite en memoria, `Mail::fake()` y almacenamiento simulado. Cubren ambos caminos, ausencia de correo antes de aprobación, revisión y correcciones, aislamiento por escuela/semestre/empresa, declaración obligatoria, PDF privado, token vencido/usado, activación, aceptación/rechazo y bloqueo de práctica/documentos. No envían correo a terceros ni prueban SMTP real.
 
-## Resultado de validación local
+## Resultado de validación del backend inicial (23 de octubre)
 
 - Suite completa: **119 pruebas aprobadas, 940 aserciones**, sin fallos ni omisiones. Incluye 30 casos del nuevo flujo de empresa.
 - Laravel Pint: formato PHP correcto.
