@@ -1,7 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import type { Faculty } from '@/modules/academic';
-import type { DocumentRequirement } from '@/modules/documents/types';
-import type { AssignmentRecord, DossierDetail } from '@/modules/identity/types';
+import type { DocumentRequirement } from '@/modules/documents';
+import type { AssignmentRecord, DossierDetail } from '@/modules/identity';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -39,7 +39,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
     });
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Panel', href: '/dashboard' },
         { title: title, href: '#' },
     ];
 

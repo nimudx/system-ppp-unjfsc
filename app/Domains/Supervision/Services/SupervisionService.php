@@ -14,7 +14,6 @@ use App\Domains\Supervision\Models\Supervision;
 use App\Shared\Enums\Role as RoleEnum;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class SupervisionService
 {
@@ -494,7 +493,7 @@ class SupervisionService
                 'approval_status' => $e->documents->first()?->approval_status,
                 'comment' => $e->documents->first()?->comment,
                 'name' => $e->documents->first()?->name,
-                'path' => $e->documents->first() ? Storage::url($e->documents->first()->path) : null,
+                'path' => $e->documents->first()?->signedFileUrl(),
                 'created_at' => $e->created_at,
             ])->values();
 
@@ -508,7 +507,7 @@ class SupervisionService
                 'latest' => $latestDoc ? [
                     'id' => $latestDoc->id,
                     'name' => $latestDoc->name,
-                    'path' => Storage::url($latestDoc->path),
+                    'path' => $latestDoc->signedFileUrl(),
                     'comment' => $latest->comment,
                     'justification' => $latestDoc->comment,
                 ] : null,

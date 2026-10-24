@@ -42,7 +42,7 @@ export default function DocumentSettingsIndex({ documentTypes, roles }: Props) {
     } = useDocumentSetup();
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Panel', href: '/dashboard' },
         { title: 'Configuraciones', href: '/settings/internship' },
         { title: 'Tipos de Documentos', href: '#' },
     ];

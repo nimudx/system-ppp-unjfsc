@@ -55,14 +55,14 @@ class SharedDataService
     {
         $profile = $user->person;
 
-        return "{$profile->names} {$profile->surnames}";
+        return $profile ? "{$profile->names} {$profile->surnames}" : ($user->company?->representative_name ?? $user->name);
     }
 
     private function getProfilePhoto(User $user): ?string
     {
         $profile = $user->person;
 
-        return $profile->path_photo;
+        return $profile?->path_photo ?? $user->company?->path_photo;
     }
 
     private function getAcademicContext(User $user): array
@@ -186,7 +186,7 @@ class SharedDataService
     private function getUnreadNotifications(User $user): array
     {
         $recipients = $user->notificationRecipients()
-            ->with('notification.actor.user.person')
+            ->with(['notification.actor' => fn (\Illuminate\Database\Eloquent\Relations\MorphTo $morph) => $morph->morphWith([Assignment::class => ['user.person'], \App\Domains\Identity\Models\User::class => ['person', 'company']])])
             ->whereNull('read_at')
             ->latest()
             ->limit(10)
@@ -194,7 +194,7 @@ class SharedDataService
 
         return $recipients->map(function ($recipient) {
             $notification = $recipient->notification;
-            $actorName = trim($notification->actor->user->person->names.' '.$notification->actor->user->person->surnames);
+            $actorName = app(\App\Domains\Notifications\Services\NotificationService::class)->actorName($notification->actor);
 
             return [
                 'id' => $recipient->id,

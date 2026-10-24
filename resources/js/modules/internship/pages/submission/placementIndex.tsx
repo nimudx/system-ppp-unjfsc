@@ -6,7 +6,7 @@ import {
     AlertHelp,
     SubmissionPanel,
 } from '@/modules/documents';
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 
 import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';

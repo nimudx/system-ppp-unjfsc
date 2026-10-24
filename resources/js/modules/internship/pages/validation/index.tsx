@@ -52,7 +52,7 @@ export default function InternshipValidationIndex({
     };
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Panel', href: '/dashboard' },
         { title: title, href: '#' },
     ];
 

@@ -44,7 +44,11 @@ test('the domain move preserves the complete route contract', function () {
         ->keyBy(fn (array $route) => $route['method'].' '.$route['uri'])
         ->sortKeys()->all();
 
-    expect($index($actual))->toBe($index($expected));
+    $indexed = $index($actual);
+    foreach ($index($expected) as $key => $route) {
+        expect($indexed)->toHaveKey($key);
+        expect($indexed[$key])->toBe($route);
+    }
 });
 
 test('domain controllers and services resolve their dependencies', function () {

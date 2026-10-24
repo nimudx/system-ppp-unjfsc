@@ -1,4 +1,4 @@
-import type { DocumentRequirement } from '@/modules/documents/types';
+import type { DocumentRequirement } from '@/modules/documents';
 export interface Faculties {
     id: number;
     name: string;
