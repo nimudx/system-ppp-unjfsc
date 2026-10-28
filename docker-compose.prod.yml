@@ -47,10 +47,12 @@ services:
       timeout: 5s
       retries: 20
       start_period: 30s
+    # Solo loopback: para entrar desde un cliente (DBeaver) vía túnel SSH.
+    # No se publica a 0.0.0.0 — la BD nunca queda expuesta a Internet.
+    ports:
+      - '127.0.0.1:3306:3306'
     networks:
       - app-network
-    # Sin `ports:` a propósito: la BD solo se habla con `app` dentro de
-    # app-network. No hace falta exponerla al host/Internet en un VPS.
 
 networks:
   app-network:
