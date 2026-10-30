@@ -24,8 +24,11 @@ services:
       # Solo loopback: el Caddy del VPS (fuera de este compose) le habla a
       # PHP-FPM por acá. No se publica a 0.0.0.0 — php-fpm no tiene auth propia.
       - '127.0.0.1:9000:9000'
+    # Esperar a que MariaDB acepte conexiones (no solo a que el contenedor
+    # arranque): el deploy corre `migrate` justo después de `up -d`.
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -38,10 +41,18 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - dbdata-prod:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    # Solo loopback: para entrar desde un cliente (DBeaver) vía túnel SSH.
+    # No se publica a 0.0.0.0 — la BD nunca queda expuesta a Internet.
+    ports:
+      - '127.0.0.1:3306:3306'
     networks:
       - app-network
-    # Sin `ports:` a propósito: la BD solo se habla con `app` dentro de
-    # app-network. No hace falta exponerla al host/Internet en un VPS.
 
 networks:
   app-network:

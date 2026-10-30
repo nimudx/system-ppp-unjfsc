@@ -6,6 +6,7 @@ use App\Domains\Company\Models\Staff;
 use App\Domains\Notifications\Models\NotificationRecipient;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -72,6 +73,14 @@ class User extends Authenticatable
     public function company(): HasOne
     {
         return $this->hasOne(\App\Domains\Company\Models\Company::class, 'account_user_id');
+    }
+
+    /**
+     * Perfil editable del usuario: su persona o, si es una cuenta de empresa, la empresa.
+     */
+    public function profileOwner(): ?Model
+    {
+        return $this->person ?? $this->company;
     }
 
     public function assignments(): HasMany
