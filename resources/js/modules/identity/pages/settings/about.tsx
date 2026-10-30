@@ -30,15 +30,14 @@ const breadcrumbs = [
 export default function About() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Password settings" />
             <SettingsLayout>
-                <Head title="About - Practicas Pre Profesional" />
+                <Head title="Acerca de" />
 
                 <div className="space-y-6">
                     <Heading
                         variant="small"
-                        title="About"
-                        description="Information about the project and its development team."
+                        title="Acerca de"
+                        description="Información sobre el proyecto y su equipo de desarrollo."
                     />
 
                     <div className="grid gap-6">
@@ -47,7 +46,7 @@ export default function About() {
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
                                         <CardTitle className="text-xl font-bold tracking-tight">
-                                            System PPP UNJFSC
+                                            Sistema PPP UNJFSC
                                         </CardTitle>
                                         <CardDescription>
                                             Sistema de Gestión de Prácticas Pre
@@ -193,10 +192,10 @@ export default function About() {
                             </div>
                             <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
                                 <span className="cursor-default hover:text-primary">
-                                    Documentation
+                                    Documentación
                                 </span>
                                 <span className="cursor-default hover:text-primary">
-                                    Changelog
+                                    Historial de cambios
                                 </span>
                             </div>
                         </div>

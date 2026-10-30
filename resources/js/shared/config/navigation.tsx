@@ -5,6 +5,7 @@ import {
     BookOpen,
     Boxes,
     Briefcase,
+    Building2,
     Folder,
     LayoutDashboard,
     NotebookPen,
@@ -23,6 +24,7 @@ import { index as facultiesIndex } from '@/routes/academic/faculties';
 import { internship as internshipIndex } from '@/routes/academic/groups';
 import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
+import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
 import { validation as internshipValidationIndex } from '@/routes/academic/internship';
 import { index as schoolsIndex } from '@/routes/academic/schools';
@@ -40,7 +42,7 @@ import { index as resourceIndex } from '@/routes/resource';
 
 export const ACADEMIC_NAV = [
     {
-        title: 'Dashboard',
+        title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
@@ -97,6 +99,26 @@ export const ACADEMIC_NAV = [
         ],
     },
     {
+        title: 'Documentos de prácticas',
+        href: '#',
+        icon: Folder,
+        roles: [4],
+        items: [
+            {
+                title: 'Planes de prácticas',
+                href: '/internship/practice-plans',
+                icon: FileText,
+                roles: [4],
+            },
+            {
+                title: 'Informes de prácticas',
+                href: '/internship/practice-reports',
+                icon: FileText,
+                roles: [4],
+            },
+        ],
+    },
+    {
         title: 'Seguimiento',
         href: '#',
         icon: BookMarked,
@@ -129,6 +151,12 @@ export const ACADEMIC_NAV = [
         title: 'Rev. Prácticas',
         href: studentSupervisionIndex().url,
         icon: NotebookPen,
+        roles: [5],
+    },
+    {
+        title: 'Rev. informe',
+        href: reportReviewIndex().url,
+        icon: FileText,
         roles: [5],
     },
     {
@@ -178,6 +206,12 @@ export const ACADEMIC_NAV = [
         ],
     },
     {
+        title: 'Empresas',
+        href: '/empresas',
+        icon: Building2,
+        roles: [3],
+    },
+    {
         title: 'Academico',
         href: '#',
         icon: Folder,
@@ -209,20 +243,25 @@ export const ACADEMIC_NAV = [
 
 export const COMPANY_NAV = [
     {
-        title: 'Dashboard',
+        title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
     {
-        title: 'Mis vacantes',
-        href: '#',
-        icon: Briefcase,
+        title: 'Solicitudes de estudiantes',
+        href: '/empresa/solicitudes',
+        icon: Users,
+    },
+    {
+        title: 'Perfil empresarial',
+        href: '/settings/profile',
+        icon: Building2,
     },
 ];
 
 export const ADMIN_NAV = [
     {
-        title: 'Dashboard',
+        title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
@@ -274,14 +313,14 @@ export const FOOTER_NAV = [
         roles: [1, 2, 3],
     },
     {
-        title: 'Repository',
+        title: 'Repositorio',
         href: 'https://github.com/martii-n/system-ppp-unjfsc',
         icon: Folder,
         userTypes: [1, 2],
         roles: [1, 2],
     },
     {
-        title: 'Documentation',
+        title: 'Documentación',
         href: 'https://laravel.com/docs/starter-kits#react',
         icon: BookOpen,
         userTypes: [1, 2],

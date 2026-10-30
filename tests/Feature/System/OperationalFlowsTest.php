@@ -201,10 +201,22 @@ test('a student can create a formalization and consult its company by RUC', func
     $student = operationalAssignment(5);
     enterOperationalProfile($this, $student);
 
+    $company = \App\Domains\Company\Models\Company::create([
+        'ruc' => '20999999991', 'name' => 'Empresa de capacitación', 'razon' => 'Empresa de capacitación',
+        'address' => 'Dirección de prueba', 'phone' => '999888777', 'email' => 'empresa@example.test',
+    ]);
+    \App\Domains\Company\Models\CompanyValidationRequest::create([
+        'assignment_id' => $student->id, 'school_id' => $student->section->school_id, 'semester_id' => $student->semester_id,
+        'company_id' => $company->id, 'ruc' => $company->ruc, 'company_data' => [], 'is_new_company' => false,
+        'state' => 'accepted', 'declaration_text' => 'Datos de prueba', 'declaration_version' => 'test', 'declared_at' => now(), 'company_decided_at' => now(),
+    ]);
+
     $this->post(route('academic.internship.placements.store'), [
+        'practice_declaration_accepted' => true,
         'internship_type' => 'development',
         'origin_type' => 'direct',
         'company' => [
+            'id' => $company->id,
             'ruc' => '20999999991', 'name' => 'Empresa de capacitación',
             'address' => 'Dirección de prueba', 'phone' => '999888777', 'email' => 'empresa@example.test',
         ],

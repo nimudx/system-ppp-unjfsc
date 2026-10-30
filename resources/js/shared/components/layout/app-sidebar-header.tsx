@@ -1,6 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
-import type { Semester } from '@/modules/academic';
 import { NotificationDropdown } from '@/modules/notifications';
 import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import {
@@ -13,7 +12,10 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
-import type { BreadcrumbItem as BreadcrumbItemType } from '@/shared/types';
+import type {
+    BreadcrumbItem as BreadcrumbItemType,
+    Semester,
+} from '@/shared/types';
 import type { Assignment } from '@/shared/types/auth';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -72,16 +74,22 @@ export function AppSidebarHeader({
                         currentId={selectedSemester?.id}
                     />
                 )}
-                <AvatarStack
-                    profiles={allProfiles}
-                    onSelect={(id: number, type: string) => {
-                        const route =
-                            type === 'academic'
-                                ? `/assignments/${id}/select`
-                                : `/staffs/${id}/select`;
-                        router.patch(route, {}, { preserveState: false });
-                    }}
-                />
+                {auth?.user?.type_id === 3 ? (
+                    <div className="rounded-md border px-3 py-2 text-sm font-semibold">
+                        Empresa
+                    </div>
+                ) : (
+                    <AvatarStack
+                        profiles={allProfiles}
+                        onSelect={(id: number, type: string) => {
+                            const route =
+                                type === 'academic'
+                                    ? `/assignments/${id}/select`
+                                    : `/staffs/${id}/select`;
+                            router.patch(route, {}, { preserveState: false });
+                        }}
+                    />
+                )}
             </div>
         </header>
     );
@@ -220,7 +228,10 @@ const AvatarStack = ({
                         <span className="text-xs font-medium tracking-wider text-muted-foreground">
                             Perfil Activo
                         </span>
-                        <span className="max-w-[120px] truncate text-sm font-semibold tracking-tight uppercase">
+                        <span
+                            className="max-w-[12rem] truncate text-sm font-semibold tracking-tight uppercase"
+                            title={selectedProfile?.role}
+                        >
                             {selectedProfile?.role || 'Seleccionar'}
                         </span>
                     </div>

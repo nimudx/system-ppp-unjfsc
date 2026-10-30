@@ -46,7 +46,7 @@ export function PersonSStepThree({
                         label="Nombre"
                         value={`${data.names} ${data.surnames}`}
                     />
-                    <SummaryRow label="Email" value={data.email} />
+                    <SummaryRow label="Correo electrónico" value={data.email} />
                     <SummaryRow label="Género" value={data.gender} />
                 </div>
             </div>

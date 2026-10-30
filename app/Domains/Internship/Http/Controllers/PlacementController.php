@@ -102,7 +102,9 @@ class PlacementController extends Controller
     public function update(Request $request, Placement $placement): RedirectResponse
     {
         $data = $request->validate([
-            'company.name' => 'required|string',
+            'practice_declaration_accepted' => ['required', 'accepted'],
+            'company.id' => 'nullable|integer|exists:companies,id',
+            'company.name' => 'nullable|string',
             'company.address' => 'nullable|string',
             'company.phone' => 'nullable|string',
             'company.email' => 'nullable|email',

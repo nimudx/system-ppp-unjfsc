@@ -28,7 +28,7 @@
         }
 
         html.dark {
-            background-color: oklch(0.145 0 0);
+            background-color: #0b0e14;
         }
     </style>
 
@@ -47,7 +47,7 @@
 
     @viteReactRefresh
     {{-- 'identity/auth/login' -> resources/js/modules/identity/pages/auth/login.tsx (ver shared/lib/inertia.ts) --}}
-    @vite(['resources/js/app.tsx', 'resources/js/modules/'.Str::before($page['component'], '/').'/pages/'.Str::after($page['component'], '/').'.tsx'])
+    @vite(['resources/js/app.tsx'])
     @inertiaHead
 </head>
 
