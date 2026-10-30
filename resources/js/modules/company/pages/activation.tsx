@@ -1,6 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState, type FormEvent } from 'react';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
+import PasswordInput from '@/shared/components/password-input';
+import PasswordStrength from '@/shared/components/password-strength';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Field, WorkflowErrors } from '../components/student-workflow';
@@ -14,6 +16,7 @@ export default function CompanyActivation() {
     const [error, setError] = useState<unknown>(null);
     const [loading, setLoading] = useState(true);
     const [busy, setBusy] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
     const loggedIn = !!(props.auth as { user?: unknown } | undefined)?.user;
     useEffect(() => {
         const controller = new AbortController();
@@ -142,18 +145,21 @@ export default function CompanyActivation() {
                                         />
                                     </Field>
                                     <Field label="Contraseña">
-                                        <Input
+                                        <PasswordInput
                                             name="password"
-                                            type="password"
                                             autoComplete="new-password"
                                             required
                                             minLength={8}
+                                            value={newPassword}
+                                            onChange={(e) =>
+                                                setNewPassword(e.target.value)
+                                            }
                                         />
                                     </Field>
+                                    <PasswordStrength value={newPassword} />
                                     <Field label="Confirmar contraseña">
-                                        <Input
+                                        <PasswordInput
                                             name="password_confirmation"
-                                            type="password"
                                             autoComplete="new-password"
                                             required
                                             minLength={8}

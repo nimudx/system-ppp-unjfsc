@@ -4,6 +4,18 @@ import type { NotificationMeta } from '@/shared/types/session';
 
 export type { NotificationMeta };
 
+/**
+ * Escapa el texto que escriben los usuarios (comentarios, nombres de documento)
+ * antes de insertarlo en el HTML de la notificación, para evitar XSS.
+ */
+const esc = (value: unknown): string =>
+    String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
 export interface NotificationConfig {
     icon: LucideIcon | ((status?: number | null) => LucideIcon);
     color: string | ((status?: number | null) => string);
@@ -17,7 +29,7 @@ export const NOTIFICATION_CONFIG: Record<string, NotificationConfig> = {
         color: 'text-blue-500',
         bg: 'bg-blue-500/10 dark:bg-blue-500/20',
         render: (meta) =>
-            `Subió <strong>'${meta.document}'</strong> para ser validado.`,
+            `Subió <strong>'${esc(meta.document)}'</strong> para ser validado.`,
     },
     DOSSIER_VALIDATION: {
         icon: (status?: number | null) =>
@@ -30,10 +42,10 @@ export const NOTIFICATION_CONFIG: Record<string, NotificationConfig> = {
                 : 'bg-amber-500/10 dark:bg-amber-500/20',
         render: (meta) => {
             if (meta.status === 1)
-                return `El documento <strong>'${meta.document}'</strong> ha sido <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`;
+                return `El documento <strong>'${esc(meta.document)}'</strong> ha sido <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`;
             if (meta.status === 2 || meta.status === 3)
-                return `Se ha marcado <strong>'${meta.document}'</strong> con una observación: <em class="text-neutral-600 dark:text-neutral-400">"${meta.comment}"</em>.`;
-            return `El documento <strong>'${meta.document}'</strong> ha sido rechazado.`;
+                return `Se ha marcado <strong>'${esc(meta.document)}'</strong> con una observación: <em class="text-neutral-600 dark:text-neutral-400">"${esc(meta.comment)}"</em>.`;
+            return `El documento <strong>'${esc(meta.document)}'</strong> ha sido rechazado.`;
         },
     },
     PRACTICE_REVIEW: {
@@ -47,22 +59,22 @@ export const NOTIFICATION_CONFIG: Record<string, NotificationConfig> = {
                 : 'bg-amber-500/10 dark:bg-amber-500/20',
         render: (meta) =>
             meta.status === 1
-                ? `Tu <strong>'${meta.document}'</strong> fue <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`
-                : `Tu <strong>'${meta.document}'</strong> fue observado: <em class="text-neutral-600 dark:text-neutral-400">"${meta.comment}"</em>.`,
+                ? `Tu <strong>'${esc(meta.document)}'</strong> fue <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`
+                : `Tu <strong>'${esc(meta.document)}'</strong> fue observado: <em class="text-neutral-600 dark:text-neutral-400">"${esc(meta.comment)}"</em>.`,
     },
     PLACEMENT_REGISTER: {
         icon: FileUp,
         color: 'text-blue-500',
         bg: 'bg-blue-500/10 dark:bg-blue-500/20',
         render: (meta) =>
-            `Registró su <strong>'${meta.document}'</strong> para ser validada.`,
+            `Registró su <strong>'${esc(meta.document)}'</strong> para ser validada.`,
     },
     PLACEMENT_UPDATE: {
         icon: FileUp,
         color: 'text-blue-500',
         bg: 'bg-blue-500/10 dark:bg-blue-500/20',
         render: (meta) =>
-            `Actualizó su <strong>'${meta.document}'</strong> para ser validada.`,
+            `Actualizó su <strong>'${esc(meta.document)}'</strong> para ser validada.`,
     },
     PLACEMENT_DATA_VALIDATION: {
         icon: (status?: number | null) =>
@@ -76,7 +88,7 @@ export const NOTIFICATION_CONFIG: Record<string, NotificationConfig> = {
         render: (meta) => {
             if (meta.status === 1)
                 return `Los datos de formalización han sido <span class="text-green-600 dark:text-green-500 font-medium">aprobados</span>.`;
-            return `Se han marcado los datos con una observación: <em class="text-neutral-600 dark:text-neutral-400">"${meta.comment}"</em>.`;
+            return `Se han marcado los datos con una observación: <em class="text-neutral-600 dark:text-neutral-400">"${esc(meta.comment)}"</em>.`;
         },
     },
     PLACEMENT_DOCUMENT_VALIDATION: {
@@ -90,8 +102,8 @@ export const NOTIFICATION_CONFIG: Record<string, NotificationConfig> = {
                 : 'bg-amber-500/10 dark:bg-amber-500/20',
         render: (meta) => {
             if (meta.status === 1)
-                return `El documento <strong>'${meta.document}'</strong> ha sido <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`;
-            return `Se ha marcado <strong>'${meta.document}'</strong> con una observación: <em class="text-neutral-600 dark:text-neutral-400">"${meta.comment}"</em>.`;
+                return `El documento <strong>'${esc(meta.document)}'</strong> ha sido <span class="text-green-600 dark:text-green-500 font-medium">aprobado</span>.`;
+            return `Se ha marcado <strong>'${esc(meta.document)}'</strong> con una observación: <em class="text-neutral-600 dark:text-neutral-400">"${esc(meta.comment)}"</em>.`;
         },
     },
     PLACEMENT_FINALIZED: {

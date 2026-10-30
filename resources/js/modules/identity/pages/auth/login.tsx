@@ -25,6 +25,7 @@ export default function Login({ status, canResetPassword }: Props) {
         <AuthLayout
             title="Inicia sesión en tu cuenta"
             description="Ingresa tu correo y contraseña para acceder"
+            withBackground
         >
             <Head title="Iniciar sesión" />
 

@@ -14,7 +14,7 @@ class ProfileDetailsController extends Controller
     public function update(ProfileDetailsUpdateRequest $request): RedirectResponse
     {
         $this->service->updateDetails(
-            $request->user()->authenticable,
+            $request->user()->profileOwner(),
             $request->validated()
         );
 
