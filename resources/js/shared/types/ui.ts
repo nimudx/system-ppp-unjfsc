@@ -11,4 +11,6 @@ export type AuthLayoutProps = {
     name?: string;
     title?: string;
     description?: string;
+    /** Muestra la foto del campus de fondo, con el formulario en una tarjeta. */
+    withBackground?: boolean;
 };
