@@ -1,12 +1,15 @@
 import { Transition } from '@headlessui/react';
 import { Form, Head } from '@inertiajs/react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import PasswordController from '@/actions/App/Domains/Identity/Http/Controllers/Settings/PasswordController';
 import { edit } from '@/routes/user-password';
 import Heading from '@/shared/components/heading';
 import InputError from '@/shared/components/input-error';
+import PasswordInput from '@/shared/components/password-input';
+import PasswordStrength, {
+    isPasswordStrong,
+} from '@/shared/components/password-strength';
 import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import AppLayout from '@/shared/layouts/app-layout';
 import SettingsLayout from '@/shared/layouts/settings/layout';
@@ -22,6 +25,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmation, setConfirmation] = useState('');
+    const mismatch = confirmation.length > 0 && confirmation !== newPassword;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -48,7 +54,14 @@ export default function Password() {
                             'current_password',
                         ]}
                         resetOnSuccess
+                        onSuccess={() => {
+                            setNewPassword('');
+                            setConfirmation('');
+                        }}
                         onError={(errors) => {
+                            setNewPassword('');
+                            setConfirmation('');
+
                             if (errors.password) {
                                 passwordInput.current?.focus();
                             }
@@ -66,11 +79,10 @@ export default function Password() {
                                         Contraseña actual
                                     </Label>
 
-                                    <Input
+                                    <PasswordInput
                                         id="current_password"
                                         ref={currentPasswordInput}
                                         name="current_password"
-                                        type="password"
                                         className="mt-1 block w-full"
                                         autoComplete="current-password"
                                         placeholder="Contraseña actual"
@@ -86,17 +98,25 @@ export default function Password() {
                                         Nueva contraseña
                                     </Label>
 
-                                    <Input
+                                    <PasswordInput
                                         id="password"
                                         ref={passwordInput}
                                         name="password"
-                                        type="password"
                                         className="mt-1 block w-full"
                                         autoComplete="new-password"
                                         placeholder="Nueva contraseña"
+                                        value={newPassword}
+                                        onChange={(e) =>
+                                            setNewPassword(e.target.value)
+                                        }
+                                        aria-describedby="password-rules"
                                     />
 
                                     <InputError message={errors.password} />
+
+                                    <div id="password-rules">
+                                        <PasswordStrength value={newPassword} />
+                                    </div>
                                 </div>
 
                                 <div className="grid gap-2">
@@ -104,23 +124,36 @@ export default function Password() {
                                         Confirmar contraseña
                                     </Label>
 
-                                    <Input
+                                    <PasswordInput
                                         id="password_confirmation"
                                         name="password_confirmation"
-                                        type="password"
                                         className="mt-1 block w-full"
                                         autoComplete="new-password"
                                         placeholder="Confirmar contraseña"
+                                        value={confirmation}
+                                        onChange={(e) =>
+                                            setConfirmation(e.target.value)
+                                        }
+                                        aria-invalid={mismatch || undefined}
                                     />
 
                                     <InputError
-                                        message={errors.password_confirmation}
+                                        message={
+                                            errors.password_confirmation ??
+                                            (mismatch
+                                                ? 'Las contraseñas no coinciden.'
+                                                : undefined)
+                                        }
                                     />
                                 </div>
 
                                 <div className="flex items-center gap-4">
                                     <Button
-                                        disabled={processing}
+                                        disabled={
+                                            processing ||
+                                            !isPasswordStrong(newPassword) ||
+                                            confirmation !== newPassword
+                                        }
                                         data-test="update-password-button"
                                     >
                                         Guardar contraseña
