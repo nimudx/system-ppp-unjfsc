@@ -14,7 +14,6 @@ export function parseCSV(file: File): Promise<CsvRow[]> {
     });
 }
 
-
 export function validateRows(rows: CsvRow[]) {
     const valid: CsvRow[] = [];
     const errors: CsvValidationError[] = [];
@@ -25,10 +24,9 @@ export function validateRows(rows: CsvRow[]) {
     rows.forEach((row, index) => {
         const result = csvRowSchema.safeParse(row);
 
-        const fieldErrors: Record<string, string[] | undefined> =
-            result.success
-                ? {}
-                : { ...result.error.flatten().fieldErrors };
+        const fieldErrors: Record<string, string[] | undefined> = result.success
+            ? {}
+            : { ...result.error.flatten().fieldErrors };
 
         const dni = (row.dni ?? '').trim();
         const email = (row.email ?? '').trim().toLowerCase();
@@ -38,7 +36,7 @@ export function validateRows(rows: CsvRow[]) {
 
             if (firstRow !== undefined) {
                 (fieldErrors.dni ??= []).push(
-                    `DNI duplicado. Aparece en la fila ${firstRow}.`
+                    `DNI duplicado. Aparece en la fila ${firstRow}.`,
                 );
             } else {
                 seenDnis.set(dni, index + 1);
@@ -50,7 +48,7 @@ export function validateRows(rows: CsvRow[]) {
 
             if (firstRow !== undefined) {
                 (fieldErrors.email ??= []).push(
-                    `Correo duplicado. Aparece en la fila ${firstRow}.`
+                    `Correo duplicado. Aparece en la fila ${firstRow}.`,
                 );
             } else {
                 seenEmails.set(email, index + 1);
@@ -69,4 +67,3 @@ export function validateRows(rows: CsvRow[]) {
 
     return { valid, errors };
 }
-
