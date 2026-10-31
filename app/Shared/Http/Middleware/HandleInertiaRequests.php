@@ -3,6 +3,7 @@
 namespace App\Shared\Http\Middleware;
 
 use App\Domains\Academic\Models\Semester;
+use App\Domains\Academic\Services\BrandingService;
 use App\Domains\Identity\Services\SharedDataService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -18,7 +19,10 @@ class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
-    public function __construct(protected SharedDataService $sharedDataService) {}
+    public function __construct(
+        protected SharedDataService $sharedDataService,
+        protected BrandingService $branding,
+    ) {}
 
     /**
      * Determines the current asset version.
@@ -52,6 +56,10 @@ class HandleInertiaRequests extends Middleware
             'role' => fn () => $user && isset($authData['academic'])
                 ? session('assignment_id') ? \App\Domains\Identity\Models\Assignment::find(session('assignment_id'))?->role_id : null
                 : null,
+            'branding' => fn () => [
+                'logoUrl' => $this->branding->logoUrlFor($user),
+                'canManageLogo' => $user ? $this->branding->manageableLogo($user) !== null : false,
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
                 'success' => session('success'),

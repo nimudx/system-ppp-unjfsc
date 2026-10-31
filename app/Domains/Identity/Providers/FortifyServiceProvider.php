@@ -6,9 +6,13 @@ use App\Domains\Identity\Actions\AuthenticateActiveUser;
 use App\Domains\Identity\Actions\CreateNewUser;
 use App\Domains\Identity\Actions\EnsureLoginIsNotLocked;
 use App\Domains\Identity\Actions\ResetUserPassword;
+use App\Domains\Identity\Models\FailedLogin;
 use App\Domains\Identity\Support\StrictLoginRateLimiter;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
@@ -40,6 +44,24 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureAuthentication();
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->recordFailedLogins();
+    }
+
+    /**
+     * Guarda los intentos fallidos y bloqueos para el panel de seguridad del administrador.
+     */
+    private function recordFailedLogins(): void
+    {
+        Event::listen(Failed::class, fn (Failed $event) => FailedLogin::create([
+            'email' => mb_substr((string) ($event->credentials[Fortify::username()] ?? ''), 0, 255) ?: null,
+            'ip' => request()->ip(),
+        ]));
+
+        Event::listen(Lockout::class, fn (Lockout $event) => FailedLogin::create([
+            'email' => mb_substr((string) $event->request->input(Fortify::username()), 0, 255) ?: null,
+            'ip' => $event->request->ip(),
+            'locked_out' => true,
+        ]));
     }
 
     /**
