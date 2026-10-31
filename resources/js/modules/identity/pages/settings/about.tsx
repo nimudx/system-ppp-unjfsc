@@ -6,8 +6,8 @@ import {
     ShieldCheck,
     Github,
     ExternalLink,
-    Users,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import {
@@ -34,6 +34,7 @@ type Developer = {
     portfolio?: string;
 };
 
+// Lead Developers, ordenados por apellido.
 const DEVELOPERS: Developer[] = [
     {
         name: 'Ing. Bruno Castillo Robles',
@@ -86,6 +87,60 @@ function DeveloperLinks({ developer }: { developer: Developer }) {
                 </a>
             )}
         </div>
+    );
+}
+
+type TeamMember = Developer & {
+    role: string;
+    description: string;
+    icon: LucideIcon;
+};
+
+// Grilla 2 x 4: Project Manager, los Lead Developers por apellido y, al final, el Developer.
+const TEAM: TeamMember[] = [
+    {
+        name: 'Ing. Carlos Claros',
+        github: '',
+        role: 'Project Manager',
+        description: 'Supervisión y Dirección de Proyecto',
+        icon: UserCircle2,
+    },
+    ...DEVELOPERS.map((developer) => ({
+        ...developer,
+        role: 'Lead Developer',
+        description: 'Arquitectura y Desarrollo Fullstack',
+        icon: Code2,
+    })),
+    {
+        name: 'Ing. Martin Nicasio Marcelo',
+        github: 'https://github.com/martii-n',
+        role: 'Developer',
+        description: 'Arquitectura y Desarrollo Fullstack',
+        icon: Code2,
+    },
+];
+
+function TeamCard({ member }: { member: TeamMember }) {
+    const Icon = member.icon;
+
+    return (
+        <Card className="group transition-all hover:shadow-md">
+            <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 text-primary">
+                    <Icon className="h-5 w-5 transition-transform group-hover:scale-110" />
+                    <CardTitle className="text-lg">{member.role}</CardTitle>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-1">
+                    <p className="text-base font-bold">{member.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                        {member.description}
+                    </p>
+                </div>
+                {member.github && <DeveloperLinks developer={member} />}
+            </CardContent>
+        </Card>
     );
 }
 
@@ -178,92 +233,11 @@ export default function About() {
                             </CardContent>
                         </Card>
 
-                        <div className="grid gap-6 md:grid-cols-2">
-                            <Card className="group transition-all hover:shadow-md">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-center gap-2 text-primary">
-                                        <UserCircle2 className="h-5 w-5 transition-transform group-hover:scale-110" />
-                                        <CardTitle className="text-lg">
-                                            Project Manager
-                                        </CardTitle>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-1">
-                                        <p className="text-base font-bold">
-                                            Ing. Carlos Claros
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Supervisión y Dirección de Proyecto
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="group border-primary/20 transition-all hover:shadow-md">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-center gap-2 text-primary">
-                                        <Code2 className="h-5 w-5 transition-transform group-hover:scale-110" />
-                                        <CardTitle className="text-lg">
-                                            Lead Developer
-                                        </CardTitle>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-1">
-                                        <p className="text-base font-bold">
-                                            Ing. Martin Nicasio Marcelo
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Arquitectura y Desarrollo Fullstack
-                                        </p>
-                                    </div>
-                                    <DeveloperLinks
-                                        developer={{
-                                            name: 'Ing. Martin Nicasio Marcelo',
-                                            github: 'https://github.com/martii-n',
-                                        }}
-                                    />
-                                </CardContent>
-                            </Card>
+                        <div className="grid gap-6 sm:grid-cols-2">
+                            {TEAM.map((member) => (
+                                <TeamCard key={member.name} member={member} />
+                            ))}
                         </div>
-
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center gap-2 text-primary">
-                                    <Users className="h-5 w-5" />
-                                    <CardTitle className="text-lg">
-                                        Equipo de Desarrollo
-                                    </CardTitle>
-                                </div>
-                                <CardDescription>
-                                    Arquitectura y Desarrollo Full Stack
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <ul className="grid gap-3 sm:grid-cols-2">
-                                    {DEVELOPERS.map((developer) => (
-                                        <li
-                                            key={developer.github}
-                                            className="flex items-center justify-between gap-3 rounded-lg p-3 ring-1 ring-border transition-shadow hover:shadow-sm"
-                                        >
-                                            <div className="min-w-0 space-y-0.5">
-                                                <p className="text-sm font-semibold break-words">
-                                                    {developer.name}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    Arquitectura y Desarrollo
-                                                    Full Stack
-                                                </p>
-                                            </div>
-                                            <DeveloperLinks
-                                                developer={developer}
-                                            />
-                                        </li>
-                                    ))}
-                                </ul>
-                            </CardContent>
-                        </Card>
 
                         <Separator />
 
