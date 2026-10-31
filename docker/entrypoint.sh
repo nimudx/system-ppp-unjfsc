@@ -15,6 +15,13 @@ echo "Sincronizando build del frontend..."
 mkdir -p /var/www/public/build
 rsync -a --delete /var/www/public-build/ /var/www/public/build/
 
+# storage/ también es un bind mount del host (./storage-data). Si el host lo
+# trae vacío (repo recién clonado), Docker lo crea como root y sin la
+# estructura de Laravel, y `view:cache` falla con "View path not found".
+echo "Preparando storage/..."
+mkdir -p /var/www/storage/{app/public,framework/{cache/data,sessions,views},logs}
+chown -R www-data:www-data /var/www/storage
+
 echo "Refrescando cachés de Laravel (config, rutas, vistas)..."
 php artisan config:clear
 php artisan config:cache

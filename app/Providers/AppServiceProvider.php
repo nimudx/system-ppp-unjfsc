@@ -73,14 +73,17 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+        // Mismas reglas que muestra el formulario: 8+ caracteres, mayúscula y minúscula, número y símbolo.
+        // En producción además se rechazan contraseñas filtradas en brechas conocidas.
+        Password::defaults(function (): Password {
+            $rule = Password::min(8)
+                ->max(255)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null
-        );
+                ->symbols();
+
+            return app()->isProduction() ? $rule->uncompromised() : $rule;
+        });
     }
 }

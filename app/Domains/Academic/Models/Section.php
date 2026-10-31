@@ -3,6 +3,7 @@
 namespace App\Domains\Academic\Models;
 
 use App\Domains\Identity\Models\Assignment;
+use App\Domains\Supervision\Models\InternshipGroup;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,7 @@ class Section extends Model
 
     protected $fillable = [
         'name',
+        'logo_path',
         'faculty_id',
         'school_id',
         'semester_id',
@@ -23,6 +25,11 @@ class Section extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);
+    }
+
+    public function internshipGroups(): HasMany
+    {
+        return $this->hasMany(InternshipGroup::class);
     }
 
     public function school(): BelongsTo

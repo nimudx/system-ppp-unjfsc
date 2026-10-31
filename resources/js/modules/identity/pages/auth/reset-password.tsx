@@ -1,6 +1,9 @@
 import { Form, Head } from '@inertiajs/react';
+import { useState } from 'react';
 import { update } from '@/routes/password';
 import InputError from '@/shared/components/input-error';
+import PasswordInput from '@/shared/components/password-input';
+import PasswordStrength from '@/shared/components/password-strength';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -13,6 +16,8 @@ type Props = {
 };
 
 export default function ResetPassword({ token, email }: Props) {
+    const [newPassword, setNewPassword] = useState('');
+
     return (
         <AuthLayout
             title="Restablecer contraseña"
@@ -46,25 +51,26 @@ export default function ResetPassword({ token, email }: Props) {
 
                         <div className="grid gap-2">
                             <Label htmlFor="password">Nueva contraseña</Label>
-                            <Input
+                            <PasswordInput
                                 id="password"
-                                type="password"
                                 name="password"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
                                 autoFocus
                                 placeholder="Nueva contraseña"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
                             />
                             <InputError message={errors.password} />
+                            <PasswordStrength value={newPassword} />
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="password_confirmation">
                                 Confirmar contraseña
                             </Label>
-                            <Input
+                            <PasswordInput
                                 id="password_confirmation"
-                                type="password"
                                 name="password_confirmation"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
