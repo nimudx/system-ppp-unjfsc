@@ -8,6 +8,11 @@ README.md
 .env
 .env.local
 .env.*.local
+.env*
+!.env.example
+output/
+storage/framework/testing/
+**/__pycache__/
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
