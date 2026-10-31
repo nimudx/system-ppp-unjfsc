@@ -32,6 +32,36 @@ services:
     networks:
       - app-network
 
+  queue:
+    image: ghcr.io/nimudx/system-ppp-unjfsc:latest
+    container_name: queue-prod
+    restart: unless-stopped
+    init: true
+    user: www-data
+    working_dir: /var/www
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=db
+      - DB_CONNECTION=mysql
+      - DB_PORT=3306
+    command: ['php', 'artisan', 'queue:work', 'database', '--queue=default', '--sleep=3', '--tries=3', '--backoff=60', '--timeout=60', '--max-time=3600', '--memory=128']
+    stop_grace_period: 90s
+    volumes:
+      - ./storage-data:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    # The image's healthcheck probes PHP-FPM, which the queue does not run.
+    healthcheck:
+      disable: true
+    networks:
+      - app-network
+
   db:
     image: mariadb:10.11
     container_name: db-prod

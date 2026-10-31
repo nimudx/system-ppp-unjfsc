@@ -12,7 +12,7 @@ on:
 concurrency:
   # Evita que varios deploys de producción se ejecuten simultáneamente
   group: deploy-production
-   # Si llega otro push mientras un deploy está en ejecución, no cancela el deploy actual.
+  # Si llega otro push mientras un deploy está en ejecución, no cancela el deploy actual.
   cancel-in-progress: false
 
 # Variables globales utilizadas durante el workflow
@@ -34,6 +34,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      # Fail before publishing/replacing anything if the sender is not configured.
+      - name: Validar configuración de correo
+        env:
+          MAIL_HOST: ${{ vars.MAIL_HOST }}
+          MAIL_PORT: ${{ vars.MAIL_PORT || '587' }}
+          MAIL_SCHEME: ${{ vars.MAIL_SCHEME || 'smtp' }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS }}
+          MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Sistema de Prácticas UNJFSC' }}
+        run: python3 scripts/deployment_env.py --check-mail
     # Iniciar sesión en GitHub Container Registry (GHCR)
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -63,62 +74,75 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: read
+      contents: read
+    env:
+      VPS_HOST: ${{ vars.VPS_HOST }}
+      VPS_USER: ${{ vars.VPS_USER }}
+      VPS_APP_PATH: ${{ vars.VPS_APP_PATH }}
+      APP_KEY: ${{ secrets.APP_KEY }}
+      APP_URL: ${{ vars.APP_URL }}
+      DB_DATABASE: ${{ vars.DB_DATABASE }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      MAIL_HOST: ${{ vars.MAIL_HOST }}
+      MAIL_PORT: ${{ vars.MAIL_PORT || '587' }}
+      MAIL_SCHEME: ${{ vars.MAIL_SCHEME || 'smtp' }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS }}
+      MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Sistema de Prácticas UNJFSC' }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validar destino del despliegue
+        run: |
+          set -euo pipefail
+          [[ "$VPS_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || { echo '::error::VPS_HOST no es válido.'; exit 1; }
+          [[ "$VPS_USER" =~ ^[a-z_][a-z0-9_-]*$ ]] || { echo '::error::VPS_USER no es válido.'; exit 1; }
+          [[ "$VPS_APP_PATH" =~ ^/[a-zA-Z0-9_./-]+$ && "$VPS_APP_PATH" != / && ! "$VPS_APP_PATH" =~ (^|/)\.\.(/|$) ]] || { echo '::error::VPS_APP_PATH debe ser una carpeta absoluta del proyecto.'; exit 1; }
+
       - name: Cargar llave SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
       - name: Confiar en el host del VPS
-        run: ssh-keyscan -H ${{ vars.VPS_HOST }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
       - name: Clonar/actualizar el código
         run: |
-          ssh ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }} "
+          ssh "$VPS_USER@$VPS_HOST" "
             set -e
-            if [ -d '${{ vars.VPS_APP_PATH }}/.git' ]; then
-              cd '${{ vars.VPS_APP_PATH }}'
-              git pull origin main
+            if [ -d '$VPS_APP_PATH/.git' ]; then
+              cd '$VPS_APP_PATH'
+              git pull --ff-only origin main
             else
-              git clone git@github.com:nimudx/system-ppp-unjfsc.git '${{ vars.VPS_APP_PATH }}'
+              git clone git@github.com:nimudx/system-ppp-unjfsc.git '$VPS_APP_PATH'
             fi
           "
 
       - name: Escribir .env de producción
         run: |
-          ssh ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }} "cat > '${{ vars.VPS_APP_PATH }}/.env'" <<'EOF'
-          APP_NAME="Sistema PPP UNJFSC"
-          APP_ENV=production
-          APP_KEY=${{ secrets.APP_KEY }}
-          APP_DEBUG=false
-          APP_URL=${{ vars.APP_URL }}
-
-          LOG_CHANNEL=stack
-          LOG_LEVEL=error
-
-          DB_CONNECTION=mysql
-          DB_HOST=db
-          DB_PORT=3306
-          DB_DATABASE=${{ vars.DB_DATABASE }}
-          DB_USERNAME=root
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-
-          SESSION_DRIVER=database
-          QUEUE_CONNECTION=database
-          CACHE_STORE=database
-          FILESYSTEM_DISK=local
-          MAIL_MAILER=log
-
-          VITE_APP_NAME="Sistema PPP UNJFSC"
-          EOF
+          set -euo pipefail
+          env_file="$RUNNER_TEMP/production.env"
+          trap 'rm -f "$env_file"' EXIT
+          python3 scripts/deployment_env.py --output "$env_file"
+          ssh "$VPS_USER@$VPS_HOST" "umask 077; cat > '$VPS_APP_PATH/.env.next' && mv '$VPS_APP_PATH/.env.next' '$VPS_APP_PATH/.env'" < "$env_file"
 
       - name: Levantar servicios
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
         run: |
-          ssh ${{ vars.VPS_USER }}@${{ vars.VPS_HOST }} "
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | ssh "$VPS_USER@$VPS_HOST" "docker login ghcr.io -u '$REGISTRY_USER' --password-stdin"
+          ssh "$VPS_USER@$VPS_HOST" "
             set -e
-            cd '${{ vars.VPS_APP_PATH }}'
-            echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            cd '$VPS_APP_PATH'
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml stop queue
+            docker compose -f docker-compose.prod.yml up -d --wait --wait-timeout 180 db app
             docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+            docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate queue
+            docker compose -f docker-compose.prod.yml ps
           "

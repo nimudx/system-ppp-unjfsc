@@ -33,3 +33,7 @@ guide.txt
 
 # Generated documents, validation reports and isolated local test databases
 /output/
+
+# Python deployment helpers
+__pycache__/
+*.pyc
