@@ -7,6 +7,7 @@ use App\Domains\Identity\Support\StrictLoginRateLimiter;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
 
@@ -16,6 +17,12 @@ use Laravel\Fortify\Fortify;
  */
 class AuthenticateActiveUser
 {
+    /** Tipo de usuario académico: docentes y alumnos. */
+    private const ACADEMIC_TYPE_ID = 2;
+
+    /** Dominio institucional obligatorio para docentes y alumnos. */
+    private const INSTITUTIONAL_EMAIL_DOMAIN = '@unjfsc.edu.pe';
+
     public function __construct(protected StrictLoginRateLimiter $limiter) {}
 
     public function __invoke(Request $request): User
@@ -36,7 +43,23 @@ class AuthenticateActiveUser
             ]);
         }
 
+        // Docentes y alumnos solo pueden entrar con su correo institucional.
+        // El administrador (y las empresas) pueden usar cualquier dominio.
+        if ((int) $user->type_user_id === self::ACADEMIC_TYPE_ID && ! $this->hasInstitutionalEmail($user)) {
+            throw ValidationException::withMessages([
+                Fortify::username() => ['Solo puedes iniciar sesión con tu correo institucional @unjfsc.edu.pe.'],
+            ]);
+        }
+
         return $user;
+    }
+
+    protected function hasInstitutionalEmail(User $user): bool
+    {
+        return Str::endsWith(
+            Str::lower(trim((string) $user->email)),
+            self::INSTITUTIONAL_EMAIL_DOMAIN,
+        );
     }
 
     protected function fail(Request $request): never

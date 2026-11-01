@@ -33,7 +33,8 @@ class UserFactory extends Factory
                 fn () => TypeUser::firstOrCreate(['id' => 2], ['name' => 'Académico', 'status' => 1])
             )->id,
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            // Los usuarios académicos (docentes y alumnos) deben usar el dominio institucional.
+            'email' => fake()->unique()->userName().'@unjfsc.edu.pe',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
