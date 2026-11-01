@@ -106,6 +106,12 @@ class UserAssignmentController extends Controller
 
         $data = $request->validated();
 
+        if ((int) $data['action'] === 4) {
+            $assignmentService->changeRole($assignment, (int) $data['new_role_id'], $sender, $data['reason']);
+
+            return back()->with('message', 'Rol actualizado correctamente.');
+        }
+
         $assignmentService->requestAssignmentManage($data, $assignment, $sender);
 
         return back()->with('message', 'Solicitud generada y enviada correctamente.');

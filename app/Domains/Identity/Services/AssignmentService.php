@@ -10,7 +10,9 @@ use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\User;
 use App\Domains\Requests\Models\UserRequest;
 use App\Domains\Requests\Services\RequestService;
+use App\Shared\Enums\Role;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AssignmentService
 {
@@ -56,6 +58,74 @@ class AssignmentService
                 ],
                 $data['reason'] ?? $msj
             );
+        });
+    }
+
+    /**
+     * Cambia una asignación entre Docente Titular y Docente Supervisor. Solo el administrador
+     * o subadministrador puede hacerlo; se aplica al momento y queda registrado como solicitud
+     * aprobada para el historial. Se conserva todo lo que ya tenía la asignación.
+     */
+    public function changeRole(Assignment $assignment, int $newRoleId, Assignment $sender, string $reason): void
+    {
+        $fail = fn (string $message) => throw ValidationException::withMessages(['new_role_id' => $message]);
+        $currentRoleId = (int) $assignment->role_id;
+
+        if (! in_array((int) $sender->role_id, [Role::ADMIN->value, Role::SUBADMIN->value], true)) {
+            $fail('Solo el administrador puede cambiar el rol de un usuario.');
+        }
+
+        $teacherRoles = [Role::DTITULAR->value, Role::DSUPERVISOR->value];
+
+        if (! in_array($currentRoleId, $teacherRoles, true) || ! in_array($newRoleId, $teacherRoles, true)) {
+            $fail('Solo se puede cambiar entre Docente Titular y Docente Supervisor.');
+        }
+
+        if ($currentRoleId === $newRoleId) {
+            $fail('El usuario ya tiene ese rol.');
+        }
+
+        // Los grupos de prácticas dependen del rol: hay que reasignarlos antes de cambiarlo.
+        $groups = $currentRoleId === Role::DTITULAR->value
+            ? $assignment->teacherGroups()->count()
+            : $assignment->supervisorGroups()->count();
+
+        if ($groups > 0) {
+            $fail("Tiene {$groups} grupo(s) de prácticas a su cargo con el rol actual. Reasígnalos a otro docente antes de cambiar el rol.");
+        }
+
+        $duplicate = Assignment::query()
+            ->where('user_id', $assignment->user_id)
+            ->where('semester_id', $assignment->semester_id)
+            ->where('section_id', $assignment->section_id)
+            ->where('role_id', $newRoleId)
+            ->whereKeyNot($assignment->id)
+            ->exists();
+
+        if ($duplicate) {
+            $fail('El usuario ya tiene ese rol en esta sección y semestre.');
+        }
+
+        DB::transaction(function () use ($assignment, $newRoleId, $currentRoleId, $sender, $reason) {
+            $request = $this->requestService->createRequest(
+                $sender,
+                $assignment,
+                'CHANGE_ROLE',
+                [
+                    'assignment_id' => $assignment->id,
+                    'from_role_id' => $currentRoleId,
+                    'to_role_id' => $newRoleId,
+                ],
+                $reason
+            );
+
+            $request->update([
+                'reviewed_by' => $sender->id,
+                'approval_status' => 1,
+                'justification' => 'Aplicado directamente por el administrador.',
+            ]);
+
+            $assignment->update(['role_id' => $newRoleId]);
         });
     }
 
