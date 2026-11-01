@@ -1,12 +1,24 @@
 import { Users, GraduationCap, FileText, ClipboardCheck } from 'lucide-react';
+import type { AdminStats } from '@/modules/dashboard/types';
+import { formatNumber } from '@/modules/dashboard/utils';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
 } from '@/shared/components/ui/card';
+import { cn } from '@/shared/lib/utils';
 
-export default function AcademicAdminContent() {
+const alertColor = {
+    warning: 'text-orange-600',
+    danger: 'text-red-600',
+    info: 'text-blue-600',
+};
+
+export default function AcademicAdminContent({ stats }: { stats: AdminStats }) {
+    const { students, teachers, internships, pendingDocuments } = stats;
+    const maxStudents = Math.max(1, ...stats.bySchool.map((s) => s.students));
+
     return (
         <div className="flex flex-1 flex-col gap-4 p-4">
             <div className="grid auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -18,9 +30,11 @@ export default function AcademicAdminContent() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1,280</div>
+                        <div className="text-2xl font-bold">
+                            {formatNumber(students.total)}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            +40 este semestre
+                            +{formatNumber(students.thisMonth)} este mes
                         </p>
                     </CardContent>
                 </Card>
@@ -32,9 +46,12 @@ export default function AcademicAdminContent() {
                         <GraduationCap className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">85</div>
+                        <div className="text-2xl font-bold">
+                            {formatNumber(teachers.total)}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            En 12 especialidades
+                            En {teachers.schools}{' '}
+                            {teachers.schools === 1 ? 'escuela' : 'escuelas'}
                         </p>
                     </CardContent>
                 </Card>
@@ -46,9 +63,12 @@ export default function AcademicAdminContent() {
                         <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">320</div>
+                        <div className="text-2xl font-bold">
+                            {formatNumber(internships.total)}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            75% con supervisor asignado
+                            {internships.withSupervisorPercent}% con supervisor
+                            asignado
                         </p>
                     </CardContent>
                 </Card>
@@ -60,9 +80,20 @@ export default function AcademicAdminContent() {
                         <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">14</div>
-                        <p className="text-xs font-medium text-red-500">
-                            Requieren firma urgente
+                        <div className="text-2xl font-bold">
+                            {formatNumber(pendingDocuments)}
+                        </div>
+                        <p
+                            className={cn(
+                                'text-xs font-medium',
+                                pendingDocuments > 0
+                                    ? 'text-red-500'
+                                    : 'text-muted-foreground',
+                            )}
+                        >
+                            {pendingDocuments > 0
+                                ? 'Requieren revisión'
+                                : 'Todo revisado'}
                         </p>
                     </CardContent>
                 </Card>
@@ -73,10 +104,37 @@ export default function AcademicAdminContent() {
                     <CardHeader>
                         <CardTitle>Estado por Escuelas</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex h-75 items-center justify-center rounded-lg border-2 border-dashed">
-                        <p className="text-muted-foreground italic">
-                            Gráfico de distribución por facultades (Admin Demo)
-                        </p>
+                    <CardContent>
+                        {stats.bySchool.length === 0 ? (
+                            <p className="py-10 text-center text-sm text-muted-foreground">
+                                Aún no hay estudiantes registrados en este
+                                semestre.
+                            </p>
+                        ) : (
+                            <ul className="space-y-4">
+                                {stats.bySchool.map((row) => (
+                                    <li key={row.school} className="space-y-1">
+                                        <div className="flex items-center justify-between gap-2 text-sm">
+                                            <span className="truncate font-medium">
+                                                {row.school}
+                                            </span>
+                                            <span className="shrink-0 text-muted-foreground">
+                                                {formatNumber(row.students)}{' '}
+                                                estudiantes
+                                            </span>
+                                        </div>
+                                        <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                                            <div
+                                                className="h-full rounded-full bg-primary"
+                                                style={{
+                                                    width: `${(row.students / maxStudents) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className="lg:col-span-3">
@@ -84,39 +142,32 @@ export default function AcademicAdminContent() {
                         <CardTitle>Alertas Académicas</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {[
-                                {
-                                    t: 'Falta asignar supervisores',
-                                    d: 'Escuela de Ing. Civil',
-                                    c: 'text-orange-600',
-                                },
-                                {
-                                    t: 'Convenio por vencer',
-                                    d: 'Empresa Tech Corp',
-                                    c: 'text-red-600',
-                                },
-                                {
-                                    t: 'Registro de notas cerrado',
-                                    d: 'Semestre 2025-II',
-                                    c: 'text-green-600',
-                                },
-                            ].map((item, i) => (
-                                <div
-                                    key={i}
-                                    className="flex flex-col gap-1 border-b pb-2 last:border-0"
-                                >
-                                    <p
-                                        className={`text-sm font-semibold ${item.c}`}
+                        {stats.alerts.length === 0 ? (
+                            <p className="text-sm font-medium text-green-600">
+                                Sin alertas pendientes.
+                            </p>
+                        ) : (
+                            <div className="space-y-4">
+                                {stats.alerts.map((item, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex flex-col gap-1 border-b pb-2 last:border-0"
                                     >
-                                        {item.t}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {item.d}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                                        <p
+                                            className={cn(
+                                                'text-sm font-semibold',
+                                                alertColor[item.level],
+                                            )}
+                                        >
+                                            {item.title}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {item.detail}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

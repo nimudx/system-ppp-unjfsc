@@ -5,6 +5,12 @@ import StudentContent from '@/modules/dashboard/components/student-content';
 import SuperAdminContent from '@/modules/dashboard/components/superadmin-content';
 import SupervisorContent from '@/modules/dashboard/components/supervisor-content';
 import TeacherContent from '@/modules/dashboard/components/teacher-content';
+import type {
+    AdminStats,
+    SuperAdminStats,
+    SupervisorStats,
+    TeacherStats,
+} from '@/modules/dashboard/types';
 
 import { dashboard } from '@/routes';
 import { PlaceholderPattern } from '@/shared/components/ui/placeholder-pattern';
@@ -34,9 +40,11 @@ function NoAcademicRole() {
 export default function Dashboard({
     auth,
     role,
+    stats,
 }: {
     auth: Auth;
     role?: number | null;
+    stats: unknown;
 }) {
     const userType = auth.user.type;
 
@@ -44,7 +52,7 @@ export default function Dashboard({
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Panel de Administración" />
-                <SuperAdminContent />
+                <SuperAdminContent stats={stats as SuperAdminStats} />
             </AppLayout>
         );
     }
@@ -59,19 +67,20 @@ export default function Dashboard({
     }
 
     if (userType === 'Académico') {
-        const AcademicView =
-            {
-                1: AdminContent,
-                2: AdminContent, // Sub Admin también ve panel admin
-                3: TeacherContent,
-                4: SupervisorContent,
-                5: StudentContent,
-            }[role || 0] || NoAcademicRole;
+        // Los indicadores llegan del servidor según el rol activo (DashboardService).
+        const academicView: Record<number, React.ReactNode> = {
+            1: <AdminContent stats={stats as AdminStats} />,
+            2: <AdminContent stats={stats as AdminStats} />, // Sub Admin también ve panel admin
+            3: <TeacherContent stats={stats as TeacherStats} />,
+            4: <SupervisorContent stats={stats as SupervisorStats} />,
+            5: <StudentContent />,
+        };
+        const view = (stats || role === 5) && role ? academicView[role] : null;
 
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Panel Académico" />
-                <AcademicView />
+                {view ?? <NoAcademicRole />}
             </AppLayout>
         );
     }

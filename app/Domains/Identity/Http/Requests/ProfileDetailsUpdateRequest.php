@@ -23,18 +23,18 @@ class ProfileDetailsUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $authenticable = $this->user()->authenticable;
+        $owner = $this->user()->profileOwner();
 
-        if ($authenticable instanceof Person) {
+        if ($owner instanceof Person) {
             return [
                 'names' => 'required|string|max:255',
                 'surnames' => 'required|string|max:255',
-                'phone' => 'required|string|max:255',
+                'phone' => ['nullable', 'string', 'max:20', 'regex:/^\+?[0-9 ]{6,20}$/'],
                 'gender' => 'nullable|string|in:male,female',
             ];
         }
 
-        if ($authenticable instanceof Company) {
+        if ($owner instanceof Company) {
             return [
                 'razon' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
@@ -43,5 +43,17 @@ class ProfileDetailsUpdateRequest extends FormRequest
                 'website' => 'nullable|string|max:255',
             ];
         }
+
+        abort(403, 'Tu cuenta no tiene un perfil editable.');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'phone.regex' => 'El celular solo puede contener números (6 a 20 dígitos).',
+        ];
     }
 }

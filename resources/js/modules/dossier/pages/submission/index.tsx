@@ -96,7 +96,9 @@ export default function MyDossier({
             },
             onError: (errors) => {
                 const firstError = Object.values(errors)[0] as string;
-                toast.error(firstError || 'Error al procesar la solicitud');
+                toast.error(firstError || 'Error al procesar la solicitud', {
+                    duration: 10000,
+                });
             },
         });
     };

@@ -5,6 +5,7 @@ import {
     BookOpen,
     Boxes,
     Briefcase,
+    Building2,
     Folder,
     LayoutDashboard,
     NotebookPen,
@@ -23,9 +24,9 @@ import { index as facultiesIndex } from '@/routes/academic/faculties';
 import { internship as internshipIndex } from '@/routes/academic/groups';
 import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
+import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
 import { validation as internshipValidationIndex } from '@/routes/academic/internship';
-import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
 import { index as schoolsIndex } from '@/routes/academic/schools';
 import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
@@ -205,6 +206,12 @@ export const ACADEMIC_NAV = [
         ],
     },
     {
+        title: 'Empresas',
+        href: '/empresas',
+        icon: Building2,
+        roles: [3],
+    },
+    {
         title: 'Academico',
         href: '#',
         icon: Folder,
@@ -241,9 +248,14 @@ export const COMPANY_NAV = [
         icon: LayoutDashboard,
     },
     {
-        title: 'Mis vacantes',
-        href: '#',
-        icon: Briefcase,
+        title: 'Solicitudes de estudiantes',
+        href: '/empresa/solicitudes',
+        icon: Users,
+    },
+    {
+        title: 'Perfil empresarial',
+        href: '/settings/profile',
+        icon: Building2,
     },
 ];
 

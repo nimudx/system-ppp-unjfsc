@@ -9,4 +9,5 @@ enum Role: int
     case DTITULAR = 3;
     case DSUPERVISOR = 4;
     case ESTUDIANTE = 5;
+    case EMPRESA = 6;
 }

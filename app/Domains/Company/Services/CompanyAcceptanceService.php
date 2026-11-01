@@ -11,6 +11,18 @@ class CompanyAcceptanceService
 {
     public const PRACTICE_DECLARATION = 'Declaro que los datos del jefe inmediato y de la práctica registrados son válidos y correctos.';
 
+    public function canUploadDocuments(Assignment $student): bool
+    {
+        $placement = $student->placement;
+
+        return $placement !== null && $placement->practice_declared_at !== null
+            && $placement->company?->status == 1
+            && CompanyValidationRequest::whereKey($placement->company_validation_request_id)
+                ->where('assignment_id', $student->id)
+                ->where('company_id', $placement->company_id)
+                ->where('state', CompanyRequestState::ACCEPTED)->exists();
+    }
+
     public function accepted(Assignment $student, ?int $companyId = null): CompanyValidationRequest
     {
         abort_unless($student->role_id === 5 && $student->status->value === 1 && $student->user_id === auth()->id(), 403, 'La práctica debe pertenecer al estudiante autenticado.');

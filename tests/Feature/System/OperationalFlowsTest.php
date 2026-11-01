@@ -6,6 +6,7 @@ use App\Domains\Academic\Models\Section;
 use App\Domains\Academic\Models\Semester;
 use App\Domains\Documents\Models\Document;
 use App\Domains\Dossier\Models\Dossier;
+use App\Domains\Dossier\Services\AcademicDocumentVerifier;
 use App\Domains\Identity\Enums\AssignmentAccessStatus;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Supervision\Models\InternshipGroup;
@@ -94,6 +95,9 @@ test('a student can submit correct and complete a dossier reviewed by an adminis
     $dossier = Dossier::create(['assignment_id' => $student->id]);
     $student->update(['access_status' => AssignmentAccessStatus::LIMITED, 'approval_status' => 2]);
 
+    // Los PDFs de prueba están vacíos; la verificación del contenido se prueba en AcademicDocumentVerifierTest.
+    $this->mock(AcademicDocumentVerifier::class)->shouldReceive('applies')->andReturnFalse();
+
     enterOperationalProfile($this, $student);
     $this->post(route('academic.dossiers.document.store'), [
         'target_id' => $dossier->id, 'code' => 'ficha',
@@ -163,6 +167,20 @@ test('groups connect teacher supervisor and student after the domain move', func
 
     enterOperationalProfile($this, $student);
     $this->get(route('academic.supervision.student'))->assertOk();
+});
+
+test('a student cannot upload an unreadable ficha de matricula', function () {
+    $student = operationalAssignment(5);
+    $dossier = Dossier::create(['assignment_id' => $student->id]);
+    $student->update(['access_status' => AssignmentAccessStatus::LIMITED, 'approval_status' => 2]);
+
+    enterOperationalProfile($this, $student);
+    $this->post(route('academic.dossiers.document.store'), [
+        'target_id' => $dossier->id, 'code' => 'ficha',
+        'file' => UploadedFile::fake()->create('foto.pdf', 20, 'application/pdf'),
+    ])->assertSessionHasErrors(['file' => 'No pudimos leer el texto del PDF. Sube el archivo descargado del sistema académico de la universidad, no un escaneo ni una foto.']);
+
+    expect(Document::count())->toBe(0);
 });
 
 test('students cannot open academic administration screens', function () {

@@ -83,3 +83,34 @@ test('correct password must be provided to delete account', function () {
 
     expect($user->fresh())->not->toBeNull();
 });
+
+test('person profile details can be updated', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('profile.edit'))
+        ->patch(route('profile.details.update'), [
+            'names' => 'Bruno Eber',
+            'surnames' => 'Castillo Robles',
+            'phone' => '987654321',
+            'gender' => 'male',
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('profile.edit'));
+
+    expect($user->person->refresh())
+        ->names->toBe('Bruno Eber')
+        ->phone->toBe('987654321');
+});
+
+test('profile details reject an invalid phone', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patch(route('profile.details.update'), [
+            'names' => 'Bruno',
+            'surnames' => 'Castillo',
+            'phone' => "1' OR '1'='1",
+        ])
+        ->assertSessionHasErrors('phone');
+});

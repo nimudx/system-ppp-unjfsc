@@ -6,6 +6,7 @@ export default function DocumentViewer({
     canUpload,
     onUpload,
     previewEnabled,
+    maxSizeMB,
 }: {
     currentFile: {
         code?: string;
@@ -15,12 +16,17 @@ export default function DocumentViewer({
     canUpload: boolean;
     onUpload: (file: File) => void;
     previewEnabled: boolean;
+    maxSizeMB?: number;
 }) {
     return (
         <div className="flex flex-1 flex-col items-stretch">
             {canUpload ? (
                 <div className="flex flex-1 items-center justify-center py-24">
-                    <UploadZone code={currentFile.code} onUpload={onUpload} />
+                    <UploadZone
+                        code={currentFile.code}
+                        onUpload={onUpload}
+                        maxSizeMB={maxSizeMB}
+                    />
                 </div>
             ) : (
                 <FilePreview

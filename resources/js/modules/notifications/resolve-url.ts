@@ -7,6 +7,12 @@ export function resolveWayfinderUrl(
 ): string | null {
     if (routeName === 'dashboard') return '/dashboard';
     if (!routeName) return null;
+    if (routeName === 'company-validation.requests.show') {
+        const id = Number(params.companyRequest);
+        return Number.isSafeInteger(id) && id > 0
+            ? `/solicitudes-empresa/${id}`
+            : null;
+    }
     let current: unknown = { academic };
     for (const part of routeName.split('.')) {
         if (

@@ -22,6 +22,7 @@ import {
 
 interface Assignment {
     id: number;
+    role_id: number;
     access_status: number;
     review_status: number;
     user: {
@@ -37,18 +38,33 @@ interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
+    /** Solo el administrador y el subadministrador pueden cambiar el rol. */
+    canChangeRole?: boolean;
 }
+
+const ROLE_NAMES: Record<number, string> = {
+    3: 'Docente Titular',
+    4: 'Docente Supervisor',
+};
 
 export default function ManageAssignmentModal({
     assignment,
     open,
     onOpenChange,
     onSuccess,
+    canChangeRole = false,
 }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         action: '',
         reason: '',
+        new_role_id: '',
     });
+
+    // Cambio de rol solo entre Docente Titular (3) y Docente Supervisor (4).
+    const otherRole =
+        assignment?.role_id === 3 ? 4 : assignment?.role_id === 4 ? 3 : null;
+    const canSwitchRole = canChangeRole && otherRole !== null;
+    const isRoleChange = data.action === '4';
 
     const isReadOnly = assignment?.access_status === 3;
     const isReview = assignment?.review_status === 1;
@@ -125,6 +141,11 @@ export default function ManageAssignmentModal({
                                             <SelectItem value="1">
                                                 Eliminar Asignación
                                             </SelectItem>
+                                            {canSwitchRole && (
+                                                <SelectItem value="4">
+                                                    Cambiar rol
+                                                </SelectItem>
+                                            )}
                                         </>
                                     )}
                                 </SelectContent>
@@ -135,6 +156,38 @@ export default function ManageAssignmentModal({
                                 </p>
                             )}
                         </div>
+
+                        {isRoleChange && otherRole && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="new_role_id">Nuevo rol</Label>
+                                <Select
+                                    value={data.new_role_id}
+                                    onValueChange={(value: string) =>
+                                        setData('new_role_id', value)
+                                    }
+                                >
+                                    <SelectTrigger id="new_role_id">
+                                        <SelectValue placeholder="Seleccione el nuevo rol" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={String(otherRole)}>
+                                            {ROLE_NAMES[otherRole]}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">
+                                    Actual:{' '}
+                                    {ROLE_NAMES[assignment?.role_id ?? 0]}. El
+                                    cambio se aplica de inmediato y queda
+                                    registrado en el historial de solicitudes.
+                                </p>
+                                {errors.new_role_id && (
+                                    <p className="text-sm font-medium text-destructive">
+                                        {errors.new_role_id}
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         <div className="grid gap-2">
                             <Label htmlFor="reason">
@@ -168,10 +221,17 @@ export default function ManageAssignmentModal({
                         <Button
                             type="submit"
                             disabled={
-                                processing || !data.action || !data.reason
+                                processing ||
+                                !data.action ||
+                                !data.reason ||
+                                (isRoleChange && !data.new_role_id)
                             }
                         >
-                            {processing ? 'Enviando...' : 'Enviar Solicitud'}
+                            {processing
+                                ? 'Enviando...'
+                                : isRoleChange
+                                  ? 'Cambiar rol'
+                                  : 'Enviar Solicitud'}
                         </Button>
                     </DialogFooter>
                 </form>

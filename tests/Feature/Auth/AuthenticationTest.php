@@ -1,6 +1,7 @@
 <?php
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Support\StrictLoginRateLimiter;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
@@ -70,15 +71,49 @@ test('users can logout', function () {
     $response->assertRedirect(route('home'));
 });
 
-test('users are rate limited', function () {
+test('failed login tells how many attempts are left', function () {
     $user = User::factory()->create();
 
-    RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'wrong-password'])
+        ->assertSessionHasErrors(['email' => 'Correo o contraseña incorrectos. Te quedan 2 intento(s).']);
+});
 
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'wrong-password',
-    ]);
+test('account is locked after three failed attempts', function () {
+    $user = User::factory()->create();
 
-    $response->assertTooManyRequests();
+    foreach (range(1, 3) as $attempt) {
+        $this->post(route('login.store'), ['email' => $user->email, 'password' => 'wrong-password']);
+    }
+
+    // Ni siquiera la contraseña correcta entra mientras dura el bloqueo.
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'Cuenta bloqueada temporalmente por demasiados intentos fallidos. Inténtalo de nuevo en 15 minuto(s) o restablece tu contraseña.']);
+
+    $this->assertGuest();
+});
+
+test('successful login resets the failed attempts counter', function () {
+    $user = User::factory()->create();
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'wrong-password']);
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
+    $this->assertAuthenticated();
+
+    expect(app(StrictLoginRateLimiter::class)->attempts(request()->merge(['email' => $user->email])))->toBe(0);
+});
+
+test('inactive users cannot log in', function () {
+    $user = User::factory()->create(['status' => 0]);
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'Tu cuenta está desactivada. Comunícate con el administrador.']);
+
+    $this->assertGuest();
+});
+
+test('login requests are rate limited per ip', function () {
+    RateLimiter::increment(md5('login'.'127.0.0.1'), amount: 10);
+
+    $this->post(route('login.store'), ['email' => 'nadie@example.com', 'password' => 'x'])
+        ->assertTooManyRequests();
 });

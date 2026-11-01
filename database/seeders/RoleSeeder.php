@@ -22,6 +22,7 @@ class RoleSeeder extends Seeder
             ['id' => 3, 'name' => 'Docente Titular', 'status' => 1, 'created_at' => $now, 'updated_at' => $now],
             ['id' => 4, 'name' => 'Docente Supervisor', 'status' => 1, 'created_at' => $now, 'updated_at' => $now],
             ['id' => 5, 'name' => 'Estudiante', 'status' => 1, 'created_at' => $now, 'updated_at' => $now],
+            ['id' => 6, 'name' => 'Empresa', 'status' => 1, 'created_at' => $now, 'updated_at' => $now],
         ], ['id'], ['name', 'status', 'updated_at']);
     }
 }

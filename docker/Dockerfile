@@ -13,7 +13,7 @@ RUN composer dump-autoload --optimize --no-dev
 # Base con PHP (no node-alpine puro) porque @laravel/vite-plugin-wayfinder
 # corre `php artisan wayfinder:generate` como parte de `npm run build` — el
 # build del frontend no es un paso solo-de-Node en este proyecto.
-FROM php:8.4-cli AS frontend
+FROM php:8.4.27-cli AS frontend
 
 RUN apt-get update && apt-get install -y curl ca-certificates \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
@@ -31,7 +31,7 @@ COPY --from=vendor /app/vendor ./vendor
 RUN npm run build
 
 # ===== Etapa 3: imagen final de producción (PHP-FPM) =====
-FROM php:8.4-fpm
+FROM php:8.4.27-fpm
 
 RUN apt-get update && apt-get install -y \
     git unzip zip rsync libfcgi-bin libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev libzip-dev curl \

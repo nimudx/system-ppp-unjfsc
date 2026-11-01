@@ -357,6 +357,7 @@ export default function UserManagementIndex({
                 open={state.isManageModalOpen}
                 onOpenChange={actions.setIsManageModalOpen}
                 onSuccess={actions.reload}
+                canChangeRole={isAdmin}
             />
             <PendingRequestModal
                 assignment={state.selectedAssignment}

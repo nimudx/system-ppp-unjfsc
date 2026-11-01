@@ -56,6 +56,7 @@ export default function DocumentForm({
                     canUpload={canUpload}
                     onUpload={onUpload}
                     previewEnabled={previewEnabled}
+                    maxSizeMB={2}
                 />
             </div>
         </div>

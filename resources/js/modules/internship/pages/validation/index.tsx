@@ -65,7 +65,7 @@ export default function InternshipValidationIndex({
                     <Heading
                         variant="small"
                         title={title}
-                        description="Gestione y valide las solicitudes de prácticas y su seguimiento."
+                        description="El docente titular (coordinador académico) y los roles autorizados revisan la formalización y el seguimiento de prácticas."
                     />
                 </div>
 

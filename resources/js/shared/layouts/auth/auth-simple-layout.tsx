@@ -1,16 +1,47 @@
 import { Link } from '@inertiajs/react';
 import { home } from '@/routes';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
+import { cn } from '@/shared/lib/utils';
 import type { AuthLayoutProps } from '@/shared/types';
 
 export default function AuthSimpleLayout({
     children,
     title,
     description,
+    withBackground = false,
 }: AuthLayoutProps) {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-            <div className="w-full max-w-sm">
+        <div
+            className={cn(
+                'relative flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10',
+                withBackground
+                    ? 'overflow-hidden bg-neutral-900'
+                    : 'bg-background',
+            )}
+        >
+            {withBackground && (
+                <>
+                    <img
+                        src="/images/login/campus-licenciamiento-1280.webp"
+                        srcSet="/images/login/campus-licenciamiento-768.webp 768w, /images/login/campus-licenciamiento-1280.webp 1280w, /images/login/campus-licenciamiento-1920.webp 1920w"
+                        sizes="100vw"
+                        alt=""
+                        aria-hidden
+                        fetchPriority="high"
+                        className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    {/* Oscurece la foto para que el formulario se lea bien */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0b2a5b]/70 via-black/40 to-black/60" />
+                </>
+            )}
+
+            <div
+                className={cn(
+                    'relative w-full max-w-sm',
+                    withBackground &&
+                        'rounded-2xl border border-white/20 bg-background/95 p-8 shadow-2xl backdrop-blur-sm',
+                )}
+            >
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
                         <Link

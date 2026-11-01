@@ -1,6 +1,7 @@
 <?php
 
 use App\Domains\Identity\Http\Controllers\AcademicSessionController;
+use App\Domains\Identity\Http\Controllers\Settings\BrandingController;
 use App\Domains\Identity\Http\Controllers\Settings\PasswordController;
 use App\Domains\Identity\Http\Controllers\Settings\ProfileController;
 use App\Domains\Identity\Http\Controllers\Settings\ProfileDetailsController;
@@ -52,6 +53,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('settings/profile/media', [ProfileMediaController::class, 'update'])->name('profile.media.update');
     Route::patch('settings/profile/details', [ProfileDetailsController::class, 'update'])->name('profile.details.update');
+
+    // Logo junto a "Sistema de Practicas": general (administrador) o de la sección (docente titular).
+    Route::get('settings/logo', [BrandingController::class, 'edit'])->name('branding.edit');
+    Route::post('settings/logo', [BrandingController::class, 'update'])->middleware('throttle:10,1')->name('branding.update');
+    Route::delete('settings/logo', [BrandingController::class, 'destroy'])->name('branding.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

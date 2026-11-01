@@ -5,16 +5,20 @@ import { toast } from 'sonner';
 interface UploadZoneProps {
     code?: string;
     onUpload: (file: File) => void;
+    maxSizeMB?: number;
 }
 
-export default function UploadZone({ onUpload }: UploadZoneProps) {
+export default function UploadZone({
+    onUpload,
+    maxSizeMB = 10,
+}: UploadZoneProps) {
     const [isDragging, setIsDragging] = useState(false);
 
     const handleFile = (file: File) => {
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = maxSizeMB * 1024 * 1024;
         if (file.size > maxSize) {
             toast.error(
-                'El archivo excede el tamaño máximo permitido de 10MB.',
+                `El archivo excede el tamaño máximo permitido de ${maxSizeMB}MB.`,
             );
             return;
         }
@@ -51,7 +55,7 @@ export default function UploadZone({ onUpload }: UploadZoneProps) {
                         Haz clic para subir o arrastra tu archivo
                     </p>
                     <p className="text-xs text-muted-foreground">
-                        Solo archivos PDF (Máx. 10MB)
+                        Solo archivos PDF (Máx. {maxSizeMB}MB)
                     </p>
                 </div>
                 <input

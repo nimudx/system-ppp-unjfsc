@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editBranding } from '@/routes/branding';
 import { edit } from '@/routes/profile';
 import { about } from '@/routes/settings';
 import { show } from '@/routes/two-factor';
@@ -11,6 +12,12 @@ import { Separator } from '@/shared/components/ui/separator';
 import { useCurrentUrl } from '@/shared/hooks/use-current-url';
 import { cn, toUrl } from '@/shared/lib/utils';
 import type { NavItem } from '@/shared/types';
+
+const logoNavItem: NavItem = {
+    title: 'Logo',
+    href: editBranding(),
+    icon: null,
+};
 
 const sidebarNavItems: NavItem[] = [
     {
@@ -42,6 +49,16 @@ const sidebarNavItems: NavItem[] = [
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentUrl } = useCurrentUrl();
+    const { branding } = usePage().props;
+
+    // "Logo" solo aparece para el administrador y el docente titular.
+    const navItems = branding?.canManageLogo
+        ? [
+              ...sidebarNavItems.slice(0, 4),
+              logoNavItem,
+              ...sidebarNavItems.slice(4),
+          ]
+        : sidebarNavItems;
 
     // When server-side rendering, we only render the layout on the client...
     if (typeof window === 'undefined') {
@@ -61,7 +78,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                         className="flex flex-col space-y-1 space-x-0"
                         aria-label="Configuración"
                     >
-                        {sidebarNavItems.map((item, index) => (
+                        {navItems.map((item, index) => (
                             <Button
                                 key={`${toUrl(item.href)}-${index}`}
                                 size="sm"

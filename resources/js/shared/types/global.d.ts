@@ -13,6 +13,10 @@ declare module '@inertiajs/core' {
             auth: Auth;
             role: number | null;
             sidebarOpen: boolean;
+            branding?: {
+                logoUrl: string | null;
+                canManageLogo: boolean;
+            };
             flash: {
                 message?: string;
                 success?: string;

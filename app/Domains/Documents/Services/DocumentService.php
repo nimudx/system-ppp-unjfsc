@@ -100,9 +100,9 @@ class DocumentService
 
     private function checkCompanyConfirmation(Model $model, Assignment $assignment): void
     {
-        if ($assignment->role_id === 5 && ($model instanceof Placement || $model instanceof Internship)) {
+        if ($assignment->role_id === 5 && ($model instanceof Placement || $model instanceof Internship || $model instanceof PracticeSubmission)) {
             abort_unless($model->assignment_id === $assignment->id, 403, 'El documento no pertenece al estudiante.');
-            $placement = $model instanceof Placement ? $model : $model->placement;
+            $placement = $model instanceof Placement ? $model : ($model instanceof PracticeSubmission ? $model->assignment->placement : $model->placement);
             abort_unless($placement, 409, 'Primero registra los datos de la práctica.');
             app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->documents($assignment, $placement);
         }
