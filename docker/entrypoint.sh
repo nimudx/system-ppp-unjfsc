@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Queue containers use the same image, but must not sync public assets or
+# rebuild shared view caches every time the worker restarts.
+if [ "$#" -gt 0 ]; then
+    exec "$@"
+fi
+
 # El build del frontend viaja horneado en la imagen (ver docker/Dockerfile),
 # pero public/ está montado desde el host para que Caddy lo sirva sin pasar
 # por PHP-FPM. Sincronizarlo en cada arranque es lo que hace que un deploy

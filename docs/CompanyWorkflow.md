@@ -44,6 +44,8 @@ Este seeder existente agrega los tipos por código sin borrar los demás. Si se 
 
 Configurar SMTP y remitente institucional para enviar correo real. `MAIL_MAILER=log` solo escribe el mensaje en el log. Con cola en base de datos, mantener `php artisan queue:work --tries=3`. Las pruebas automáticas simulan correo y almacenamiento; no prueban la entrega SMTP real.
 
+El despliegue SMTP y el worker de Docker están preparados en [CorreoProduccion.md](CorreoProduccion.md). Esa guía indica los secretos/variables de GitHub que deben registrarse antes de integrar en `main`.
+
 El seeder de desarrollo vincula explícitamente la empresa demo con su usuario para poder usar las mismas comprobaciones de propiedad de las cuentas activadas. No se adjudican empresas reales automáticamente por coincidencia de correo.
 
 ## Validación de esta integración
