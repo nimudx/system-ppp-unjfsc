@@ -5,6 +5,7 @@ import {
     UserCircle2,
     ShieldCheck,
     Github,
+    Linkedin,
     ExternalLink,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -32,6 +33,7 @@ type Developer = {
     name: string;
     github: string;
     portfolio?: string;
+    linkedin?: string;
 };
 
 // Lead Developers, ordenados por apellido.
@@ -39,19 +41,24 @@ const DEVELOPERS: Developer[] = [
     {
         name: 'Ing. Bruno Castillo Robles',
         github: 'https://github.com/BrunoCastillo23',
+        linkedin: 'https://www.linkedin.com/in/bruno-castillo-robles',
         portfolio: 'https://portfolio-flax-omega-9o41txpov8.vercel.app/',
     },
     {
         name: 'Ing. Jean Fernandez Pardo',
         github: 'https://github.com/JeanSmith1505',
+        linkedin: 'https://www.linkedin.com/in/jeans-fp15/',
     },
     {
         name: 'Ing. Yefferson Quiñonez Espinoza',
         github: 'https://github.com/yeffx10',
+        linkedin:
+            'https://www.linkedin.com/in/yefferson-qui%C3%B1onez-60b159286/',
     },
     {
         name: 'Ing. Aldo Rios Chaccara',
         github: 'https://github.com/SrDiff',
+        linkedin: 'https://www.linkedin.com/in/aldo-rios-chaccara-5506093b9/',
     },
     {
         name: 'Ing. Mirko Torres Diaz',
@@ -75,6 +82,17 @@ function DeveloperLinks({ developer }: { developer: Developer }) {
             >
                 <Github className="h-4 w-4" />
             </a>
+            {developer.linkedin && (
+                <a
+                    href={developer.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`LinkedIn de ${developer.name}`}
+                    className="text-muted-foreground transition-colors hover:text-primary"
+                >
+                    <Linkedin className="h-4 w-4" />
+                </a>
+            )}
             {developer.portfolio && (
                 <a
                     href={developer.portfolio}
