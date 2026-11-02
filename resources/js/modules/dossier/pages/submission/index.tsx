@@ -1,11 +1,25 @@
 import { Head, useForm } from '@inertiajs/react';
-import { FileText, Maximize2, Download, FileDown } from 'lucide-react';
-import React, { useState } from 'react';
+import {
+    CalendarClock,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    FileDown,
+    FileText,
+    History as HistoryIcon,
+    Maximize2,
+    MessageSquare,
+    Minimize2,
+} from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
+
 import {
     DocumentViewer,
     RequirementsList,
-    AlertHelp,
     SubmissionPanel,
 } from '@/modules/documents';
 import type { DocumentRequirement } from '@/modules/documents';
@@ -16,6 +30,7 @@ import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { Spinner } from '@/shared/components/ui/spinner';
+import { cn } from '@/shared/lib/utils';
 
 import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
@@ -26,6 +41,481 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dossiers.submission.toString(),
     },
 ];
+
+const enter =
+    'animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-both motion-reduce:animate-none';
+
+const MAX_FILE_SIZE = 350 * 1024; // 350 KB
+const HISTORY_PREVIEW = 6;
+
+interface DossierHistoryRecord {
+    id: number;
+    approval_status: number;
+    comment?: string | null;
+    name?: string;
+    created_at?: string;
+    approved_at?: string | null;
+    updated_at?: string | null;
+    documentTitle: string;
+    documentCode: string;
+}
+
+function formatDateTime(value?: string | null) {
+    if (!value) return null;
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return null;
+
+    return format(date, "d MMM yyyy, HH:mm", { locale: es });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Estado de un requisito                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Estado real de un requisito: manda el último archivo subido
+ * (es lo que el revisor aprobó/observó) y, si no hay, el del requisito.
+ */
+function resolveStatus(requirement?: DocumentRequirement | null): number {
+    if (!requirement) return 0;
+
+    return requirement.latest?.approval_status ?? requirement.status ?? 0;
+}
+
+function getStatusMeta(status: number) {
+    if (status === 1) {
+        return {
+            label: 'Aprobado',
+            dot: 'bg-green-500',
+            text: 'text-green-600 dark:text-green-400',
+            icon: CheckCircle2,
+        };
+    }
+
+    if (status === 3) {
+        return {
+            label: 'Observado',
+            dot: 'bg-destructive',
+            text: 'text-destructive',
+            icon: MessageSquare,
+        };
+    }
+
+    return {
+        label: 'Pendiente',
+        dot: 'bg-amber-500',
+        text: 'text-amber-600 dark:text-amber-400',
+        icon: CalendarClock,
+    };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Utilidades de animación                                                    */
+/* -------------------------------------------------------------------------- */
+
+function useCountUp(target: number, duration = 700) {
+    const [value, setValue] = useState(0);
+
+    useEffect(() => {
+        if (
+            typeof window !== 'undefined' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ) {
+            setValue(target);
+            return;
+        }
+
+        let frame = 0;
+        const start = performance.now();
+
+        const tick = (now: number) => {
+            const progress = Math.min(1, (now - start) / duration);
+
+            setValue(Math.round(target * (1 - Math.pow(1 - progress, 3))));
+
+            if (progress < 1) {
+                frame = requestAnimationFrame(tick);
+            }
+        };
+
+        frame = requestAnimationFrame(tick);
+
+        return () => cancelAnimationFrame(frame);
+    }, [target, duration]);
+
+    return value;
+}
+
+function useReady() {
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => setReady(true));
+
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
+    return ready;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Resumen de avance: un segmento por documento, clicable                     */
+/* -------------------------------------------------------------------------- */
+
+function DossierProgress({
+    requirements,
+    selectedType,
+}: {
+    requirements: DocumentRequirement[];
+    selectedType: number;
+}) {
+    const ready = useReady();
+    const total = requirements.length;
+    const approved = requirements.filter(
+        (item) => resolveStatus(item) === 1,
+    ).length;
+    const observed = requirements.filter(
+        (item) => resolveStatus(item) === 3,
+    ).length;
+    const shown = useCountUp(approved);
+
+    return (
+        <div className="flex w-full flex-col gap-2 md:w-72">
+            <div className="flex items-baseline justify-between gap-2">
+                <span className="text-sm font-medium tabular-nums">
+                    {shown} / {total} aprobados
+                </span>
+
+                {observed > 0 && (
+                    <span className="text-xs font-medium text-destructive tabular-nums">
+                        {observed} por corregir
+                    </span>
+                )}
+            </div>
+
+            <div
+                className="flex items-center gap-1"
+                role="img"
+                aria-label={`${approved} de ${total} documentos aprobados`}
+            >
+                {requirements.map((item, index) => {
+                    const meta = getStatusMeta(resolveStatus(item));
+                    const hasUpload = Boolean(item.latest);
+                    const active = index === selectedType;
+
+                    return (
+                        <div
+                            key={item.code}
+                            title={`${item.title}: ${hasUpload ? meta.label : 'Sin subir'}`}
+                            className={cn(
+                                'h-1.5 flex-1 origin-left rounded-full transition-all duration-500 ease-out motion-reduce:transition-none',
+                                hasUpload ? meta.dot : 'bg-muted',
+                                active && 'h-2.5',
+                                ready ? 'scale-x-100' : 'scale-x-0',
+                            )}
+                            style={{ transitionDelay: `${index * 50}ms` }}
+                        />
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pendientes por atender                                                     */
+/* -------------------------------------------------------------------------- */
+
+function PendingActionsCard({
+    requirements,
+}: {
+    requirements: DocumentRequirement[];
+}) {
+    const actionable = requirements
+        .map((item) => ({
+            item,
+            observed: resolveStatus(item) === 3,
+        }))
+        .filter(({ item, observed }) => !item.locked && (!item.latest || observed));
+
+    return (
+        <SectionCard>
+            <SectionCard.Header>
+                <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <h3 className="text-sm leading-none font-semibold tracking-tight">
+                            Por atender
+                        </h3>
+                        <p className="mt-1 truncate text-xs text-muted-foreground">
+                            Falta subir o corregir
+                        </p>
+                    </div>
+
+                    <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
+                        {actionable.length}
+                    </span>
+                </div>
+            </SectionCard.Header>
+
+            <SectionCard.Body className="space-y-3">
+                {actionable.length === 0 ? (
+                    <div className="flex items-center gap-3 rounded-lg border border-dashed p-3">
+                        <CheckCircle2 className="size-5 shrink-0 text-green-500" />
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                            No tienes documentos por subir ni corregir.
+                        </p>
+                    </div>
+                ) : (
+                    <ul className="space-y-1">
+                        {actionable.map(({ item, observed }) => (
+                            <li
+                                key={item.code}
+                                className="flex items-center gap-2.5 rounded-lg px-2.5 py-2"
+                            >
+                                <span
+                                    className={cn(
+                                        'size-2 shrink-0 rounded-full',
+                                        observed
+                                            ? 'bg-destructive'
+                                            : 'bg-muted-foreground/40',
+                                    )}
+                                />
+
+                                <span className="min-w-0 flex-1">
+                                    <span className="block truncate text-xs font-medium">
+                                        {item.title}
+                                    </span>
+                                    <span
+                                        className={cn(
+                                            'block text-[11px]',
+                                            observed
+                                                ? 'text-destructive'
+                                                : 'text-muted-foreground',
+                                        )}
+                                    >
+                                        {observed ? 'Observado' : 'Sin subir'}
+                                    </span>
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
+                <div className="space-y-1 border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
+                    <p>
+                        Los documentos deben ser oficiales, descargados de la
+                        intranet.
+                    </p>
+                    <p className="hidden lg:block">
+                        Usa las flechas ← → del teclado para cambiar de
+                        documento.
+                    </p>
+                </div>
+            </SectionCard.Body>
+        </SectionCard>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Historial general de documentos (todo en una sola línea de tiempo)         */
+/* -------------------------------------------------------------------------- */
+
+function DocumentHistoryPanel({
+    history,
+}: {
+    history: DossierHistoryRecord[];
+}) {
+    const [showAll, setShowAll] = useState(false);
+
+    const sorted = useMemo(
+        () =>
+            [...history].sort((a, b) => {
+                const dateA = a.created_at
+                    ? new Date(a.created_at).getTime()
+                    : 0;
+                const dateB = b.created_at
+                    ? new Date(b.created_at).getTime()
+                    : 0;
+
+                return dateB - dateA;
+            }),
+        [history],
+    );
+
+    const visible = showAll ? sorted : sorted.slice(0, HISTORY_PREVIEW);
+    const hidden = sorted.length - visible.length;
+
+    return (
+        <SectionCard className="min-w-0">
+            <SectionCard.Header>
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/50">
+                            <HistoryIcon className="size-4 text-muted-foreground" />
+                        </div>
+
+                        <div className="min-w-0">
+                            <h3 className="text-sm leading-none font-semibold tracking-tight">
+                                Historial
+                            </h3>
+                            <p className="mt-1 truncate text-xs text-muted-foreground">
+                                Movimientos de tus documentos
+                            </p>
+                        </div>
+                    </div>
+
+                    <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
+                        {history.length}
+                    </span>
+                </div>
+            </SectionCard.Header>
+
+            <SectionCard.Body className="space-y-4">
+                {history.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed px-4 py-9 text-center">
+                        <div className="mb-3 flex size-11 items-center justify-center rounded-full bg-muted">
+                            <HistoryIcon className="size-5 text-muted-foreground/60" />
+                        </div>
+
+                        <h4 className="text-sm font-semibold">
+                            Aún no hay movimientos
+                        </h4>
+
+                        <p className="mt-1 max-w-56 text-xs leading-relaxed text-muted-foreground">
+                            Cuando subas un documento, sus versiones y
+                            revisiones aparecerán aquí.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="relative space-y-4 before:absolute before:inset-y-2 before:left-[9px] before:w-px before:bg-border">
+                            {visible.map((record, index) => {
+                                const status = getStatusMeta(
+                                    record.approval_status,
+                                );
+                                const StatusIcon = status.icon;
+                                const validDate =
+                                    record.created_at &&
+                                    !Number.isNaN(
+                                        new Date(record.created_at).getTime(),
+                                    );
+
+                                return (
+                                    <article
+                                        key={`${record.documentCode}-${record.id}`}
+                                        className={cn('relative pl-8', enter)}
+                                        style={{
+                                            animationDelay: `${Math.min(index, 8) * 40}ms`,
+                                        }}
+                                    >
+                                        <span
+                                            className={cn(
+                                                'absolute top-1 left-0 flex size-[19px] items-center justify-center rounded-full border-[3px] border-background shadow-sm',
+                                                status.dot,
+                                            )}
+                                        />
+
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span
+                                                    className={cn(
+                                                        'text-xs font-semibold',
+                                                        status.text,
+                                                    )}
+                                                >
+                                                    {status.label}
+                                                </span>
+
+                                                <span className="text-[11px] text-muted-foreground tabular-nums">
+                                                    {formatDateTime(record.created_at) ??
+                                                        'Fecha desconocida'}
+                                                </span>
+                                            </div>
+
+                                            <div className="rounded-lg border bg-muted/20 p-3">
+                                                <div className="flex items-start gap-2">
+                                                    <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="truncate text-xs font-semibold">
+                                                            {record.name ??
+                                                                'Documento adjunto'}
+                                                        </p>
+
+                                                        <p className="mt-1 text-[11px] text-muted-foreground">
+                                                            {
+                                                                record.documentTitle
+                                                            }
+                                                        </p>
+
+                                                        <p className="mt-1 text-[11px] text-muted-foreground">
+                                                            Subido el{' '}
+                                                            {formatDateTime(record.created_at) ??
+                                                                'fecha desconocida'}
+                                                        </p>
+
+                                                        {record.approval_status === 1 && (
+                                                            <p className="text-[11px] text-green-600 dark:text-green-400">
+                                                                Aprobado el{' '}
+                                                                {formatDateTime(
+                                                                    record.approved_at ??
+                                                                        record.updated_at,
+                                                                ) ?? 'fecha no registrada'}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    <StatusIcon
+                                                        className={cn(
+                                                            'size-4 shrink-0',
+                                                            status.text,
+                                                        )}
+                                                    />
+                                                </div>
+
+                                                {record.comment && (
+                                                    <div className="mt-3 flex gap-2 rounded-md border bg-background/70 p-2.5">
+                                                        <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+
+                                                        <p className="text-[11px] leading-relaxed text-muted-foreground">
+                                                            {record.comment}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+
+                        {(hidden > 0 || showAll) &&
+                            sorted.length > HISTORY_PREVIEW && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full text-xs"
+                                    aria-expanded={showAll}
+                                    onClick={() => setShowAll((v) => !v)}
+                                >
+                                    {showAll
+                                        ? 'Ver menos'
+                                        : `Ver ${hidden} más`}
+                                </Button>
+                            )}
+                    </>
+                )}
+            </SectionCard.Body>
+        </SectionCard>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Página                                                                     */
+/* -------------------------------------------------------------------------- */
 
 export default function MyDossier({
     requirements,
@@ -38,50 +528,152 @@ export default function MyDossier({
     const [selectedType, setSelectedType] = useState(0);
     const [previewEnabled, setPreviewEnabled] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [expanded, setExpanded] = useState(false);
     const [tempFile, setTempFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const currentFile = requirements[selectedType];
+    const list = requirements || [];
+    const currentFile = list[selectedType];
+    const currentStatus = tempFile ? 0 : resolveStatus(currentFile);
 
     const { post, processing, transform } = useForm({
         file: null as File | null,
         code: '',
         target_id: dossier,
     });
-    // FUNCIÓN: Maneja la previsualización local antes de subir
+
+    /*
+     * Combina el historial de todos los requisitos.
+     * Cada registro conserva el título y código del documento de origen.
+     */
+    const allHistory = useMemo<DossierHistoryRecord[]>(() => {
+        return list.flatMap((requirement) =>
+            (requirement.history ?? []).map((record) => ({
+                ...record,
+                documentTitle: requirement.title,
+                documentCode: requirement.code,
+            })),
+        );
+    }, [list]);
+
+    /* Libera la URL temporal al cambiar o salir de la página. */
+    useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    /* Pantalla completa: Escape para cerrar y sin scroll de fondo. */
+    useEffect(() => {
+        if (!expanded) return;
+
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setExpanded(false);
+            }
+        };
+
+        const previous = document.body.style.overflow;
+
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', onKey);
+
+        return () => {
+            document.body.style.overflow = previous;
+            window.removeEventListener('keydown', onKey);
+        };
+    }, [expanded]);
+
     const onUpload = (file: File) => {
+        if (file.size > MAX_FILE_SIZE) {
+            toast.error(
+                `El archivo pesa ${Math.round(file.size / 1024)} KB. El máximo es 350 KB.`,
+            );
+            return;
+        }
+
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+
         setTempFile(file);
         setPreviewUrl(URL.createObjectURL(file));
     };
 
-    // Limpiar estados cuando cambiamos de archivo a la izquierda
+    const removeTempFile = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+
+        setTempFile(null);
+        setPreviewUrl(null);
+        setIsEditing(false);
+    };
+
     const selectType = (index: number) => {
-        if (index === selectedType) return;
+        if (index === selectedType || index < 0 || index >= list.length) {
+            return;
+        }
+
         removeTempFile();
         setSelectedType(index);
     };
 
-    // Lógica para decidir si mostrar UploadZone o Preview
+    /* Atajos: ← y → cambian de documento (si no estás escribiendo). */
+    const selectRef = useRef(selectType);
+    selectRef.current = selectType;
+    const indexRef = useRef(selectedType);
+    indexRef.current = selectedType;
+
+    useEffect(() => {
+        const onKey = (event: KeyboardEvent) => {
+            if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+            const target = event.target as HTMLElement | null;
+            const typing =
+                target &&
+                (target.tagName === 'INPUT' ||
+                    target.tagName === 'TEXTAREA' ||
+                    target.isContentEditable);
+
+            if (typing) return;
+
+            if (event.key === 'ArrowLeft') {
+                selectRef.current(indexRef.current - 1);
+            } else if (event.key === 'ArrowRight') {
+                selectRef.current(indexRef.current + 1);
+            }
+        };
+
+        window.addEventListener('keydown', onKey);
+
+        return () => window.removeEventListener('keydown', onKey);
+    }, []);
+
     const canUpload = (!currentFile?.latest || isEditing) && !tempFile;
 
-    const removeTempFile = () => {
-        setTempFile(null);
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-            setPreviewUrl(null);
-        }
-        setIsEditing(false);
-    };
+    const hasFile = Boolean(tempFile || currentFile?.latest);
 
-    const handleSubmit = (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
+    const subtitle = tempFile
+        ? 'Archivo listo para enviar'
+        : !currentFile?.latest
+          ? 'Falta subir'
+          : currentStatus === 1
+            ? 'Aprobado'
+            : currentStatus === 3
+              ? 'Observado: revisa el comentario'
+              : 'En revisión';
 
-        if (!tempFile) {
-            toast.error('Por favor, selecciona un archivo antes de enviar.');
+    const handleSubmit = (event?: React.FormEvent) => {
+        event?.preventDefault();
+
+        if (!tempFile || !currentFile) {
+            toast.error('Selecciona un archivo antes de enviar.');
             return;
         }
 
-        // Aseguramos que el código y el target_id estén actualizados en el payload
         transform((data) => ({
             ...data,
             code: currentFile.code,
@@ -90,12 +682,14 @@ export default function MyDossier({
 
         post(dossiers.document.store().url, {
             onSuccess: () => {
-                setTempFile(null);
-                setPreviewUrl(null);
-                setIsEditing(false);
+                removeTempFile();
+                toast.success('Documento enviado');
             },
             onError: (errors) => {
-                const firstError = Object.values(errors)[0] as string;
+                const firstError = Object.values(errors)[0] as
+                    | string
+                    | undefined;
+
                 toast.error(firstError || 'Error al procesar la solicitud', {
                     duration: 10000,
                 });
@@ -107,69 +701,79 @@ export default function MyDossier({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Documentación" />
 
-            {/* Fondo gris de toda la app (Lienzo infinito) */}
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
-                {/* Header Superior Libre */}
-                <div className="flex items-end justify-between">
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <Heading
                         variant="small"
-                        title="Validación de Documentos"
-                        description="Gestione y valide los archivos requeridos para su expediente."
+                        title="Validación de documentos"
+                        description="Sube y sigue los archivos requeridos para tu expediente."
                     />
-                    <div className="hidden flex-col items-end md:flex">
-                        <span className="text-sm font-medium">
-                            {requirements.filter((r) => r.status === 1).length}{' '}
-                            / {requirements.length} Listos
-                        </span>
-                        <p className="mt-0.5 cursor-pointer text-xs text-muted-foreground transition-colors hover:text-foreground">
-                            Ver detalles
-                        </p>
-                    </div>
+
+                    <DossierProgress
+                        requirements={list}
+                        selectedType={selectedType}
+                    />
                 </div>
 
-                {/* Contenedor Principal (Flex Row) */}
                 <div className="flex flex-col items-start gap-6 lg:flex-row">
-                    {/* 1. PANEL IZQUIERDO (Navegación Vertical) */}
-                    <div className="flex w-full shrink-0 flex-col gap-6 lg:w-64 xl:w-72">
-                        {/* Tarjeta de Requisitos usando componentes base Shadcn (Card) */}
+                    {/* Columna izquierda: requisitos */}
+                    <div className="order-3 flex w-full shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
                         <RequirementsList
-                            requirements={requirements || []}
+                            requirements={list}
                             selectedType={selectedType}
                             onSelectType={selectType}
                             previewEnabled={previewEnabled}
                             onTogglePreview={() =>
-                                setPreviewEnabled(!previewEnabled)
+                                setPreviewEnabled((value) => !value)
                             }
                         />
 
-                        {/* Plantilla Disponible Card */}
                         {currentFile?.has_template && (
-                            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-                                <div className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                            <div
+                                key={`template-${currentFile.code}`}
+                                className={cn(
+                                    'rounded-xl border bg-card text-card-foreground shadow-sm',
+                                    enter,
+                                )}
+                            >
+                                <div className="flex flex-row items-center justify-between p-4 pb-2">
                                     <h3 className="text-sm font-semibold tracking-tight">
-                                        Plantilla Disponible
+                                        Plantilla disponible
                                     </h3>
-                                    <FileDown className="h-4 w-4 text-muted-foreground" />
+
+                                    <FileDown className="size-4 text-muted-foreground" />
                                 </div>
+
                                 <div className="p-4 pt-0">
                                     <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                        Descarga el formato oficial, complétalo
-                                        y súbelo.
+                                        Descarga el formato oficial,
+                                        complétalo y súbelo.
                                     </p>
-                                    <button className="inline-flex h-8 w-full items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium whitespace-nowrap shadow-sm ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none">
-                                        <Download className="mr-2 h-3.5 w-3.5" />
+
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="w-full"
+                                    >
+                                        <Download />
                                         Descargar formato
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         )}
 
-                        <AlertHelp />
+                        <PendingActionsCard requirements={list} />
                     </div>
 
-                    {/* 2. PANEL CENTRAL (Visor del Documento) */}
-                    <div className="relative h-full w-full flex-1 overflow-hidden">
-                        {/* Loader opcional de Inertia mientras sube */}
+                    {/* Centro: visor del documento */}
+                    <div
+                        className={cn(
+                            expanded
+                                ? 'fixed inset-0 z-50 h-dvh overflow-auto bg-background p-3 md:p-6'
+                                : 'relative order-1 h-full w-full min-w-0 flex-1 overflow-hidden lg:order-none',
+                        )}
+                    >
                         {processing && (
                             <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
                                 <div className="flex flex-col items-center gap-2">
@@ -181,91 +785,185 @@ export default function MyDossier({
                             </div>
                         )}
 
-                        <SectionCard>
-                            <SectionCard.Header>
-                                {/* Header del Card (Dinamizado y Compacto) */}
-                                <div className="flex flex-row items-center justify-between backdrop-blur-sm">
-                                    <div className="flex items-center gap-3">
-                                        {/* Ícono más pequeño y sutil */}
+                        {currentFile ? (
+                            <SectionCard>
+                                <SectionCard.Header>
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <div
-                                            className={`flex h-9 w-9 items-center justify-center rounded-md border ${
-                                                tempFile || currentFile?.latest
-                                                    ? 'border-primary/20 bg-primary/5'
-                                                    : 'bg-muted/50'
-                                            }`}
+                                            key={currentFile.code ?? selectedType}
+                                            className={cn(
+                                                'flex min-w-0 items-center gap-3',
+                                                enter,
+                                            )}
                                         >
-                                            <FileText
-                                                className={`size-4 ${tempFile || currentFile?.latest ? 'text-primary' : 'text-muted-foreground'}`}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col">
-                                            <h3 className="text-sm leading-none font-semibold tracking-tight">
-                                                {currentFile?.title}
-                                            </h3>
-                                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                                {tempFile
-                                                    ? 'Archivo listo para subir'
-                                                    : currentFile?.latest
-                                                      ? 'Cargado correctamente'
-                                                      : 'Subida pendiente'}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Acciones reducidas a botones compactos */}
-                                    <div className="flex items-center gap-2">
-                                        {(tempFile || currentFile?.latest) && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-8 px-2.5 text-xs"
+                                            <div
+                                                className={cn(
+                                                    'flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors',
+                                                    hasFile
+                                                        ? 'border-primary/20 bg-primary/5'
+                                                        : 'bg-muted/50',
+                                                )}
                                             >
-                                                <Maximize2 className="mr-2 size-3.5 text-muted-foreground" />
-                                                Expandir
+                                                <FileText
+                                                    className={cn(
+                                                        'size-4',
+                                                        hasFile
+                                                            ? 'text-primary'
+                                                            : 'text-muted-foreground',
+                                                    )}
+                                                />
+                                            </div>
+
+                                            <div className="flex min-w-0 flex-col">
+                                                <h3 className="truncate text-sm leading-none font-semibold tracking-tight">
+                                                    {currentFile.title}
+                                                </h3>
+
+                                                <p
+                                                    className={cn(
+                                                        'mt-1 text-[11px]',
+                                                        tempFile
+                                                            ? 'text-primary'
+                                                            : currentFile.latest
+                                                              ? getStatusMeta(
+                                                                    currentStatus,
+                                                                ).text
+                                                              : 'text-muted-foreground',
+                                                    )}
+                                                >
+                                                    {subtitle}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex shrink-0 items-center justify-between gap-1 sm:justify-end">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                aria-label="Documento anterior"
+                                                disabled={selectedType === 0}
+                                                onClick={() =>
+                                                    selectType(selectedType - 1)
+                                                }
+                                            >
+                                                <ChevronLeft />
                                             </Button>
-                                        )}
+
+                                            <span className="text-xs text-muted-foreground tabular-nums">
+                                                {selectedType + 1}/{list.length}
+                                            </span>
+
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                aria-label="Documento siguiente"
+                                                disabled={
+                                                    selectedType >=
+                                                    list.length - 1
+                                                }
+                                                onClick={() =>
+                                                    selectType(selectedType + 1)
+                                                }
+                                            >
+                                                <ChevronRight />
+                                            </Button>
+
+                                            {hasFile && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="ml-auto h-8 px-2.5 text-xs sm:ml-1"
+                                                    onClick={() =>
+                                                        setExpanded(
+                                                            (value) => !value,
+                                                        )
+                                                    }
+                                                >
+                                                    {expanded ? (
+                                                        <Minimize2 className="size-3.5 text-muted-foreground sm:mr-2" />
+                                                    ) : (
+                                                        <Maximize2 className="size-3.5 text-muted-foreground sm:mr-2" />
+                                                    )}
+
+                                                    <span className="hidden sm:inline">
+                                                        {expanded
+                                                            ? 'Cerrar'
+                                                            : 'Expandir'}
+                                                    </span>
+                                                    <span className="sr-only sm:hidden">
+                                                        {expanded
+                                                            ? 'Cerrar vista completa'
+                                                            : 'Expandir vista'}
+                                                    </span>
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            </SectionCard.Header>
-                            <SectionCard.Body className="p-0">
-                                <DocumentViewer
-                                    currentFile={{
-                                        ...currentFile,
-                                        latest: tempFile
-                                            ? {
-                                                  ...tempFile,
-                                                  path: previewUrl,
-                                                  name: tempFile.name,
-                                              }
-                                            : currentFile?.latest,
-                                    }}
-                                    canUpload={canUpload}
-                                    onUpload={onUpload}
-                                    previewEnabled={previewEnabled}
-                                />
-                            </SectionCard.Body>
-                        </SectionCard>
+                                </SectionCard.Header>
+
+                                <SectionCard.Body className="p-0">
+                                    <DocumentViewer
+                                        currentFile={{
+                                            ...currentFile,
+                                            latest: tempFile
+                                                ? {
+                                                      id: 0,
+                                                      approval_status: 0,
+                                                      path: previewUrl,
+                                                      name: tempFile.name,
+                                                      size: tempFile.size,
+                                                  }
+                                                : currentFile.latest,
+                                        }}
+                                        canUpload={canUpload}
+                                        onUpload={onUpload}
+                                        previewEnabled={previewEnabled}
+                                    />
+                                </SectionCard.Body>
+                            </SectionCard>
+                        ) : (
+                            <SectionCard>
+                                <SectionCard.Body className="flex min-h-64 flex-col items-center justify-center text-center">
+                                    <FileText className="mb-3 size-8 text-muted-foreground/50" />
+                                    <p className="text-sm font-medium">
+                                        No hay documentos requeridos
+                                    </p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                        No se encontraron requisitos para este
+                                        expediente.
+                                    </p>
+                                </SectionCard.Body>
+                            </SectionCard>
+                        )}
                     </div>
 
-                    {/* 3. PANEL DERECHO (Detalles y Acciones) */}
-                    <div className="flex w-full shrink-0 flex-col gap-6 lg:w-64 xl:w-72">
-                        <SubmissionPanel
-                            status={currentFile?.status}
-                            currentRequirement={currentFile}
-                            tempFile={tempFile}
-                            isEditing={isEditing}
-                            onSetEditing={setIsEditing}
-                            onRemoveTemp={removeTempFile}
-                            uploading={processing}
-                            showFileInfo={{
-                                name: currentFile?.latest?.name,
-                                meta: 'Documento Oficial',
-                                size: currentFile?.latest?.size,
-                            }}
-                            onSubmit={handleSubmit}
-                        />
-                    </div>
+                    {/* Columna derecha: detalle e historial independientes */}
+                    {!expanded && (
+                        <aside className="order-2 flex w-full min-w-0 shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
+                            {currentFile && (
+                                <SubmissionPanel
+                                    status={currentStatus}
+                                    currentRequirement={currentFile}
+                                    tempFile={tempFile}
+                                    isEditing={isEditing}
+                                    onSetEditing={setIsEditing}
+                                    onRemoveTemp={removeTempFile}
+                                    uploading={processing}
+                                    showFileInfo={{
+                                        name: currentFile.latest?.name,
+                                        meta: 'Documento oficial',
+                                        size: currentFile.latest?.size,
+                                    }}
+                                    onSubmit={handleSubmit}
+                                />
+                            )}
+
+                            <DocumentHistoryPanel history={allHistory} />
+                        </aside>
+                    )}
                 </div>
             </div>
         </AppLayout>

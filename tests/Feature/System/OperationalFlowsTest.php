@@ -64,6 +64,7 @@ test('existing screens load for their intended profiles', function (int $role, s
     'supervisor evaluation' => [4, 'academic.supervision.submission'],
     'student dossier' => [5, 'academic.dossiers.submission'],
     'student formalization' => [5, 'academic.internship.submission'],
+    'student formalization documents' => [5, 'academic.internship.formalization'],
     'student supervision' => [5, 'academic.supervision.student'],
     'student resources' => [5, 'resource.index'],
 ]);
