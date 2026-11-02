@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Domains\Academic\Models\School;
 use App\Domains\Academic\Models\Section;
 use App\Domains\Academic\Models\Semester;

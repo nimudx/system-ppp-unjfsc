@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\Concerns\SeedsUsers;
 use Illuminate\Database\Seeder;
 
 class SupervisorUserSeeder extends Seeder
 {
     use SeedsUsers;
+
     /**
      * Run the database seeds.
      */
