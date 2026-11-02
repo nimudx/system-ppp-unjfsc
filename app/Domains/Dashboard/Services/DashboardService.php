@@ -4,12 +4,15 @@ namespace App\Domains\Dashboard\Services;
 
 use App\Domains\Academic\Models\School;
 use App\Domains\Academic\Models\Section;
+use App\Domains\Company\Enums\CompanyRequestState;
 use App\Domains\Company\Models\Company;
 use App\Domains\Company\Models\CompanyValidationRequest;
 use App\Domains\Documents\Models\Document;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\FailedLogin;
+use App\Domains\Identity\Models\Person;
 use App\Domains\Identity\Models\User;
+use App\Domains\Internship\Models\Placement;
 use App\Domains\Notifications\Models\Notification;
 use App\Domains\Notifications\Models\NotificationRecipient;
 use App\Domains\Supervision\Enums\PracticeSubmissionStatus;
@@ -18,7 +21,9 @@ use App\Domains\Supervision\Models\Evaluation;
 use App\Domains\Supervision\Models\InternshipGroup;
 use App\Domains\Supervision\Models\PracticeSubmission;
 use App\Domains\Supervision\Models\StudentGroup;
+use App\Domains\Supervision\Models\Supervision;
 use App\Shared\Enums\Role;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -46,6 +51,7 @@ class DashboardService
             Role::ADMIN->value, Role::SUBADMIN->value => $this->admin($assignment),
             Role::DTITULAR->value => $this->teacher($assignment, $user),
             Role::DSUPERVISOR->value => $this->supervisor($assignment),
+            Role::ESTUDIANTE->value => $this->student($assignment, $user),
             default => null,
         };
     }
@@ -214,6 +220,541 @@ class DashboardService
             'route' => $this->studentRows($studentIds->take(6), withAddress: true),
             'statuses' => $this->studentRows($studentIds->take(6)),
         ];
+    }
+
+    /**
+     * Panel del estudiante: expediente, formalización, avance de la práctica,
+     * plan e informe, módulos de supervisión, actividad y tareas pendientes.
+     */
+    public function student(Assignment $assignment, User $user): array
+    {
+        $assignment->loadMissing([
+            'user.person',
+            'section.school.faculty',
+            'section.faculty',
+            'semester',
+            'placement.company',
+            'placement.area',
+            'placement.documents.documentType',
+            'internship',
+        ]);
+
+        $placement = $assignment->placement;
+        $person = $assignment->user?->person;
+
+        // Expediente académico: ficha de matrícula y récord.
+        $dossier = $assignment->dossiers()
+            ->with(['documents.documentType'])
+            ->first();
+
+        $dossierDocuments = $dossier?->documents ?? collect();
+
+        $dossierItems = collect([
+            ['code' => 'ficha', 'title' => 'Ficha de matrícula'],
+            ['code' => 'record', 'title' => 'Récord académico'],
+        ])->map(fn (array $item) => $this->studentDocument($item, $dossierDocuments))
+            ->values()
+            ->all();
+
+        // Documentos de formalización.
+        $placementDocuments = $placement?->documents ?? collect();
+
+        $placementItems = collect([
+            ['code' => 'fut', 'title' => 'FUT'],
+            ['code' => 'carta_presentacion', 'title' => 'Carta de presentación'],
+            ['code' => 'carta_aceptacion', 'title' => 'Carta de aceptación'],
+        ])->map(fn (array $item) => $this->studentDocument($item, $placementDocuments))
+            ->values()
+            ->all();
+
+        $approvedDossier = collect($dossierItems)->where('status', 1)->count();
+        $approvedPlacementDocs = collect($placementItems)->where('status', 1)->count();
+
+        // Entregas de plan e informe, con la última vigente por tipo.
+        $canUpload = app(\App\Domains\Company\Services\CompanyAcceptanceService::class)
+            ->canUploadDocuments($assignment);
+
+        $submissions = PracticeSubmission::where('assignment_id', $assignment->id)
+            ->with(['document', 'reviewer.user.person'])
+            ->orderByDesc('id')
+            ->get();
+
+        $submissionItems = collect(PracticeSubmissionType::cases())
+            ->map(function (PracticeSubmissionType $type) use ($submissions, $canUpload) {
+                /** @var PracticeSubmission|null $latest */
+                $latest = $submissions->first(fn (PracticeSubmission $s) => $s->type === $type);
+                $status = $latest?->approval_status?->value ?? 0;
+
+                return [
+                    'type' => $type->value,
+                    'title' => $type->title(),
+                    'status' => $status,
+                    'status_label' => $this->practiceStatusLabel($status),
+                    'grade' => $latest?->grade !== null ? (float) $latest->grade : null,
+                    'comment' => $latest?->comment,
+                    'submitted_at' => $latest?->created_at?->toIso8601String(),
+                    'reviewed_at' => $latest?->reviewed_at?->toIso8601String(),
+                    'reviewer' => $this->personName($latest?->reviewer?->user?->person) ?: null,
+                    'file_url' => $latest?->document?->signedFileUrl(),
+                    'attempts' => $submissions->filter(fn (PracticeSubmission $s) => $s->type === $type)->count(),
+                    'can_submit' => $canUpload && ($latest === null || $status === PracticeSubmissionStatus::OBSERVED->value),
+                ];
+            })
+            ->values()
+            ->all();
+
+        // Módulos de supervisión (1 a 4).
+        $supervisions = Supervision::where('assignment_id', $assignment->id)
+            ->whereIn('module_id', [1, 2, 3, 4])
+            ->with(['evaluations' => fn ($q) => $q->latest('id')])
+            ->get()
+            ->keyBy('module_id');
+
+        $modules = collect(range(1, 4))
+            ->map(function (int $module) use ($supervisions) {
+                $supervision = $supervisions->get($module);
+                $status = (int) ($supervision?->approval_status ?? 0);
+                $evaluation = $supervision?->evaluations?->first();
+
+                return [
+                    'module' => $module,
+                    'status' => $status,
+                    'status_label' => $this->supervisionStatusLabel($status),
+                    'grade' => $evaluation?->grade !== null ? (float) $evaluation->grade : null,
+                    'evaluated_at' => $evaluation?->updated_at?->toIso8601String(),
+                ];
+            })
+            ->values()
+            ->all();
+
+        $approvedModules = collect($modules)->where('status', 1)->count();
+
+        $companyRequest = CompanyValidationRequest::where('assignment_id', $assignment->id)
+            ->latest('id')
+            ->first();
+
+        $formalization = $this->studentFormalization(
+            $placement,
+            $companyRequest,
+            $placementItems,
+            $approvedPlacementDocs,
+        );
+
+        // Notificaciones dirigidas al estudiante.
+        $notificationQuery = NotificationRecipient::where('user_id', $user->id);
+        $unread = (clone $notificationQuery)->whereNull('read_at')->count();
+
+        $recentNotifications = (clone $notificationQuery)
+            ->with('notification')
+            ->latest('id')
+            ->limit(6)
+            ->get()
+            ->filter(fn (NotificationRecipient $recipient) => $recipient->notification !== null)
+            ->map(fn (NotificationRecipient $recipient) => [
+                'id' => $recipient->id,
+                'type' => $recipient->notification->type,
+                'title' => $recipient->notification->payload['meta']['title'] ?? 'Nueva actualización',
+                'document' => $recipient->notification->payload['meta']['document'] ?? null,
+                'status' => $recipient->notification->payload['meta']['status'] ?? null,
+                'comment' => $recipient->notification->payload['meta']['comment'] ?? null,
+                'at' => $recipient->notification->created_at?->toIso8601String(),
+                'read' => $recipient->read_at !== null,
+            ])
+            ->values()
+            ->all();
+
+        $practice = $this->studentPractice($placement);
+
+        return [
+            'meta' => [
+                'name' => $this->personName($person) ?: ($assignment->user?->name ?? 'Estudiante'),
+                'code' => $person?->dni,
+                'school' => $assignment->section?->school?->name,
+                'faculty' => $assignment->section?->school?->faculty?->name ?? $assignment->section?->faculty?->name,
+                'semester' => $assignment->semester?->code,
+                'company' => $placement?->company?->name,
+                'position' => $placement?->position,
+                'boss' => $placement?->boss_name,
+                'start_date' => $placement?->start_date,
+                'end_date' => $placement?->end_date,
+                'internship_type' => $placement?->internship_type,
+            ],
+            'dossier' => [
+                'approved' => $approvedDossier,
+                'uploaded' => collect($dossierItems)->where('status', '!=', 0)->count(),
+                'total' => count($dossierItems),
+                'percent' => $this->percent($approvedDossier, count($dossierItems)),
+                'items' => $dossierItems,
+            ],
+            'formalization' => $formalization,
+            'practice' => $practice,
+            'submissions' => $submissionItems,
+            'supervision' => [
+                'approved' => $approvedModules,
+                'total' => count($modules),
+                'percent' => $this->percent($approvedModules, count($modules)),
+                'modules' => $modules,
+            ],
+            'notifications' => [
+                'unread' => $unread,
+                'recent' => $recentNotifications,
+            ],
+            'activity' => $this->studentActivity(
+                $placement,
+                $dossierItems,
+                $placementItems,
+                $submissions,
+                $supervisions,
+            ),
+            'tasks' => $this->studentTasks(
+                $placement,
+                $companyRequest,
+                $dossierItems,
+                $placementItems,
+                $submissionItems,
+                $canUpload,
+            ),
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $documents
+     * @return array<string, mixed>
+     */
+    private function studentFormalization(
+        ?Placement $placement,
+        ?CompanyValidationRequest $request,
+        array $documents,
+        int $approvedDocuments,
+    ): array {
+        $total = count($documents);
+        $companyState = $request?->state;
+        $companyLabel = $this->companyStateLabel($companyState);
+        $state = 'none';
+        $label = 'Sin registrar';
+        $percent = 0;
+
+        if (! $placement) {
+            if ($request) {
+                $state = $companyState?->value ?? 'pending_review';
+                $label = $companyLabel;
+                $percent = match ($companyState) {
+                    CompanyRequestState::ACCEPTED => 45,
+                    CompanyRequestState::AWAITING_COMPANY => 30,
+                    CompanyRequestState::OBSERVED,
+                    CompanyRequestState::REJECTED,
+                    CompanyRequestState::DECLINED => 15,
+                    default => 10,
+                };
+            }
+        } elseif ($placement->validation_status === 1) {
+            $state = 'approved';
+            $label = 'Formalización aprobada';
+            $percent = 100;
+        } elseif ($placement->approval_status === 3) {
+            $state = 'observed';
+            $label = 'Datos observados';
+            $percent = 40;
+        } elseif ($placement->approval_status === 1) {
+            $state = 'documents';
+            $label = 'Documentos pendientes';
+            $percent = 50 + $this->percent($approvedDocuments, $total) / 2;
+        } else {
+            $state = 'data_review';
+            $label = 'Datos en revisión';
+            $percent = 35;
+        }
+
+        return [
+            'state' => $state,
+            'state_label' => $label,
+            'percent' => (int) round($percent),
+            'company_state' => $companyState?->value,
+            'company_state_label' => $companyLabel,
+            'data_status' => (int) ($placement?->approval_status ?? 0),
+            'validation_status' => (int) ($placement?->validation_status ?? 0),
+            'approved_documents' => $approvedDocuments,
+            'total_documents' => $total,
+            'documents' => $documents,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function studentPractice(?Placement $placement): array
+    {
+        $start = $placement?->start_date;
+        $end = $placement?->end_date;
+
+        if (! $start || ! $end) {
+            return [
+                'percent' => 0,
+                'days_total' => 0,
+                'days_elapsed' => 0,
+                'days_left' => 0,
+                'active' => false,
+                'not_started' => false,
+                'finished' => false,
+                'start_date' => $start,
+                'end_date' => $end,
+            ];
+        }
+
+        $startTs = Carbon::parse($start)->startOfDay()->getTimestamp();
+        $endTs = Carbon::parse($end)->startOfDay()->getTimestamp();
+        $todayTs = now()->startOfDay()->getTimestamp();
+
+        $total = max(1, (int) floor(($endTs - $startTs) / 86400) + 1);
+        $elapsed = max(0, min($total, (int) floor(($todayTs - $startTs) / 86400) + 1));
+        $left = max(0, (int) ceil(($endTs - $todayTs) / 86400));
+
+        return [
+            'percent' => $this->percent($elapsed, $total),
+            'days_total' => $total,
+            'days_elapsed' => $elapsed,
+            'days_left' => $left,
+            'active' => $todayTs >= $startTs && $todayTs <= $endTs,
+            'not_started' => $todayTs < $startTs,
+            'finished' => $todayTs > $endTs,
+            'start_date' => $start,
+            'end_date' => $end,
+        ];
+    }
+
+    /**
+     * @param  array{code: string, title: string}  $item
+     * @param  Collection<int, Document>  $documents
+     * @return array<string, mixed>
+     */
+    private function studentDocument(array $item, Collection $documents): array
+    {
+        /** @var Document|null $latest */
+        $latest = $documents
+            ->filter(fn (Document $document) => $document->documentType?->code === $item['code'])
+            ->sortByDesc('id')
+            ->first();
+
+        $status = (int) ($latest?->approval_status ?? 0);
+
+        return [
+            'code' => $item['code'],
+            'title' => $item['title'],
+            'status' => $status,
+            'status_label' => $this->documentStatusLabel($status),
+            'comment' => $latest?->comment,
+            'updated_at' => $latest?->updated_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Actividad reciente construida con eventos reales del expediente,
+     * la formalización, las entregas y las evaluaciones.
+     *
+     * @param  array<int, array<string, mixed>>  $dossierItems
+     * @param  array<int, array<string, mixed>>  $placementItems
+     * @param  Collection<int, PracticeSubmission>  $submissions
+     * @param  Collection<int, Supervision>  $supervisions
+     * @return array<int, array<string, mixed>>
+     */
+    private function studentActivity(
+        ?Placement $placement,
+        array $dossierItems,
+        array $placementItems,
+        Collection $submissions,
+        Collection $supervisions,
+    ): array {
+        $events = collect();
+
+        $push = function (string $title, ?string $detail, ?string $at, string $tone) use ($events) {
+            if ($at) {
+                $events->push(compact('title', 'detail', 'at', 'tone'));
+            }
+        };
+
+        if ($placement) {
+            $push('Formalización registrada', $placement->company?->name, $placement->created_at?->toIso8601String(), 'info');
+        }
+
+        foreach ([...$dossierItems, ...$placementItems] as $document) {
+            if ($document['status'] === 0) {
+                continue;
+            }
+
+            $push(
+                "{$document['title']}: {$document['status_label']}",
+                $document['comment'] ?? null,
+                $document['updated_at'],
+                $this->statusTone($document['status']),
+            );
+        }
+
+        foreach ($submissions as $submission) {
+            $title = $submission->type->title();
+            $status = $submission->approval_status?->value ?? 0;
+
+            $push("{$title} entregado", null, $submission->created_at?->toIso8601String(), 'info');
+
+            if ($submission->reviewed_at) {
+                $push(
+                    "{$title}: {$this->practiceStatusLabel($status)}",
+                    $submission->comment,
+                    $submission->reviewed_at?->toIso8601String(),
+                    $this->statusTone($status),
+                );
+            }
+        }
+
+        foreach ($supervisions as $supervision) {
+            $evaluation = $supervision->evaluations->first();
+
+            if ($evaluation) {
+                $push(
+                    "Módulo {$supervision->module_id} calificado",
+                    $evaluation->grade !== null ? "Nota: {$evaluation->grade}" : null,
+                    $evaluation->updated_at?->toIso8601String(),
+                    'success',
+                );
+            }
+        }
+
+        return $events
+            ->sortByDesc(fn (array $event) => strtotime($event['at']))
+            ->take(8)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $dossierItems
+     * @param  array<int, array<string, mixed>>  $placementItems
+     * @param  array<int, array<string, mixed>>  $submissions
+     * @return array<int, array<string, mixed>>
+     */
+    private function studentTasks(
+        ?Placement $placement,
+        ?CompanyValidationRequest $request,
+        array $dossierItems,
+        array $placementItems,
+        array $submissions,
+        bool $canUpload,
+    ): array {
+        $tasks = [];
+
+        $push = function (string $title, string $detail, string $href, string $priority) use (&$tasks) {
+            $tasks[] = compact('title', 'detail', 'href', 'priority');
+        };
+
+        if (! $placement) {
+            if (! $request) {
+                $push('Registra tu empresa de prácticas', 'Consulta el RUC y completa la solicitud de formalización.', '/internship', 'high');
+            } elseif ($request->state === CompanyRequestState::ACCEPTED) {
+                $push('Registra los datos de tu práctica', 'La empresa aceptó. Completa jefe inmediato, área y fechas.', '/internship', 'high');
+            } elseif (in_array($request->state, [CompanyRequestState::OBSERVED, CompanyRequestState::REJECTED, CompanyRequestState::DECLINED], true)) {
+                $push('Revisa tu solicitud de empresa', 'La solicitud tiene una observación o fue rechazada.', '/internship', 'high');
+            } else {
+                $push('Sigue el estado de tu empresa', 'Estamos esperando la validación o respuesta de la empresa.', '/internship', 'low');
+            }
+        } else {
+            if ($placement->approval_status === 3) {
+                $push('Corrige los datos de tu práctica', 'Los datos de formalización fueron observados.', '/internship', 'high');
+            }
+
+            foreach ($placementItems as $document) {
+                if ($document['status'] === 3) {
+                    $push("Corrige {$document['title']}", 'El documento fue observado. Vuelve a subirlo.', '/internship', 'high');
+                } elseif ($document['status'] === 0) {
+                    $push("Sube {$document['title']}", 'Documento obligatorio de formalización.', '/internship', 'medium');
+                }
+            }
+        }
+
+        foreach ($dossierItems as $document) {
+            if ($document['status'] === 3) {
+                $push("Corrige {$document['title']}", 'Tu expediente tiene una observación.', '/dossier', 'high');
+            } elseif ($document['status'] === 0) {
+                $push("Sube {$document['title']}", 'Documento obligatorio de tu expediente.', '/dossier', 'high');
+            }
+        }
+
+        foreach ($submissions as $submission) {
+            if ($submission['status'] === 3) {
+                $push("Corrige {$submission['title']}", 'La entrega fue observada. Reenvíala.', '/internship/report-review', 'high');
+            } elseif ($submission['status'] === 0) {
+                $push(
+                    "Entrega {$submission['title']}",
+                    $canUpload ? 'Ya puedes subir tu documento.' : 'Se habilitará cuando se apruebe tu formalización.',
+                    '/internship/report-review',
+                    $canUpload ? 'medium' : 'low',
+                );
+            }
+        }
+
+        $order = ['high' => 0, 'medium' => 1, 'low' => 2];
+
+        usort($tasks, fn (array $a, array $b) => $order[$a['priority']] <=> $order[$b['priority']]);
+
+        return array_slice($tasks, 0, 6);
+    }
+
+    private function personName(?Person $person): string
+    {
+        return $person
+            ? trim(($person->names ?? '').' '.($person->surnames ?? ''))
+            : '';
+    }
+
+    private function documentStatusLabel(int $status): string
+    {
+        return match ($status) {
+            1 => 'Aprobado',
+            2 => 'En revisión',
+            3 => 'Observado',
+            default => 'Sin subir',
+        };
+    }
+
+    private function practiceStatusLabel(int $status): string
+    {
+        return match ($status) {
+            1 => 'Aprobado',
+            2 => 'En revisión',
+            3 => 'Observado',
+            default => 'Sin entregar',
+        };
+    }
+
+    private function supervisionStatusLabel(int $status): string
+    {
+        return match ($status) {
+            1 => 'Aprobado',
+            2 => 'Pendiente',
+            3 => 'Observado',
+            default => 'Sin iniciar',
+        };
+    }
+
+    private function statusTone(int $status): string
+    {
+        return match ($status) {
+            1 => 'success',
+            3 => 'danger',
+            2 => 'warning',
+            default => 'muted',
+        };
+    }
+
+    private function companyStateLabel(?CompanyRequestState $state): string
+    {
+        return match ($state) {
+            CompanyRequestState::PENDING_REVIEW => 'Solicitud de empresa en revisión',
+            CompanyRequestState::OBSERVED => 'Solicitud de empresa observada',
+            CompanyRequestState::REJECTED => 'Solicitud de empresa rechazada',
+            CompanyRequestState::AWAITING_COMPANY => 'Esperando respuesta de la empresa',
+            CompanyRequestState::ACCEPTED => 'Empresa aceptada',
+            CompanyRequestState::DECLINED => 'La empresa rechazó la solicitud',
+            default => 'Sin solicitud de empresa',
+        };
     }
 
     /**

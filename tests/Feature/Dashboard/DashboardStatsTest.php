@@ -1,14 +1,14 @@
 <?php
 
+use App\Domains\Academic\Models\Section;
 use App\Domains\Company\Models\Company;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\FailedLogin;
 use App\Domains\Identity\Models\User;
 use App\Domains\Supervision\Models\PracticeSubmission;
-use Database\Seeders\Cycle2026Seeder;
 use Database\Seeders\DatabaseSeeder;
 
-beforeEach(fn () => $this->seed([DatabaseSeeder::class, Cycle2026Seeder::class]));
+beforeEach(fn () => $this->seed(DatabaseSeeder::class));
 
 function dashboardStats($test, Assignment $assignment): ?array
 {
@@ -36,10 +36,20 @@ test('the titular teacher dashboard counts the real students of the section', fu
 });
 
 test('the subadmin dashboard only counts students of their faculty', function () {
-    $subadmin = Assignment::with('section')->where('role_id', 2)->firstOrFail();
+    $subadmin = Assignment::with('section')->where('role_id', 2)->first();
+
+    if (! $subadmin) {
+        $section = Section::firstOrFail();
+        $subadmin = Assignment::create([
+            'user_id' => User::factory()->create()->id,
+            'role_id' => 2,
+            'semester_id' => $section->semester_id,
+            'section_id' => $section->id,
+            'status' => 1,
+        ])->load('section');
+    }
 
     $stats = dashboardStats($this, $subadmin);
-
     expect($stats['students']['total'])->toBe(
         Assignment::where('role_id', 5)->where('semester_id', $subadmin->semester_id)->where('status', 1)
             ->whereHas('section', fn ($q) => $q->where('faculty_id', $subadmin->section->faculty_id))
@@ -58,8 +68,22 @@ test('the general administrator dashboard shows real totals and failed logins', 
         ->and($stats['security']['failedToday'])->toBe(1);
 });
 
-test('students get no statistics', function () {
-    expect(dashboardStats($this, Assignment::where('role_id', 5)->firstOrFail()))->toBeNull();
+test('students get their own progress dashboard', function () {
+    $student = Assignment::where('role_id', 5)->firstOrFail();
+
+    $stats = dashboardStats($this, $student);
+
+    expect($stats)->not->toBeNull()
+        ->and($stats['meta']['name'])->not->toBeEmpty()
+        ->and($stats['dossier'])->toHaveKeys(['approved', 'uploaded', 'total', 'percent', 'items'])
+        ->and($stats['dossier']['total'])->toBe(2)
+        ->and($stats['formalization'])->toHaveKeys(['state', 'state_label', 'percent', 'documents'])
+        ->and($stats['practice'])->toHaveKeys(['percent', 'days_left', 'active'])
+        ->and($stats['submissions'])->toHaveCount(2)
+        ->and(collect($stats['submissions'])->pluck('type')->all())->toBe(['plan', 'report'])
+        ->and($stats['supervision']['modules'])->toHaveCount(4)
+        ->and($stats['tasks'])->toBeArray()
+        ->and($stats['activity'])->toBeArray();
 });
 
 test('a failed login is recorded for the security panel', function () {
