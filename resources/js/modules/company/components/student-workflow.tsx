@@ -1,8 +1,17 @@
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
+import { Pencil } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import type { PlacementRecord } from '@/modules/internship/types';
 import { Button } from '@/shared/components/ui/button';
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
 import {
@@ -194,6 +203,27 @@ function CompanySubmission({
     );
 }
 
+function formatPracticeDate(value?: string) {
+    const iso = value?.slice(0, 10);
+    if (!iso) return '—';
+    const [year, month, day] = iso.split('-').map(Number);
+    if (!year || !month || !day) return iso;
+    return new Date(year, month - 1, day).toLocaleDateString('es-PE', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
+}
+
+function DataItem({ label, value }: { label: string; value?: string | null }) {
+    return (
+        <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-sm font-medium break-words">{value || '—'}</p>
+        </div>
+    );
+}
+
 function PracticeForm({
     current,
     placement,
@@ -210,7 +240,9 @@ function PracticeForm({
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<unknown>(null);
     const [checked, setChecked] = useState(false);
+    const [editing, setEditing] = useState(!placement);
     const locked = placement?.approval_status === 1;
+    const showForm = !locked && (!placement || editing);
     const save = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!checked || !current.can_register_practice || !current.company_id)
@@ -227,8 +259,10 @@ function PracticeForm({
                 placement: values,
             });
             toast.success(
-                'Jefe inmediato y datos de práctica guardados. Documentación habilitada.',
+                'Jefe inmediato y datos de práctica guardados. Ya puedes presentar documentos en Formalización.',
             );
+            setEditing(false);
+            setChecked(false);
             await onSaved();
             router.reload();
         } catch (cause) {
@@ -239,7 +273,7 @@ function PracticeForm({
     };
     const date = (value?: string) => value?.slice(0, 10) ?? '';
     return (
-        <form onSubmit={save} className="space-y-5">
+        <section className="space-y-5">
             <h3 className="font-semibold">
                 3. Jefe inmediato y datos de la práctica
             </h3>
@@ -249,82 +283,180 @@ function PracticeForm({
                     para edición.
                 </p>
             )}
-            <WorkflowErrors error={error} />
-            <fieldset disabled={busy || locked} className="space-y-5">
-                <div className="grid gap-4 sm:grid-cols-2">
-                    {(
-                        [
-                            [
-                                'boss_name',
-                                'Nombre completo del jefe inmediato',
-                                'text',
-                            ],
-                            [
-                                'boss_position',
-                                'Cargo del jefe inmediato',
-                                'text',
-                            ],
-                            ['boss_phone', 'Celular de contacto', 'tel'],
-                            ['boss_email', 'Correo de contacto', 'email'],
-                            ['area_name', 'Área de desempeño', 'text'],
-                            ['position', 'Cargo a ocupar', 'text'],
-                        ] as const
-                    ).map(([name, label, inputType]) => (
-                        <Field key={name} label={label}>
-                            <Input
-                                name={name}
-                                type={inputType}
-                                defaultValue={placement?.[name] ?? ''}
-                                required
-                                maxLength={name === 'boss_phone' ? 30 : 255}
+            {placement && !showForm && (
+                <Card>
+                    <CardHeader className="border-b">
+                        <CardTitle>Datos registrados</CardTitle>
+                        <CardDescription>
+                            Revisa la información de tu jefe inmediato y de la
+                            práctica.
+                        </CardDescription>
+                        {placement && !locked && (
+                            <CardAction>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        setEditing(true);
+                                        setChecked(false);
+                                        setError(null);
+                                    }}
+                                >
+                                    <Pencil />
+                                    Editar
+                                </Button>
+                            </CardAction>
+                        )}
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-4">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <DataItem
+                                label="Nombre del jefe inmediato"
+                                value={placement.boss_name}
+                            />
+                            <DataItem
+                                label="Cargo del jefe inmediato"
+                                value={placement.boss_position}
+                            />
+                            <DataItem
+                                label="Celular de contacto"
+                                value={placement.boss_phone}
+                            />
+                            <DataItem
+                                label="Correo de contacto"
+                                value={placement.boss_email}
+                            />
+                            <DataItem
+                                label="Área de desempeño"
+                                value={placement.area_name}
+                            />
+                            <DataItem
+                                label="Cargo a ocupar"
+                                value={placement.position}
+                            />
+                            <DataItem
+                                label="Fecha estimada de inicio"
+                                value={formatPracticeDate(placement.start_date)}
+                            />
+                            <DataItem
+                                label="Fecha estimada de término"
+                                value={formatPracticeDate(placement.end_date)}
+                            />
+                        </div>
+                        <DataItem
+                            label="Descripción de funciones"
+                            value={placement.description}
+                        />
+                    </CardContent>
+                </Card>
+            )}
+            {showForm && (
+                <form onSubmit={save} className="space-y-5">
+                    <WorkflowErrors error={error} />
+                    <fieldset disabled={busy} className="space-y-5">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {(
+                                [
+                                    [
+                                        'boss_name',
+                                        'Nombre completo del jefe inmediato',
+                                        'text',
+                                    ],
+                                    [
+                                        'boss_position',
+                                        'Cargo del jefe inmediato',
+                                        'text',
+                                    ],
+                                    [
+                                        'boss_phone',
+                                        'Celular de contacto',
+                                        'tel',
+                                    ],
+                                    [
+                                        'boss_email',
+                                        'Correo de contacto',
+                                        'email',
+                                    ],
+                                    ['area_name', 'Área de desempeño', 'text'],
+                                    ['position', 'Cargo a ocupar', 'text'],
+                                ] as const
+                            ).map(([name, label, inputType]) => (
+                                <Field key={name} label={label}>
+                                    <Input
+                                        name={name}
+                                        type={inputType}
+                                        defaultValue={placement?.[name] ?? ''}
+                                        required
+                                        maxLength={
+                                            name === 'boss_phone' ? 30 : 255
+                                        }
+                                    />
+                                </Field>
+                            ))}
+                            <Field label="Fecha estimada de inicio">
+                                <Input
+                                    name="start_date"
+                                    type="date"
+                                    defaultValue={date(placement?.start_date)}
+                                    required
+                                />
+                            </Field>
+                            <Field label="Fecha estimada de término">
+                                <Input
+                                    name="end_date"
+                                    type="date"
+                                    defaultValue={date(placement?.end_date)}
+                                    required
+                                />
+                            </Field>
+                        </div>
+                        <Field label="Descripción de funciones">
+                            <Textarea
+                                name="description"
+                                defaultValue={placement?.description ?? ''}
+                                maxLength={1000}
                             />
                         </Field>
-                    ))}
-                    <Field label="Fecha estimada de inicio">
-                        <Input
-                            name="start_date"
-                            type="date"
-                            defaultValue={date(placement?.start_date)}
-                            required
-                        />
-                    </Field>
-                    <Field label="Fecha estimada de término">
-                        <Input
-                            name="end_date"
-                            type="date"
-                            defaultValue={date(placement?.end_date)}
-                            required
-                        />
-                    </Field>
-                </div>
-                <Field label="Descripción de funciones">
-                    <Textarea
-                        name="description"
-                        defaultValue={placement?.description ?? ''}
-                        maxLength={1000}
-                    />
-                </Field>
-                <label className="flex items-start gap-3 text-sm">
-                    <input
-                        type="checkbox"
-                        required
-                        checked={checked}
-                        onChange={(e) => setChecked(e.target.checked)}
-                    />
-                    <span>
-                        Declaro que los datos del jefe inmediato y de la
-                        práctica registrados son válidos y correctos.
-                    </span>
-                </label>
-                <Button disabled={busy || !checked}>
-                    {busy
-                        ? 'Guardando…'
-                        : placement
-                          ? 'Guardar cambios de práctica'
-                          : 'Guardar datos de práctica'}
-                </Button>
-            </fieldset>
-        </form>
+                        <label className="flex items-start gap-3 text-sm">
+                            <input
+                                type="checkbox"
+                                required
+                                checked={checked}
+                                onChange={(e) => setChecked(e.target.checked)}
+                            />
+                            <span>
+                                Declaro que los datos del jefe inmediato y de la
+                                práctica registrados son válidos y correctos.
+                            </span>
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                            <Button disabled={busy || !checked}>
+                                {busy
+                                    ? 'Guardando…'
+                                    : placement
+                                      ? 'Guardar cambios de práctica'
+                                      : 'Guardar datos de práctica'}
+                            </Button>
+                            {placement && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={busy}
+                                    onClick={() => {
+                                        setEditing(false);
+                                        setChecked(false);
+                                        setError(null);
+                                    }}
+                                >
+                                    Cancelar
+                                </Button>
+                            )}
+                        </div>
+                    </fieldset>
+                </form>
+            )}
+        </section>
     );
 }
 
@@ -483,10 +615,17 @@ export default function StudentWorkflow({
                 </p>
             )}
             {current?.can_upload_documents && (
-                <p className="text-sm text-green-700">
-                    La práctica está registrada. Puedes presentar los documentos
-                    del expediente y acceder a la revisión de planes e informes.
-                </p>
+                <div className="space-y-2 text-sm text-green-700">
+                    <p>
+                        La práctica está registrada. Presenta los documentos de
+                        formalización en el menú Formalización.
+                    </p>
+                    <Button asChild variant="outline" size="sm">
+                        <Link href="/internship/formalization">
+                            Ir a Formalización
+                        </Link>
+                    </Button>
+                </div>
             )}
         </div>
     );

@@ -14,12 +14,14 @@ interface UsePlacementSubmissionProps {
     placement: PlacementRecord | null;
     requirements: DocumentRequirement[];
     documentsEnabled?: boolean;
+    initialContext?: PlacementContext;
 }
 
 export function usePlacementSubmission({
     placement,
     requirements,
     documentsEnabled = false,
+    initialContext = 'empresa',
 }: UsePlacementSubmissionProps) {
     const hasPlacement = !!placement;
 
@@ -31,7 +33,7 @@ export function usePlacementSubmission({
 
     // ── Contexto del Panel Central ─────────────────────────────────────────
     const [activeContext, setActiveContext] =
-        useState<PlacementContext>('empresa');
+        useState<PlacementContext>(initialContext);
 
     // ── Estado de Documento ────────────────────────────────────────────────
     const [tempFile, setTempFile] = useState<File | null>(null);
