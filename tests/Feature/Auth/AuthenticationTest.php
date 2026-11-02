@@ -1,8 +1,12 @@
 <?php
 
+use App\Domains\Academic\Models\Semester;
+use App\Domains\Identity\Models\Assignment;
+use App\Domains\Identity\Models\Role;
 use App\Domains\Identity\Models\TypeUser;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Support\StrictLoginRateLimiter;
+use App\Shared\Enums\Role as RoleEnum;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
@@ -133,6 +137,28 @@ test('administrators can log in with any email domain', function () {
     TypeUser::unguarded(fn () => TypeUser::firstOrCreate(['id' => 1], ['name' => 'Administrador', 'status' => 1]));
 
     $user = User::factory()->create(['email' => 'admin@gmail.com', 'type_user_id' => 1]);
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
+
+    $this->assertAuthenticatedAs($user);
+});
+
+test('administrators identified by role can log in even if their type is academic', function () {
+    Role::unguarded(fn () => Role::firstOrCreate(['id' => RoleEnum::ADMIN->value], ['name' => 'Administrador', 'status' => 1]));
+    $semester = Semester::create(['code' => '2026-I', 'cycle' => 'I', 'status' => 1]);
+
+    $user = User::factory()->create(['email' => 'admin2@gmail.com']);
+
+    Assignment::create([
+        'user_id' => $user->id,
+        'role_id' => RoleEnum::ADMIN->value,
+        'semester_id' => $semester->id,
+        'access_status' => 1,
+        'approval_status' => 1,
+        'review_status' => 0,
+        'status' => 1,
+        'is_select' => true,
+    ]);
 
     $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
 

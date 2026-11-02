@@ -2,55 +2,45 @@
 
 namespace Database\Seeders;
 
+use App\Domains\Documents\Models\DocumentType;
+use App\Domains\Identity\Models\Role;
 use Illuminate\Database\Seeder;
 
 class DocumentTypeRoleSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Qué roles pueden usar cada tipo de documento (por code, no por id).
+     * Idempotente: no hace truncate. El Admin (1) recibe todos los tipos.
      */
     public function run(): void
     {
-        $adminRole = \App\Domains\Identity\Models\Role::find(1);
-        $titularRole = \App\Domains\Identity\Models\Role::find(3);
-        $supervisorRole = \App\Domains\Identity\Models\Role::find(4);
-        $studentRole = \App\Domains\Identity\Models\Role::find(5);
-        $companyRole = \App\Domains\Identity\Models\Role::find(6);
+        $adminId = 1;
 
-        // Limpiar para evitar duplicados
-        \Illuminate\Support\Facades\DB::table('document_type_roles')->truncate();
+        // role_id => codes de document_types
+        $map = [
+            3 => ['horario', 'carga_lectiva', 'resolucion_designacion'], // Docente Titular
+            4 => ['anexo_7', 'anexo_8', 'plan_practicas', 'informe_practicas'], // Docente Supervisor
+            5 => ['ficha', 'record', 'fut', 'carta_presentacion', 'anexo_7', 'anexo_8', 'plan_practicas', 'informe_practicas'], // Estudiante
+            6 => ['carta_presentacion', 'carta_aceptacion', 'anexo_7'], // Empresa
+        ];
 
-        // 1:Ficha de matrícula, 2:Récord Académico, 3:Fut, 8:Anexo 7, 9:Anexo 8
-        $studentTypes = [1, 2, 3, 4, 8, 9];
-        // 5:Horario, 6:Cargar Lectiva, 7:Resolucion de Designacion
-        $titularTypes = [5, 6, 7];
-        // 8:Anexo 7, 9:Anexo 8
-        $supervisorTypes = [8, 9];
-        // 4:Carta de presentación, 8: Anexo 7
-        $companyTypes = [4, 8];
+        $types = DocumentType::all()->keyBy('code');
+        $existingRoles = Role::whereIn('id', [$adminId, ...array_keys($map)])->pluck('id')->all();
 
-        $allTypes = \App\Domains\Documents\Models\DocumentType::all();
+        // Admin: todos los tipos
+        if (in_array($adminId, $existingRoles, true)) {
+            foreach ($types as $type) {
+                $type->roles()->syncWithoutDetaching([$adminId => ['status' => 1]]);
+            }
+        }
 
-        foreach ($allTypes as $type) {
-            // Admin can see all
-            if ($adminRole) {
-                $type->roles()->attach($adminRole->id, ['status' => 1]);
+        foreach ($map as $roleId => $codes) {
+            if (! in_array($roleId, $existingRoles, true)) {
+                continue;
             }
 
-            if ($studentRole && in_array($type->id, $studentTypes)) {
-                $type->roles()->attach($studentRole->id, ['status' => 1]);
-            }
-
-            if ($titularRole && in_array($type->id, $titularTypes)) {
-                $type->roles()->attach($titularRole->id, ['status' => 1]);
-            }
-
-            if ($supervisorRole && in_array($type->id, $supervisorTypes)) {
-                $type->roles()->attach($supervisorRole->id, ['status' => 1]);
-            }
-
-            if ($companyRole && in_array($type->id, $companyTypes)) {
-                $type->roles()->attach($companyRole->id, ['status' => 1]);
+            foreach ($codes as $code) {
+                $types->get($code)?->roles()->syncWithoutDetaching([$roleId => ['status' => 1]]);
             }
         }
     }
