@@ -56,13 +56,29 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
     const [studentSearch, setStudentSearch] = useState('');
 
     // Filtrar estudiantes localmente según la búsqueda
-    const filteredStudents = students.filter((student) => {
+    const filteredStudents = students
+    .filter((student) => {
         if (!studentSearch.trim()) return true;
-        const term = studentSearch.toLowerCase();
+
+        const term = studentSearch.trim().toLocaleLowerCase('es');
+
         return (
-            student.user?.person?.names?.toLowerCase().includes(term) ||
-            student.user?.person?.surnames?.toLowerCase().includes(term) ||
-            student.user?.email?.toLowerCase().includes(term)
+            student.user?.person?.names?.toLocaleLowerCase('es').includes(term) ||
+            student.user?.person?.surnames?.toLocaleLowerCase('es').includes(term) ||
+            student.user?.email?.toLocaleLowerCase('es').includes(term)
+        );
+    })
+    .sort((a, b) => {
+        const surnameA = a.user?.person?.surnames ?? '';
+        const surnameB = b.user?.person?.surnames ?? '';
+
+        const nameA = a.user?.person?.names ?? '';
+        const nameB = b.user?.person?.names ?? '';
+
+        return `${surnameA} ${nameA}`.localeCompare(
+            `${surnameB} ${nameB}`,
+            'es',
+            { sensitivity: 'base' }
         );
     });
 
@@ -141,7 +157,7 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                 <div className="relative flex-1">
                                     <input
                                         type="text"
-                                        placeholder="Buscar estudiante por nombre o correo..."
+                                        placeholder="Buscar estudiante por nombre o codigo estudiantil..."
                                         value={studentSearch}
                                         onChange={(e) =>
                                             setStudentSearch(e.target.value)
@@ -173,6 +189,9 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
+                                        <TableHead className="w-[60px] text-center text-xs font-bold tracking-wider uppercase">
+                                            N.º
+                                        </TableHead>
                                             <TableHead className="text-xs font-bold tracking-wider uppercase">
                                                 Estudiante
                                             </TableHead>
@@ -189,7 +208,7 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                     </TableHeader>
                                     <TableBody>
                                         {filteredStudents.length > 0 ? (
-                                            filteredStudents.map((student) => {
+                                            filteredStudents.map((student, index) => {
                                                 const isSelected =
                                                     selectedStudentId ===
                                                     student.id;
@@ -207,6 +226,11 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                                                 : ''
                                                         }`}
                                                     >
+                                                        <TableCell className="text-center">
+                                                            <span className="text-xs font-medium tabular-nums text-muted-foreground">
+                                                                {(index + 1).toString().padStart(2, '0')}
+                                                            </span>
+                                                        </TableCell>
                                                         <TableCell>
                                                             <div className="flex items-center gap-3">
                                                                 <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
