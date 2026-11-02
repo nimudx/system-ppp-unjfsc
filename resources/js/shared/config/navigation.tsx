@@ -6,6 +6,7 @@ import {
     Boxes,
     Briefcase,
     Building2,
+    ClipboardCheck,
     Folder,
     LayoutDashboard,
     NotebookPen,
@@ -145,6 +146,12 @@ export const ACADEMIC_NAV = [
         title: 'Pasantía',
         href: internshipSubmissionIndex().url,
         icon: Folder,
+        roles: [5],
+    },
+    {
+        title: 'Formalización',
+        href: '/internship/formalization',
+        icon: ClipboardCheck,
         roles: [5],
     },
     {

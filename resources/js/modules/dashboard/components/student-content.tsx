@@ -7,8 +7,8 @@ import {
     Building2,
     CalendarDays,
     CheckCircle2,
+    ChevronDown,
     ChevronRight,
-    ClipboardCheck,
     Clock,
     ExternalLink,
     FileCheck2,
@@ -19,6 +19,8 @@ import {
     MapPin,
     UserRound,
 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import type {
     StudentActivity,
     StudentDocument,
@@ -41,13 +43,11 @@ import {
     CardHeader,
     CardTitle,
 } from '@/shared/components/ui/card';
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from '@/shared/components/ui/tabs';
 import { cn } from '@/shared/lib/utils';
+
+/* -------------------------------------------------------------------------- */
+/*  Estilos y constantes                                                      */
+/* -------------------------------------------------------------------------- */
 
 const statusStyles: Record<number, string> = {
     0: 'bg-muted text-muted-foreground',
@@ -77,6 +77,81 @@ const priorityStyles = {
     low: 'bg-blue-500',
 };
 
+const priorityRank = { high: 0, medium: 1, low: 2 };
+
+// Lo que pide acción (observado) va primero; lo aprobado, al final.
+const statusRank: Record<number, number> = { 3: 0, 2: 1, 0: 2, 1: 3 };
+
+const ACTIVITY_PREVIEW = 4;
+
+const enter =
+    'animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-both motion-reduce:animate-none';
+
+/* -------------------------------------------------------------------------- */
+/*  Hooks de animación                                                        */
+/* -------------------------------------------------------------------------- */
+
+function prefersReducedMotion() {
+    return (
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+}
+
+/** Cuenta de 0 al valor final. Respeta "reducir movimiento". */
+function useCountUp(target: number, duration = 900) {
+    const [value, setValue] = useState(0);
+
+    useEffect(() => {
+        if (prefersReducedMotion()) {
+            setValue(target);
+
+            return;
+        }
+
+        let frame = 0;
+        const start = performance.now();
+
+        const tick = (now: number) => {
+            const progress = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - progress, 3);
+
+            setValue(Math.round(target * eased));
+
+            if (progress < 1) {
+                frame = requestAnimationFrame(tick);
+            }
+        };
+
+        frame = requestAnimationFrame(tick);
+
+        return () => cancelAnimationFrame(frame);
+    }, [target, duration]);
+
+    return value;
+}
+
+/** Devuelve true tras el primer pintado, para animar barras desde 0. */
+function useReady() {
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => setReady(true));
+
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
+    return ready;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Piezas pequeñas                                                           */
+/* -------------------------------------------------------------------------- */
+
+function clamp(value: number) {
+    return Math.min(100, Math.max(0, value));
+}
+
 function StatusBadge({ status, label }: { status: number; label: string }) {
     const Icon = statusIcons[status] ?? FileText;
 
@@ -97,105 +172,36 @@ function StatusBadge({ status, label }: { status: number; label: string }) {
 function ProgressBar({
     value,
     tone = 'bg-primary',
+    dot = false,
 }: {
     value: number;
     tone?: string;
+    dot?: boolean;
 }) {
+    const ready = useReady();
+    const width = ready ? clamp(value) : 0;
+
     return (
-        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(clamp(value))}
+            className="relative h-2 w-full rounded-full bg-muted"
+        >
             <div
                 className={cn(
-                    'h-full rounded-full transition-all duration-500',
+                    'h-full rounded-full transition-[width] duration-1000 ease-out motion-reduce:transition-none',
                     tone,
                 )}
-                style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+                style={{ width: `${width}%` }}
             />
-        </div>
-    );
-}
-
-function Donut({ value }: { value: number }) {
-    const radius = 34;
-    const circumference = 2 * Math.PI * radius;
-    const safeValue = Math.min(100, Math.max(0, value));
-    const offset = circumference - (safeValue / 100) * circumference;
-
-    return (
-        <div className="relative grid size-24 shrink-0 place-items-center">
-            <svg className="size-24 -rotate-90" viewBox="0 0 80 80">
-                <circle
-                    cx="40"
-                    cy="40"
-                    r={radius}
-                    fill="none"
-                    strokeWidth="8"
-                    className="stroke-border"
+            {dot && (
+                <span
+                    className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-blue-500 shadow transition-[left] duration-1000 ease-out motion-reduce:transition-none"
+                    style={{ left: `${width}%` }}
                 />
-                <circle
-                    cx="40"
-                    cy="40"
-                    r={radius}
-                    fill="none"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    className="stroke-primary transition-all duration-500"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={offset}
-                />
-            </svg>
-            <span className="absolute text-lg font-bold">
-                {Math.round(safeValue)}%
-            </span>
-        </div>
-    );
-}
-
-function KpiCard({
-    title,
-    value,
-    hint,
-    icon: Icon,
-    percent,
-    tone,
-}: {
-    title: string;
-    value: string;
-    hint: string;
-    icon: LucideIcon;
-    percent: number;
-    tone?: string;
-}) {
-    return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{title}</CardTitle>
-                <Icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="space-y-2">
-                <div className="text-2xl font-bold">{value}</div>
-                <p className="text-xs text-muted-foreground">{hint}</p>
-                <ProgressBar value={percent} tone={tone} />
-            </CardContent>
-        </Card>
-    );
-}
-
-function InfoItem({
-    icon: Icon,
-    label,
-    value,
-}: {
-    icon: LucideIcon;
-    label: string;
-    value: string;
-}) {
-    return (
-        <div className="flex items-start gap-3 rounded-lg border p-3">
-            <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-            <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="truncate text-sm font-medium">{value}</p>
-            </div>
+            )}
         </div>
     );
 }
@@ -208,11 +214,14 @@ function DocumentRow({
     href: string;
 }) {
     return (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3">
+        <Link
+            href={href}
+            className="group flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+        >
             <div className="flex min-w-0 items-center gap-3">
                 <div
                     className={cn(
-                        'rounded-md p-2',
+                        'rounded-md p-2 transition-transform group-hover:scale-110',
                         statusStyles[document.status] ?? statusStyles[0],
                     )}
                 >
@@ -235,13 +244,9 @@ function DocumentRow({
                     status={document.status}
                     label={document.status_label}
                 />
-                <Button asChild variant="ghost" size="icon-sm">
-                    <Link href={href} aria-label={`Abrir ${document.title}`}>
-                        <ChevronRight />
-                    </Link>
-                </Button>
+                <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
             </div>
-        </div>
+        </Link>
     );
 }
 
@@ -350,7 +355,8 @@ function ActivityTimeline({ activities }: { activities: StudentActivity[] }) {
                 return (
                     <div
                         key={`${activity.title}-${index}`}
-                        className="relative flex gap-3"
+                        className={cn('relative flex gap-3', enter)}
+                        style={{ animationDelay: `${index * 40}ms` }}
                     >
                         <div
                             className={cn(
@@ -380,37 +386,227 @@ function ActivityTimeline({ activities }: { activities: StudentActivity[] }) {
     );
 }
 
-const quickLinks: {
+/* -------------------------------------------------------------------------- */
+/*  Áreas (resumen + detalle en un solo bloque)                               */
+/* -------------------------------------------------------------------------- */
+
+type Entry = { key: string; status: number; node: ReactNode };
+
+type Area = {
+    key: string;
     title: string;
-    description: string;
-    href: string;
     icon: LucideIcon;
-}[] = [
-    {
-        title: 'Mi expediente',
-        description: 'Ficha de matrícula y récord académico.',
-        href: '/dossier',
-        icon: FileText,
-    },
-    {
-        title: 'Formalización',
-        description: 'Empresa, jefe inmediato y documentos.',
-        href: '/internship',
-        icon: Building2,
-    },
-    {
-        title: 'Plan e informe',
-        description: 'Entrega y revisa tus documentos de práctica.',
-        href: '/internship/report-review',
-        icon: BookOpenCheck,
-    },
-    {
-        title: 'Notificaciones',
-        description: 'Observaciones, aprobaciones y avisos.',
-        href: '/notifications',
-        icon: Bell,
-    },
-];
+    approved: number;
+    total: number;
+    percent: number;
+    tone: string;
+    href: string | null;
+    cta: string;
+    extra?: ReactNode;
+    entries: Entry[];
+};
+
+function AreaTrigger({
+    area,
+    active,
+    onSelect,
+}: {
+    area: Area;
+    active: boolean;
+    onSelect: () => void;
+}) {
+    const Icon = area.icon;
+    const approved = useCountUp(area.approved);
+    const attention = area.entries.filter((e) => e.status === 3).length;
+
+    return (
+        <div
+            className={cn(
+                'flex min-w-0 flex-col rounded-xl border bg-card transition-all duration-200 motion-reduce:transition-none',
+                active
+                    ? 'border-primary bg-primary/5 shadow-sm'
+                    : 'hover:border-primary/40 hover:shadow-sm',
+            )}
+        >
+            <button
+                type="button"
+                role="tab"
+                id={`area-tab-${area.key}`}
+                aria-selected={active}
+                aria-controls={`area-panel-${area.key}`}
+                tabIndex={active ? 0 : -1}
+                onClick={onSelect}
+                className="flex flex-col gap-2 rounded-t-xl p-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+                <span className="flex items-center justify-between gap-2">
+                    <span className="flex min-w-0 items-center gap-2 text-sm font-medium">
+                        <Icon className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="truncate">{area.title}</span>
+                    </span>
+                    {attention > 0 && (
+                        <span
+                            className="grid h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white"
+                            title={`${attention} con observaciones`}
+                        >
+                            {attention}
+                        </span>
+                    )}
+                </span>
+                <span className="text-2xl font-bold tabular-nums">
+                    {approved}
+                    <span className="text-sm font-medium text-muted-foreground">
+                        /{area.total}
+                    </span>
+                </span>
+                <ProgressBar value={area.percent} tone={area.tone} />
+            </button>
+
+            {area.href ? (
+                <Link
+                    href={area.href}
+                    className="group flex items-center justify-between rounded-b-xl border-t px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-primary"
+                >
+                    {area.cta}
+                    <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+            ) : (
+                <div className="rounded-b-xl border-t px-3 py-2 text-xs text-muted-foreground">
+                    Solo seguimiento
+                </div>
+            )}
+        </div>
+    );
+}
+
+function AreaPanel({
+    area,
+    onlyPending,
+    onTogglePending,
+}: {
+    area: Area;
+    onlyPending: boolean;
+    onTogglePending: () => void;
+}) {
+    const pendingCount = area.entries.filter((e) => e.status !== 1).length;
+
+    const visible = useMemo(() => {
+        const sorted = [...area.entries].sort(
+            (a, b) => (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9),
+        );
+
+        return onlyPending ? sorted.filter((e) => e.status !== 1) : sorted;
+    }, [area.entries, onlyPending]);
+
+    return (
+        <div
+            role="tabpanel"
+            id={`area-panel-${area.key}`}
+            aria-labelledby={`area-tab-${area.key}`}
+            className="mt-4 space-y-3"
+        >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium">
+                        {area.approved} de {area.total} aprobados
+                    </p>
+                    {area.extra}
+                </div>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={onlyPending ? 'secondary' : 'ghost'}
+                    aria-pressed={onlyPending}
+                    onClick={onTogglePending}
+                >
+                    Solo pendientes
+                    <Badge variant="outline" className="px-1.5">
+                        {pendingCount}
+                    </Badge>
+                </Button>
+            </div>
+
+            {visible.length === 0 ? (
+                <div
+                    className={cn(
+                        'flex flex-col items-center gap-2 rounded-lg border border-dashed py-8 text-center',
+                        enter,
+                    )}
+                >
+                    <CheckCircle2 className="size-7 text-green-600" />
+                    <p className="text-sm font-medium">Nada pendiente aquí</p>
+                    <p className="text-xs text-muted-foreground">
+                        Todo lo de esta sección está aprobado.
+                    </p>
+                </div>
+            ) : (
+                <div className="space-y-2">
+                    {visible.map((entry, index) => (
+                        <div
+                            key={entry.key}
+                            className={enter}
+                            style={{ animationDelay: `${index * 40}ms` }}
+                        >
+                            {entry.node}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Encabezado: identidad + avance de la práctica                             */
+/* -------------------------------------------------------------------------- */
+
+function PracticeProgress({ practice }: { practice: StudentStats['practice'] }) {
+    const percent = useCountUp(practice.percent);
+
+    const caption = !(practice.start_date && practice.end_date)
+        ? 'Aún sin fechas registradas'
+        : practice.not_started
+          ? `Inicia el ${formatDate(practice.start_date)}`
+          : practice.finished
+            ? 'Práctica finalizada'
+            : `${formatNumber(practice.days_left)} días restantes`;
+
+    return (
+        <div className="w-full max-w-sm space-y-3 rounded-xl border bg-muted/30 p-4">
+            <div className="flex items-end justify-between gap-3">
+                <div>
+                    <p className="flex items-center gap-1.5 text-sm font-medium">
+                        <CalendarDays className="size-4 text-muted-foreground" />
+                        Avance de la práctica
+                    </p>
+                    <p className="text-xs text-muted-foreground">{caption}</p>
+                </div>
+                <span className="text-3xl font-bold tabular-nums">
+                    {percent}%
+                </span>
+            </div>
+
+            <ProgressBar value={practice.percent} tone="bg-blue-500" dot />
+
+            <div className="flex justify-between text-xs text-muted-foreground">
+                <span>
+                    {practice.start_date
+                        ? formatDate(practice.start_date)
+                        : 'Inicio'}
+                </span>
+                <span>
+                    {practice.days_elapsed}/{practice.days_total} días
+                </span>
+                <span>
+                    {practice.end_date ? formatDate(practice.end_date) : 'Fin'}
+                </span>
+            </div>
+        </div>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Componente principal                                                      */
+/* -------------------------------------------------------------------------- */
 
 export default function StudentDashboardContent({
     stats,
@@ -429,12 +625,17 @@ export default function StudentDashboardContent({
         tasks,
     } = stats;
 
+    const [activeArea, setActiveArea] = useState('dossier');
+    const [onlyPending, setOnlyPending] = useState(false);
+    const [showAllActivity, setShowAllActivity] = useState(false);
+
     const approvedSubmissions = submissions.filter(
         (submission) => submission.status === 1,
     ).length;
     const submissionPercent = submissions.length
         ? Math.round((approvedSubmissions / submissions.length) * 100)
         : 0;
+
     const formalizationStatus =
         formalization.state === 'approved'
             ? 1
@@ -444,221 +645,185 @@ export default function StudentDashboardContent({
                 ? 2
                 : 0;
 
+    const areas: Area[] = [
+        {
+            key: 'dossier',
+            title: 'Expediente',
+            icon: FileText,
+            approved: dossier.approved,
+            total: dossier.total,
+            percent: dossier.percent,
+            tone: 'bg-primary',
+            href: '/dossier',
+            cta: 'Ir a mi expediente',
+            entries: dossier.items.map((document) => ({
+                key: document.code,
+                status: document.status,
+                node: <DocumentRow document={document} href="/dossier" />,
+            })),
+        },
+        {
+            key: 'formalization',
+            title: 'Formalización',
+            icon: Building2,
+            approved: formalization.approved_documents,
+            total: formalization.total_documents,
+            percent: formalization.percent,
+            tone: 'bg-blue-500',
+            href: '/internship/formalization',
+            cta: 'Ir a formalización',
+            extra: (
+                <>
+                    <StatusBadge
+                        status={formalizationStatus}
+                        label={formalization.state_label}
+                    />
+                    {formalization.company_state && (
+                        <span className="text-xs text-muted-foreground">
+                            {formalization.company_state_label}
+                        </span>
+                    )}
+                </>
+            ),
+            entries: formalization.documents.map((document) => ({
+                key: document.code,
+                status: document.status,
+                node: (
+                    <DocumentRow
+                        document={document}
+                        href="/internship/formalization"
+                    />
+                ),
+            })),
+        },
+        {
+            key: 'submissions',
+            title: 'Plan e informe',
+            icon: BookOpenCheck,
+            approved: approvedSubmissions,
+            total: submissions.length,
+            percent: submissionPercent,
+            tone: 'bg-emerald-500',
+            href: '/internship/report-review',
+            cta: 'Ir a plan e informe',
+            entries: submissions.map((submission) => ({
+                key: String(submission.type),
+                status: submission.status,
+                node: <SubmissionCard submission={submission} />,
+            })),
+        },
+        {
+            key: 'supervision',
+            title: 'Supervisión',
+            icon: Layers,
+            approved: supervision.approved,
+            total: supervision.total,
+            percent: supervision.percent,
+            tone: 'bg-violet-500',
+            href: null,
+            cta: '',
+            entries: supervision.modules.map((module) => ({
+                key: String(module.module),
+                status: module.status,
+                node: <ModuleRow module={module} />,
+            })),
+        },
+    ];
+
+    const current = areas.find((area) => area.key === activeArea) ?? areas[0];
+
+    const onTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
+            return;
+        }
+
+        event.preventDefault();
+
+        const index = areas.findIndex((area) => area.key === current.key);
+        const step = event.key === 'ArrowRight' ? 1 : -1;
+        const next = areas[(index + step + areas.length) % areas.length];
+
+        setActiveArea(next.key);
+        document.getElementById(`area-tab-${next.key}`)?.focus();
+    };
+
+    const sortedTasks = [...tasks].sort(
+        (a, b) => priorityRank[a.priority] - priorityRank[b.priority],
+    );
+
+    const visibleActivity = showAllActivity
+        ? activity
+        : activity.slice(0, ACTIVITY_PREVIEW);
+
+    const hiddenActivity = activity.length - ACTIVITY_PREVIEW;
+
     return (
         <div className="flex flex-1 flex-col gap-4 p-4">
-            <Card className="overflow-hidden">
+            {/* 1. Quién soy y cuánto llevo */}
+            <Card>
                 <CardContent className="flex flex-col gap-6 p-5 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex items-start gap-4">
                         <div className="rounded-xl bg-primary/10 p-3 text-primary">
                             <GraduationCap className="size-7" />
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                                Panel del estudiante
-                            </p>
-                            <h1 className="text-xl font-semibold">
-                                {meta.name}
-                            </h1>
-                            <p className="text-sm text-muted-foreground">
-                                {[meta.school, meta.faculty, meta.semester]
-                                    .filter(Boolean)
-                                    .join(' · ') || 'Sin datos académicos'}
-                            </p>
-                            <div className="flex flex-wrap gap-2 pt-1">
-                                {meta.code && (
-                                    <Badge variant="secondary">
-                                        Código {meta.code}
-                                    </Badge>
-                                )}
-                                <Badge variant="outline" className="gap-1">
-                                    <Building2 className="size-3" />
-                                    {meta.company ?? 'Sin empresa'}
-                                </Badge>
+                        <div className="space-y-2">
+                            <div className="space-y-0.5">
+                                <h1 className="text-xl font-semibold">
+                                    {meta.name}
+                                </h1>
+                                <p className="text-sm text-muted-foreground">
+                                    {[
+                                        meta.code && `Código ${meta.code}`,
+                                        meta.school,
+                                        meta.faculty,
+                                        meta.semester,
+                                    ]
+                                        .filter(Boolean)
+                                        .join(' · ') ||
+                                        'Sin datos académicos'}
+                                </p>
+                            </div>
+                            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                                <li className="flex items-center gap-1.5">
+                                    <Building2 className="size-4 text-muted-foreground" />
+                                    {meta.company ?? 'Sin empresa registrada'}
+                                </li>
                                 {meta.position && (
-                                    <Badge variant="outline">
+                                    <li className="flex items-center gap-1.5">
+                                        <MapPin className="size-4 text-muted-foreground" />
                                         {meta.position}
-                                    </Badge>
+                                    </li>
                                 )}
                                 {meta.boss && (
-                                    <Badge variant="outline" className="gap-1">
-                                        <UserRound className="size-3" />
+                                    <li className="flex items-center gap-1.5">
+                                        <UserRound className="size-4 text-muted-foreground" />
                                         {meta.boss}
-                                    </Badge>
+                                    </li>
                                 )}
-                            </div>
+                            </ul>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 rounded-xl border bg-muted/30 p-4">
-                        <Donut value={practice.percent} />
-                        <div className="space-y-1">
-                            <p className="text-sm font-semibold">
-                                Avance de la práctica
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {practice.start_date && practice.end_date
-                                    ? practice.not_started
-                                        ? `Inicia el ${formatDate(
-                                              practice.start_date,
-                                          )}`
-                                        : practice.finished
-                                          ? 'Práctica finalizada'
-                                          : `${formatNumber(
-                                                practice.days_left,
-                                            )} días restantes`
-                                    : 'Aún sin fechas registradas'}
-                            </p>
-                            <Button asChild size="sm" className="mt-1">
-                                <Link href="/internship">
-                                    Ver formalización
-                                    <ChevronRight />
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
+                    <PracticeProgress practice={practice} />
                 </CardContent>
             </Card>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <KpiCard
-                    title="Expediente"
-                    value={`${dossier.approved}/${dossier.total}`}
-                    hint={`${dossier.percent}% de documentos aprobados`}
-                    icon={FileText}
-                    percent={dossier.percent}
-                />
-                <KpiCard
-                    title="Formalización"
-                    value={`${formalization.percent}%`}
-                    hint={formalization.state_label}
-                    icon={Building2}
-                    percent={formalization.percent}
-                    tone="bg-blue-500"
-                />
-                <KpiCard
-                    title="Plan e informe"
-                    value={`${approvedSubmissions}/${submissions.length}`}
-                    hint={`${submissionPercent}% de entregas aprobadas`}
-                    icon={BookOpenCheck}
-                    percent={submissionPercent}
-                    tone="bg-emerald-500"
-                />
-                <KpiCard
-                    title="Supervisión"
-                    value={`${supervision.approved}/${supervision.total}`}
-                    hint={`${supervision.percent}% de módulos aprobados`}
-                    icon={Layers}
-                    percent={supervision.percent}
-                    tone="bg-violet-500"
-                />
-            </div>
-
+            {/* 2. Qué hago ahora (tareas) y cómo voy (áreas) */}
             <div className="grid gap-4 lg:grid-cols-7">
-                <Card className="lg:col-span-4">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ClipboardCheck className="size-4" />
-                            Seguimiento de mi práctica
-                        </CardTitle>
-                        <CardDescription>
-                            Empresa, jefe inmediato y periodo de prácticas.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-5">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <InfoItem
-                                icon={Building2}
-                                label="Empresa"
-                                value={meta.company ?? 'Sin empresa registrada'}
-                            />
-                            <InfoItem
-                                icon={MapPin}
-                                label="Puesto"
-                                value={meta.position ?? 'Sin puesto'}
-                            />
-                            <InfoItem
-                                icon={UserRound}
-                                label="Jefe inmediato"
-                                value={meta.boss ?? 'Sin registrar'}
-                            />
-                            <InfoItem
-                                icon={CalendarDays}
-                                label="Periodo"
-                                value={
-                                    meta.start_date && meta.end_date
-                                        ? `${formatDate(
-                                              meta.start_date,
-                                          )} — ${formatDate(meta.end_date)}`
-                                        : 'Sin fechas registradas'
-                                }
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between text-sm">
-                                <span className="font-medium">
-                                    Avance temporal
-                                </span>
-                                <span className="text-muted-foreground">
-                                    {practice.percent}% ·{' '}
-                                    {practice.days_elapsed}/
-                                    {practice.days_total} días
-                                </span>
-                            </div>
-                            <ProgressBar
-                                value={practice.percent}
-                                tone="bg-blue-500"
-                            />
-                            <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>
-                                    {practice.start_date
-                                        ? formatDate(practice.start_date)
-                                        : 'Inicio'}
-                                </span>
-                                <span>
-                                    {practice.not_started
-                                        ? 'Por iniciar'
-                                        : practice.finished
-                                          ? 'Finalizada'
-                                          : `${formatNumber(
-                                                practice.days_left,
-                                            )} días restantes`}
-                                </span>
-                                <span>
-                                    {practice.end_date
-                                        ? formatDate(practice.end_date)
-                                        : 'Fin'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
-                            <StatusBadge
-                                status={formalizationStatus}
-                                label={formalization.state_label}
-                            />
-                            {formalization.company_state && (
-                                <span className="text-xs text-muted-foreground">
-                                    {formalization.company_state_label}
-                                </span>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="lg:col-span-3">
+                {/* Tareas: primero en móvil, a la derecha en escritorio */}
+                <Card className="order-1 lg:order-none lg:col-span-3 lg:col-start-5 lg:row-start-1">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <ListTodo className="size-4" />
-                            Tareas pendientes
+                            Qué hacer ahora
                             <Badge variant="secondary">{tasks.length}</Badge>
                         </CardTitle>
                         <CardDescription>
-                            Lo que necesitas completar para avanzar.
+                            Ordenadas de más a menos urgente.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {tasks.length === 0 ? (
+                        {sortedTasks.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-8 text-center">
                                 <CheckCircle2 className="size-8 text-green-600" />
                                 <p className="text-sm font-medium">
@@ -670,20 +835,36 @@ export default function StudentDashboardContent({
                             </div>
                         ) : (
                             <ul className="space-y-2">
-                                {tasks.map((task, index) => (
-                                    <li key={`${task.title}-${index}`}>
+                                {sortedTasks.map((task, index) => (
+                                    <li
+                                        key={`${task.title}-${index}`}
+                                        className={enter}
+                                        style={{
+                                            animationDelay: `${index * 50}ms`,
+                                        }}
+                                    >
                                         <Link
                                             href={task.href}
-                                            className="group flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                                            className="group flex items-start gap-3 rounded-lg border p-3 transition-all hover:border-primary/40 hover:bg-muted/50"
                                         >
-                                            <span
-                                                className={cn(
-                                                    'mt-1 size-2 shrink-0 rounded-full',
-                                                    priorityStyles[
-                                                        task.priority
-                                                    ],
+                                            <span className="relative mt-1.5 flex size-2 shrink-0">
+                                                {task.priority === 'high' && (
+                                                    <span
+                                                        className={cn(
+                                                            'absolute inline-flex size-full animate-ping rounded-full opacity-60 motion-reduce:animate-none',
+                                                            priorityStyles.high,
+                                                        )}
+                                                    />
                                                 )}
-                                            />
+                                                <span
+                                                    className={cn(
+                                                        'relative inline-flex size-2 rounded-full',
+                                                        priorityStyles[
+                                                            task.priority
+                                                        ],
+                                                    )}
+                                                />
+                                            </span>
                                             <span className="min-w-0 flex-1">
                                                 <span className="block text-sm font-medium group-hover:text-primary">
                                                     {task.title}
@@ -692,7 +873,7 @@ export default function StudentDashboardContent({
                                                     {task.detail}
                                                 </span>
                                             </span>
-                                            <ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                                            <ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
                                         </Link>
                                     </li>
                                 ))}
@@ -700,104 +881,45 @@ export default function StudentDashboardContent({
                         )}
                     </CardContent>
                 </Card>
-            </div>
 
-            <div className="grid gap-4 lg:grid-cols-7">
-                <Card className="lg:col-span-4">
+                {/* Áreas: resumen y detalle en un solo bloque */}
+                <Card className="order-2 lg:order-none lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-1">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <FileText className="size-4" />
-                            Documentos y entregas
-                        </CardTitle>
+                        <CardTitle>Mi avance por área</CardTitle>
                         <CardDescription>
-                            Estado de tu expediente, formalización, plan,
-                            informe y supervisión.
+                            Elige un área para ver sus documentos.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue="dossier" className="w-full">
-                            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
-                                <TabsTrigger value="dossier">
-                                    Expediente
-                                </TabsTrigger>
-                                <TabsTrigger value="formalization">
-                                    Formalización
-                                </TabsTrigger>
-                                <TabsTrigger value="submissions">
-                                    Plan e informe
-                                </TabsTrigger>
-                                <TabsTrigger value="supervision">
-                                    Supervisión
-                                </TabsTrigger>
-                            </TabsList>
+                        <div
+                            role="tablist"
+                            aria-label="Áreas de la práctica"
+                            className="grid gap-3 sm:grid-cols-2"
+                            onKeyDown={onTabKeyDown}
+                        >
+                            {areas.map((area) => (
+                                <AreaTrigger
+                                    key={area.key}
+                                    area={area}
+                                    active={area.key === current.key}
+                                    onSelect={() => setActiveArea(area.key)}
+                                />
+                            ))}
+                        </div>
 
-                            <TabsContent
-                                value="dossier"
-                                className="mt-4 space-y-2"
-                            >
-                                {dossier.items.map((document) => (
-                                    <DocumentRow
-                                        key={document.code}
-                                        document={document}
-                                        href="/dossier"
-                                    />
-                                ))}
-                                <p className="text-xs text-muted-foreground">
-                                    {dossier.approved} de {dossier.total}{' '}
-                                    documentos aprobados.
-                                </p>
-                            </TabsContent>
-
-                            <TabsContent
-                                value="formalization"
-                                className="mt-4 space-y-2"
-                            >
-                                {formalization.documents.map((document) => (
-                                    <DocumentRow
-                                        key={document.code}
-                                        document={document}
-                                        href="/internship"
-                                    />
-                                ))}
-                                <p className="text-xs text-muted-foreground">
-                                    {formalization.approved_documents} de{' '}
-                                    {formalization.total_documents} documentos
-                                    aprobados.
-                                </p>
-                            </TabsContent>
-
-                            <TabsContent
-                                value="submissions"
-                                className="mt-4 space-y-3"
-                            >
-                                {submissions.map((submission) => (
-                                    <SubmissionCard
-                                        key={submission.type}
-                                        submission={submission}
-                                    />
-                                ))}
-                            </TabsContent>
-
-                            <TabsContent
-                                value="supervision"
-                                className="mt-4 space-y-2"
-                            >
-                                {supervision.modules.map((module) => (
-                                    <ModuleRow
-                                        key={module.module}
-                                        module={module}
-                                    />
-                                ))}
-                                <p className="text-xs text-muted-foreground">
-                                    {supervision.approved} de{' '}
-                                    {supervision.total} módulos aprobados.
-                                </p>
-                            </TabsContent>
-                        </Tabs>
+                        <AreaPanel
+                            key={current.key}
+                            area={current}
+                            onlyPending={onlyPending}
+                            onTogglePending={() =>
+                                setOnlyPending((value) => !value)
+                            }
+                        />
                     </CardContent>
                 </Card>
 
-                <Card className="lg:col-span-3">
+                {/* Actividad */}
+                <Card className="order-3 lg:order-none lg:col-span-3 lg:col-start-5 lg:row-start-2">
                     <CardHeader className="flex flex-row items-start justify-between space-y-0">
                         <div className="space-y-1">
                             <CardTitle className="flex items-center gap-2">
@@ -815,43 +937,44 @@ export default function StudentDashboardContent({
                                         {notifications.unread}
                                     </Badge>
                                 )}
-                                Ver todo
+                                Notificaciones
                             </Link>
                         </Button>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-3">
                         {activity.length === 0 ? (
                             <div className="py-8 text-center text-sm text-muted-foreground">
                                 Aún no hay actividad registrada.
                             </div>
                         ) : (
-                            <ActivityTimeline activities={activity} />
+                            <>
+                                <ActivityTimeline activities={visibleActivity} />
+                                {hiddenActivity > 0 && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full"
+                                        aria-expanded={showAllActivity}
+                                        onClick={() =>
+                                            setShowAllActivity((value) => !value)
+                                        }
+                                    >
+                                        {showAllActivity
+                                            ? 'Ver menos'
+                                            : `Ver ${hiddenActivity} más`}
+                                        <ChevronDown
+                                            className={cn(
+                                                'transition-transform duration-200',
+                                                showAllActivity && 'rotate-180',
+                                            )}
+                                        />
+                                    </Button>
+                                )}
+                            </>
                         )}
                     </CardContent>
                 </Card>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {quickLinks.map((link) => (
-                    <Link key={link.href} href={link.href} className="block">
-                        <Card className="h-full transition-colors hover:bg-muted/40">
-                            <CardContent className="flex items-start gap-3">
-                                <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                                    <link.icon className="size-4" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-medium">
-                                        {link.title}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {link.description}
-                                    </p>
-                                </div>
-                                <ChevronRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
-                            </CardContent>
-                        </Card>
-                    </Link>
-                ))}
             </div>
         </div>
     );

@@ -17,6 +17,10 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
                 ->middleware(['role:5'])
                 ->name('internship.submission');
 
+            Route::get('/internship/formalization', [InternshipController::class, 'FormalizationIndex'])
+                ->middleware(['role:5'])
+                ->name('internship.formalization');
+
             // Estudiante: revisión del informe
             Route::get('/internship/report-review', [PracticeSubmissionController::class, 'reportReview'])
                 ->middleware(['role:5'])

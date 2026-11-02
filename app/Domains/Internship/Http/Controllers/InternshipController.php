@@ -62,6 +62,15 @@ class InternshipController extends Controller
         ]);
     }
 
+    public function FormalizationIndex(): Response
+    {
+        $assignment = Assignment::query()->findOrFail(session('assignment_id'));
+
+        return Inertia::render('internship/submission/formalization', [
+            'data' => $this->placementService->getSubmissionData($assignment),
+        ]);
+    }
+
     public function ValidationIndex(): Response
     {
         $semesterId = session('semester_id');

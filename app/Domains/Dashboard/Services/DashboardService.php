@@ -662,9 +662,9 @@ class DashboardService
 
             foreach ($placementItems as $document) {
                 if ($document['status'] === 3) {
-                    $push("Corrige {$document['title']}", 'El documento fue observado. Vuelve a subirlo.', '/internship', 'high');
+                    $push("Corrige {$document['title']}", 'El documento fue observado. Vuelve a subirlo.', '/internship/formalization', 'high');
                 } elseif ($document['status'] === 0) {
-                    $push("Sube {$document['title']}", 'Documento obligatorio de formalización.', '/internship', 'medium');
+                    $push("Sube {$document['title']}", 'Documento obligatorio de formalización.', '/internship/formalization', 'medium');
                 }
             }
         }
