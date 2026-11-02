@@ -2,19 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Domains\Academic\Models\Semester;
-use App\Domains\Identity\Enums\AssignmentAccessStatus;
-use App\Domains\Identity\Enums\AssignmentApprovalStatus;
-use App\Domains\Identity\Enums\AssignmentReviewStatus;
-use App\Domains\Identity\Enums\AssignmentStatus;
-use App\Domains\Identity\Enums\PersonStatus;
-use App\Domains\Identity\Models\Assignment;
-use App\Domains\Identity\Models\Person;
-use App\Domains\Identity\Models\User;
-use App\Shared\Enums\Role;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,47 +16,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Catálogos: se ejecutan en todos los entornos (el orden importa).
         $this->call([
             TypeUserSeeder::class,
             RoleSeeder::class,
+            SemesterSeeder::class,
+            FacultiesSeeder::class,
+            SectionSeeder::class,
+            ModuleSeeder::class,
+            PositionSeeder::class,
+            DocumentTypeSeeder::class,
+            DocumentTypeRoleSeeder::class,
         ]);
 
-        $semester = Semester::query()->firstOrCreate(
-            ['code' => '2026-I'],
-            ['cycle' => 'I', 'status' => 1],
-        );
-
-        $adminPerson = Person::firstOrCreate(
-            ['dni' => '00000000'],
-            [
-                'names' => 'Administrador',
-                'surnames' => 'del Sistema',
-                'phone' => '900000000',
-                'gender' => 'M',
-                'status' => PersonStatus::ACTIVE,
-            ]
-        );
-
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@unjfsc.edu.pe'],
-            [
-                'name' => 'Administrador del Sistema',
-                'person_id' => $adminPerson->id,
-                'password' => Hash::make('12345678'),
-                'type_user_id' => 1,
-            ]
-        );
-
-        Assignment::firstOrCreate(
-            ['user_id' => $admin->id, 'role_id' => Role::ADMIN->value, 'semester_id' => $semester->id],
-            [
-                'section_id' => null,
-                'access_status' => AssignmentAccessStatus::FULL,
-                'approval_status' => AssignmentApprovalStatus::APPROVED,
-                'review_status' => AssignmentReviewStatus::NONE,
-                'status' => AssignmentStatus::ACTIVE,
-                'is_select' => true,
-            ]
-        );
+        // Datos de prueba con password débil: nunca en producción.
+        if (! app()->isProduction()) {
+            $this->call([
+                AdminUserSeeder::class,
+                TitularUserSeeder::class,
+                SupervisorUserSeeder::class,
+                StudentUserSeeder::class,
+                DemoCompanySeeder::class,
+            ]);
+        }
     }
 }

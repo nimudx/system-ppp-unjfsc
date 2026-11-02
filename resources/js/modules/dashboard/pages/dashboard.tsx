@@ -7,6 +7,7 @@ import SupervisorContent from '@/modules/dashboard/components/supervisor-content
 import TeacherContent from '@/modules/dashboard/components/teacher-content';
 import type {
     AdminStats,
+    StudentStats,
     SuperAdminStats,
     SupervisorStats,
     TeacherStats,
@@ -73,7 +74,7 @@ export default function Dashboard({
             2: <AdminContent stats={stats as AdminStats} />, // Sub Admin también ve panel admin
             3: <TeacherContent stats={stats as TeacherStats} />,
             4: <SupervisorContent stats={stats as SupervisorStats} />,
-            5: <StudentContent />,
+            5: <StudentContent stats={stats as StudentStats} />,
         };
         const view = (stats || role === 5) && role ? academicView[role] : null;
 
