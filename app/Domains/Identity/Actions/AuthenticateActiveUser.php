@@ -4,6 +4,7 @@ namespace App\Domains\Identity\Actions;
 
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Support\StrictLoginRateLimiter;
+use App\Shared\Enums\Role;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,8 +18,18 @@ use Laravel\Fortify\Fortify;
  */
 class AuthenticateActiveUser
 {
-    /** Tipo de usuario académico: docentes y alumnos. */
-    private const ACADEMIC_TYPE_ID = 2;
+    /** Tipo de usuario administrador. */
+    private const ADMIN_TYPE_ID = 1;
+
+    /** Tipo de usuario empresa. */
+    private const COMPANY_TYPE_ID = 3;
+
+    /** Roles que no son docentes ni alumnos y pueden usar cualquier correo. */
+    private const UNRESTRICTED_ROLE_IDS = [
+        Role::ADMIN,
+        Role::SUBADMIN,
+        Role::EMPRESA,
+    ];
 
     /** Dominio institucional obligatorio para docentes y alumnos. */
     private const INSTITUTIONAL_EMAIL_DOMAIN = '@unjfsc.edu.pe';
@@ -44,14 +55,36 @@ class AuthenticateActiveUser
         }
 
         // Docentes y alumnos solo pueden entrar con su correo institucional.
-        // El administrador (y las empresas) pueden usar cualquier dominio.
-        if ((int) $user->type_user_id === self::ACADEMIC_TYPE_ID && ! $this->hasInstitutionalEmail($user)) {
+        // Administradores, subadministradores y empresas pueden usar cualquier dominio.
+        if ($this->requiresInstitutionalEmail($user) && ! $this->hasInstitutionalEmail($user)) {
             throw ValidationException::withMessages([
                 Fortify::username() => ['Solo puedes iniciar sesión con tu correo institucional @unjfsc.edu.pe.'],
             ]);
         }
 
         return $user;
+    }
+
+    /**
+     * Determina si la cuenta pertenece a un docente o alumno.
+     *
+     * No basta con type_user_id: las cuentas administrativas creadas por los
+     * seeders pueden tener type_user_id = 2, por lo que el rol es la fuente de verdad.
+     */
+    protected function requiresInstitutionalEmail(User $user): bool
+    {
+        if (in_array((int) $user->type_user_id, [self::ADMIN_TYPE_ID, self::COMPANY_TYPE_ID], true)) {
+            return false;
+        }
+
+        $unrestrictedRoleIds = array_map(
+            static fn (Role $role): int => $role->value,
+            self::UNRESTRICTED_ROLE_IDS,
+        );
+
+        return ! $user->assignments()
+            ->whereIn('role_id', $unrestrictedRoleIds)
+            ->exists();
     }
 
     protected function hasInstitutionalEmail(User $user): bool
