@@ -1,5 +1,6 @@
 <?php
 
+use App\Domains\Identity\Models\TypeUser;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Support\StrictLoginRateLimiter;
 use Illuminate\Support\Facades\RateLimiter;
@@ -109,6 +110,33 @@ test('inactive users cannot log in', function () {
         ->assertSessionHasErrors(['email' => 'Tu cuenta está desactivada. Comunícate con el administrador.']);
 
     $this->assertGuest();
+});
+
+test('academic users cannot log in with an external email domain', function () {
+    $user = User::factory()->create(['email' => 'docente@gmail.com']);
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'Solo puedes iniciar sesión con tu correo institucional @unjfsc.edu.pe.']);
+
+    $this->assertGuest();
+});
+
+test('academic users can log in with their institutional email', function () {
+    $user = User::factory()->create(['email' => 'alumno@unjfsc.edu.pe']);
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
+
+    $this->assertAuthenticatedAs($user);
+});
+
+test('administrators can log in with any email domain', function () {
+    TypeUser::unguarded(fn () => TypeUser::firstOrCreate(['id' => 1], ['name' => 'Administrador', 'status' => 1]));
+
+    $user = User::factory()->create(['email' => 'admin@gmail.com', 'type_user_id' => 1]);
+
+    $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password']);
+
+    $this->assertAuthenticatedAs($user);
 });
 
 test('login requests are rate limited per ip', function () {

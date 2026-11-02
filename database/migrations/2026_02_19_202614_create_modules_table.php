@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecutar la migración.
      */
     public function up(): void
     {
         Schema::create('modules', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // para que serviria modules
             $table->string('name');
             $table->unsignedTinyInteger('status')->default(1);
             $table->timestamps();
@@ -20,7 +20,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Revertir la migración.
      */
     public function down(): void
     {

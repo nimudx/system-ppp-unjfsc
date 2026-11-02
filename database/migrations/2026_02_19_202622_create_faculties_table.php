@@ -7,20 +7,20 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecutar la migración.
      */
     public function up(): void
     {
         Schema::create('faculties', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->unsignedTinyInteger('status')->default(1);
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revertir la migración.
      */
     public function down(): void
     {
