@@ -57,30 +57,34 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
 
     // Filtrar estudiantes localmente según la búsqueda
     const filteredStudents = students
-    .filter((student) => {
-        if (!studentSearch.trim()) return true;
+        .filter((student) => {
+            if (!studentSearch.trim()) return true;
 
-        const term = studentSearch.trim().toLocaleLowerCase('es');
+            const term = studentSearch.trim().toLocaleLowerCase('es');
 
-        return (
-            student.user?.person?.names?.toLocaleLowerCase('es').includes(term) ||
-            student.user?.person?.surnames?.toLocaleLowerCase('es').includes(term) ||
-            student.user?.email?.toLocaleLowerCase('es').includes(term)
-        );
-    })
-    .sort((a, b) => {
-        const surnameA = a.user?.person?.surnames ?? '';
-        const surnameB = b.user?.person?.surnames ?? '';
+            return (
+                student.user?.person?.names
+                    ?.toLocaleLowerCase('es')
+                    .includes(term) ||
+                student.user?.person?.surnames
+                    ?.toLocaleLowerCase('es')
+                    .includes(term) ||
+                student.user?.email?.toLocaleLowerCase('es').includes(term)
+            );
+        })
+        .sort((a, b) => {
+            const surnameA = a.user?.person?.surnames ?? '';
+            const surnameB = b.user?.person?.surnames ?? '';
 
-        const nameA = a.user?.person?.names ?? '';
-        const nameB = b.user?.person?.names ?? '';
+            const nameA = a.user?.person?.names ?? '';
+            const nameB = b.user?.person?.names ?? '';
 
-        return `${surnameA} ${nameA}`.localeCompare(
-            `${surnameB} ${nameB}`,
-            'es',
-            { sensitivity: 'base' }
-        );
-    });
+            return `${surnameA} ${nameA}`.localeCompare(
+                `${surnameB} ${nameB}`,
+                'es',
+                { sensitivity: 'base' },
+            );
+        });
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -189,9 +193,9 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                        <TableHead className="w-[60px] text-center text-xs font-bold tracking-wider uppercase">
-                                            N.º
-                                        </TableHead>
+                                            <TableHead className="w-[60px] text-center text-xs font-bold tracking-wider uppercase">
+                                                N.º
+                                            </TableHead>
                                             <TableHead className="text-xs font-bold tracking-wider uppercase">
                                                 Estudiante
                                             </TableHead>
@@ -208,117 +212,126 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                     </TableHeader>
                                     <TableBody>
                                         {filteredStudents.length > 0 ? (
-                                            filteredStudents.map((student, index) => {
-                                                const isSelected =
-                                                    selectedStudentId ===
-                                                    student.id;
-                                                return (
-                                                    <TableRow
-                                                        key={student.id}
-                                                        onClick={() =>
-                                                            setSelectedStudentId(
-                                                                student.id,
-                                                            )
-                                                        }
-                                                        className={`group cursor-pointer transition-colors ${
-                                                            isSelected
-                                                                ? 'border-l-4 border-l-primary bg-primary/5'
-                                                                : ''
-                                                        }`}
-                                                    >
-                                                        <TableCell className="text-center">
-                                                            <span className="text-xs font-medium tabular-nums text-muted-foreground">
-                                                                {(index + 1).toString().padStart(2, '0')}
-                                                            </span>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                                                                    <User className="size-4 text-muted-foreground" />
-                                                                </div>
-                                                                <div className="flex flex-col overflow-hidden">
-                                                                    <span className="truncate text-xs font-bold uppercase">
-                                                                        {
-                                                                            student
-                                                                                .user
-                                                                                ?.person
-                                                                                ?.surnames
-                                                                        }{' '}
-                                                                        {
-                                                                            student
-                                                                                .user
-                                                                                ?.person
-                                                                                ?.names
-                                                                        }
-                                                                    </span>
-                                                                    <span className="truncate text-[10px] text-muted-foreground">
-                                                                        {
-                                                                            student
-                                                                                .user
-                                                                                ?.email
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </TableCell>
-
-                                                        {!selectedStudentId && (
+                                            filteredStudents.map(
+                                                (student, index) => {
+                                                    const isSelected =
+                                                        selectedStudentId ===
+                                                        student.id;
+                                                    return (
+                                                        <TableRow
+                                                            key={student.id}
+                                                            onClick={() =>
+                                                                setSelectedStudentId(
+                                                                    student.id,
+                                                                )
+                                                            }
+                                                            className={`group cursor-pointer transition-colors ${
+                                                                isSelected
+                                                                    ? 'border-l-4 border-l-primary bg-primary/5'
+                                                                    : ''
+                                                            }`}
+                                                        >
+                                                            <TableCell className="text-center">
+                                                                <span className="text-xs font-medium text-muted-foreground tabular-nums">
+                                                                    {(index + 1)
+                                                                        .toString()
+                                                                        .padStart(
+                                                                            2,
+                                                                            '0',
+                                                                        )}
+                                                                </span>
+                                                            </TableCell>
                                                             <TableCell>
-                                                                {student.placement ? (
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-xs font-semibold text-foreground">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                                                                        <User className="size-4 text-muted-foreground" />
+                                                                    </div>
+                                                                    <div className="flex flex-col overflow-hidden">
+                                                                        <span className="truncate text-xs font-bold uppercase">
                                                                             {
                                                                                 student
-                                                                                    .placement
-                                                                                    .company_name
+                                                                                    .user
+                                                                                    ?.person
+                                                                                    ?.surnames
+                                                                            }{' '}
+                                                                            {
+                                                                                student
+                                                                                    .user
+                                                                                    ?.person
+                                                                                    ?.names
                                                                             }
                                                                         </span>
-                                                                        <span className="text-[10px] text-muted-foreground">
+                                                                        <span className="truncate text-[10px] text-muted-foreground">
                                                                             {
                                                                                 student
-                                                                                    .placement
-                                                                                    .position
+                                                                                    .user
+                                                                                    ?.email
                                                                             }
                                                                         </span>
                                                                     </div>
+                                                                </div>
+                                                            </TableCell>
+
+                                                            {!selectedStudentId && (
+                                                                <TableCell>
+                                                                    {student.placement ? (
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-xs font-semibold text-foreground">
+                                                                                {
+                                                                                    student
+                                                                                        .placement
+                                                                                        .company_name
+                                                                                }
+                                                                            </span>
+                                                                            <span className="text-[10px] text-muted-foreground">
+                                                                                {
+                                                                                    student
+                                                                                        .placement
+                                                                                        .position
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="text-xs text-muted-foreground italic">
+                                                                            ---
+                                                                        </span>
+                                                                    )}
+                                                                </TableCell>
+                                                            )}
+
+                                                            <TableCell className="text-center">
+                                                                {student.placement ? (
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="border-none bg-green-500/10 text-[9px] font-black tracking-wider text-green-600 uppercase"
+                                                                    >
+                                                                        CON
+                                                                        PRÁCTICA
+                                                                    </Badge>
                                                                 ) : (
-                                                                    <span className="text-xs text-muted-foreground italic">
-                                                                        ---
-                                                                    </span>
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="border-none bg-slate-100 text-[9px] font-black tracking-wider text-slate-500 uppercase"
+                                                                    >
+                                                                        NO
+                                                                        INICIADO
+                                                                    </Badge>
                                                                 )}
                                                             </TableCell>
-                                                        )}
 
-                                                        <TableCell className="text-center">
-                                                            {student.placement ? (
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="border-none bg-green-500/10 text-[9px] font-black tracking-wider text-green-600 uppercase"
-                                                                >
-                                                                    CON PRÁCTICA
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="border-none bg-slate-100 text-[9px] font-black tracking-wider text-slate-500 uppercase"
-                                                                >
-                                                                    NO INICIADO
-                                                                </Badge>
-                                                            )}
-                                                        </TableCell>
-
-                                                        <TableCell>
-                                                            <ChevronRight
-                                                                className={`size-4 text-muted-foreground transition-transform ${
-                                                                    isSelected
-                                                                        ? 'rotate-180 text-primary'
-                                                                        : 'group-hover:translate-x-0.5'
-                                                                }`}
-                                                            />
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            })
+                                                            <TableCell>
+                                                                <ChevronRight
+                                                                    className={`size-4 text-muted-foreground transition-transform ${
+                                                                        isSelected
+                                                                            ? 'rotate-180 text-primary'
+                                                                            : 'group-hover:translate-x-0.5'
+                                                                    }`}
+                                                                />
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                },
+                                            )
                                         ) : (
                                             <TableRow>
                                                 <TableCell
