@@ -48,6 +48,7 @@ const DEVELOPERS: Developer[] = [
         name: 'Ing. Jean Fernandez Pardo',
         github: 'https://github.com/JeanSmith1505',
         linkedin: 'https://www.linkedin.com/in/jeans-fp15/',
+        portfolio: 'https://jean-smith-portfolio.vercel.app/',
     },
     {
         name: 'Ing. Yefferson Quiñonez Espinoza',
