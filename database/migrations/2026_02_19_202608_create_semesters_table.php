@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('semesters', function (Blueprint $table) {
             $table->id();
             $table->string('code'); // para q sirve code? revisar
-            $table->string('cycle')->unique();
+            $table->string('cycle');
             $table->unsignedTinyInteger('status')->default(1);
             $table->timestamps();
         });
