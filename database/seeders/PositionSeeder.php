@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Domains\Company\Models\Position;
 use Illuminate\Database\Seeder;
 
