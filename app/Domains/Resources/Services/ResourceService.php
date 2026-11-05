@@ -46,7 +46,9 @@ class ResourceService
                 'context' => 'resource',
             ], $uploader, $resource);
 
-            return $resource->load('documents');
+            $resource->load('documents')->documents->each->append('file_url');
+
+            return $resource;
         });
     }
 
@@ -80,7 +82,9 @@ class ResourceService
             }
         });
 
-        return $query->with('documents')->get();
+        // Los archivos son privados: el frontend los abre con una URL firmada (file_url).
+        return $query->with('documents')->get()
+            ->each(fn ($resource) => $resource->documents->each->append('file_url'));
     }
 
     public function registerResourceAcademic(Model $uploader, array $data): void
@@ -131,7 +135,9 @@ class ResourceService
                 ], $uploader, $resource);
             }
 
-            return $resource->load('documents');
+            $resource->load('documents')->documents->each->append('file_url');
+
+            return $resource;
         });
     }
 

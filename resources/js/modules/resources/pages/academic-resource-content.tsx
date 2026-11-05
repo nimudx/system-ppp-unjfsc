@@ -36,6 +36,8 @@ interface DocumentType {
 interface ResourceDoc {
     id: number;
     path: string;
+    /** URL firmada y temporal para abrir el archivo privado. */
+    file_url?: string | null;
     name?: string;
     type?: DocumentType;
 }
@@ -235,7 +237,7 @@ export default function AcademicResourceContent(props: PageProps) {
                                 ) || 'Reciente'}
                             </span>
                             <div className="flex items-center gap-1">
-                                {res.documents?.[0]?.path ? (
+                                {res.documents?.[0]?.file_url ? (
                                     <>
                                         <Button
                                             size="icon"
@@ -245,7 +247,7 @@ export default function AcademicResourceContent(props: PageProps) {
                                             title="Abrir en nueva pestaña"
                                         >
                                             <a
-                                                href={`/storage/${res.documents[0].path}`}
+                                                href={res.documents[0].file_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
@@ -263,7 +265,7 @@ export default function AcademicResourceContent(props: PageProps) {
                                             title="Descargar archivo"
                                         >
                                             <a
-                                                href={`/storage/${res.documents[0].path}`}
+                                                href={res.documents[0].file_url}
                                                 download={
                                                     res.documents[0].name ||
                                                     'documento'

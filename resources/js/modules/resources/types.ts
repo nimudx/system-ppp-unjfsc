@@ -10,6 +10,8 @@ export interface ResourceItem {
     documents?: {
         id: number;
         path: string;
+        /** URL firmada y temporal para abrir el archivo privado. */
+        file_url?: string | null;
         name?: string;
         type?: { name: string };
     }[];

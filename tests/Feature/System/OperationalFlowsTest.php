@@ -10,22 +10,19 @@ use App\Domains\Dossier\Services\AcademicDocumentVerifier;
 use App\Domains\Identity\Enums\AssignmentAccessStatus;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Supervision\Models\InternshipGroup;
-use Database\Seeders\Cycle2026Seeder;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
-    $this->seed([DatabaseSeeder::class, Cycle2026Seeder::class]);
+    $this->seed(DatabaseSeeder::class);
     Storage::fake('public');
+    Storage::fake('local');
 });
 
 function operationalAssignment(int $role): Assignment
 {
-    $assignment = Assignment::where('role_id', $role)->firstOrFail();
-    $assignment->update(['access_status' => 1, 'approval_status' => 1]);
-
-    return $assignment->refresh();
+    return seededAssignment($role);
 }
 
 function enterOperationalProfile($test, Assignment $assignment): void
@@ -105,7 +102,8 @@ test('a student can submit correct and complete a dossier reviewed by an adminis
         'file' => UploadedFile::fake()->create('ficha_v1.pdf', 20, 'application/pdf'),
     ])->assertSessionHasNoErrors()->assertRedirect();
     $v1 = Document::latest('id')->firstOrFail();
-    Storage::disk('public')->assertExists($v1->path);
+    Storage::disk('local')->assertExists($v1->path);
+    Storage::disk('public')->assertMissing($v1->path);
 
     enterOperationalProfile($this, $admin);
     $this->patch(route('academic.dossiers.document.status', $v1), [
@@ -276,7 +274,7 @@ test('a supervisor submits an annex that a teacher can review', function () {
 
     $evaluation = \App\Domains\Supervision\Models\Evaluation::latest('id')->firstOrFail();
     expect((float) $evaluation->grade)->toBe(18.0);
-    Storage::disk('public')->assertExists($evaluation->documents->firstOrFail()->path);
+    Storage::disk('local')->assertExists($evaluation->documents->firstOrFail()->path);
 
     enterOperationalProfile($this, $teacher);
     $this->patch(route('academic.supervision.update', $evaluation), ['approval_status' => 1, 'comment' => 'Conforme'])

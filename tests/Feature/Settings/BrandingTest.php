@@ -2,13 +2,12 @@
 
 use App\Domains\Academic\Models\AppSetting;
 use App\Domains\Identity\Models\Assignment;
-use Database\Seeders\Cycle2026Seeder;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
-    $this->seed([DatabaseSeeder::class, Cycle2026Seeder::class]);
+    $this->seed(DatabaseSeeder::class);
     Storage::fake('public');
 });
 
@@ -54,7 +53,9 @@ function sharedLogo($test): ?string
 test('a titular teacher logo is shown to the students of the same section only', function () {
     $teacher = titularWithStudents();
     $student = brandingProfile(5, $teacher->section_id);
-    $otherStudent = Assignment::where('role_id', 5)->where('section_id', '!=', $teacher->section_id)->firstOrFail();
+    // Otro alumno movido a una sección distinta: no debe ver el logo del titular.
+    $otherStudent = Assignment::where('role_id', 5)->whereKeyNot($student->id)->firstOrFail();
+    $otherStudent->update(['section_id' => \App\Domains\Academic\Models\Section::whereKeyNot($teacher->section_id)->value('id')]);
 
     enterBrandingProfile($this, $teacher)
         ->post(route('branding.update'), ['logo' => fakeLogo('escuela.png')])

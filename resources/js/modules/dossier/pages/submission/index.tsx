@@ -1,4 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
     CalendarClock,
     CheckCircle2,
@@ -13,8 +15,6 @@ import {
     Minimize2,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 import {
@@ -30,9 +30,9 @@ import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { Spinner } from '@/shared/components/ui/spinner';
+import AppLayout from '@/shared/layouts/app-layout';
 import { cn } from '@/shared/lib/utils';
 
-import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -67,7 +67,7 @@ function formatDateTime(value?: string | null) {
 
     if (Number.isNaN(date.getTime())) return null;
 
-    return format(date, "d MMM yyyy, HH:mm", { locale: es });
+    return format(date, 'd MMM yyyy, HH:mm', { locale: es });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -123,8 +123,9 @@ function useCountUp(target: number, duration = 700) {
             typeof window !== 'undefined' &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ) {
-            setValue(target);
-            return;
+            // Sin animación: el valor final se asigna en el próximo cuadro (no dentro del efecto).
+            const id = requestAnimationFrame(() => setValue(target));
+            return () => cancelAnimationFrame(id);
         }
 
         let frame = 0;
@@ -238,7 +239,9 @@ function PendingActionsCard({
             item,
             observed: resolveStatus(item) === 3,
         }))
-        .filter(({ item, observed }) => !item.locked && (!item.latest || observed));
+        .filter(
+            ({ item, observed }) => !item.locked && (!item.latest || observed),
+        );
 
     return (
         <SectionCard>
@@ -396,11 +399,6 @@ function DocumentHistoryPanel({
                                     record.approval_status,
                                 );
                                 const StatusIcon = status.icon;
-                                const validDate =
-                                    record.created_at &&
-                                    !Number.isNaN(
-                                        new Date(record.created_at).getTime(),
-                                    );
 
                                 return (
                                     <article
@@ -429,8 +427,9 @@ function DocumentHistoryPanel({
                                                 </span>
 
                                                 <span className="text-[11px] text-muted-foreground tabular-nums">
-                                                    {formatDateTime(record.created_at) ??
-                                                        'Fecha desconocida'}
+                                                    {formatDateTime(
+                                                        record.created_at,
+                                                    ) ?? 'Fecha desconocida'}
                                                 </span>
                                             </div>
 
@@ -452,17 +451,21 @@ function DocumentHistoryPanel({
 
                                                         <p className="mt-1 text-[11px] text-muted-foreground">
                                                             Subido el{' '}
-                                                            {formatDateTime(record.created_at) ??
+                                                            {formatDateTime(
+                                                                record.created_at,
+                                                            ) ??
                                                                 'fecha desconocida'}
                                                         </p>
 
-                                                        {record.approval_status === 1 && (
+                                                        {record.approval_status ===
+                                                            1 && (
                                                             <p className="text-[11px] text-green-600 dark:text-green-400">
                                                                 Aprobado el{' '}
                                                                 {formatDateTime(
                                                                     record.approved_at ??
                                                                         record.updated_at,
-                                                                ) ?? 'fecha no registrada'}
+                                                                ) ??
+                                                                    'fecha no registrada'}
                                                             </p>
                                                         )}
                                                     </div>
@@ -532,7 +535,7 @@ export default function MyDossier({
     const [tempFile, setTempFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const list = requirements || [];
+    const list = useMemo(() => requirements || [], [requirements]);
     const currentFile = list[selectedType];
     const currentStatus = tempFile ? 0 : resolveStatus(currentFile);
 
@@ -623,9 +626,13 @@ export default function MyDossier({
 
     /* Atajos: ← y → cambian de documento (si no estás escribiendo). */
     const selectRef = useRef(selectType);
-    selectRef.current = selectType;
     const indexRef = useRef(selectedType);
-    indexRef.current = selectedType;
+
+    // Se actualizan después de cada render (no durante), como pide React.
+    useEffect(() => {
+        selectRef.current = selectType;
+        indexRef.current = selectedType;
+    });
 
     useEffect(() => {
         const onKey = (event: KeyboardEvent) => {
@@ -746,8 +753,8 @@ export default function MyDossier({
 
                                 <div className="p-4 pt-0">
                                     <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                        Descarga el formato oficial,
-                                        complétalo y súbelo.
+                                        Descarga el formato oficial, complétalo
+                                        y súbelo.
                                     </p>
 
                                     <Button
@@ -790,7 +797,9 @@ export default function MyDossier({
                                 <SectionCard.Header>
                                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <div
-                                            key={currentFile.code ?? selectedType}
+                                            key={
+                                                currentFile.code ?? selectedType
+                                            }
                                             className={cn(
                                                 'flex min-w-0 items-center gap-3',
                                                 enter,

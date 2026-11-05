@@ -104,9 +104,10 @@ function useCountUp(target: number, duration = 900) {
 
     useEffect(() => {
         if (prefersReducedMotion()) {
-            setValue(target);
+            // Sin animación: el valor final se asigna en el próximo cuadro (no dentro del efecto).
+            const id = requestAnimationFrame(() => setValue(target));
 
-            return;
+            return () => cancelAnimationFrame(id);
         }
 
         let frame = 0;
@@ -559,7 +560,11 @@ function AreaPanel({
 /*  Encabezado: identidad + avance de la práctica                             */
 /* -------------------------------------------------------------------------- */
 
-function PracticeProgress({ practice }: { practice: StudentStats['practice'] }) {
+function PracticeProgress({
+    practice,
+}: {
+    practice: StudentStats['practice'];
+}) {
     const percent = useCountUp(practice.percent);
 
     const caption = !(practice.start_date && practice.end_date)
@@ -779,8 +784,7 @@ export default function StudentDashboardContent({
                                         meta.semester,
                                     ]
                                         .filter(Boolean)
-                                        .join(' · ') ||
-                                        'Sin datos académicos'}
+                                        .join(' · ') || 'Sin datos académicos'}
                                 </p>
                             </div>
                             <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -948,7 +952,9 @@ export default function StudentDashboardContent({
                             </div>
                         ) : (
                             <>
-                                <ActivityTimeline activities={visibleActivity} />
+                                <ActivityTimeline
+                                    activities={visibleActivity}
+                                />
                                 {hiddenActivity > 0 && (
                                     <Button
                                         type="button"
@@ -957,7 +963,9 @@ export default function StudentDashboardContent({
                                         className="w-full"
                                         aria-expanded={showAllActivity}
                                         onClick={() =>
-                                            setShowAllActivity((value) => !value)
+                                            setShowAllActivity(
+                                                (value) => !value,
+                                            )
                                         }
                                     >
                                         {showAllActivity

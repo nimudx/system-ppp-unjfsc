@@ -9,7 +9,6 @@ use App\Domains\Documents\Models\DocumentType;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\User;
 use App\Domains\Internship\Models\Placement;
-use Database\Seeders\Cycle2026Seeder;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
-    $this->seed([DatabaseSeeder::class, Cycle2026Seeder::class]);
+    $this->seed(DatabaseSeeder::class);
     Mail::fake();
     Storage::fake('local');
     Storage::fake('public');
@@ -25,10 +24,7 @@ beforeEach(function () {
 
 function companyProfile(int $role): Assignment
 {
-    $a = Assignment::where('role_id', $role)->firstOrFail();
-    $a->update(['access_status' => 1, 'approval_status' => 1, 'status' => 1]);
-
-    return $a->refresh();
+    return seededAssignment($role);
 }
 function companyLogin($test, Assignment $a): void
 {
@@ -326,7 +322,7 @@ test('a closed semester blocks new company requests', function () {
 
 test('corporate invitation cannot claim an existing academic email', function () {
     companyLogin($this, companyProfile(5));
-    $this->postJson(route('company-validation.requests.store'), [...companyPayload(), 'email' => 'docente1@gmail.com'])->assertUnprocessable()->assertJsonValidationErrors('email');
+    $this->postJson(route('company-validation.requests.store'), [...companyPayload(), 'email' => \App\Domains\Identity\Models\User::where('type_user_id', 2)->value('email')])->assertUnprocessable()->assertJsonValidationErrors('email');
     Mail::assertNothingOutgoing();
 });
 

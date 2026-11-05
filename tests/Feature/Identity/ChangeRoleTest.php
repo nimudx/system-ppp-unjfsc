@@ -3,10 +3,9 @@
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Requests\Models\UserRequest;
 use App\Domains\Supervision\Models\InternshipGroup;
-use Database\Seeders\Cycle2026Seeder;
 use Database\Seeders\DatabaseSeeder;
 
-beforeEach(fn () => $this->seed([DatabaseSeeder::class, Cycle2026Seeder::class]));
+beforeEach(fn () => $this->seed(DatabaseSeeder::class));
 
 function manageAs($test, Assignment $sender, Assignment $target, array $data)
 {

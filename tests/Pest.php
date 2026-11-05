@@ -45,3 +45,28 @@ function something()
 {
     // ..
 }
+
+/**
+ * Asignación de prueba con el rol pedido. El DatabaseSeeder no crea subadministrador,
+ * así que si no existe se crea uno en la primera sección.
+ */
+function seededAssignment(int $role): App\Domains\Identity\Models\Assignment
+{
+    $assignment = App\Domains\Identity\Models\Assignment::where('role_id', $role)->first();
+
+    if (! $assignment && $role === App\Shared\Enums\Role::SUBADMIN->value) {
+        $section = App\Domains\Academic\Models\Section::firstOrFail();
+        $assignment = App\Domains\Identity\Models\Assignment::create([
+            'user_id' => App\Domains\Identity\Models\User::factory()->create(['email' => 'subadmin.test@unjfsc.edu.pe'])->id,
+            'role_id' => $role,
+            'semester_id' => $section->semester_id,
+            'section_id' => $section->id,
+            'status' => 1,
+        ]);
+    }
+
+    abort_unless($assignment, 500, "No hay asignación de prueba con el rol {$role}.");
+    $assignment->update(['access_status' => 1, 'approval_status' => 1, 'status' => 1]);
+
+    return $assignment->refresh();
+}

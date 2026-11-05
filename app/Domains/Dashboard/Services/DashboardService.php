@@ -871,12 +871,16 @@ class DashboardService
 
     private function storageUsage(): array
     {
-        $root = Storage::disk('public')->path('');
         $used = 0;
 
-        if (is_dir($root)) {
-            foreach (File::allFiles($root) as $file) {
-                $used += $file->getSize();
+        // Documentos (disco privado) + fotos de perfil y logos (disco público).
+        foreach (['local', 'public'] as $disk) {
+            $root = Storage::disk($disk)->path('');
+
+            if (is_dir($root)) {
+                foreach (File::allFiles($root) as $file) {
+                    $used += $file->getSize();
+                }
             }
         }
 

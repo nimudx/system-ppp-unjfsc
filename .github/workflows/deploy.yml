@@ -143,6 +143,8 @@ jobs:
             docker compose -f docker-compose.prod.yml stop queue
             docker compose -f docker-compose.prod.yml up -d --wait --wait-timeout 180 db app
             docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+            # migrate corre como root: lo que cree en storage (p. ej. al mover documentos) debe quedar para PHP-FPM.
+            docker compose -f docker-compose.prod.yml exec -T app chown -R www-data:www-data /var/www/storage
             docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate queue
             docker compose -f docker-compose.prod.yml ps
           "

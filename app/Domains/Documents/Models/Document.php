@@ -2,6 +2,7 @@
 
 namespace App\Domains\Documents\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -9,8 +10,14 @@ use Illuminate\Support\Facades\URL;
 
 class Document extends Model
 {
-    /** Disco donde se guardan los archivos de los documentos. */
-    public const DISK = 'public';
+    /**
+     * Disco privado (storage/app/private): los archivos no tienen URL pública y solo se
+     * entregan con sesión iniciada y una URL firmada (signedFileUrl).
+     */
+    public const DISK = 'local';
+
+    /** Disco público donde estaban antes; lo usa la migración que los mueve. */
+    public const LEGACY_DISK = 'public';
 
     protected $fillable = [
         'documentable_id',
@@ -51,5 +58,13 @@ class Document extends Model
             now()->addMinutes($minutes),
             ['document' => $this->getKey()],
         );
+    }
+
+    /**
+     * URL firmada para el frontend; se agrega al JSON con ->append('file_url').
+     */
+    protected function fileUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->exists ? $this->signedFileUrl() : null);
     }
 }
