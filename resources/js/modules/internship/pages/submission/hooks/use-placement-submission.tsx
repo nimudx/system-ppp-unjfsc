@@ -17,6 +17,15 @@ interface UsePlacementSubmissionProps {
     initialContext?: PlacementContext;
 }
 
+// El tipo puede venir en español en registros antiguos o en inglés en los
+// nuevos. La interfaz y la API trabajan con los valores en inglés.
+function normalizeType(value?: string | null): string | undefined {
+    if (value === 'desarrollo') return 'development';
+    if (value === 'convalidacion') return 'validation';
+
+    return value ?? undefined;
+}
+
 export function usePlacementSubmission({
     placement,
     requirements,
@@ -27,7 +36,7 @@ export function usePlacementSubmission({
 
     // ── Selección de Tipo ──────────────────────────────────────────────────
     const [selectedType, setType] = useState('development');
-    const type = placement?.internship_type || selectedType;
+    const type = normalizeType(placement?.internship_type) || selectedType;
     const [selectedOrigin, setOrigin] = useState('direct');
     const origin = placement?.origin_type || selectedOrigin;
 

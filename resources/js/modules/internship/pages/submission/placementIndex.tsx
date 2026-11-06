@@ -1,10 +1,11 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+import { RequestHistory } from '@/modules/company/components/request-history';
 import StudentWorkflow from '@/modules/company/components/student-workflow';
 import { useCompanyRequest } from '@/modules/company/components/use-company-request';
+import type { CompanyRequest } from '@/modules/company/services/company-workflow';
 import type { DocumentRequirement } from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';
-import { Button } from '@/shared/components/ui/button';
 import AppLayout from '@/shared/layouts/app-layout';
 import { TypeSelector } from './components/type-selector';
 import { usePlacementSubmission } from './hooks/use-placement-submission';
@@ -15,10 +16,14 @@ interface PlacementProps {
         requirements: DocumentRequirement[];
         isApproved: boolean;
     };
+    companyRequest: CompanyRequest | null;
 }
 
-export default function PlacementIndex({ data }: PlacementProps) {
-    const request = useCompanyRequest();
+export default function PlacementIndex({
+    data,
+    companyRequest,
+}: PlacementProps) {
+    const request = useCompanyRequest(companyRequest);
     const documentsEnabled =
         !request.loading &&
         !request.error &&
@@ -28,6 +33,7 @@ export default function PlacementIndex({ data }: PlacementProps) {
         requirements: data.requirements,
         documentsEnabled,
     });
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Pasantía', href: '/internship' }]}>
             <Head title="Pasantía" />
@@ -36,36 +42,26 @@ export default function PlacementIndex({ data }: PlacementProps) {
                     title="Pasantía"
                     description="Registra tu empresa, consulta la revisión y completa los datos de tu práctica después de la aceptación empresarial."
                 />
-                <div className="grid items-start gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
-                    <TypeSelector
-                        type={form.type}
-                        setType={form.setType}
-                        origin={form.origin}
-                        setOrigin={form.setOrigin}
-                        disabled={!!data.placement}
-                    />
-                    <section className="min-w-0 rounded-xl border bg-card p-4 md:p-6">
+                <div className="grid items-start gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+                    <aside className="-m-1 space-y-4 p-1 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto">
+                        <TypeSelector
+                            type={form.type}
+                            setType={form.setType}
+                            origin={form.origin}
+                            setOrigin={form.setOrigin}
+                            disabled={!!data.placement}
+                        />
+                        <RequestHistory history={request.current?.history} />
+                    </aside>
+                    <div className="min-w-0">
                         <StudentWorkflow
                             {...request}
                             placement={data.placement}
                             type={form.type}
                             origin={form.origin}
                         />
-                    </section>
-                </div>
-                {documentsEnabled && (
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
-                        <p className="text-sm text-muted-foreground">
-                            Los documentos de formalización se presentan en el
-                            menú Formalización.
-                        </p>
-                        <Button asChild variant="outline">
-                            <Link href="/internship/formalization">
-                                Ir a Formalización
-                            </Link>
-                        </Button>
                     </div>
-                )}
+                </div>
             </div>
         </AppLayout>
     );

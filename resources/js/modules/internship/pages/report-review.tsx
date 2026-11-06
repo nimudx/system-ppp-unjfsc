@@ -137,15 +137,15 @@ export default function ReportReview({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Rev. Informe" />
+            <Head title="Rev. Prácticas" />
 
             <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
                 {/* Encabezado */}
                 <div className="flex items-end justify-between">
                     <Heading
                         variant="small"
-                        title="Rev. Informe"
-                        description="Gestiona tu plan, informe y revisa las observaciones de tu docente."
+                        title="Rev. Prácticas"
+                        description="Gestiona tu plan e informe de prácticas y revisa las observaciones de tu docente."
                     />
 
                     <div className="hidden items-center gap-2 rounded-lg border bg-card px-3 py-2 md:flex">

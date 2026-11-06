@@ -20,7 +20,7 @@ class DocumentTypeRoleSeeder extends Seeder
         $map = [
             3 => ['horario', 'carga_lectiva', 'resolucion_designacion'], // Docente Titular
             4 => ['anexo_7', 'anexo_8', 'plan_practicas', 'informe_practicas'], // Docente Supervisor
-            5 => ['ficha', 'record', 'fut', 'carta_presentacion', 'anexo_7', 'anexo_8', 'plan_practicas', 'informe_practicas'], // Estudiante
+            5 => ['ficha', 'record', 'cv', 'fut', 'carta_presentacion', 'anexo_1', 'anexo_2', 'anexo_3', 'anexo_7', 'anexo_8', 'plan_practicas', 'informe_practicas'], // Estudiante
             6 => ['carta_presentacion', 'carta_aceptacion', 'anexo_7'], // Empresa
         ];
 

@@ -104,9 +104,9 @@ function useCountUp(target: number, duration = 900) {
 
     useEffect(() => {
         if (prefersReducedMotion()) {
-            setValue(target);
+            const reducedFrame = requestAnimationFrame(() => setValue(target));
 
-            return;
+            return () => cancelAnimationFrame(reducedFrame);
         }
 
         let frame = 0;
@@ -559,7 +559,11 @@ function AreaPanel({
 /*  Encabezado: identidad + avance de la práctica                             */
 /* -------------------------------------------------------------------------- */
 
-function PracticeProgress({ practice }: { practice: StudentStats['practice'] }) {
+function PracticeProgress({
+    practice,
+}: {
+    practice: StudentStats['practice'];
+}) {
     const percent = useCountUp(practice.percent);
 
     const caption = !(practice.start_date && practice.end_date)
@@ -616,6 +620,7 @@ export default function StudentDashboardContent({
     const {
         meta,
         dossier,
+        cv,
         formalization,
         practice,
         submissions,
@@ -779,8 +784,7 @@ export default function StudentDashboardContent({
                                         meta.semester,
                                     ]
                                         .filter(Boolean)
-                                        .join(' · ') ||
-                                        'Sin datos académicos'}
+                                        .join(' · ') || 'Sin datos académicos'}
                                 </p>
                             </div>
                             <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -808,7 +812,33 @@ export default function StudentDashboardContent({
                 </CardContent>
             </Card>
 
-            {/* 2. Qué hago ahora (tareas) y cómo voy (áreas) */}
+            {/* 2. Recordatorio del CV */}
+            {!cv.uploaded && (
+                <Card className="border-amber-500/40 bg-amber-500/5">
+                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-3">
+                            <div className="rounded-lg bg-amber-500/15 p-2 text-amber-600 dark:text-amber-400">
+                                <FileText className="size-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold">
+                                    Sube tu CV
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    Aún no has adjuntado tu currículum.
+                                    Complétalo para tener tu perfil de prácticas
+                                    al día.
+                                </p>
+                            </div>
+                        </div>
+                        <Button asChild size="sm">
+                            <Link href="/internship/cv">Subir mi CV</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* 3. Qué hago ahora (tareas) y cómo voy (áreas) */}
             <div className="grid gap-4 lg:grid-cols-7">
                 {/* Tareas: primero en móvil, a la derecha en escritorio */}
                 <Card className="order-1 lg:order-none lg:col-span-3 lg:col-start-5 lg:row-start-1">
@@ -948,7 +978,9 @@ export default function StudentDashboardContent({
                             </div>
                         ) : (
                             <>
-                                <ActivityTimeline activities={visibleActivity} />
+                                <ActivityTimeline
+                                    activities={visibleActivity}
+                                />
                                 {hiddenActivity > 0 && (
                                     <Button
                                         type="button"
@@ -957,7 +989,9 @@ export default function StudentDashboardContent({
                                         className="w-full"
                                         aria-expanded={showAllActivity}
                                         onClick={() =>
-                                            setShowAllActivity((value) => !value)
+                                            setShowAllActivity(
+                                                (value) => !value,
+                                            )
                                         }
                                     >
                                         {showAllActivity

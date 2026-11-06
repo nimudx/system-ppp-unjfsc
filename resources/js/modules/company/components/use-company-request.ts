@@ -1,9 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { workflow, type CompanyRequest } from '../services/company-workflow';
 
-export function useCompanyRequest() {
-    const [current, setCurrent] = useState<CompanyRequest | null>(null);
-    const [loading, setLoading] = useState(true);
+/**
+ * Consulta la solicitud de empresa del estudiante.
+ *
+ * Si la página ya recibió la solicitud desde el servidor (prop
+ * `companyRequest`), se usa como estado inicial y no se hace la petición
+ * extra: así Pasantía y Formalización no muestran un estado vacío mientras
+ * cargan.
+ */
+export function useCompanyRequest(initial?: CompanyRequest | null) {
+    const hasInitial = initial !== undefined;
+    const [current, setCurrent] = useState<CompanyRequest | null>(
+        initial ?? null,
+    );
+    const [loading, setLoading] = useState(!hasInitial);
     const [error, setError] = useState('');
     const reload = useCallback(async (signal?: AbortSignal) => {
         setLoading(true);
@@ -23,9 +34,11 @@ export function useCompanyRequest() {
         }
     }, []);
     useEffect(() => {
+        if (hasInitial) return;
+
         const controller = new AbortController();
         void reload(controller.signal);
         return () => controller.abort();
-    }, [reload]);
+    }, [hasInitial, reload]);
     return { current, loading, error, reload };
 }

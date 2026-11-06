@@ -12,6 +12,7 @@ import {
     NotebookPen,
     Settings,
     UserPlus2,
+    UserRound,
     UserRoundCog,
     FileText,
     Users,
@@ -33,7 +34,6 @@ import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
 import { index as studentsIndex } from '@/routes/academic/students';
 import { index as subadminsIndex } from '@/routes/academic/subadmins';
-import { student as studentSupervisionIndex } from '@/routes/academic/supervision';
 import { validation as supervisionValidationIndex } from '@/routes/academic/supervision';
 import { submission as supervisionSubmissionIndex } from '@/routes/academic/supervision';
 import { index as supervisorsIndex } from '@/routes/academic/supervisors';
@@ -155,14 +155,20 @@ export const ACADEMIC_NAV = [
         roles: [5],
     },
     {
+        title: 'Mi CV',
+        href: '/internship/cv',
+        icon: UserRound,
+        roles: [5],
+    },
+    {
         title: 'Rev. Prácticas',
-        href: studentSupervisionIndex().url,
+        href: reportReviewIndex().url,
         icon: NotebookPen,
         roles: [5],
     },
     {
-        title: 'Rev. informe',
-        href: reportReviewIndex().url,
+        title: 'Rev. Informe',
+        href: '/internship/annexes',
         icon: FileText,
         roles: [5],
     },

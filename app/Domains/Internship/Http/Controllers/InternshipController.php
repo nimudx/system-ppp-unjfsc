@@ -3,6 +3,8 @@
 namespace App\Domains\Internship\Http\Controllers;
 
 use App\Domains\Academic\Models\Faculty;
+use App\Domains\Company\Http\Resources\CompanyValidationResource;
+use App\Domains\Company\Models\CompanyValidationRequest;
 use App\Domains\Documents\Http\Requests\UpdateDocumentStatusRequest;
 use App\Domains\Documents\Models\Document;
 use App\Domains\Identity\Models\Assignment;
@@ -40,25 +42,12 @@ class InternshipController extends Controller
     {
         $assignment = Assignment::query()->findOrFail(session('assignment_id'));
 
-        $placement = $assignment->placement;
-
-        // Si NO tiene placement O si tiene uno pero NO está totalmente validado (validation_status !== 1)
-        if (! $placement || $placement->validation_status !== 1) {
-            $data = $this->placementService->getSubmissionData($assignment);
-
-            return Inertia::render('internship/submission/placementIndex', [
-                'data' => $data,
-            ]);
-        }
-
-        // Usamos el servicio
-        $internshipData = $this->internshipService->getSubmissionData(
-            $assignment,
-            $request->query('step')
-        );
-
-        return Inertia::render('internship/submission/internshipIndex', [
-            'data' => $internshipData,
+        // La vista de Pasantía siempre muestra la empresa y los datos del
+        // jefe inmediato. El seguimiento de documentos y evaluaciones vive
+        // en "Rev. informe".
+        return Inertia::render('internship/submission/placementIndex', [
+            'data' => $this->placementService->getSubmissionData($assignment),
+            'companyRequest' => $this->companyRequest($assignment),
         ]);
     }
 
@@ -68,7 +57,22 @@ class InternshipController extends Controller
 
         return Inertia::render('internship/submission/formalization', [
             'data' => $this->placementService->getSubmissionData($assignment),
+            'companyRequest' => $this->companyRequest($assignment),
         ]);
+    }
+
+    /**
+     * Datos de la solicitud de empresa que el estudiante ya tiene cargada.
+     * Se envían con la página para que Pasantía y Formalización no muestren
+     * un estado de "sin solicitud" mientras el navegador la consulta por API.
+     */
+    private function companyRequest(Assignment $assignment): ?array
+    {
+        $item = CompanyValidationRequest::query()
+            ->where('assignment_id', $assignment->id)
+            ->first();
+
+        return $item ? (new CompanyValidationResource($item))->resolve() : null;
     }
 
     public function ValidationIndex(): Response
