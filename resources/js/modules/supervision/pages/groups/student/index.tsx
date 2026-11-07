@@ -1,11 +1,8 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { X, Users, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
-import type {
-    InternshipGroup,
-    Assignment,
-} from '@/modules/supervision/hooks/use-internship-group';
+import type { InternshipGroup, StudentSummary } from '@/modules/supervision';
 
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
@@ -21,12 +18,13 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import StudentManagementTabs from './partials/student-management-tabs';
 
 interface Props {
     groups: InternshipGroup[];
-    students: Assignment[];
+    students: StudentSummary[];
     faculties?: Faculty[];
 }
 
@@ -34,8 +32,7 @@ export default function StudentGroupIndex({
     groups = [],
     faculties = [],
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const {

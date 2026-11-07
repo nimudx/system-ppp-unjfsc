@@ -1,6 +1,7 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { MoreHorizontal, UserCog, Settings2, Clock } from 'lucide-react';
 import type { Faculty } from '@/modules/academic';
+import type { UserAssignment } from '@/modules/identity';
 
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
@@ -24,17 +25,23 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
+import { ROLES } from '@/shared/config/roles';
+import {
+    ACCESS_STATUS,
+    APPROVAL_STATUS,
+    REVIEW_STATUS,
+} from '@/shared/config/status';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
-import type { Assignment } from './hooks/use-user-management';
 
 import { useUserManagement } from './hooks/use-user-management';
 import ManageAssignmentModal from './partials/manage-assignment-modal';
 import PendingRequestModal from './partials/pending-request-modal';
 
 interface Props {
-    assignments: TableData<Assignment>;
+    assignments: TableData<UserAssignment>;
     faculties: Faculty[];
     roleId: number;
     title: string;
@@ -46,8 +53,7 @@ export default function UserManagementIndex({
     roleId,
     title,
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const { table, state, actions } = useUserManagement({
         initialData: initialAssignments,
@@ -66,7 +72,7 @@ export default function UserManagementIndex({
         },
     ];
 
-    const isSubadmin = roleId === 2;
+    const isSubadmin = roleId === ROLES.SUBADMIN;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -148,7 +154,8 @@ export default function UserManagementIndex({
                                     const section = assignment.section;
 
                                     const isReview =
-                                        assignment.review_status === 1;
+                                        assignment.review_status ===
+                                        REVIEW_STATUS.UNDER_REVIEW;
 
                                     // Determinar facultad, escuela y sección según el tipo de registro
                                     const facultyName =
@@ -196,17 +203,17 @@ export default function UserManagementIndex({
                                             )}
                                             <TableCell>
                                                 {assignment.approval_status ===
-                                                1 ? (
+                                                APPROVAL_STATUS.APPROVED ? (
                                                     <Badge variant="default">
                                                         Validado
                                                     </Badge>
                                                 ) : assignment.approval_status ===
-                                                  2 ? (
+                                                  APPROVAL_STATUS.PENDING ? (
                                                     <Badge variant="outline">
                                                         Pendiente
                                                     </Badge>
                                                 ) : assignment.approval_status ===
-                                                  0 ? (
+                                                  APPROVAL_STATUS.REJECTED ? (
                                                     <Badge variant="secondary">
                                                         Rechazado
                                                     </Badge>
@@ -216,22 +223,22 @@ export default function UserManagementIndex({
                                             </TableCell>
                                             <TableCell>
                                                 {assignment.access_status ===
-                                                1 ? (
+                                                ACCESS_STATUS.FULL ? (
                                                     <Badge variant="default">
                                                         Completo
                                                     </Badge>
                                                 ) : assignment.access_status ===
-                                                  2 ? (
+                                                  ACCESS_STATUS.LIMITED ? (
                                                     <Badge variant="secondary">
                                                         Limitado
                                                     </Badge>
                                                 ) : assignment.access_status ===
-                                                  3 ? (
+                                                  ACCESS_STATUS.READ_ONLY ? (
                                                     <Badge variant="outline">
                                                         Solo lectura
                                                     </Badge>
                                                 ) : assignment.access_status ===
-                                                  0 ? (
+                                                  ACCESS_STATUS.BLOCKED ? (
                                                     <Badge variant="destructive">
                                                         Bloqueado
                                                     </Badge>
@@ -241,7 +248,7 @@ export default function UserManagementIndex({
                                             </TableCell>
                                             <TableCell>
                                                 {assignment.review_status ===
-                                                0 ? (
+                                                REVIEW_STATUS.NONE ? (
                                                     <Badge variant="secondary">
                                                         Ninguno
                                                     </Badge>

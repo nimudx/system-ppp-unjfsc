@@ -1,4 +1,5 @@
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
+import type { DocumentTypeOption } from '@/modules/documents/types';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -17,12 +18,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/shared/components/ui/table';
-import type { DocumentType } from '../hooks/use-document';
 
 interface DocumentTypeTableProps {
-    documents: DocumentType[];
-    onEdit: (doc: DocumentType) => void;
-    onDelete: (doc: DocumentType) => void;
+    documents: DocumentTypeOption[];
+    onEdit: (doc: DocumentTypeOption) => void;
+    onDelete: (doc: DocumentTypeOption) => void;
 }
 
 export function DocumentTypeTable({
@@ -66,7 +66,7 @@ export function DocumentTypeTable({
                             </TableCell>
                             <TableCell
                                 className="max-w-[200px] truncate"
-                                title={doc.description}
+                                title={doc.description ?? undefined}
                             >
                                 {doc.description || '-'}
                             </TableCell>

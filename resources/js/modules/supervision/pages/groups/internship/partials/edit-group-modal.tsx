@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import type {
+    GroupAssignment,
     InternshipGroup,
-    Assignment,
-} from '@/modules/supervision/hooks/use-internship-group';
+} from '@/modules/supervision/types';
 import groups from '@/routes/academic/groups';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -54,7 +54,7 @@ export default function EditGroupModal({
 }: EditGroupModalProps) {
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [supervisors, setSupervisors] = useState<Assignment[]>([]);
+    const [supervisors, setSupervisors] = useState<GroupAssignment[]>([]);
 
     const form = useForm<UpdateGroupValues>({
         resolver: zodResolver(updateGroupSchema),

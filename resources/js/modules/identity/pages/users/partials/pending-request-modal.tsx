@@ -1,7 +1,8 @@
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
+import type { UserAssignment } from '@/modules/identity';
 import assignments from '@/routes/academic/assignments';
 
 import { Button } from '@/shared/components/ui/button';
@@ -21,18 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-
-interface Assignment {
-    id: number;
-    access_status: number;
-    review_status: number;
-    user: {
-        person: {
-            names: string;
-            surnames: string;
-        };
-    };
-}
+import { REQUEST_APPROVAL_STATUS } from '@/shared/config/status';
+import { useRole } from '@/shared/hooks/use-role';
 
 interface PendingRequest {
     id: number;
@@ -44,7 +35,7 @@ interface PendingRequest {
 }
 
 interface Props {
-    assignment: Assignment | null;
+    assignment: UserAssignment | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
@@ -62,13 +53,11 @@ function PendingRequestModalContent({
     onOpenChange,
     onSuccess,
 }: Props) {
-    const { role } = usePage().props;
+    const { isAdmin } = useRole();
     const [pendingRequest, setPendingRequest] = useState<PendingRequest | null>(
         null,
     );
     const [loading, setLoading] = useState(true);
-
-    const isAdmin = role === 1 || role === 2;
 
     const { data, setData, patch, processing, errors, reset } = useForm({
         approval_status: '',
@@ -107,7 +96,7 @@ function PendingRequestModalContent({
         if (!pendingRequest) return;
 
         // Set form data for cancellation, then submit
-        setData('approval_status', '3');
+        setData('approval_status', String(REQUEST_APPROVAL_STATUS.REJECTED));
         setData('justification', 'Solicitud cancelada por el usuario.');
 
         patch(assignments.api.requests.status.url(pendingRequest.id), {
@@ -200,10 +189,18 @@ function PendingRequestModalContent({
                                                 <SelectValue placeholder="Seleccione una decisión" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="1">
+                                                <SelectItem
+                                                    value={String(
+                                                        REQUEST_APPROVAL_STATUS.APPROVED,
+                                                    )}
+                                                >
                                                     Aprobar Solicitud
                                                 </SelectItem>
-                                                <SelectItem value="3">
+                                                <SelectItem
+                                                    value={String(
+                                                        REQUEST_APPROVAL_STATUS.REJECTED,
+                                                    )}
+                                                >
                                                     Rechazar Solicitud
                                                 </SelectItem>
                                             </SelectContent>

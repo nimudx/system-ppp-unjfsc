@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import type {
     InternshipGroup,
-    Assignment,
-} from '@/modules/supervision/hooks/use-internship-group';
+    StudentSummary,
+} from '@/modules/supervision/types';
 import groups from '@/routes/academic/groups';
 
 interface UseStudentManagementProps {
@@ -19,10 +19,10 @@ export function useStudentManagement({
 }: UseStudentManagementProps) {
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [availableStudents, setAvailableStudents] = useState<Assignment[]>(
-        [],
-    );
-    const [groupStudents, setGroupStudents] = useState<Assignment[]>([]);
+    const [availableStudents, setAvailableStudents] = useState<
+        StudentSummary[]
+    >([]);
+    const [groupStudents, setGroupStudents] = useState<StudentSummary[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [targetGroupId, setTargetGroupId] = useState<string>('');
     const [currentTab, setCurrentTab] = useState('add');

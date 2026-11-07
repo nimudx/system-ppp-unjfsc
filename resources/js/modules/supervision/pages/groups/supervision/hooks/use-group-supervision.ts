@@ -2,9 +2,9 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import type {
+    GroupAssignment,
     InternshipGroup,
-    Assignment,
-} from '@/modules/supervision/hooks/use-internship-group';
+} from '@/modules/supervision/types';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 
 interface UseGroupSupervisionOptions {
@@ -23,7 +23,7 @@ export function useGroupSupervision({
         },
     );
 
-    const [students, setStudents] = useState<Assignment[]>([]);
+    const [students, setStudents] = useState<GroupAssignment[]>([]);
     const [isLoadingStudents, setIsLoadingStudents] = useState(false);
     const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
         null,

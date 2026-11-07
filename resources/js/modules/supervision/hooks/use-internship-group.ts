@@ -1,56 +1,7 @@
 import { useState, useCallback } from 'react';
+import type { InternshipGroup } from '@/modules/supervision/types';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
-
-// --- DEFINICIÓN DE TIPOS ---
-export interface Person {
-    names: string;
-    surnames: string;
-}
-
-export interface User {
-    email: string;
-    person: Person;
-}
-
-export interface Assignment {
-    placement?: {
-        internship_type: string;
-        company_name: string;
-        area_name: string;
-        position: string;
-        start_date: string;
-        end_date: string;
-        boss_name: string;
-        boss_position: string;
-        boss_phone: string;
-        boss_email: string;
-    } | null;
-    id: number;
-    user: User;
-}
-
-export interface InternshipGroup {
-    id: number;
-    name: string;
-    module?: {
-        id: number;
-        name: string;
-    } | null;
-    teacher: Assignment;
-    supervisor: Assignment;
-    section: {
-        id: number;
-        name: string;
-        school: {
-            name: string;
-            faculty: {
-                name: string;
-            };
-        };
-    };
-    students_count?: number;
-}
 
 interface UseInternshipGroupProps {
     initialData: TableData<InternshipGroup>;

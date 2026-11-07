@@ -1,20 +1,17 @@
 import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-export type DocumentType = {
-    id: number;
-    name: string;
-    code: string;
-    description: string;
-    roles: Array<{ id: number; name: string }>;
-};
+import type { DocumentTypeOption } from '@/modules/documents/types';
 
 export function useDocumentSetup() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [editingDoc, setEditingDoc] = useState<DocumentType | null>(null);
-    const [deletingDoc, setDeletingDoc] = useState<DocumentType | null>(null);
+    const [editingDoc, setEditingDoc] = useState<DocumentTypeOption | null>(
+        null,
+    );
+    const [deletingDoc, setDeletingDoc] = useState<DocumentTypeOption | null>(
+        null,
+    );
 
     const {
         data,
@@ -40,19 +37,19 @@ export function useDocumentSetup() {
         setIsFormOpen(true);
     };
 
-    const openEdit = (doc: DocumentType) => {
+    const openEdit = (doc: DocumentTypeOption) => {
         setEditingDoc(doc);
         setData({
             name: doc.name,
             code: doc.code,
             description: doc.description || '',
-            roles: doc.roles.map((r) => r.id),
+            roles: (doc.roles ?? []).map((r) => r.id),
         });
         clearErrors();
         setIsFormOpen(true);
     };
 
-    const openDelete = (doc: DocumentType) => {
+    const openDelete = (doc: DocumentTypeOption) => {
         setDeletingDoc(doc);
         setIsDeleteDialogOpen(true);
     };

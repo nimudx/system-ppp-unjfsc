@@ -1,8 +1,9 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { Tooltip, TooltipTrigger } from '@radix-ui/react-tooltip';
 import { Info, ShieldCheck, User, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
+import { DOCUMENT_STATUS_BADGE as statusConfig } from '@/modules/documents';
 import type { GroupOption } from '@/modules/supervision/components/group-selector';
 
 import { GroupSelector } from '@/modules/supervision/components/group-selector';
@@ -14,6 +15,7 @@ import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { TooltipContent } from '@/shared/components/ui/tooltip';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 
 import SupervisionDetailPanel from '../../components/supervision-detail-panel';
@@ -27,32 +29,12 @@ interface Props {
     students: TableData<StudentSupervision>;
 }
 
-const statusConfig: Record<number, { label: string; className: string }> = {
-    0: {
-        label: 'Sin iniciar',
-        className: 'bg-muted/60 text-muted-foreground border-transparent',
-    },
-    1: {
-        label: 'Aprobado',
-        className: 'bg-green-500/10 text-green-700 border-green-200',
-    },
-    2: {
-        label: 'Pendiente',
-        className: 'bg-amber-500/10 text-amber-700 border-amber-200',
-    },
-    3: {
-        label: 'Observado',
-        className: 'bg-red-500/10 text-red-700 border-red-200',
-    },
-};
-
 const breadcrumbs = [
     { title: 'Supervisión de prácticas', href: '/supervision/submission' },
 ];
 
 export default function SubmissionShow({ faculties, groups, students }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const { tableManager, state, actions } = useSupervision({
         initialData: students,

@@ -1,5 +1,5 @@
 import { DragDropProvider } from '@dnd-kit/react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Plus, Save, GitMerge } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
@@ -9,6 +9,7 @@ import type { AcademicFilterValues } from '@/shared/components/data-table/academ
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
 
@@ -56,7 +57,7 @@ export default function InternshipSettingsIndex({
     currentSectionId: number | null;
     availableDocuments?: { id: number; name: string; code: string }[];
 }) {
-    const { role } = usePage().props;
+    const { isTeacher } = useRole();
     const {
         workflow,
         initializeWorkflow,
@@ -132,7 +133,7 @@ export default function InternshipSettingsIndex({
 
                     {/* Filtro de sección + botones de acción */}
                     <div className="flex items-center justify-between gap-3 sm:flex-row">
-                        {role !== 3 && (
+                        {!isTeacher && (
                             <AcademicFilter
                                 faculties={faculties || []}
                                 onFilter={handleFilter}
@@ -140,7 +141,7 @@ export default function InternshipSettingsIndex({
                         )}
                         {currentSectionId && (
                             <div
-                                className={`flex gap-2 ${role === 3 ? 'ml-auto' : ''}`}
+                                className={`flex gap-2 ${isTeacher ? 'ml-auto' : ''}`}
                             >
                                 <Button
                                     onClick={addStage}

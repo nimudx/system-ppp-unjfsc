@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
+import type { DocumentTypeOption } from '@/modules/documents/types';
 import Heading from '@/shared/components/heading';
 import {
     AlertDialog,
@@ -17,11 +18,10 @@ import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-
 
 import { DocumentTypeForm } from './components/DocumentTypeForm';
 import { DocumentTypeTable } from './components/DocumentTypeTable';
-import type { DocumentType } from './hooks/use-document';
 import { useDocumentSetup } from './hooks/use-document';
 
 interface Props {
-    documentTypes: DocumentType[];
+    documentTypes: DocumentTypeOption[];
     roles: Array<{ id: number; name: string }>;
 }
 

@@ -1,9 +1,9 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
 import { Info, ShieldCheck, User, X } from 'lucide-react';
 
 import type { Faculty } from '@/modules/academic';
-import { ValidationPanel } from '@/modules/documents';
+import { DOCUMENT_STATUS_BADGE as statusConfig, ValidationPanel } from '@/modules/documents';
 import type { GroupOption } from '@/modules/supervision/components/group-selector';
 import { GroupSelector } from '@/modules/supervision/components/group-selector';
 import { ModuleSelector } from '@/modules/supervision/components/module-selector';
@@ -21,6 +21,7 @@ import {
     TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
@@ -35,25 +36,6 @@ interface Props {
     students: TableData<StudentSupervision>;
 }
 
-const statusConfig: Record<number, { label: string; className: string }> = {
-    0: {
-        label: 'Sin iniciar',
-        className: 'bg-muted/60 text-muted-foreground border-transparent',
-    },
-    1: {
-        label: 'Aprobado',
-        className: 'bg-green-500/10 text-green-700 border-green-200',
-    },
-    2: {
-        label: 'Pendiente',
-        className: 'bg-amber-500/10 text-amber-700 border-amber-200',
-    },
-    3: {
-        label: 'Observado',
-        className: 'bg-red-500/10 text-red-700 border-red-200',
-    },
-};
-
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Supervisión de prácticas', href: '/supervision/submission' },
 ];
@@ -63,8 +45,7 @@ export default function ValidationIndex({
     groups,
     students,
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const { tableManager, state, actions } = useSupervision({
         initialData: students,

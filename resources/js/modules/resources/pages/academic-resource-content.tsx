@@ -24,6 +24,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from '@/shared/components/ui/dropdown-menu';
+import { ROLES } from '@/shared/config/roles';
 import { CreateResourceSheet } from './partials/create-resource-sheet';
 import { DeleteResourceAlert } from './partials/delete-resource-alert';
 import { EditResourceSheet } from './partials/edit-resource-sheet';
@@ -43,7 +44,8 @@ export default function AcademicResourceContent(props: PageProps) {
     );
     const [resourceToDelete, setResourceToDelete] =
         useState<ResourceItem | null>(null);
-    const isAuthorized = ![4, 5].includes(role ?? 0);
+    const isAuthorized =
+        role !== ROLES.SUPERVISOR && role !== ROLES.STUDENT;
 
     // Helper para pintar el Badge según el nivel del recurso
     const getLevelBadge = (level: number) => {

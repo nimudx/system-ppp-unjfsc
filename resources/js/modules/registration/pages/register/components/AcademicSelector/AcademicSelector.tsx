@@ -14,6 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
+import { ROLES } from '@/shared/config/roles';
 
 import { useAcademicAutoResolver } from './useAcademicAutoResolver';
 
@@ -28,8 +29,8 @@ export function AcademicSelectorRHF({
 }) {
     const { control, setValue } = useFormContext();
 
-    const isSubadmin = roleId === '2';
-    const isTeacher = roleUser === 3;
+    const isSubadmin = Number(roleId) === ROLES.SUBADMIN;
+    const isTeacher = roleUser === ROLES.TEACHER;
 
     const facultyId = useWatch({ control, name: 'faculty_id' });
     const schoolId = useWatch({ control, name: 'school_id' });

@@ -1,4 +1,6 @@
 import type { DocumentRequirement } from '@/modules/documents';
+import type { UserSummary } from '@/shared/types/models';
+
 export interface Faculties {
     id: number;
     name: string;
@@ -7,6 +9,52 @@ export interface Faculties {
         name: string;
         sections: { id: number; name: string }[];
     }[];
+}
+
+/** Docente o supervisor asignado a un grupo de prácticas. */
+export interface GroupAssignment {
+    id: number;
+    user: UserSummary;
+    placement?: {
+        internship_type: string;
+        company_name: string;
+        area_name: string;
+        position: string;
+        start_date: string;
+        end_date: string;
+        boss_name: string;
+        boss_position: string;
+        boss_phone: string;
+        boss_email: string;
+    } | null;
+}
+
+/** Estudiante que puede agregarse a un grupo. */
+export interface StudentSummary {
+    id: number;
+    user: UserSummary;
+}
+
+export interface InternshipGroup {
+    id: number;
+    name: string;
+    module?: {
+        id: number;
+        name: string;
+    } | null;
+    teacher: GroupAssignment;
+    supervisor: GroupAssignment;
+    section: {
+        id: number;
+        name: string;
+        school: {
+            name: string;
+            faculty: {
+                name: string;
+            };
+        };
+    };
+    students_count?: number;
 }
 
 export interface Supervision {

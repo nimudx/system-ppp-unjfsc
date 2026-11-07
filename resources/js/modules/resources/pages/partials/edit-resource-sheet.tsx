@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import type { ResourceItem } from '@/modules/resources/types';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -13,14 +14,10 @@ import {
 } from '@/shared/components/ui/sheet';
 import { Textarea } from '@/shared/components/ui/textarea';
 
-interface ResourceItem {
-    id: number;
-    name: string;
-    description: string;
-}
+type ResourceItemSummary = Pick<ResourceItem, 'id' | 'name' | 'description'>;
 
 interface EditResourceSheetProps {
-    resource: ResourceItem | null;
+    resource: ResourceItemSummary | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

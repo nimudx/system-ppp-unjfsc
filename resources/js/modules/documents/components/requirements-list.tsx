@@ -1,17 +1,16 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-    AlertCircle,
-    CheckCircle2,
     Clock,
     FileText,
     ShieldCheck,
     FileCheck,
-    Info,
     Lock as LockIcon,
 } from 'lucide-react';
 import type { DocumentFile } from '@/modules/documents/types';
 import { Badge } from '@/shared/components/ui/badge';
 import { SectionCard } from '@/shared/components/ui/section-card';
+
+import { getDocumentStatusMeta } from '../status';
 
 export interface RequirementItem {
     code: string;
@@ -42,41 +41,6 @@ export const getIcon = (code: string) => {
     return icons[code] || FileText;
 };
 
-const statusConfig: Record<
-    number,
-    {
-        label: string;
-        icon: LucideIcon;
-        className: string;
-        badgeClass: string;
-    }
-> = {
-    0: {
-        label: 'Sin iniciar',
-        icon: Info,
-        className: 'text-muted-foreground',
-        badgeClass: 'bg-muted/60 text-muted-foreground border-transparent',
-    },
-    1: {
-        label: 'Aprobado',
-        icon: CheckCircle2,
-        className: 'text-green-600',
-        badgeClass: 'bg-green-500/10 text-green-700 border-green-200',
-    },
-    2: {
-        label: 'Pendiente',
-        icon: Clock,
-        className: 'text-amber-600',
-        badgeClass: 'bg-amber-500/10 text-amber-700 border-amber-200',
-    },
-    3: {
-        label: 'Observado',
-        icon: AlertCircle,
-        className: 'text-red-600',
-        badgeClass: 'bg-red-500/10 text-red-700 border-red-200',
-    },
-};
-
 export default function RequirementsList({
     requirements,
     selectedType,
@@ -103,9 +67,7 @@ export default function RequirementsList({
             <SectionCard.Body className="space-y-2">
                 {requirements.map((req, idx) => {
                     const isActive = selectedType === idx;
-                    const cfg =
-                        statusConfig[req.status > 3 ? 3 : req.status] ??
-                        statusConfig[0];
+                    const cfg = getDocumentStatusMeta(req.status);
                     const Icon = getIcon(req.code);
                     return (
                         <button
@@ -129,7 +91,7 @@ export default function RequirementsList({
                             <div className="flex items-center gap-2">
                                 <Badge
                                     variant="outline"
-                                    className={`h-4 shrink-0 px-1.5 text-[9px] font-bold ${cfg.badgeClass}`}
+                                    className={`h-4 shrink-0 px-1.5 text-[9px] font-bold ${cfg.badge}`}
                                 >
                                     {cfg.label}
                                 </Badge>

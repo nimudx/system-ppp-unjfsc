@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
-import type { InternshipGroup } from '@/modules/supervision/hooks/use-internship-group';
+import type { InternshipGroup } from '@/modules/supervision';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';

@@ -1,6 +1,6 @@
 import type { NotificationSummary, Semester } from './session';
 
-export type Assignment = {
+export type AuthAssignment = {
     id: number;
     role: string;
     initials: string;
@@ -16,7 +16,7 @@ export type User = {
     type_id: number;
     type: string;
     profile_name: string;
-    assignments?: Assignment[];
+    assignments?: AuthAssignment[];
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
@@ -27,10 +27,10 @@ export type User = {
 
 export type Auth = {
     user: User;
-    profiles?: { academic: Assignment[]; staff: Assignment[] };
+    profiles?: { academic: AuthAssignment[]; staff: AuthAssignment[] };
     academic?: {
         semesters: Semester[];
-        assignments: Assignment[];
+        assignments: AuthAssignment[];
         role_id: number | null;
         selected_semester_id: number | null;
     };

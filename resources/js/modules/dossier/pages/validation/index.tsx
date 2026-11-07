@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import type { Faculty } from '@/modules/academic';
 import type { DocumentRequirement } from '@/modules/documents';
 import type { AssignmentRecord, DossierDetail } from '@/modules/identity';
@@ -7,6 +7,7 @@ import AcademicPagination from '@/shared/components/data-table/academic-paginati
 import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import DossierDetailPanel from '../../components/dossier-detail-panel';
 import DossierTable from '../../components/dossier-table';
@@ -29,8 +30,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
         target_role_id,
     } = props;
 
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const { tableManager, state, actions } = useDossierValidation({
         initialData: initialAssignments,

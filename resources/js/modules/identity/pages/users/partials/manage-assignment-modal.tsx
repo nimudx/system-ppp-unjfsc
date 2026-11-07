@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useEffect } from 'react';
+import type { UserAssignment } from '@/modules/identity';
 import assignments from '@/routes/academic/assignments';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -19,22 +20,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-
-interface Assignment {
-    id: number;
-    role_id: number;
-    access_status: number;
-    review_status: number;
-    user: {
-        person: {
-            names: string;
-            surnames: string;
-        };
-    };
-}
+import { ROLES } from '@/shared/config/roles';
+import { ACCESS_STATUS, REVIEW_STATUS } from '@/shared/config/status';
 
 interface Props {
-    assignment: Assignment | null;
+    assignment: UserAssignment | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
@@ -43,8 +33,8 @@ interface Props {
 }
 
 const ROLE_NAMES: Record<number, string> = {
-    3: 'Docente Titular',
-    4: 'Docente Supervisor',
+    [ROLES.TEACHER]: 'Docente Titular',
+    [ROLES.SUPERVISOR]: 'Docente Supervisor',
 };
 
 export default function ManageAssignmentModal({
@@ -62,12 +52,16 @@ export default function ManageAssignmentModal({
 
     // Cambio de rol solo entre Docente Titular (3) y Docente Supervisor (4).
     const otherRole =
-        assignment?.role_id === 3 ? 4 : assignment?.role_id === 4 ? 3 : null;
+        assignment?.role_id === ROLES.TEACHER
+            ? ROLES.SUPERVISOR
+            : assignment?.role_id === ROLES.SUPERVISOR
+              ? ROLES.TEACHER
+              : null;
     const canSwitchRole = canChangeRole && otherRole !== null;
     const isRoleChange = data.action === '4';
 
-    const isReadOnly = assignment?.access_status === 3;
-    const isReview = assignment?.review_status === 1;
+    const isReadOnly = assignment?.access_status === ACCESS_STATUS.READ_ONLY;
+    const isReview = assignment?.review_status === REVIEW_STATUS.UNDER_REVIEW;
 
     useEffect(() => {
         if (open) {

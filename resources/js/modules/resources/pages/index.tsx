@@ -4,6 +4,7 @@ import type {
     ResourcePageProps,
     ResourceItem,
 } from '@/modules/resources/types';
+import { USER_TYPES } from '@/shared/config/roles';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicResourceContent from './academic-resource-content';
@@ -23,7 +24,7 @@ export default function Resource(props: ResourceProps) {
         ? resources
         : resources?.data || [];
 
-    if (auth.user.type_id === 1) {
+    if (auth.user.type_id === USER_TYPES.ADMIN) {
         return (
             <AppLayout>
                 <Head title="Recursos Administrativos" />
@@ -32,7 +33,7 @@ export default function Resource(props: ResourceProps) {
         );
     }
 
-    if (auth.user.type_id === 2) {
+    if (auth.user.type_id === USER_TYPES.ACADEMIC) {
         return (
             <AppLayout>
                 <Head title="Recursos Académicos" />
@@ -47,7 +48,7 @@ export default function Resource(props: ResourceProps) {
         );
     }
 
-    if (auth.user.type_id === 3) {
+    if (auth.user.type_id === USER_TYPES.COMPANY) {
         return (
             <AppLayout>
                 <Head title="Recursos Empresariales" />

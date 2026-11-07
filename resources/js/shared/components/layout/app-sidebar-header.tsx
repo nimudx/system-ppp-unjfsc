@@ -12,11 +12,12 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
+import { USER_TYPES } from '@/shared/config/roles';
 import type {
+    AuthAssignment,
     BreadcrumbItem as BreadcrumbItemType,
     Semester,
 } from '@/shared/types';
-import type { Assignment } from '@/shared/types/auth';
 
 const ROLE_COLORS: Record<string, string> = {
     Administrador: 'bg-blue-600',
@@ -74,7 +75,7 @@ export function AppSidebarHeader({
                         currentId={selectedSemester?.id}
                     />
                 )}
-                {auth?.user?.type_id === 3 ? (
+                {auth?.user?.type_id === USER_TYPES.COMPANY ? (
                     <div className="rounded-md border px-3 py-2 text-sm font-semibold">
                         Empresa
                     </div>
@@ -177,7 +178,7 @@ const AvatarStack = ({
     profiles,
     onSelect,
 }: {
-    profiles: (Assignment & { type: string; color: string })[];
+    profiles: (AuthAssignment & { type: string; color: string })[];
     onSelect: (id: number, type: string) => void;
 }) => {
     const selectedProfile = profiles.find((p) => p.selected);
@@ -188,7 +189,7 @@ const AvatarStack = ({
     const staffProfiles = profiles.filter((p) => p.type === 'staff');
 
     const renderProfileItem = (
-        p: Assignment & { type: string; color: string },
+        p: AuthAssignment & { type: string; color: string },
     ) => (
         <DropdownMenuItem
             key={`${p.type}-${p.id}`}

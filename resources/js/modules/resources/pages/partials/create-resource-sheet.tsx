@@ -26,6 +26,7 @@ import {
     SheetTitle,
 } from '@/shared/components/ui/sheet';
 import { Textarea } from '@/shared/components/ui/textarea';
+import { useRole } from '@/shared/hooks/use-role';
 import type { LocationValue } from './location-selector';
 import { LocationSelector } from './location-selector';
 
@@ -44,10 +45,8 @@ function CreateResourceSheetContent({
     faculties?: ResourcePageProps['faculties'];
     initialFilters?: ResourceFilters | null;
 }) {
-    const { role, academic } = usePage().props;
-    const isAdmin = role === 1;
-    const isTeacher = role === 3;
-    const isSubAdmin = role === 2;
+    const { isSuperAdmin, isTeacher, isSubAdmin } = useRole();
+    const { academic } = usePage().props;
 
     // ─── Formulario con Inertia ──────────────────────────────────────
     const { data, setData, post, processing, reset, errors } =
@@ -208,7 +207,7 @@ function CreateResourceSheetContent({
                                 <SelectValue placeholder="Selecciona el rol destinatario" />
                             </SelectTrigger>
                             <SelectContent>
-                                {isAdmin && (
+                                {isSuperAdmin && (
                                     <SelectItem value="all">
                                         Público General / Todos
                                     </SelectItem>

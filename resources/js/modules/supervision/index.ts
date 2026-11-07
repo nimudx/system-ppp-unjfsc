@@ -7,10 +7,7 @@ export {
 export { StudentSelectorTable } from './components/student-selector-table';
 export { default as SupervisionDetailPanel } from './components/supervision-detail-panel';
 export { default as SupervisionTable } from './components/supervision-table';
-export {
-    useInternshipGroup,
-    type InternshipGroup,
-} from './hooks/use-internship-group';
+export { useInternshipGroup } from './hooks/use-internship-group';
 export { useStudentManagement } from './hooks/use-student-management';
 export { useSupervision } from './hooks/use-supervision';
 export type * from './types';

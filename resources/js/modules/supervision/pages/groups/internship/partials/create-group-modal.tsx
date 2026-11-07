@@ -7,7 +7,10 @@ import { useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useForm } from 'react-hook-form'; // Importamos useForm de react-hook-form
 import { toast } from 'sonner';
-import type { Assignment } from '@/modules/supervision/hooks/use-internship-group';
+import type {
+    GroupAssignment,
+    StudentSummary,
+} from '@/modules/supervision/types';
 import groups from '@/routes/academic/groups';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -72,11 +75,11 @@ export default function CreateGroupModal({
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showStudents, setShowStudents] = useState(false);
-    const [teachers, setTeachers] = useState<Assignment[]>([]);
-    const [supervisors, setSupervisors] = useState<Assignment[]>([]);
-    const [availableStudents, setAvailableStudents] = useState<Assignment[]>(
-        [],
-    );
+    const [teachers, setTeachers] = useState<GroupAssignment[]>([]);
+    const [supervisors, setSupervisors] = useState<GroupAssignment[]>([]);
+    const [availableStudents, setAvailableStudents] = useState<
+        StudentSummary[]
+    >([]);
 
     // 1. Inicializamos React Hook Form con el Resolver de Zod
     const form = useForm<StoreGroupValues>({

@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import type { InternshipGroup } from '@/modules/supervision/hooks/use-internship-group';
+import type { InternshipGroup } from '@/modules/supervision';
 import groups from '@/routes/academic/groups';
 import { Button } from '@/shared/components/ui/button';
 import {

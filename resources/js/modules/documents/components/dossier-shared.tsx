@@ -14,6 +14,12 @@ import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { cn } from '@/shared/lib/utils';
 
+import {
+    DOCUMENT_STATUS,
+    getDocumentStatusMeta,
+    resolveDocumentStatus,
+} from '../status';
+
 export const enter =
     'animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-both motion-reduce:animate-none';
 
@@ -50,38 +56,27 @@ export function formatDateTime(value?: string | null) {
  * Estado real de un requisito: manda el último archivo subido
  * (es lo que el revisor aprobó/observó) y, si no hay, el del requisito.
  */
-export function resolveStatus(
-    requirement?: DocumentRequirement | null,
-): number {
-    if (!requirement) return 0;
+export const resolveStatus = resolveDocumentStatus;
 
-    return requirement.latest?.approval_status ?? requirement.status ?? 0;
-}
-
+/**
+ * Variante histórica del expediente: cualquier estado distinto de aprobado u
+ * observado se presenta como "Pendiente".
+ */
 export function getStatusMeta(status: number) {
-    if (status === 1) {
-        return {
-            label: 'Aprobado',
-            dot: 'bg-green-500',
-            text: 'text-green-600 dark:text-green-400',
-            icon: CheckCircle2,
-        };
-    }
-
-    if (status === 3) {
-        return {
-            label: 'Observado',
-            dot: 'bg-destructive',
-            text: 'text-destructive',
-            icon: MessageSquare,
-        };
-    }
+    const meta = getDocumentStatusMeta(
+        status === DOCUMENT_STATUS.APPROVED || status === DOCUMENT_STATUS.OBSERVED
+            ? status
+            : DOCUMENT_STATUS.PENDING,
+    );
 
     return {
-        label: 'Pendiente',
-        dot: 'bg-amber-500',
-        text: 'text-amber-600 dark:text-amber-400',
-        icon: CalendarClock,
+        ...meta,
+        icon:
+            status === DOCUMENT_STATUS.APPROVED
+                ? CheckCircle2
+                : status === DOCUMENT_STATUS.OBSERVED
+                  ? MessageSquare
+                  : CalendarClock,
     };
 }
 

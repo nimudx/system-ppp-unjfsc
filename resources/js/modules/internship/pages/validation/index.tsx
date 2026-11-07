@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { usePage } from '@inertiajs/react';
 import { User, ChevronRight, Building2, Loader2 } from 'lucide-react';
 import type { Faculty } from '@/modules/academic';
 import { DetailHeader } from '@/modules/documents';
@@ -19,6 +18,7 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import { useValidation } from './hooks/use-validation';
 import InternshipDetail from './partials/internship-detail';
@@ -35,8 +35,7 @@ export default function InternshipValidationIndex({
     faculties = [],
     title,
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const { tableManager, state, actions } = useValidation({
         initialData: assignments,

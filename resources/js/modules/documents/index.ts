@@ -24,4 +24,25 @@ export {
     ValidationPanel,
     type ValidationPanelProps,
 } from './components/validation-panel';
+export {
+    buildDossierHistory,
+    DocumentHistoryPanel,
+    DossierProgress,
+    enter,
+    formatDateTime,
+    getStatusMeta,
+    HISTORY_PREVIEW,
+    MAX_FILE_SIZE,
+    PendingActionsCard,
+    resolveStatus,
+    type DossierHistoryRecord,
+} from './components/dossier-shared';
+export {
+    DOCUMENT_STATUS,
+    DOCUMENT_STATUS_BADGE,
+    DOCUMENT_STATUS_META,
+    getDocumentStatusMeta,
+    resolveDocumentStatus,
+    type DocumentStatusMeta,
+} from './status';
 export type * from './types';

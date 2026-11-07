@@ -34,6 +34,7 @@ import {
     timeAgo,
     toneClasses,
 } from '@/modules/dashboard/utils';
+import { getDocumentStatusMeta } from '@/modules/documents';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -48,20 +49,6 @@ import { cn } from '@/shared/lib/utils';
 /* -------------------------------------------------------------------------- */
 /*  Estilos y constantes                                                      */
 /* -------------------------------------------------------------------------- */
-
-const statusStyles: Record<number, string> = {
-    0: 'bg-muted text-muted-foreground',
-    1: 'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400',
-    2: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400',
-    3: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400',
-};
-
-const statusIcons: Record<number, LucideIcon> = {
-    0: FileText,
-    1: CheckCircle2,
-    2: Clock,
-    3: AlertTriangle,
-};
 
 const activityIcons: Record<StudentActivity['tone'], LucideIcon> = {
     success: CheckCircle2,
@@ -153,15 +140,13 @@ function clamp(value: number) {
 }
 
 function StatusBadge({ status, label }: { status: number; label: string }) {
-    const Icon = statusIcons[status] ?? FileText;
+    const meta = getDocumentStatusMeta(status);
+    const Icon = meta.icon;
 
     return (
         <Badge
             variant="outline"
-            className={cn(
-                'gap-1 border-transparent',
-                statusStyles[status] ?? statusStyles[0],
-            )}
+            className={cn('gap-1 border-transparent', meta.surface)}
         >
             <Icon className="size-3" />
             {label}
@@ -222,7 +207,7 @@ function DocumentRow({
                 <div
                     className={cn(
                         'rounded-md p-2 transition-transform group-hover:scale-110',
-                        statusStyles[document.status] ?? statusStyles[0],
+                        getDocumentStatusMeta(document.status).surface,
                     )}
                 >
                     <FileText className="size-4" />
@@ -315,7 +300,7 @@ function ModuleRow({ module }: { module: StudentModule }) {
                 <div
                     className={cn(
                         'grid size-8 shrink-0 place-items-center rounded-full text-xs font-semibold',
-                        statusStyles[module.status] ?? statusStyles[0],
+                        getDocumentStatusMeta(module.status).surface,
                     )}
                 >
                     {module.module}

@@ -1,45 +1,16 @@
 import { useState } from 'react';
+import type { UserAssignment } from '@/modules/identity/types';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 
-export interface Assignment {
-    id: number;
-    role_id: number;
-    approval_status: number;
-    access_status: number;
-    review_status: number;
-    user: {
-        email: string;
-        person: {
-            names: string;
-            surnames: string;
-        };
-    };
-    role: {
-        name: string;
-    };
-    section?: {
-        name: string;
-        school?: {
-            name: string;
-            faculty: {
-                name: string;
-            };
-        };
-        faculty?: {
-            name: string;
-        };
-    };
-}
-
 interface Props {
-    initialData: TableData<Assignment>;
+    initialData: TableData<UserAssignment>;
     roleId: number;
     isAdmin: boolean;
 }
 
 export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
-    const table = useConfigTable<Assignment>({
+    const table = useConfigTable<UserAssignment>({
         endpoint: '/users/filter',
         initialData,
         isAdmin,
@@ -56,16 +27,16 @@ export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
     });
 
     const [selectedAssignment, setSelectedAssignment] =
-        useState<Assignment | null>(null);
+        useState<UserAssignment | null>(null);
     const [isManageModalOpen, setIsManageModalOpen] = useState(false);
     const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
 
-    const openManageModal = (assignment: Assignment) => {
+    const openManageModal = (assignment: UserAssignment) => {
         setSelectedAssignment(assignment);
         setIsManageModalOpen(true);
     };
 
-    const openPendingModal = (assignment: Assignment) => {
+    const openPendingModal = (assignment: UserAssignment) => {
         setSelectedAssignment(assignment);
         setIsPendingModalOpen(true);
     };

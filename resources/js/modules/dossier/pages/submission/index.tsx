@@ -1,6 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
 import {
-    CalendarClock,
     CheckCircle2,
     ChevronLeft,
     ChevronRight,
@@ -13,16 +12,21 @@ import {
     Minimize2,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 import {
     DocumentViewer,
+    enter,
+    formatDateTime,
+    getStatusMeta,
+    HISTORY_PREVIEW,
+    MAX_FILE_SIZE,
     RequirementsList,
+    resolveStatus,
     SubmissionPanel,
+    type DossierHistoryRecord,
+    type DocumentRequirement,
 } from '@/modules/documents';
-import type { DocumentRequirement } from '@/modules/documents';
 import type { AssignmentRecord } from '@/modules/identity';
 
 import dossiers from '@/routes/academic/dossiers';
@@ -30,9 +34,9 @@ import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { Spinner } from '@/shared/components/ui/spinner';
+import AppLayout from '@/shared/layouts/app-layout';
 import { cn } from '@/shared/lib/utils';
 
-import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -41,75 +45,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dossiers.submission.toString(),
     },
 ];
-
-const enter =
-    'animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-both motion-reduce:animate-none';
-
-const MAX_FILE_SIZE = 350 * 1024; // 350 KB
-const HISTORY_PREVIEW = 6;
-
-interface DossierHistoryRecord {
-    id: number;
-    approval_status: number;
-    comment?: string | null;
-    name?: string;
-    created_at?: string;
-    approved_at?: string | null;
-    updated_at?: string | null;
-    documentTitle: string;
-    documentCode: string;
-}
-
-function formatDateTime(value?: string | null) {
-    if (!value) return null;
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return null;
-
-    return format(date, "d MMM yyyy, HH:mm", { locale: es });
-}
-
-/* -------------------------------------------------------------------------- */
-/* Estado de un requisito                                                     */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Estado real de un requisito: manda el último archivo subido
- * (es lo que el revisor aprobó/observó) y, si no hay, el del requisito.
- */
-function resolveStatus(requirement?: DocumentRequirement | null): number {
-    if (!requirement) return 0;
-
-    return requirement.latest?.approval_status ?? requirement.status ?? 0;
-}
-
-function getStatusMeta(status: number) {
-    if (status === 1) {
-        return {
-            label: 'Aprobado',
-            dot: 'bg-green-500',
-            text: 'text-green-600 dark:text-green-400',
-            icon: CheckCircle2,
-        };
-    }
-
-    if (status === 3) {
-        return {
-            label: 'Observado',
-            dot: 'bg-destructive',
-            text: 'text-destructive',
-            icon: MessageSquare,
-        };
-    }
-
-    return {
-        label: 'Pendiente',
-        dot: 'bg-amber-500',
-        text: 'text-amber-600 dark:text-amber-400',
-        icon: CalendarClock,
-    };
-}
 
 /* -------------------------------------------------------------------------- */
 /* Utilidades de animación                                                    */

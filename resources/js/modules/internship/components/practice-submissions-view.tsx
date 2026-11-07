@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { getDocumentStatusMeta } from '@/modules/documents';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
@@ -56,18 +57,6 @@ type StatusFilter = 'Todos' | '2' | '3' | '1';
 const reviewUrl = (id: number) =>
     `/supervision/practice-submissions/${id}/review`;
 
-const statusStyles: Record<number, string> = {
-    2: 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400',
-    3: 'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400',
-    1: 'border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-400',
-};
-
-const statusLabel: Record<number, string> = {
-    2: 'Pendiente',
-    3: 'Observado',
-    1: 'Aprobado',
-};
-
 const formatDate = (iso: string | null) =>
     iso
         ? new Date(iso).toLocaleDateString('es-PE', {
@@ -78,15 +67,15 @@ const formatDate = (iso: string | null) =>
         : '';
 
 function StatusBadge({ status }: { status: 1 | 2 | 3 }) {
-    const Icon =
-        status === 2 ? Clock : status === 3 ? AlertCircle : CheckCircle2;
+    const meta = getDocumentStatusMeta(status);
+    const Icon = meta.icon;
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${statusStyles[status]}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${meta.badge}`}
         >
             <Icon className="size-3.5" />
-            {statusLabel[status]}
+            {meta.label}
         </span>
     );
 }

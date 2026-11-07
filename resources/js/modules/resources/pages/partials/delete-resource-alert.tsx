@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import type { ResourceItem } from '@/modules/resources/types';
 import resource from '@/routes/resource';
 import {
     AlertDialog,
@@ -13,13 +14,10 @@ import {
     AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 
-interface ResourceItem {
-    id: number;
-    name: string;
-}
+type ResourceItemSummary = Pick<ResourceItem, 'id' | 'name'>;
 
 interface DeleteResourceAlertProps {
-    fres: ResourceItem | null;
+    fres: ResourceItemSummary | null;
     isOpen: boolean;
     onClose: () => void;
 }
