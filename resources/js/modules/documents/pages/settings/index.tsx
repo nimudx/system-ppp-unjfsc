@@ -7,9 +7,9 @@ import { Button } from '@/shared/components/ui/button';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
 
-import { DocumentTypeForm } from './components/DocumentTypeForm';
-import { DocumentTypeTable } from './components/DocumentTypeTable';
-import { useDocumentSetup } from './hooks/use-document';
+import { DocumentTypeForm } from '@/modules/documents/components/document-type-form';
+import { DocumentTypeTable } from '@/modules/documents/components/document-type-table';
+import { useDocumentSetup } from '@/modules/documents/hooks/use-document';
 
 interface Props {
     documentTypes: DocumentTypeOption[];
