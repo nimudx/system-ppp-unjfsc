@@ -25,9 +25,9 @@ import {
     DropdownMenuItem,
 } from '@/shared/components/ui/dropdown-menu';
 import { ROLES } from '@/shared/config/roles';
-import { CreateResourceSheet } from './partials/create-resource-sheet';
-import { DeleteResourceAlert } from './partials/delete-resource-alert';
-import { EditResourceSheet } from './partials/edit-resource-sheet';
+import { CreateResourceSheet } from './create-resource-sheet';
+import { DeleteResourceAlert } from './delete-resource-alert';
+import { EditResourceSheet } from './edit-resource-sheet';
 
 type PageProps = ResourcePageProps;
 

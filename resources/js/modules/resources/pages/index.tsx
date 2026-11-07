@@ -7,8 +7,8 @@ import type {
 import { USER_TYPES } from '@/shared/config/roles';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
-import AcademicResourceContent from './academic-resource-content';
-import AdminResourceContent from './admin-resource-content';
+import AcademicResourceContent from '../components/academic-resource-content';
+import AdminResourceContent from '../components/admin-resource-content';
 
 type ResourceProps = Partial<Omit<ResourcePageProps, 'resources'>> & {
     resources?: TableData<ResourceItem>;
