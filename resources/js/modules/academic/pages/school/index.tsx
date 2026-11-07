@@ -19,9 +19,9 @@ import {
 import { useAcademicTable } from '@/shared/hooks/use-academic-table';
 import AppLayout from '@/shared/layouts/app-layout';
 
-import CreateSchoolModal from './partials/create-school-modal';
-import DeleteSchoolModal from './partials/delete-school-modal';
-import UpdateSchoolModal from './partials/update-school-modal';
+import CreateSchoolModal from '../../components/school/create-school-modal';
+import DeleteSchoolModal from '../../components/school/delete-school-modal';
+import UpdateSchoolModal from '../../components/school/update-school-modal';
 
 interface Props {
     schools: School[];

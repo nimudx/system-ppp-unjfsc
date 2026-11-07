@@ -19,9 +19,9 @@ import {
 import { useAcademicTable } from '@/shared/hooks/use-academic-table';
 import AppLayout from '@/shared/layouts/app-layout';
 
-import CreateFacultyModal from './partials/create-faculty-modal';
-import DeleteFacultyModal from './partials/delete-faculty-modal';
-import UpdateFacultyModal from './partials/update-faculty-modal';
+import CreateFacultyModal from '../../components/faculty/create-faculty-modal';
+import DeleteFacultyModal from '../../components/faculty/delete-faculty-modal';
+import UpdateFacultyModal from '../../components/faculty/update-faculty-modal';
 
 interface Props {
     faculties: Faculty[];

@@ -18,7 +18,7 @@ import {
 } from '@/shared/components/ui/table';
 import { useAcademicTable } from '@/shared/hooks/use-academic-table';
 import AppLayout from '@/shared/layouts/app-layout';
-import ManageSectionsModal from './partials/manage-sections-modal';
+import ManageSectionsModal from '../../components/manage-sections-modal';
 
 interface Props {
     schools: School[];

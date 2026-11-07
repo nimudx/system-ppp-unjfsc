@@ -19,9 +19,9 @@ import {
 import { useAcademicTable } from '@/shared/hooks/use-academic-table';
 import AppLayout from '@/shared/layouts/app-layout';
 
-import BackSemesterModal from './partials/back-semester-modal';
-import CloseSemesterModal from './partials/close-semester-modal';
-import UpdateSemesterModal from './partials/update-semester-modal';
+import BackSemesterModal from '../../components/semesters/back-semester-modal';
+import CloseSemesterModal from '../../components/semesters/close-semester-modal';
+import UpdateSemesterModal from '../../components/semesters/update-semester-modal';
 
 interface Props {
     semesters: Semester[];
