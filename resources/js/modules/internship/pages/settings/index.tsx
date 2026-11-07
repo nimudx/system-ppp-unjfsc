@@ -14,7 +14,6 @@ import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-
 
 import { BuilderCard } from './components/BuilderCard';
 import { EvaluationCard } from './components/EvaluationCard';
-import { JsonPreview } from './components/JsonPreview';
 import { StepperPreview } from './components/StepperPreview';
 import type { WorkflowStage } from './types';
 import { buildDragEndHandler, RestrictToVerticalAxis } from './useDragSort';
@@ -209,7 +208,6 @@ export default function InternshipSettingsIndex({
                                 <div className="lg:col-span-5">
                                     <div className="sticky top-8 space-y-6">
                                         <StepperPreview workflow={workflow} />
-                                        <JsonPreview workflow={workflow} />
                                     </div>
                                 </div>
                             </div>

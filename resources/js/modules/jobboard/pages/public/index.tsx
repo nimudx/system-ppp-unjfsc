@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     BriefcaseBusiness,
@@ -11,22 +11,28 @@ import {
 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
+import { store } from '@/routes/login';
+import { request as requestPasswordReset } from '@/routes/password';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
+import InputError from '@/shared/components/input-error';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
 export default function LoginEmpresa() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: '',
+        password: '',
+        remember: false,
+    });
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // Interfaz de demostración: todavía no valida contra el backend.
-        setError('Usuario o contraseña inválidos.');
+        post(store().url, {
+            onFinish: () => reset('password'),
+        });
     };
 
     return (
@@ -166,34 +172,30 @@ export default function LoginEmpresa() {
                                     <Input
                                         id="email"
                                         type="email"
+                                        name="email"
                                         autoComplete="username"
                                         placeholder="empresa@correo.com"
-                                        value={email}
+                                        value={data.email}
                                         onChange={(event) => {
-                                            setEmail(event.target.value);
-                                            setError('');
+                                            setData('email', event.target.value);
                                         }}
                                         className="h-12 border-slate-200 bg-white pl-10 focus-visible:ring-blue-800"
                                         required
                                     />
                                 </div>
+                                <InputError message={errors.email} />
                             </div>
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between gap-3">
                                     <Label htmlFor="password">Contraseña</Label>
 
-                                    <button
-                                        type="button"
+                                    <Link
+                                        href={requestPasswordReset().url}
                                         className="text-xs font-semibold text-blue-800 transition-colors hover:text-blue-950"
-                                        onClick={() =>
-                                            setError(
-                                                'Contacta con el administrador de la Bolsa Laboral para recuperar tu acceso.',
-                                            )
-                                        }
                                     >
                                         ¿Olvidaste tu contraseña?
-                                    </button>
+                                    </Link>
                                 </div>
 
                                 <div className="relative">
@@ -204,12 +206,15 @@ export default function LoginEmpresa() {
                                         type={
                                             showPassword ? 'text' : 'password'
                                         }
+                                        name="password"
                                         autoComplete="current-password"
                                         placeholder="Ingresa tu contraseña"
-                                        value={password}
+                                        value={data.password}
                                         onChange={(event) => {
-                                            setPassword(event.target.value);
-                                            setError('');
+                                            setData(
+                                                'password',
+                                                event.target.value,
+                                            );
                                         }}
                                         className="h-12 border-slate-200 bg-white pr-11 pl-10 focus-visible:ring-blue-800"
                                         required
@@ -234,23 +239,15 @@ export default function LoginEmpresa() {
                                         )}
                                     </button>
                                 </div>
+                                <InputError message={errors.password} />
                             </div>
-
-                            {error && (
-                                <div
-                                    role="alert"
-                                    aria-live="polite"
-                                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
-                                >
-                                    {error}
-                                </div>
-                            )}
 
                             <Button
                                 type="submit"
+                                disabled={processing}
                                 className="h-12 w-full bg-[#102747] font-semibold text-white hover:bg-[#183b68]"
                             >
-                                Iniciar sesión
+                                {processing ? 'Ingresando...' : 'Iniciar sesión'}
                             </Button>
                         </form>
 

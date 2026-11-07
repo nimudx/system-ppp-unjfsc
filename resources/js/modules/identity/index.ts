@@ -1,5 +1,4 @@
 // API pública del módulo de identidad (auth, perfil, 2FA, usuarios).
-export { default as DeleteUser } from './components/delete-user';
 export { default as ProfileHero } from './components/profile-hero';
 export { default as TwoFactorRecoveryCodes } from './components/two-factor-recovery-codes';
 export { default as TwoFactorSetupModal } from './components/two-factor-setup-modal';

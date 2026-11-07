@@ -14,7 +14,7 @@ import {
     ExternalLink,
 } from 'lucide-react';
 import { useState } from 'react';
-import type { ResourcePageProps } from '@/modules/resources/types';
+import type { ResourceItem, ResourcePageProps } from '@/modules/resources/types';
 
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
@@ -28,28 +28,9 @@ import { CreateResourceSheet } from './partials/create-resource-sheet';
 import { DeleteResourceAlert } from './partials/delete-resource-alert';
 import { EditResourceSheet } from './partials/edit-resource-sheet';
 
-// Interfaces para tipar nuestros recursos
-interface DocumentType {
-    name: string;
-}
-
-interface ResourceDoc {
-    id: number;
-    path: string;
-    name?: string;
-    type?: DocumentType;
-}
-
-interface ResourceItem {
-    id: number;
-    name: string;
-    description: string;
-    level: number;
-    documents?: ResourceDoc[];
-    created_at: string;
-}
-
 type PageProps = ResourcePageProps;
+
+type ResourceDocument = NonNullable<ResourceItem['documents']>[number];
 
 export default function AcademicResourceContent(props: PageProps) {
     const { role } = usePage().props;
@@ -103,7 +84,7 @@ export default function AcademicResourceContent(props: PageProps) {
     };
 
     // Helper para iconos según extensión (simulado)
-    const getFileIcon = (doc?: ResourceDoc) => {
+    const getFileIcon = (doc?: ResourceDocument) => {
         const typeName = doc?.type?.name?.toLowerCase() || '';
         if (typeName.includes('pdf'))
             return <FileText className="h-8 w-8 text-red-500" />;
@@ -111,44 +92,6 @@ export default function AcademicResourceContent(props: PageProps) {
             return <FileArchive className="h-8 w-8 text-yellow-500" />;
         return <File className="h-8 w-8 text-blue-500" />;
     };
-
-    // MOCKS: Si el backend todavía no envía nada, mostramos esto de ejemplo.
-    const displayList =
-        resources.length > 0
-            ? resources
-            : [
-                  {
-                      id: 1,
-                      name: 'Reglamento General PPP',
-                      description:
-                          'Documento oficial de la universidad para el año en curso.',
-                      level: 1,
-                      created_at: new Date().toISOString(),
-                  },
-                  {
-                      id: 2,
-                      name: 'Formato de Anexo 03',
-                      description:
-                          'Plantilla en Word para presentar el plan de prácticas.',
-                      level: 3,
-                      created_at: new Date().toISOString(),
-                  },
-                  {
-                      id: 3,
-                      name: 'Horarios de Sustentación',
-                      description: 'Cronograma exclusivo para tu sección.',
-                      level: 4,
-                      created_at: new Date().toISOString(),
-                  },
-                  {
-                      id: 4,
-                      name: 'Convenio Marco 45-A',
-                      description:
-                          'Ejemplo de convenio válido para tu facultad.',
-                      level: 2,
-                      created_at: new Date().toISOString(),
-                  },
-              ];
 
     return (
         <div className="relative mx-auto flex h-full max-w-7xl flex-1 flex-col gap-8 p-8">
@@ -171,7 +114,7 @@ export default function AcademicResourceContent(props: PageProps) {
 
             {/* Listado de Recursos en Grid */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {displayList.map((res) => (
+                {resources.map((res) => (
                     <div
                         key={res.id}
                         className="group flex flex-col justify-between overflow-hidden rounded-xl border border-sidebar-border bg-card text-card-foreground shadow-sm transition-all duration-200 hover:border-sidebar-border/80 hover:shadow-md"
@@ -287,8 +230,8 @@ export default function AcademicResourceContent(props: PageProps) {
                 ))}
             </div>
 
-            {/* Empty State por si borras los mocks y está vacío */}
-            {displayList.length === 0 && (
+            {/* Empty State */}
+            {resources.length === 0 && (
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-sidebar-border p-12 text-center">
                     <FileArchive className="mb-4 h-12 w-12 text-muted-foreground/50" />
                     <h3 className="mb-1 text-lg font-medium">
