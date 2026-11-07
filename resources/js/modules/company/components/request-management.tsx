@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import EmptyState from '@/shared/components/empty-state';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
 import {
@@ -243,10 +244,9 @@ export default function RequestManagement({
                                         <tr>
                                             <td
                                                 colSpan={4}
-                                                className="p-6 text-center text-muted-foreground"
+                                                className="p-6 text-center"
                                             >
-                                                No hay solicitudes para este
-                                                estado.
+                                                <EmptyState title="No hay solicitudes para este estado." />
                                             </td>
                                         </tr>
                                     )}

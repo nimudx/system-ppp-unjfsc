@@ -1,16 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
 import type { Faculty } from '@/modules/academic/types';
 import { destroy } from '@/routes/academic/faculties';
-import { Button } from '@/shared/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/components/ui/dialog';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 
 interface Props {
     faculty: Faculty | null;
@@ -25,8 +16,7 @@ export default function DeleteFacultyModal({
 }: Props) {
     const { delete: destroyRequest, processing } = useForm();
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
+    const handleConfirm = () => {
         if (!faculty) return;
 
         destroyRequest(destroy(faculty.id).url, {
@@ -37,38 +27,22 @@ export default function DeleteFacultyModal({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-106.25">
-                <DialogHeader>
-                    <DialogTitle>Eliminar Facultad</DialogTitle>
-                    <DialogDescription>
-                        ¿Estás seguro de que deseas eliminar la facultad{' '}
-                        <span className="font-bold text-foreground">
-                            {faculty?.name}
-                        </span>
-                        ? Esta acción no se puede deshacer.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit}>
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="destructive"
-                            disabled={processing}
-                        >
-                            {processing ? 'Eliminando...' : 'Eliminar Facultad'}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <ConfirmDeleteDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Eliminar Facultad"
+            description={
+                <>
+                    ¿Estás seguro de que deseas eliminar la facultad{' '}
+                    <span className="font-bold text-foreground">
+                        {faculty?.name}
+                    </span>
+                    ? Esta acción no se puede deshacer.
+                </>
+            }
+            confirmLabel="Eliminar Facultad"
+            processing={processing}
+            onConfirm={handleConfirm}
+        />
     );
 }

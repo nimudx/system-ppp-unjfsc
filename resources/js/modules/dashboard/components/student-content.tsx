@@ -35,6 +35,7 @@ import {
     toneClasses,
 } from '@/modules/dashboard/utils';
 import { getDocumentStatusMeta } from '@/modules/documents';
+import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -958,9 +959,10 @@ export default function StudentDashboardContent({
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {activity.length === 0 ? (
-                            <div className="py-8 text-center text-sm text-muted-foreground">
-                                Aún no hay actividad registrada.
-                            </div>
+                            <EmptyState
+                                className="py-8"
+                                title="Aún no hay actividad registrada."
+                            />
                         ) : (
                             <>
                                 <ActivityTimeline

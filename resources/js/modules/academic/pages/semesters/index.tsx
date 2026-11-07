@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Semester } from '@/modules/academic/types';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -192,9 +193,9 @@ export default function Semesters({ semesters }: Props) {
                                 <TableRow>
                                     <TableCell
                                         colSpan={5}
-                                        className="h-24 text-center text-muted-foreground italic"
+                                        className="h-24 text-center"
                                     >
-                                        No hay semestres registrados.
+                                        <EmptyState title="No hay semestres registrados." />
                                     </TableCell>
                                 </TableRow>
                             )}

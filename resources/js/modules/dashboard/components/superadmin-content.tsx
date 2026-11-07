@@ -1,6 +1,8 @@
 import { Shield, Building2, Users, Database } from 'lucide-react';
 import type { SuperAdminStats } from '@/modules/dashboard/types';
 import { formatBytes, formatNumber, timeAgo } from '@/modules/dashboard/utils';
+import EmptyState from '@/shared/components/empty-state';
+import StatCard from '@/shared/components/stat-card';
 import {
     Card,
     CardContent,
@@ -56,79 +58,41 @@ export default function SuperAdminDashboardContent({
     return (
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             <div className="grid auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Empresas Registradas
-                        </CardTitle>
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatNumber(companies.total)}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            +{formatNumber(companies.thisMonth)} este mes
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Usuarios Totales
-                        </CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatNumber(users.total)}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            {users.activePercent}% activos
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Seguridad / Logs
-                        </CardTitle>
-                        <Shield className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div
-                            className={cn(
-                                'text-2xl font-bold',
-                                secure ? 'text-green-600' : 'text-orange-600',
-                            )}
-                        >
-                            {secure
-                                ? 'Limpio'
-                                : `${formatNumber(security.failedToday)} fallidos`}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            {secure
-                                ? 'Sin intentos fallidos de acceso hoy'
-                                : `Intentos de acceso hoy · ${security.lockoutsToday} bloqueo(s)`}
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Uso de Almacenamiento
-                        </CardTitle>
-                        <Database className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatBytes(storage.usedBytes)}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            De {formatBytes(storage.freeBytes)} disponibles
-                        </p>
-                    </CardContent>
-                </Card>
+                <StatCard
+                    title="Empresas Registradas"
+                    value={formatNumber(companies.total)}
+                    description={`+${formatNumber(companies.thisMonth)} este mes`}
+                    icon={Building2}
+                />
+                <StatCard
+                    title="Usuarios Totales"
+                    value={formatNumber(users.total)}
+                    description={`${users.activePercent}% activos`}
+                    icon={Users}
+                />
+                <StatCard
+                    title="Seguridad / Logs"
+                    value={
+                        secure
+                            ? 'Limpio'
+                            : `${formatNumber(security.failedToday)} fallidos`
+                    }
+                    description={
+                        secure
+                            ? 'Sin intentos fallidos de acceso hoy'
+                            : `Intentos de acceso hoy · ${security.lockoutsToday} bloqueo(s)`
+                    }
+                    valueClassName={
+                        secure ? 'text-green-600' : 'text-orange-600'
+                    }
+                    icon={Shield}
+                />
+                <StatCard
+                    title="Uso de Almacenamiento"
+                    value={formatBytes(storage.usedBytes)}
+                    description={`De ${formatBytes(storage.freeBytes)} disponibles`}
+                    icon={Database}
+                />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -166,9 +130,7 @@ export default function SuperAdminDashboardContent({
                     </CardHeader>
                     <CardContent>
                         {recentActions.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">
-                                Todavía no hay actividad registrada.
-                            </p>
+                            <EmptyState title="Todavía no hay actividad registrada." />
                         ) : (
                             <div className="space-y-4">
                                 {recentActions.map((log, i) => (

@@ -31,6 +31,7 @@ import type { AssignmentRecord } from '@/modules/identity';
 
 import dossiers from '@/routes/academic/dossiers';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { Spinner } from '@/shared/components/ui/spinner';
@@ -173,7 +174,9 @@ function PendingActionsCard({
             item,
             observed: resolveStatus(item) === 3,
         }))
-        .filter(({ item, observed }) => !item.locked && (!item.latest || observed));
+        .filter(
+            ({ item, observed }) => !item.locked && (!item.latest || observed),
+        );
 
     return (
         <SectionCard>
@@ -364,8 +367,9 @@ function DocumentHistoryPanel({
                                                 </span>
 
                                                 <span className="text-[11px] text-muted-foreground tabular-nums">
-                                                    {formatDateTime(record.created_at) ??
-                                                        'Fecha desconocida'}
+                                                    {formatDateTime(
+                                                        record.created_at,
+                                                    ) ?? 'Fecha desconocida'}
                                                 </span>
                                             </div>
 
@@ -387,17 +391,21 @@ function DocumentHistoryPanel({
 
                                                         <p className="mt-1 text-[11px] text-muted-foreground">
                                                             Subido el{' '}
-                                                            {formatDateTime(record.created_at) ??
+                                                            {formatDateTime(
+                                                                record.created_at,
+                                                            ) ??
                                                                 'fecha desconocida'}
                                                         </p>
 
-                                                        {record.approval_status === 1 && (
+                                                        {record.approval_status ===
+                                                            1 && (
                                                             <p className="text-[11px] text-green-600 dark:text-green-400">
                                                                 Aprobado el{' '}
                                                                 {formatDateTime(
                                                                     record.approved_at ??
                                                                         record.updated_at,
-                                                                ) ?? 'fecha no registrada'}
+                                                                ) ??
+                                                                    'fecha no registrada'}
                                                             </p>
                                                         )}
                                                     </div>
@@ -635,7 +643,7 @@ export default function MyDossier({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Documentación" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer>
                 <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <Heading
                         variant="small"
@@ -680,8 +688,8 @@ export default function MyDossier({
 
                                 <div className="p-4 pt-0">
                                     <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                        Descarga el formato oficial,
-                                        complétalo y súbelo.
+                                        Descarga el formato oficial, complétalo
+                                        y súbelo.
                                     </p>
 
                                     <Button
@@ -724,7 +732,9 @@ export default function MyDossier({
                                 <SectionCard.Header>
                                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <div
-                                            key={currentFile.code ?? selectedType}
+                                            key={
+                                                currentFile.code ?? selectedType
+                                            }
                                             className={cn(
                                                 'flex min-w-0 items-center gap-3',
                                                 enter,
@@ -899,7 +909,7 @@ export default function MyDossier({
                         </aside>
                     )}
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

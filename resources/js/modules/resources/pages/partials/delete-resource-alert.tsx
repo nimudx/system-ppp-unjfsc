@@ -3,16 +3,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import type { ResourceItem } from '@/modules/resources/types';
 import resource from '@/routes/resource';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/shared/components/ui/alert-dialog';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 
 type ResourceItemSummary = Pick<ResourceItem, 'id' | 'name'>;
 
@@ -31,6 +22,7 @@ export function DeleteResourceAlert({
 
     const handleDelete = () => {
         if (!fres) return;
+
         setIsDeleting(true);
         router.delete(resource.destroy.url(fres.id), {
             onSuccess: () => {
@@ -44,38 +36,23 @@ export function DeleteResourceAlert({
     };
 
     return (
-        <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>
-                        ¿Estás completamente seguro?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Esto eliminará
-                        permanentemente el recurso
-                        <strong className="ml-1 text-foreground">
-                            {fres?.name}
-                        </strong>{' '}
-                        y removerá el archivo de nuestros servidores.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel variant="ghost" disabled={isDeleting}>
-                        Cancelar
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleDelete();
-                        }}
-                        variant="destructive"
-                        disabled={isDeleting}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                        {isDeleting ? 'Eliminando...' : 'Sí, eliminar recurso'}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmDeleteDialog
+            open={isOpen}
+            onOpenChange={(open) => !open && onClose()}
+            title="¿Estás completamente seguro?"
+            description={
+                <>
+                    Esta acción no se puede deshacer. Esto eliminará
+                    permanentemente el recurso
+                    <strong className="ml-1 text-foreground">
+                        {fres?.name}
+                    </strong>{' '}
+                    y removerá el archivo de nuestros servidores.
+                </>
+            }
+            confirmLabel="Sí, eliminar recurso"
+            processing={isDeleting}
+            onConfirm={handleDelete}
+        />
     );
 }

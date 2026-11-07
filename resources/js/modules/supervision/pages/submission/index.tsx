@@ -12,6 +12,7 @@ import type { StudentSupervision } from '@/modules/supervision/types';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { TooltipContent } from '@/shared/components/ui/tooltip';
 import type { TableData } from '@/shared/hooks/use-config-table';
@@ -87,7 +88,7 @@ export default function SubmissionShow({ faculties, groups, students }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Sumisión de Supervisión" />
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <div className="flex items-center justify-between">
                     <Heading
                         variant="small"
@@ -266,7 +267,7 @@ export default function SubmissionShow({ faculties, groups, students }: Props) {
                         )}
                     </main>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

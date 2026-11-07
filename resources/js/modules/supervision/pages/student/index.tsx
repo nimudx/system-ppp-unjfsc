@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
 
@@ -13,13 +14,13 @@ export default function StudentSupervisionIndex() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Rev. Prácticas" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <Heading
                     variant="small"
                     title="Rev. Prácticas"
                     description="Esta sección estará disponible próximamente."
                 />
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

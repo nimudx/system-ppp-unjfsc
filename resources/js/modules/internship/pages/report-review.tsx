@@ -17,6 +17,7 @@ import {
 import { useState } from 'react';
 
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -139,7 +140,7 @@ export default function ReportReview({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Rev. Prácticas" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 {/* Encabezado */}
                 <div className="flex items-end justify-between">
                     <Heading
@@ -555,7 +556,7 @@ export default function ReportReview({
                         </SectionCard>
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

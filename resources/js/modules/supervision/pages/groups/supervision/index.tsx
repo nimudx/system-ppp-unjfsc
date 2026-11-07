@@ -14,7 +14,9 @@ import {
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
 import type { InternshipGroup } from '@/modules/supervision';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -90,7 +92,7 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={title} />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 {/* Cabecera */}
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <Heading
@@ -340,11 +342,16 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                                                             ? 3
                                                             : 4
                                                     }
-                                                    className="h-24 text-center text-xs text-muted-foreground italic"
+                                                    className="h-24 text-center"
                                                 >
-                                                    {students.length === 0
-                                                        ? 'Este grupo no contiene estudiantes asignados.'
-                                                        : 'No se encontraron estudiantes para la búsqueda.'}
+                                                    <EmptyState
+                                                        title={
+                                                            students.length ===
+                                                            0
+                                                                ? 'Este grupo no contiene estudiantes asignados.'
+                                                                : 'No se encontraron estudiantes para la búsqueda.'
+                                                        }
+                                                    />
                                                 </TableCell>
                                             </TableRow>
                                         )}
@@ -635,7 +642,7 @@ export default function GroupSupervisionIndex({ groups = [] }: Props) {
                         </p>
                     </div>
                 )}
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

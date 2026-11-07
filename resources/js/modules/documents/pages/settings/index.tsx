@@ -1,17 +1,8 @@
 import { Head } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import type { DocumentTypeOption } from '@/modules/documents/types';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 import Heading from '@/shared/components/heading';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
@@ -84,38 +75,28 @@ export default function DocumentSettingsIndex({ documentTypes, roles }: Props) {
                     />
 
                     {/* Alerta de Eliminación */}
-                    <AlertDialog
+                    <ConfirmDeleteDialog
                         open={isDeleteDialogOpen}
-                        onOpenChange={closeDelete}
-                    >
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    ¿Eliminar tipo de documento?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Estás a punto de eliminar el documento "
-                                    {deletingDoc?.name}".
-                                    <br />
-                                    <br />
-                                    <strong>Precaución:</strong> Si este
-                                    documento ya se está usando en expedientes
-                                    activos, podría causar pérdida de
-                                    accesibilidad de archivos vinculados. Esta
-                                    acción no se puede deshacer.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={confirmDelete}
-                                    className="bg-red-600 hover:bg-red-700"
-                                >
-                                    Sí, eliminar
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                        onOpenChange={(open) => {
+                            if (!open) closeDelete();
+                        }}
+                        title="¿Eliminar tipo de documento?"
+                        description={
+                            <>
+                                Estás a punto de eliminar el documento "
+                                {deletingDoc?.name}".
+                                <br />
+                                <br />
+                                <strong>Precaución:</strong> Si este documento
+                                ya se está usando en expedientes activos, podría
+                                causar pérdida de accesibilidad de archivos
+                                vinculados. Esta acción no se puede deshacer.
+                            </>
+                        }
+                        confirmLabel="Sí, eliminar"
+                        processing={processing}
+                        onConfirm={confirmDelete}
+                    />
                 </div>
             </AcademicSettingsLayout>
         </AppLayout>

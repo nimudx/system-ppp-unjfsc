@@ -10,18 +10,9 @@ import {
 import { useState } from 'react';
 
 import { formatDateTime } from '@/modules/documents/components/dossier-shared';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 import Heading from '@/shared/components/heading';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogMedia,
-    AlertDialogTitle,
-} from '@/shared/components/ui/alert-dialog';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -92,7 +83,7 @@ export default function StudentCv({ cv }: Props) {
         <AppLayout breadcrumbs={[{ title: 'Mi CV', href: '/internship/cv' }]}>
             <Head title="Mi CV" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer>
                 <Heading
                     variant="small"
                     title="Mi CV"
@@ -241,38 +232,25 @@ export default function StudentCv({ cv }: Props) {
                         </SectionCard.Body>
                     </SectionCard>
                 </div>
-            </div>
+            </PageContainer>
 
-            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogMedia className="bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle className="size-8" />
-                        </AlertDialogMedia>
-                        <AlertDialogTitle>
-                            ¿Reemplazar tu CV actual?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Esta acción es permanente. El CV que tienes
-                            registrado ({cv?.name ?? 'actual'}) se eliminará y
-                            no podrás recuperarlo. Se guardará únicamente el
-                            archivo que acabas de seleccionar.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={processing}>
-                            Cancelar
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
-                            disabled={processing}
-                            onClick={() => submit()}
-                        >
-                            Sí, reemplazar
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <ConfirmDeleteDialog
+                open={confirmOpen}
+                onOpenChange={setConfirmOpen}
+                title="¿Reemplazar tu CV actual?"
+                description={
+                    <>
+                        Esta acción es permanente. El CV que tienes registrado (
+                        {cv?.name ?? 'actual'}) se eliminará y no podrás
+                        recuperarlo. Se guardará únicamente el archivo que
+                        acabas de seleccionar.
+                    </>
+                }
+                confirmLabel="Sí, reemplazar"
+                processing={processing}
+                icon={AlertTriangle}
+                onConfirm={() => submit()}
+            />
         </AppLayout>
     );
 }

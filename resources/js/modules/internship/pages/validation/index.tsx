@@ -7,7 +7,9 @@ import type { InternshipAssignment } from '@/modules/internship/types';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,
@@ -59,7 +61,7 @@ export default function InternshipValidationIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Validación de Prácticas" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <div className="flex items-end justify-between">
                     <Heading
                         variant="small"
@@ -267,9 +269,9 @@ export default function InternshipValidationIndex({
                                                 colSpan={
                                                     state.selectedId ? 3 : 5
                                                 }
-                                                className="h-24 text-center text-xs text-muted-foreground italic"
+                                                className="h-24 text-center"
                                             >
-                                                No se encontraron resultados.
+                                                <EmptyState title="No se encontraron resultados." />
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -387,7 +389,7 @@ export default function InternshipValidationIndex({
                         )}
                     </main>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

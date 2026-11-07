@@ -1,6 +1,7 @@
 import { Search, ChevronLeft, ChevronRight, UserCircle } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import type { StudentSummary } from '@/modules/supervision/types';
+import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
@@ -196,9 +197,7 @@ export function StudentSelectorTable({
                                     colSpan={2}
                                     className="h-24 text-center"
                                 >
-                                    <p className="text-[10px] tracking-tight text-muted-foreground uppercase italic">
-                                        {emptyMessage}
-                                    </p>
+                                    <EmptyState title={emptyMessage} />
                                 </TableCell>
                             </TableRow>
                         )}

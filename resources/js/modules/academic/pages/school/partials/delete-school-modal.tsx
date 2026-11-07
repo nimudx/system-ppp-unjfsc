@@ -1,16 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
 import type { School } from '@/modules/academic/types';
 import { destroy } from '@/routes/academic/schools';
-import { Button } from '@/shared/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/components/ui/dialog';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 
 interface Props {
     school: School | null;
@@ -25,8 +16,7 @@ export default function DeleteSchoolModal({
 }: Props) {
     const { delete: destroyRequest, processing } = useForm();
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
+    const handleConfirm = () => {
         if (!school) return;
 
         destroyRequest(destroy(school.id).url, {
@@ -37,38 +27,22 @@ export default function DeleteSchoolModal({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-106.25">
-                <form onSubmit={handleSubmit}>
-                    <DialogHeader>
-                        <DialogTitle>Eliminar Escuela</DialogTitle>
-                        <DialogDescription>
-                            ¿Estás seguro de que deseas eliminar la escuela{' '}
-                            <span className="font-bold text-foreground">
-                                {school?.name}
-                            </span>
-                            ? Esta acción no se puede deshacer.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <DialogFooter className="mt-4">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="destructive"
-                            disabled={processing}
-                        >
-                            {processing ? 'Eliminando...' : 'Eliminar Escuela'}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <ConfirmDeleteDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Eliminar Escuela"
+            description={
+                <>
+                    ¿Estás seguro de que deseas eliminar la escuela{' '}
+                    <span className="font-bold text-foreground">
+                        {school?.name}
+                    </span>
+                    ? Esta acción no se puede deshacer.
+                </>
+            }
+            confirmLabel="Eliminar Escuela"
+            processing={processing}
+            onConfirm={handleConfirm}
+        />
     );
 }

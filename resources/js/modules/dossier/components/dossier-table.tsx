@@ -1,6 +1,7 @@
 import { ChevronRight, User } from 'lucide-react';
 
 import type { AssignmentRecord } from '@/modules/identity';
+import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,
@@ -62,13 +63,14 @@ export default function DossierTable({
             <TableBody>
                 {data.length === 0 && !isLoading ? (
                     <TableRow>
-                        <TableCell
-                            colSpan={6}
-                            className="h-24 text-center text-sm text-muted-foreground italic"
-                        >
-                            {!search
-                                ? 'Usa el filtro o buscador para cargar expedientes.'
-                                : 'No se encontraron registros.'}
+                        <TableCell colSpan={6} className="h-24 text-center">
+                            <EmptyState
+                                title={
+                                    !search
+                                        ? 'Usa el filtro o buscador para cargar expedientes.'
+                                        : 'No se encontraron registros.'
+                                }
+                            />
                         </TableCell>
                     </TableRow>
                 ) : (

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Faculty } from '@/modules/academic/types';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -176,9 +177,9 @@ export default function Faculties({ faculties }: Props) {
                                 <TableRow>
                                     <TableCell
                                         colSpan={4}
-                                        className="h-24 text-center text-muted-foreground italic"
+                                        className="h-24 text-center"
                                     >
-                                        No hay facultades registradas.
+                                        <EmptyState title="No hay facultades registradas." />
                                     </TableCell>
                                 </TableRow>
                             )}

@@ -13,6 +13,7 @@ import {
 } from '@/modules/documents/components/dossier-shared';
 import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -51,7 +52,7 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
         >
             <Head title="Rev. Informe" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer>
                 <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <Heading
                         variant="small"
@@ -166,7 +167,7 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
                         </div>
                     </>
                 )}
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

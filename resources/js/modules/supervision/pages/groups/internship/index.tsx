@@ -5,6 +5,7 @@ import type { InternshipGroup } from '@/modules/supervision';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -290,10 +291,9 @@ export default function InternshipGroupsIndex({
                                 <TableRow>
                                     <TableCell
                                         colSpan={8}
-                                        className="h-24 text-center text-muted-foreground italic"
+                                        className="h-24 text-center"
                                     >
-                                        No hay grupos registrados o no coinciden
-                                        con la búsqueda.
+                                        <EmptyState title="No hay grupos registrados o no coinciden con la búsqueda." />
                                     </TableCell>
                                 </TableRow>
                             )}

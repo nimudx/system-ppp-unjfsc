@@ -3,7 +3,10 @@ import { Head } from '@inertiajs/react';
 import { Info, ShieldCheck, User, X } from 'lucide-react';
 
 import type { Faculty } from '@/modules/academic';
-import { DOCUMENT_STATUS_BADGE as statusConfig, ValidationPanel } from '@/modules/documents';
+import {
+    DOCUMENT_STATUS_BADGE as statusConfig,
+    ValidationPanel,
+} from '@/modules/documents';
 import type { GroupOption } from '@/modules/supervision/components/group-selector';
 import { GroupSelector } from '@/modules/supervision/components/group-selector';
 import { ModuleSelector } from '@/modules/supervision/components/module-selector';
@@ -13,6 +16,7 @@ import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 
 import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -84,7 +88,7 @@ export default function ValidationIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Supervisión" />
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <div className="flex items-center justify-between">
                     <Heading
                         variant="small"
@@ -227,8 +231,8 @@ export default function ValidationIndex({
                                         showFileInfo={
                                             annex.latest
                                                 ? {
-                                                    name: annex.title,
-                                                    grade: annex.grade,
+                                                      name: annex.title,
+                                                      grade: annex.grade,
                                                   }
                                                 : undefined
                                         }
@@ -255,7 +259,7 @@ export default function ValidationIndex({
                         )}
                     </main>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

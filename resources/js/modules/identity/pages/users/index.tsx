@@ -6,6 +6,7 @@ import type { UserAssignment } from '@/modules/identity';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -329,10 +330,9 @@ export default function UserManagementIndex({
                                 <TableRow>
                                     <TableCell
                                         colSpan={isSubadmin ? 5 : 7}
-                                        className="h-24 text-center text-muted-foreground"
+                                        className="h-24 text-center"
                                     >
-                                        No hay usuarios registrados con este
-                                        rol.
+                                        <EmptyState title="No hay usuarios registrados con este rol." />
                                     </TableCell>
                                 </TableRow>
                             )}

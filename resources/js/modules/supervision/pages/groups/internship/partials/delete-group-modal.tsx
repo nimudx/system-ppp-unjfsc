@@ -1,16 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
 import type { InternshipGroup } from '@/modules/supervision';
 import groups from '@/routes/academic/groups';
-import { Button } from '@/shared/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/components/ui/dialog';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 
 interface Props {
     group: InternshipGroup | null;
@@ -27,8 +18,7 @@ export default function DeleteGroupModal({
 }: Props) {
     const { delete: destroyRequest, processing } = useForm();
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
+    const handleConfirm = () => {
         if (!group) return;
 
         destroyRequest(groups.delete(group.id).url, {
@@ -40,39 +30,23 @@ export default function DeleteGroupModal({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Eliminar Grupo de Prácticas</DialogTitle>
-                    <DialogDescription>
-                        ¿Estás seguro de que deseas eliminar el grupo{' '}
-                        <span className="font-bold text-foreground">
-                            {group?.name}
-                        </span>
-                        ? Esta acción no se puede deshacer y solo es posible si
-                        el grupo no tiene estudiantes asignados.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit}>
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="destructive"
-                            disabled={processing}
-                        >
-                            {processing ? 'Eliminando...' : 'Eliminar Grupo'}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <ConfirmDeleteDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Eliminar Grupo de Prácticas"
+            description={
+                <>
+                    ¿Estás seguro de que deseas eliminar el grupo{' '}
+                    <span className="font-bold text-foreground">
+                        {group?.name}
+                    </span>
+                    ? Esta acción no se puede deshacer y solo es posible si el
+                    grupo no tiene estudiantes asignados.
+                </>
+            }
+            confirmLabel="Eliminar Grupo"
+            processing={processing}
+            onConfirm={handleConfirm}
+        />
     );
 }

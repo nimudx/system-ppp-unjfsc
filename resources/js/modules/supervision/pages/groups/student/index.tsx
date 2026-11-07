@@ -7,7 +7,9 @@ import type { InternshipGroup, StudentSummary } from '@/modules/supervision';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import {
     Table,
@@ -75,7 +77,7 @@ export default function StudentGroupIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Grupos por Estudiante" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <div className="flex items-end justify-between">
                     <Heading
                         variant="small"
@@ -238,14 +240,19 @@ export default function StudentGroupIndex({
                                         <TableRow>
                                             <TableCell
                                                 colSpan={selectedId ? 2 : 6}
-                                                className="h-24 text-center text-muted-foreground italic"
+                                                className="h-24 text-center"
                                             >
-                                                {isAdmin &&
-                                                displayData.length === 0 &&
-                                                !search &&
-                                                !activeFilters
-                                                    ? 'Usa el filtro o buscador para cargar grupos.'
-                                                    : 'No se encontraron resultados'}
+                                                <EmptyState
+                                                    title={
+                                                        isAdmin &&
+                                                        displayData.length ===
+                                                            0 &&
+                                                        !search &&
+                                                        !activeFilters
+                                                            ? 'Usa el filtro o buscador para cargar grupos.'
+                                                            : 'No se encontraron resultados'
+                                                    }
+                                                />
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -349,7 +356,7 @@ export default function StudentGroupIndex({
                         )}
                     </main>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

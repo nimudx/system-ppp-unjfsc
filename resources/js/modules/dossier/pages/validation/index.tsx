@@ -6,6 +6,7 @@ import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -47,7 +48,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Validación" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <div className="flex items-end justify-between">
                     <Heading
                         variant="small"
@@ -143,7 +144,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
                         />
                     </main>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }
