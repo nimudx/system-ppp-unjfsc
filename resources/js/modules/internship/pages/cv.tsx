@@ -8,7 +8,6 @@ import {
     UserRound,
 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import { formatDateTime } from '@/modules/documents/components/dossier-shared';
 import Heading from '@/shared/components/heading';
@@ -65,7 +64,6 @@ export default function StudentCv({ cv }: Props) {
                 onSuccess: () => {
                     setConfirmOpen(false);
                     setFile(null);
-                    toast.success('CV actualizado correctamente.');
                 },
                 onError: (errors) => {
                     setError(

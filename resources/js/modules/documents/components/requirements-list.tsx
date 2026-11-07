@@ -28,6 +28,7 @@ export interface RequirementsListProps {
     onSelectType: (index: number) => void;
     previewEnabled: boolean;
     onTogglePreview: () => void;
+    isLoading?: boolean;
 }
 
 export const getIcon = (code: string) => {
@@ -82,11 +83,14 @@ export default function RequirementsList({
     onSelectType,
     previewEnabled,
     onTogglePreview,
+    isLoading = false,
 }: RequirementsListProps) {
     if (!requirements || requirements.length === 0)
         return (
             <SectionCard className="flex items-center justify-center py-8 text-sm text-muted-foreground italic">
-                Cargando requisitos...
+                {isLoading
+                    ? 'Cargando requisitos...'
+                    : 'Sin requisitos configurados.'}
             </SectionCard>
         );
 

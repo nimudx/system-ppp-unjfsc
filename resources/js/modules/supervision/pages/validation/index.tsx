@@ -239,7 +239,6 @@ export default function ValidationIndex({
                                 onSelectIdx={setSelectedAnnexIdx}
                                 isLoading={isAnnexesLoading}
                                 onClose={handleCloseSelected}
-                                actionTitle="Revisión"
                                 renderActionForm={(annex) => (
                                     <ValidationPanel
                                         status={annex.status}
@@ -247,8 +246,8 @@ export default function ValidationIndex({
                                         showFileInfo={
                                             annex.latest
                                                 ? {
-                                                      name: annex.title,
-                                                      grade: annex.grade,
+                                                    name: annex.title,
+                                                    grade: annex.grade,
                                                   }
                                                 : undefined
                                         }

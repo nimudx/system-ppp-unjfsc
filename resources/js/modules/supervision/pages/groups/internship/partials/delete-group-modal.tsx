@@ -68,7 +68,7 @@ export default function DeleteGroupModal({
                             variant="destructive"
                             disabled={processing}
                         >
-                            {processing ? 'Eliminando...' : 'Eliminar Facultad'}
+                            {processing ? 'Eliminando...' : 'Eliminar Grupo'}
                         </Button>
                     </DialogFooter>
                 </form>

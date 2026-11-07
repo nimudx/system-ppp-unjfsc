@@ -69,11 +69,7 @@ export default function UserRegistration(props: PageProps) {
                     <div className="lg:col-span-2">
                         <div>
                             {entityType === 'persona' && (
-                                <PersonFlow
-                                    {...props}
-                                    mode={mode}
-                                    onBack={() => {}}
-                                />
+                                <PersonFlow {...props} mode={mode} />
                             )}
 
                             {entityType === 'empresa' && (

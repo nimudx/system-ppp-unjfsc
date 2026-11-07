@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
+import { useEffect } from 'react';
 import type { Semester } from '@/modules/academic/types';
 import { update } from '@/routes/academic/semesters';
 import { Button } from '@/shared/components/ui/button';
@@ -29,10 +30,13 @@ export default function UpdateSemesterModal({
         cycle: semester?.cycle || '',
     });
 
-    // Update form data when semester changes
-    if (semester && data.cycle !== semester.cycle && !processing) {
-        setData('cycle', semester.cycle);
-    }
+    // La instancia del formulario se reutiliza entre aperturas del modal:
+    // sincronizamos el ciclo cuando cambia el semestre seleccionado.
+    useEffect(() => {
+        if (open && semester) {
+            setData('cycle', semester.cycle);
+        }
+    }, [open, semester, setData]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();

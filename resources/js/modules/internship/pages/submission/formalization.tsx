@@ -144,16 +144,12 @@ export default function Formalization({
                             >
                                 {form.activeRequirement ? (
                                     <DocumentForm
-                                        placementId={data.placement?.id}
                                         requirement={form.activeRequirement}
                                         tempFile={form.tempFile}
                                         previewUrl={form.previewUrl}
                                         canUpload={form.canUploadDocument}
                                         onUpload={form.onUploadTempFile}
                                         previewEnabled={form.previewEnabled}
-                                        isEditing={form.isEditing}
-                                        setIsEditing={form.setIsEditing}
-                                        onClearTemp={form.removeTempFile}
                                     />
                                 ) : (
                                     <SectionCard>

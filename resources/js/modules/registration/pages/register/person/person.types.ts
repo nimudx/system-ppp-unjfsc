@@ -9,7 +9,6 @@ export interface PersonFlowProps {
     roles: RoleOption[];
     faculties: Faculty[];
     mode: 'individual' | 'masivo';
-    onBack: () => void;
 }
 
 export interface PersonInitialState {

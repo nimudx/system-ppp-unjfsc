@@ -243,7 +243,6 @@ export default function SubmissionShow({ faculties, groups, students }: Props) {
                                 onSelectIdx={setSelectedAnnexIdx}
                                 isLoading={isAnnexesLoading}
                                 onClose={handleCloseSelected}
-                                actionTitle="Envío"
                                 // Lógica de subida (solo para Sumisión): se habilita si no hay archivo subido aún o si activamos edición
                                 canUpload={
                                     !!currentAnnex &&

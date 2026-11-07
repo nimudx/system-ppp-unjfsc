@@ -191,7 +191,7 @@ export default function Semesters({ semesters }: Props) {
                             ) : (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={4}
+                                        colSpan={5}
                                         className="h-24 text-center text-muted-foreground italic"
                                     >
                                         No hay semestres registrados.

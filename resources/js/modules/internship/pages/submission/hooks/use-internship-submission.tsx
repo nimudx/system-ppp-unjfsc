@@ -100,7 +100,6 @@ export function useInternshipSubmission({
             onFinish: () => setUploading(false),
             onSuccess: () => {
                 removeTempFile();
-                toast.success('Documento enviado correctamente.');
             },
             onError: () => {
                 toast.error('Error al subir el documento.');

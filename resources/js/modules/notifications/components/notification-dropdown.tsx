@@ -41,8 +41,6 @@ export function NotificationDropdown({
                     const routeName = action.route;
                     const params = action.params || {};
 
-                    console.log('Resolving route:', routeName, params);
-
                     const url = resolveWayfinderUrl(routeName, params);
 
                     if (url) {

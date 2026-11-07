@@ -90,8 +90,7 @@ export function useDossierValidation({
                     tableManager.fetchData(currentPath, params);
                 }
             },
-            onError: (errors) => {
-                console.log(errors);
+            onError: () => {
                 toast.error('Ocurrió un error al guardar la validación.');
             },
             onFinish: () => {

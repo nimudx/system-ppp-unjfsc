@@ -683,7 +683,6 @@ export default function MyDossier({
         post(dossiers.document.store().url, {
             onSuccess: () => {
                 removeTempFile();
-                toast.success('Documento enviado');
             },
             onError: (errors) => {
                 const firstError = Object.values(errors)[0] as

@@ -2,7 +2,6 @@ import {
     Archive,
     BadgeCheck,
     BookMarked,
-    BookOpen,
     Boxes,
     Briefcase,
     Building2,
@@ -238,7 +237,7 @@ export const ACADEMIC_NAV = [
             {
                 title: 'Facultades',
                 href: facultiesIndex().url,
-                roles: [1, 2, 4],
+                roles: [1, 2],
             },
             {
                 title: 'Escuelas',
@@ -324,19 +323,5 @@ export const FOOTER_NAV = [
         icon: Settings,
         userTypes: [2],
         roles: [1, 2, 3],
-    },
-    {
-        title: 'Repositorio',
-        href: 'https://github.com/martii-n/system-ppp-unjfsc',
-        icon: Folder,
-        userTypes: [1, 2],
-        roles: [1, 2],
-    },
-    {
-        title: 'Documentación',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-        userTypes: [1, 2],
-        roles: [1, 2],
     },
 ];

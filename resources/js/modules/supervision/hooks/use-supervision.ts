@@ -190,7 +190,6 @@ export function useSupervision({ initialData, groups, isAdmin }: Props) {
                     preserveScroll: true,
                     onSuccess: () => {
                         detailActions.reloadDetail(); // Refresca panel sin perder selección
-                        toast.success('Validación registrada correctamente.');
                     },
                 },
             );

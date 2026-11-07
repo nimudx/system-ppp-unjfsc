@@ -61,7 +61,7 @@ export default function DossierDetailPanel({
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div
-                                    className={`flex size-8 items-center justify-center rounded-md border ${selectedItem?.requirements?.[selectedType]?.latest ? 'border-primary/20 bg-primary/5' : 'bg-muted/50'}`}
+                                    className={`flex size-8 items-center justify-center rounded-md border ${detail?.requirements?.[selectedType]?.latest ? 'border-primary/20 bg-primary/5' : 'bg-muted/50'}`}
                                 >
                                     <FileText
                                         className={`size-4 ${detail?.requirements?.[selectedType]?.latest ? 'text-primary' : 'text-muted-foreground'}`}
@@ -120,6 +120,7 @@ export default function DossierDetailPanel({
 
                     <RequirementsList
                         requirements={detail?.requirements || []}
+                        isLoading={!detail}
                         selectedType={selectedType}
                         onSelectType={setSelectedType}
                         previewEnabled={previewEnabled}
