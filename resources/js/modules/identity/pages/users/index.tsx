@@ -37,9 +37,9 @@ import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
-import { useUserManagement } from './hooks/use-user-management';
-import ManageAssignmentModal from './partials/manage-assignment-modal';
-import PendingRequestModal from './partials/pending-request-modal';
+import { useUserManagement } from '@/modules/identity/hooks/use-user-management';
+import ManageAssignmentModal from '@/modules/identity/components/manage-assignment-modal';
+import PendingRequestModal from '@/modules/identity/components/pending-request-modal';
 
 interface Props {
     assignments: TableData<UserAssignment>;
