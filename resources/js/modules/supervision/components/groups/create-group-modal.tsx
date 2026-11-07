@@ -38,9 +38,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { StudentSelectorTable } from '../../../../components/student-selector-table';
-import type { StoreGroupValues } from './store.schema';
-import { storeGroupSchema } from './store.schema';
+import { StudentSelectorTable } from '../student-selector-table';
+import type { StoreGroupValues } from '../../schemas/group-store.schema';
+import { storeGroupSchema } from '../../schemas/group-store.schema';
 
 interface Faculty {
     id: number;

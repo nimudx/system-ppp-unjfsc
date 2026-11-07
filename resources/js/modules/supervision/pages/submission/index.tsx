@@ -22,7 +22,7 @@ import AppLayout from '@/shared/layouts/app-layout';
 import SupervisionDetailPanel from '../../components/supervision-detail-panel';
 import SupervisionTable from '../../components/supervision-table';
 import { useSupervision } from '../../hooks/use-supervision';
-import SubmitForm from './components/SubmitForm';
+import SubmitForm from '../../components/submit-form';
 
 interface Props {
     faculties: Faculty[];

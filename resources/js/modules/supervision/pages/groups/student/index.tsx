@@ -22,7 +22,7 @@ import {
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
-import StudentManagementTabs from './partials/student-management-tabs';
+import StudentManagementTabs from '../../../components/student-management-tabs';
 
 interface Props {
     groups: InternshipGroup[];

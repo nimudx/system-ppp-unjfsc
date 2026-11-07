@@ -36,8 +36,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import type { UpdateGroupValues } from './update.schema';
-import { updateGroupSchema } from './update.schema';
+import type { UpdateGroupValues } from '../../schemas/group-update.schema';
+import { updateGroupSchema } from '../../schemas/group-update.schema';
 
 interface EditGroupModalProps {
     open: boolean;

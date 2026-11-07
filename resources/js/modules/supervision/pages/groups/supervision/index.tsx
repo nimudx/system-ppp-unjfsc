@@ -29,7 +29,7 @@ import {
 } from '@/shared/components/ui/table';
 import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
-import { useGroupSupervision } from './hooks/use-group-supervision';
+import { useGroupSupervision } from '../../../hooks/use-group-supervision';
 
 interface Props {
     groups: InternshipGroup[];

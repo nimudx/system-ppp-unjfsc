@@ -30,9 +30,9 @@ import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
 import { useInternshipGroup } from '../../../hooks/use-internship-group';
-import CreateGroupModal from './partials/create-group-modal';
-import DeleteGroupModal from './partials/delete-group-modal';
-import EditGroupModal from './partials/edit-group-modal';
+import CreateGroupModal from '../../../components/groups/create-group-modal';
+import DeleteGroupModal from '../../../components/groups/delete-group-modal';
+import EditGroupModal from '../../../components/groups/edit-group-modal';
 
 interface Props {
     groups: TableData<InternshipGroup>;
