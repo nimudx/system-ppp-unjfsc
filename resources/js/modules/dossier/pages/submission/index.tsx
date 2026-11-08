@@ -36,6 +36,7 @@ import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { Spinner } from '@/shared/components/ui/spinner';
 import AppLayout from '@/shared/layouts/app-layout';
+import DocumentReviewLayout from '@/shared/layouts/document-review-layout';
 import { cn } from '@/shared/lib/utils';
 
 import type { BreadcrumbItem } from '@/shared/types';
@@ -657,236 +658,244 @@ export default function MyDossier({
                     />
                 </div>
 
-                <div className="flex flex-col items-start gap-6 lg:flex-row">
-                    {/* Columna izquierda: requisitos */}
-                    <div className="order-3 flex w-full shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
-                        <RequirementsList
-                            requirements={list}
-                            selectedType={selectedType}
-                            onSelectType={selectType}
-                            previewEnabled={previewEnabled}
-                            onTogglePreview={() =>
-                                setPreviewEnabled((value) => !value)
-                            }
-                        />
+                <DocumentReviewLayout
+                    hideAside={expanded}
+                    documentClassName={
+                        expanded
+                            ? 'fixed inset-0 z-50 h-dvh overflow-auto bg-background p-3 md:p-6'
+                            : 'relative h-full w-full overflow-hidden'
+                    }
+                    requirements={
+                        <>
+                            <RequirementsList
+                                requirements={list}
+                                selectedType={selectedType}
+                                onSelectType={selectType}
+                                previewEnabled={previewEnabled}
+                                onTogglePreview={() =>
+                                    setPreviewEnabled((value) => !value)
+                                }
+                            />
 
-                        {currentFile?.has_template && (
-                            <div
-                                key={`template-${currentFile.code}`}
-                                className={cn(
-                                    'rounded-xl border bg-card text-card-foreground shadow-sm',
-                                    enter,
-                                )}
-                            >
-                                <div className="flex flex-row items-center justify-between p-4 pb-2">
-                                    <h3 className="text-sm font-semibold tracking-tight">
-                                        Plantilla disponible
-                                    </h3>
+                            {currentFile?.has_template && (
+                                <div
+                                    key={`template-${currentFile.code}`}
+                                    className={cn(
+                                        'rounded-xl border bg-card text-card-foreground shadow-sm',
+                                        enter,
+                                    )}
+                                >
+                                    <div className="flex flex-row items-center justify-between p-4 pb-2">
+                                        <h3 className="text-sm font-semibold tracking-tight">
+                                            Plantilla disponible
+                                        </h3>
 
-                                    <FileDown className="size-4 text-muted-foreground" />
-                                </div>
+                                        <FileDown className="size-4 text-muted-foreground" />
+                                    </div>
 
-                                <div className="p-4 pt-0">
-                                    <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                        Descarga el formato oficial, complétalo
-                                        y súbelo.
-                                    </p>
+                                    <div className="p-4 pt-0">
+                                        <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+                                            Descarga el formato oficial,
+                                            complétalo y súbelo.
+                                        </p>
 
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full"
-                                    >
-                                        <Download />
-                                        Descargar formato
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-
-                        <PendingActionsCard requirements={list} />
-                    </div>
-
-                    {/* Centro: visor del documento */}
-                    <div
-                        className={cn(
-                            expanded
-                                ? 'fixed inset-0 z-50 h-dvh overflow-auto bg-background p-3 md:p-6'
-                                : 'relative order-1 h-full w-full min-w-0 flex-1 overflow-hidden lg:order-none',
-                        )}
-                    >
-                        {processing && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-                                <div className="flex flex-col items-center gap-2">
-                                    <Spinner className="animate-spin text-primary" />
-                                    <span className="text-xs font-medium">
-                                        Subiendo documento...
-                                    </span>
-                                </div>
-                            </div>
-                        )}
-
-                        {currentFile ? (
-                            <SectionCard>
-                                <SectionCard.Header>
-                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <div
-                                            key={
-                                                currentFile.code ?? selectedType
-                                            }
-                                            className={cn(
-                                                'flex min-w-0 items-center gap-3',
-                                                enter,
-                                            )}
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full"
                                         >
+                                            <Download />
+                                            Descargar formato
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <PendingActionsCard requirements={list} />
+                        </>
+                    }
+                    document={
+                        <>
+                            {processing && (
+                                <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Spinner className="animate-spin text-primary" />
+                                        <span className="text-xs font-medium">
+                                            Subiendo documento...
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {currentFile ? (
+                                <SectionCard>
+                                    <SectionCard.Header>
+                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div
+                                                key={
+                                                    currentFile.code ??
+                                                    selectedType
+                                                }
                                                 className={cn(
-                                                    'flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors',
-                                                    hasFile
-                                                        ? 'border-primary/20 bg-primary/5'
-                                                        : 'bg-muted/50',
+                                                    'flex min-w-0 items-center gap-3',
+                                                    enter,
                                                 )}
                                             >
-                                                <FileText
+                                                <div
                                                     className={cn(
-                                                        'size-4',
+                                                        'flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors',
                                                         hasFile
-                                                            ? 'text-primary'
-                                                            : 'text-muted-foreground',
-                                                    )}
-                                                />
-                                            </div>
-
-                                            <div className="flex min-w-0 flex-col">
-                                                <h3 className="truncate text-sm leading-none font-semibold tracking-tight">
-                                                    {currentFile.title}
-                                                </h3>
-
-                                                <p
-                                                    className={cn(
-                                                        'mt-1 text-[11px]',
-                                                        tempFile
-                                                            ? 'text-primary'
-                                                            : currentFile.latest
-                                                              ? getStatusMeta(
-                                                                    currentStatus,
-                                                                ).text
-                                                              : 'text-muted-foreground',
+                                                            ? 'border-primary/20 bg-primary/5'
+                                                            : 'bg-muted/50',
                                                     )}
                                                 >
-                                                    {subtitle}
-                                                </p>
+                                                    <FileText
+                                                        className={cn(
+                                                            'size-4',
+                                                            hasFile
+                                                                ? 'text-primary'
+                                                                : 'text-muted-foreground',
+                                                        )}
+                                                    />
+                                                </div>
+
+                                                <div className="flex min-w-0 flex-col">
+                                                    <h3 className="truncate text-sm leading-none font-semibold tracking-tight">
+                                                        {currentFile.title}
+                                                    </h3>
+
+                                                    <p
+                                                        className={cn(
+                                                            'mt-1 text-[11px]',
+                                                            tempFile
+                                                                ? 'text-primary'
+                                                                : currentFile.latest
+                                                                  ? getStatusMeta(
+                                                                        currentStatus,
+                                                                    ).text
+                                                                  : 'text-muted-foreground',
+                                                        )}
+                                                    >
+                                                        {subtitle}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex shrink-0 items-center justify-between gap-1 sm:justify-end">
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                aria-label="Documento anterior"
-                                                disabled={selectedType === 0}
-                                                onClick={() =>
-                                                    selectType(selectedType - 1)
-                                                }
-                                            >
-                                                <ChevronLeft />
-                                            </Button>
-
-                                            <span className="text-xs text-muted-foreground tabular-nums">
-                                                {selectedType + 1}/{list.length}
-                                            </span>
-
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                aria-label="Documento siguiente"
-                                                disabled={
-                                                    selectedType >=
-                                                    list.length - 1
-                                                }
-                                                onClick={() =>
-                                                    selectType(selectedType + 1)
-                                                }
-                                            >
-                                                <ChevronRight />
-                                            </Button>
-
-                                            {hasFile && (
+                                            <div className="flex shrink-0 items-center justify-between gap-1 sm:justify-end">
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
-                                                    size="sm"
-                                                    className="ml-auto h-8 px-2.5 text-xs sm:ml-1"
+                                                    size="icon-sm"
+                                                    aria-label="Documento anterior"
+                                                    disabled={
+                                                        selectedType === 0
+                                                    }
                                                     onClick={() =>
-                                                        setExpanded(
-                                                            (value) => !value,
+                                                        selectType(
+                                                            selectedType - 1,
                                                         )
                                                     }
                                                 >
-                                                    {expanded ? (
-                                                        <Minimize2 className="size-3.5 text-muted-foreground sm:mr-2" />
-                                                    ) : (
-                                                        <Maximize2 className="size-3.5 text-muted-foreground sm:mr-2" />
-                                                    )}
-
-                                                    <span className="hidden sm:inline">
-                                                        {expanded
-                                                            ? 'Cerrar'
-                                                            : 'Expandir'}
-                                                    </span>
-                                                    <span className="sr-only sm:hidden">
-                                                        {expanded
-                                                            ? 'Cerrar vista completa'
-                                                            : 'Expandir vista'}
-                                                    </span>
+                                                    <ChevronLeft />
                                                 </Button>
-                                            )}
+
+                                                <span className="text-xs text-muted-foreground tabular-nums">
+                                                    {selectedType + 1}/
+                                                    {list.length}
+                                                </span>
+
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    aria-label="Documento siguiente"
+                                                    disabled={
+                                                        selectedType >=
+                                                        list.length - 1
+                                                    }
+                                                    onClick={() =>
+                                                        selectType(
+                                                            selectedType + 1,
+                                                        )
+                                                    }
+                                                >
+                                                    <ChevronRight />
+                                                </Button>
+
+                                                {hasFile && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="ml-auto h-8 px-2.5 text-xs sm:ml-1"
+                                                        onClick={() =>
+                                                            setExpanded(
+                                                                (value) =>
+                                                                    !value,
+                                                            )
+                                                        }
+                                                    >
+                                                        {expanded ? (
+                                                            <Minimize2 className="size-3.5 text-muted-foreground sm:mr-2" />
+                                                        ) : (
+                                                            <Maximize2 className="size-3.5 text-muted-foreground sm:mr-2" />
+                                                        )}
+
+                                                        <span className="hidden sm:inline">
+                                                            {expanded
+                                                                ? 'Cerrar'
+                                                                : 'Expandir'}
+                                                        </span>
+                                                        <span className="sr-only sm:hidden">
+                                                            {expanded
+                                                                ? 'Cerrar vista completa'
+                                                                : 'Expandir vista'}
+                                                        </span>
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                </SectionCard.Header>
+                                    </SectionCard.Header>
 
-                                <SectionCard.Body className="p-0">
-                                    <DocumentViewer
-                                        currentFile={{
-                                            ...currentFile,
-                                            latest: tempFile
-                                                ? {
-                                                      id: 0,
-                                                      approval_status: 0,
-                                                      path: previewUrl,
-                                                      name: tempFile.name,
-                                                      size: tempFile.size,
-                                                  }
-                                                : currentFile.latest,
-                                        }}
-                                        canUpload={canUpload}
-                                        onUpload={onUpload}
-                                        previewEnabled={previewEnabled}
-                                    />
-                                </SectionCard.Body>
-                            </SectionCard>
-                        ) : (
-                            <SectionCard>
-                                <SectionCard.Body className="flex min-h-64 flex-col items-center justify-center text-center">
-                                    <FileText className="mb-3 size-8 text-muted-foreground/50" />
-                                    <p className="text-sm font-medium">
-                                        No hay documentos requeridos
-                                    </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        No se encontraron requisitos para este
-                                        expediente.
-                                    </p>
-                                </SectionCard.Body>
-                            </SectionCard>
-                        )}
-                    </div>
-
-                    {/* Columna derecha: detalle e historial independientes */}
-                    {!expanded && (
-                        <aside className="order-2 flex w-full min-w-0 shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
+                                    <SectionCard.Body className="p-0">
+                                        <DocumentViewer
+                                            currentFile={{
+                                                ...currentFile,
+                                                latest: tempFile
+                                                    ? {
+                                                          id: 0,
+                                                          approval_status: 0,
+                                                          path: previewUrl,
+                                                          name: tempFile.name,
+                                                          size: tempFile.size,
+                                                      }
+                                                    : currentFile.latest,
+                                            }}
+                                            canUpload={canUpload}
+                                            onUpload={onUpload}
+                                            previewEnabled={previewEnabled}
+                                        />
+                                    </SectionCard.Body>
+                                </SectionCard>
+                            ) : (
+                                <SectionCard>
+                                    <SectionCard.Body className="flex min-h-64 flex-col items-center justify-center text-center">
+                                        <FileText className="mb-3 size-8 text-muted-foreground/50" />
+                                        <p className="text-sm font-medium">
+                                            No hay documentos requeridos
+                                        </p>
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            No se encontraron requisitos para
+                                            este expediente.
+                                        </p>
+                                    </SectionCard.Body>
+                                </SectionCard>
+                            )}
+                        </>
+                    }
+                    aside={
+                        <>
                             {currentFile && (
                                 <SubmissionPanel
                                     status={currentStatus}
@@ -906,9 +915,9 @@ export default function MyDossier({
                             )}
 
                             <DocumentHistoryPanel history={allHistory} />
-                        </aside>
-                    )}
-                </div>
+                        </>
+                    }
+                />
             </PageContainer>
         </AppLayout>
     );

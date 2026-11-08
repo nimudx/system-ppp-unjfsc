@@ -15,7 +15,7 @@ import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
-import { cn } from '@/shared/lib/utils';
+import DocumentReviewLayout from '@/shared/layouts/document-review-layout';
 import DocumentForm from '../components/submission/document-form';
 import { usePlacementSubmission } from '../hooks/use-placement-submission';
 
@@ -91,29 +91,26 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
                             reemplazar un anexo si necesitas corregirlo.
                         </p>
 
-                        <div className="flex flex-col items-start gap-6 lg:flex-row">
-                            <div className="order-3 flex w-full shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
-                                <RequirementsList
-                                    requirements={list}
-                                    selectedType={selectedType}
-                                    onSelectType={form.setActiveContext}
-                                    previewEnabled={form.previewEnabled}
-                                    onTogglePreview={() =>
-                                        form.setPreviewEnabled(
-                                            !form.previewEnabled,
-                                        )
-                                    }
-                                />
+                        <DocumentReviewLayout
+                            requirements={
+                                <>
+                                    <RequirementsList
+                                        requirements={list}
+                                        selectedType={selectedType}
+                                        onSelectType={form.setActiveContext}
+                                        previewEnabled={form.previewEnabled}
+                                        onTogglePreview={() =>
+                                            form.setPreviewEnabled(
+                                                !form.previewEnabled,
+                                            )
+                                        }
+                                    />
 
-                                <PendingActionsCard requirements={list} />
-                            </div>
-
-                            <div
-                                className={cn(
-                                    'order-1 min-w-0 flex-1 lg:order-none',
-                                )}
-                            >
-                                {form.activeRequirement ? (
+                                    <PendingActionsCard requirements={list} />
+                                </>
+                            }
+                            document={
+                                form.activeRequirement ? (
                                     <DocumentForm
                                         requirement={form.activeRequirement}
                                         tempFile={form.tempFile}
@@ -134,35 +131,40 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
                                             </p>
                                         </SectionCard.Body>
                                     </SectionCard>
-                                )}
-                            </div>
+                                )
+                            }
+                            aside={
+                                <>
+                                    {form.activeRequirement && (
+                                        <SubmissionPanel
+                                            status={
+                                                form.activeRequirement.status
+                                            }
+                                            currentRequirement={
+                                                form.activeRequirement
+                                            }
+                                            tempFile={form.tempFile}
+                                            isEditing={form.isEditing}
+                                            onSetEditing={form.setIsEditing}
+                                            onRemoveTemp={form.removeTempFile}
+                                            uploading={form.loading}
+                                            showFileInfo={{
+                                                name: form.activeRequirement
+                                                    .latest?.name,
+                                                meta: 'Documento adjunto',
+                                                size: form.activeRequirement
+                                                    .latest?.size,
+                                            }}
+                                            onSubmit={form.handleSaveDocument}
+                                        />
+                                    )}
 
-                            <aside className="order-2 flex w-full min-w-0 shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
-                                {form.activeRequirement && (
-                                    <SubmissionPanel
-                                        status={form.activeRequirement.status}
-                                        currentRequirement={
-                                            form.activeRequirement
-                                        }
-                                        tempFile={form.tempFile}
-                                        isEditing={form.isEditing}
-                                        onSetEditing={form.setIsEditing}
-                                        onRemoveTemp={form.removeTempFile}
-                                        uploading={form.loading}
-                                        showFileInfo={{
-                                            name: form.activeRequirement.latest
-                                                ?.name,
-                                            meta: 'Documento adjunto',
-                                            size: form.activeRequirement.latest
-                                                ?.size,
-                                        }}
-                                        onSubmit={form.handleSaveDocument}
+                                    <DocumentHistoryPanel
+                                        history={allHistory}
                                     />
-                                )}
-
-                                <DocumentHistoryPanel history={allHistory} />
-                            </aside>
-                        </div>
+                                </>
+                            }
+                        />
                     </>
                 )}
             </PageContainer>
