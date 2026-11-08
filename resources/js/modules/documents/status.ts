@@ -38,7 +38,8 @@ export const DOCUMENT_STATUS_META: Record<number, DocumentStatusMeta> = {
         dot: 'bg-green-500',
         text: 'text-green-600 dark:text-green-400',
         badge: 'bg-green-500/10 text-green-700 border-green-200 dark:text-green-400 dark:border-green-500/20',
-        surface: 'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400',
+        surface:
+            'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400',
     },
     [DOCUMENT_STATUS.PENDING]: {
         label: 'Pendiente',
@@ -46,7 +47,8 @@ export const DOCUMENT_STATUS_META: Record<number, DocumentStatusMeta> = {
         dot: 'bg-amber-500',
         text: 'text-amber-600 dark:text-amber-400',
         badge: 'bg-amber-500/10 text-amber-700 border-amber-200 dark:text-amber-400 dark:border-amber-500/20',
-        surface: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400',
+        surface:
+            'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400',
     },
     [DOCUMENT_STATUS.OBSERVED]: {
         label: 'Observado',

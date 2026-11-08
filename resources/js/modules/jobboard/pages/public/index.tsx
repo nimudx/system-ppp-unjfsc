@@ -177,7 +177,10 @@ export default function LoginEmpresa() {
                                         placeholder="empresa@correo.com"
                                         value={data.email}
                                         onChange={(event) => {
-                                            setData('email', event.target.value);
+                                            setData(
+                                                'email',
+                                                event.target.value,
+                                            );
                                         }}
                                         className="h-12 border-slate-200 bg-white pl-10 focus-visible:ring-blue-800"
                                         required
@@ -247,7 +250,9 @@ export default function LoginEmpresa() {
                                 disabled={processing}
                                 className="h-12 w-full bg-[#102747] font-semibold text-white hover:bg-[#183b68]"
                             >
-                                {processing ? 'Ingresando...' : 'Iniciar sesión'}
+                                {processing
+                                    ? 'Ingresando...'
+                                    : 'Iniciar sesión'}
                             </Button>
                         </form>
 

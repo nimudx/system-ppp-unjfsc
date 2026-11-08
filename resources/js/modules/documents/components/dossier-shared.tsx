@@ -64,7 +64,8 @@ export const resolveStatus = resolveDocumentStatus;
  */
 export function getStatusMeta(status: number) {
     const meta = getDocumentStatusMeta(
-        status === DOCUMENT_STATUS.APPROVED || status === DOCUMENT_STATUS.OBSERVED
+        status === DOCUMENT_STATUS.APPROVED ||
+            status === DOCUMENT_STATUS.OBSERVED
             ? status
             : DOCUMENT_STATUS.PENDING,
     );

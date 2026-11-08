@@ -73,9 +73,7 @@ export default function Dashboard({
         const academicView: Record<number, React.ReactNode> = {
             [ROLES.ADMIN]: <AdminContent stats={stats as AdminStats} />,
             [ROLES.SUBADMIN]: <AdminContent stats={stats as AdminStats} />, // Sub Admin también ve panel admin
-            [ROLES.TEACHER]: (
-                <TeacherContent stats={stats as TeacherStats} />
-            ),
+            [ROLES.TEACHER]: <TeacherContent stats={stats as TeacherStats} />,
             [ROLES.SUPERVISOR]: (
                 <SupervisorContent stats={stats as SupervisorStats} />
             ),

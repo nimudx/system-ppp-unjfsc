@@ -40,7 +40,7 @@ export function WorkflowErrors({ error }: { error: unknown }) {
     return (
         <div
             role="alert"
-            className="flex items-start gap-2.5 rounded-lg border border-destructive/60 bg-destructive/5 p-3 text-sm text-destructive motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1 duration-300"
+            className="flex items-start gap-2.5 rounded-lg border border-destructive/60 bg-destructive/5 p-3 text-sm text-destructive duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1"
         >
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             <div className="min-w-0 flex-1 space-y-2">
@@ -137,7 +137,9 @@ export function ConsentCheck({
         <label
             className={cn(
                 'flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition-colors duration-200',
-                checked ? 'border-primary/40 bg-primary/5' : 'hover:bg-muted/40',
+                checked
+                    ? 'border-primary/40 bg-primary/5'
+                    : 'hover:bg-muted/40',
                 disabled && 'cursor-not-allowed opacity-60',
             )}
         >
@@ -178,7 +180,8 @@ export function StepBadge({
             <span
                 className={cn(
                     'relative grid size-8 place-items-center rounded-full border text-sm font-semibold transition-colors duration-500',
-                    state === 'done' && 'border-green-500 bg-green-500 text-white',
+                    state === 'done' &&
+                        'border-green-500 bg-green-500 text-white',
                     state === 'current' &&
                         'border-primary bg-primary text-primary-foreground',
                     state === 'attention' &&
