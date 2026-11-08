@@ -3,6 +3,9 @@ import { MoreHorizontal, UserCog, Settings2, Clock } from 'lucide-react';
 import type { Faculty } from '@/modules/academic';
 import type { UserAssignment } from '@/modules/identity';
 
+import ManageAssignmentModal from '@/modules/identity/components/manage-assignment-modal';
+import PendingRequestModal from '@/modules/identity/components/pending-request-modal';
+import { useUserManagement } from '@/modules/identity/hooks/use-user-management';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -36,10 +39,6 @@ import type { TableData } from '@/shared/hooks/use-config-table';
 import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
-
-import { useUserManagement } from '@/modules/identity/hooks/use-user-management';
-import ManageAssignmentModal from '@/modules/identity/components/manage-assignment-modal';
-import PendingRequestModal from '@/modules/identity/components/pending-request-modal';
 
 interface Props {
     assignments: TableData<UserAssignment>;

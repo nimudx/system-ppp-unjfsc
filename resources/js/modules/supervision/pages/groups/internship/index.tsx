@@ -29,10 +29,10 @@ import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
-import { useInternshipGroup } from '../../../hooks/use-internship-group';
 import CreateGroupModal from '../../../components/groups/create-group-modal';
 import DeleteGroupModal from '../../../components/groups/delete-group-modal';
 import EditGroupModal from '../../../components/groups/edit-group-modal';
+import { useInternshipGroup } from '../../../hooks/use-internship-group';
 
 interface Props {
     groups: TableData<InternshipGroup>;

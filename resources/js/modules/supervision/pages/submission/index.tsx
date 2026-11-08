@@ -19,10 +19,10 @@ import type { TableData } from '@/shared/hooks/use-config-table';
 import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 
+import SubmitForm from '../../components/submit-form';
 import SupervisionDetailPanel from '../../components/supervision-detail-panel';
 import SupervisionTable from '../../components/supervision-table';
 import { useSupervision } from '../../hooks/use-supervision';
-import SubmitForm from '../../components/submit-form';
 
 interface Props {
     faculties: Faculty[];

@@ -22,8 +22,8 @@ import {
     TabsList,
     TabsTrigger,
 } from '@/shared/components/ui/tabs';
-import { StudentSelectorTable } from './student-selector-table';
 import { useStudentManagement } from '../hooks/use-student-management';
+import { StudentSelectorTable } from './student-selector-table';
 interface StudentManagementTabsProps {
     group: InternshipGroup;
     allGroups: InternshipGroup[];
