@@ -45,7 +45,7 @@ class InternshipController extends Controller
         // La vista de Pasantía siempre muestra la empresa y los datos del
         // jefe inmediato. El seguimiento de documentos y evaluaciones vive
         // en "Rev. informe".
-        return Inertia::render('internship/submission/placementIndex', [
+        return Inertia::render('internship/submission/placement-index', [
             'data' => $this->placementService->getSubmissionData($assignment),
             'companyRequest' => $this->companyRequest($assignment),
         ]);

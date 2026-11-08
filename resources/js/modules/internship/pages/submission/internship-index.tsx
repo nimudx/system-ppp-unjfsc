@@ -16,8 +16,7 @@ import { Badge } from '@/shared/components/ui/badge';
 
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
-// Hook
-// Components
+
 import { DocumentViewerPanel } from '../../components/submission/document-viewer-panel';
 import { EvaluationView } from '../../components/submission/evaluation-view';
 import { RequirementListPanel } from '../../components/submission/requirement-list-panel';

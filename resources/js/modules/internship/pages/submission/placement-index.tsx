@@ -12,7 +12,7 @@ import AppLayout from '@/shared/layouts/app-layout';
 import { TypeSelector } from '../../components/submission/type-selector';
 import { usePlacementSubmission } from '../../hooks/use-placement-submission';
 
-interface PlacementProps {
+interface PlacementIndexProps {
     data: {
         placement: PlacementRecord | null;
         requirements: DocumentRequirement[];
@@ -24,7 +24,7 @@ interface PlacementProps {
 export default function PlacementIndex({
     data,
     companyRequest,
-}: PlacementProps) {
+}: PlacementIndexProps) {
     const request = useCompanyRequest(companyRequest);
     const documentsEnabled =
         !request.loading &&
