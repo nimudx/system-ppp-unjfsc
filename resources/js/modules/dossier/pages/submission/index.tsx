@@ -60,8 +60,10 @@ function useCountUp(target: number, duration = 700) {
             typeof window !== 'undefined' &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ) {
-            setValue(target);
-            return;
+            /* Sin animación: aplica el valor en el siguiente frame. */
+            const frame = requestAnimationFrame(() => setValue(target));
+
+            return () => cancelAnimationFrame(frame);
         }
 
         let frame = 0;
@@ -335,11 +337,6 @@ function DocumentHistoryPanel({
                                     record.approval_status,
                                 );
                                 const StatusIcon = status.icon;
-                                const validDate =
-                                    record.created_at &&
-                                    !Number.isNaN(
-                                        new Date(record.created_at).getTime(),
-                                    );
 
                                 return (
                                     <article
@@ -476,7 +473,7 @@ export default function MyDossier({
     const [tempFile, setTempFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const list = requirements || [];
+    const list = useMemo(() => requirements ?? [], [requirements]);
     const currentFile = list[selectedType];
     const currentStatus = tempFile ? 0 : resolveStatus(currentFile);
 
@@ -567,9 +564,12 @@ export default function MyDossier({
 
     /* Atajos: ← y → cambian de documento (si no estás escribiendo). */
     const selectRef = useRef(selectType);
-    selectRef.current = selectType;
     const indexRef = useRef(selectedType);
-    indexRef.current = selectedType;
+
+    useEffect(() => {
+        selectRef.current = selectType;
+        indexRef.current = selectedType;
+    });
 
     useEffect(() => {
         const onKey = (event: KeyboardEvent) => {
