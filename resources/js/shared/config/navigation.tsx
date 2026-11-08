@@ -17,6 +17,7 @@ import {
     Users,
 } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { index as companiesIndex } from '@/routes/academic/companies';
 import { submission as dossierSubmissionIndex } from '@/routes/academic/dossiers';
 import { teacher as teacherDossierIndex } from '@/routes/academic/dossiers';
 import { supervisor as supervisorDossierIndex } from '@/routes/academic/dossiers';
@@ -25,9 +26,16 @@ import { index as facultiesIndex } from '@/routes/academic/faculties';
 import { internship as internshipIndex } from '@/routes/academic/groups';
 import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
-import { reportReview as reportReviewIndex } from '@/routes/academic/internship';
-import { submission as internshipSubmissionIndex } from '@/routes/academic/internship';
-import { validation as internshipValidationIndex } from '@/routes/academic/internship';
+import {
+    annexes as internshipAnnexes,
+    cv as internshipCv,
+    formalization as internshipFormalization,
+    practicePlans as internshipPracticePlans,
+    practiceReports as internshipPracticeReports,
+    reportReview as reportReviewIndex,
+    submission as internshipSubmissionIndex,
+    validation as internshipValidationIndex,
+} from '@/routes/academic/internship';
 import { index as schoolsIndex } from '@/routes/academic/schools';
 import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
@@ -37,8 +45,14 @@ import { validation as supervisionValidationIndex } from '@/routes/academic/supe
 import { submission as supervisionSubmissionIndex } from '@/routes/academic/supervision';
 import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
+import { requests as companyRequests } from '@/routes/company';
+import { edit as profileEdit } from '@/routes/profile';
 import { index as registerIndex } from '@/routes/register';
 import { index as resourceIndex } from '@/routes/resource';
+import {
+    document as documentSettings,
+    internship as internshipSettings,
+} from '@/routes/settings/academic';
 
 export const ACADEMIC_NAV = [
     {
@@ -106,13 +120,13 @@ export const ACADEMIC_NAV = [
         items: [
             {
                 title: 'Planes de prácticas',
-                href: '/internship/practice-plans',
+                href: internshipPracticePlans().url,
                 icon: FileText,
                 roles: [4],
             },
             {
                 title: 'Informes de prácticas',
-                href: '/internship/practice-reports',
+                href: internshipPracticeReports().url,
                 icon: FileText,
                 roles: [4],
             },
@@ -149,13 +163,13 @@ export const ACADEMIC_NAV = [
     },
     {
         title: 'Formalización',
-        href: '/internship/formalization',
+        href: internshipFormalization().url,
         icon: ClipboardCheck,
         roles: [5],
     },
     {
         title: 'Mi CV',
-        href: '/internship/cv',
+        href: internshipCv().url,
         icon: UserRound,
         roles: [5],
     },
@@ -167,7 +181,7 @@ export const ACADEMIC_NAV = [
     },
     {
         title: 'Rev. Informe',
-        href: '/internship/annexes',
+        href: internshipAnnexes().url,
         icon: FileText,
         roles: [5],
     },
@@ -219,7 +233,7 @@ export const ACADEMIC_NAV = [
     },
     {
         title: 'Empresas',
-        href: '/empresas',
+        href: companiesIndex().url,
         icon: Building2,
         roles: [3],
     },
@@ -261,12 +275,12 @@ export const COMPANY_NAV = [
     },
     {
         title: 'Solicitudes de estudiantes',
-        href: '/empresa/solicitudes',
+        href: companyRequests().url,
         icon: Users,
     },
     {
         title: 'Perfil empresarial',
-        href: '/settings/profile',
+        href: profileEdit().url,
         icon: Building2,
     },
 ];
@@ -286,13 +300,13 @@ export const ADMIN_NAV = [
 
 export const ACADEMIC_SETTINGS_NAV = [
     {
-        title: 'Internship',
-        href: '/settings/internship',
+        title: 'Prácticas',
+        href: internshipSettings().url,
         icon: Settings,
     },
     {
-        title: 'Document',
-        href: '/settings/document',
+        title: 'Documentos',
+        href: documentSettings().url,
         icon: FileText,
         roles: [1, 2],
     },
@@ -319,7 +333,7 @@ export const FOOTER_NAV = [
     },
     {
         title: 'Configuración',
-        href: '/settings/internship',
+        href: internshipSettings().url,
         icon: Settings,
         userTypes: [2],
         roles: [1, 2, 3],
