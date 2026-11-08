@@ -1,5 +1,5 @@
-import FilePreview from './FilePreview';
-import UploadZone from './UploadZone';
+import FilePreview from './file-preview';
+import UploadZone from './upload-zone';
 
 export default function DocumentViewer({
     currentFile,
