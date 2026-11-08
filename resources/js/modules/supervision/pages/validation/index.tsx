@@ -15,9 +15,6 @@ import type { StudentSupervision } from '@/modules/supervision/types';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 
 import AcademicSearch from '@/shared/components/data-table/academic-search';
-import Heading from '@/shared/components/heading';
-import PageContainer from '@/shared/components/page-container';
-
 import { Button } from '@/shared/components/ui/button';
 import {
     Tooltip,
@@ -28,6 +25,7 @@ import type { TableData } from '@/shared/hooks/use-config-table';
 import { useRole } from '@/shared/hooks/use-role';
 
 import AppLayout from '@/shared/layouts/app-layout';
+import MasterDetailLayout from '@/shared/layouts/master-detail-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
 import SupervisionDetailPanel from '../../components/supervision-detail-panel';
@@ -88,133 +86,129 @@ export default function ValidationIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Supervisión" />
-            <PageContainer fullHeight>
-                <div className="flex items-center justify-between">
-                    <Heading
-                        variant="small"
-                        title="Validación de Supervisión"
-                        description="Revisión de anexos y notas enviadas por los supervisores de práctica."
-                    />
+            <MasterDetailLayout
+                title="Validación de Supervisión"
+                description="Revisión de anexos y notas enviadas por los supervisores de práctica."
+                headerAction={
                     <div className="flex items-center gap-2 rounded-xl border border-green-500 bg-green-500/60 p-2 px-3">
                         <ShieldCheck className="size-4" />
                         <span className="text-[10px] font-bold tracking-widest uppercase">
                             Módulo de Control
                         </span>
                     </div>
-                </div>
-                <div className="relative flex flex-1 gap-6 overflow-hidden pr-1 pb-1">
-                    <aside
-                        className={`flex shrink-0 flex-col gap-4 transition-all duration-300 ease-in-out ${selectedId ? 'w-85 lg:w-95' : 'w-full'}`}
-                    >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex flex-wrap items-center gap-2">
-                                {isAdmin && (
-                                    <AcademicFilter
-                                        key={filterClearKey}
-                                        faculties={faculties}
-                                        onFilter={handleFilter}
-                                        isLoading={isSearching}
-                                        initialValues={activeFilters}
-                                    />
-                                )}
-                                <GroupSelector
-                                    groups={availableGroups}
-                                    selectedGroup={selectedGroup}
-                                    onSelect={handleGroupSelect}
-                                    isLoading={isFilteringGroups}
-                                    disabled={
-                                        availableGroups.length === 0 &&
-                                        !isFilteringGroups
-                                    }
+                }
+                hasSelection={Boolean(selectedId)}
+                headerClassName="items-center"
+                masterWidthClassName="w-85 lg:w-95"
+                detailClassName="gap-4 overflow-hidden"
+                toolbar={
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            {isAdmin && (
+                                <AcademicFilter
+                                    key={filterClearKey}
+                                    faculties={faculties}
+                                    onFilter={handleFilter}
+                                    isLoading={isSearching}
+                                    initialValues={activeFilters}
                                 />
-                                {selectedGroup && (
-                                    <ModuleSelector
-                                        groupModuleId={selectedGroup.module_id}
-                                        selectedModuleId={selectedModuleId}
-                                        onSelect={handleModuleSelect}
-                                    />
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                {isAdmin ? (
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            className="h-9 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
-                                            placeholder="Buscar por código..."
-                                            value={codeSearch}
-                                            onChange={(e) =>
-                                                setCodeSearch(e.target.value)
-                                            }
-                                            onKeyDown={(e) =>
-                                                e.key === 'Enter' &&
-                                                handleCodeSearch()
-                                            }
-                                            disabled={isSearchingByCode}
-                                        />
-                                        <Button
-                                            variant="secondary"
-                                            size="sm"
-                                            className="h-9 px-3"
-                                            onClick={handleCodeSearch}
-                                            disabled={
-                                                isSearchingByCode ||
-                                                !codeSearch.trim()
-                                            }
-                                        >
-                                            {isSearchingByCode
-                                                ? '...'
-                                                : 'Buscar'}
-                                        </Button>
-                                        {codeSearch && (
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-9 w-9 text-muted-foreground"
-                                                onClick={() => {
-                                                    setCodeSearch('');
-                                                }}
-                                            >
-                                                <X className="size-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <AcademicSearch
-                                        isAdmin={isAdmin}
-                                        search={search}
-                                        setSearch={setSearch}
-                                        isLoading={isSearching}
-                                    />
-                                )}
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Info className="size-4 shrink-0 cursor-help text-muted-foreground" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p className="text-xs">
-                                            {isAdmin
-                                                ? 'Busca por código de usuario del estudiante'
-                                                : 'Filtro → Grupo → Módulo → Estudiante'}
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </div>
+                            )}
+                            <GroupSelector
+                                groups={availableGroups}
+                                selectedGroup={selectedGroup}
+                                onSelect={handleGroupSelect}
+                                isLoading={isFilteringGroups}
+                                disabled={
+                                    availableGroups.length === 0 &&
+                                    !isFilteringGroups
+                                }
+                            />
+                            {selectedGroup && (
+                                <ModuleSelector
+                                    groupModuleId={selectedGroup.module_id}
+                                    selectedModuleId={selectedModuleId}
+                                    onSelect={handleModuleSelect}
+                                />
+                            )}
                         </div>
-                        <SupervisionTable
-                            tableManager={tableManager}
-                            isAdmin={isAdmin}
-                            selectedId={selectedId}
-                            selectedModuleId={selectedModuleId}
-                            selectedGroup={selectedGroup}
-                            statusConfig={statusConfig}
-                            onSelect={handleSelect}
-                        />
-                    </aside>
-                    {/* PANEL DERECHO: Detalle de Gestión (Aparece con animación) */}
-                    <main
-                        className={`flex min-w-0 flex-1 flex-col gap-4 overflow-hidden transition-all duration-500 ease-in-out ${selectedId ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-10 opacity-0'}`}
-                    >
+                        <div className="flex items-center gap-2">
+                            {isAdmin ? (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        className="h-9 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
+                                        placeholder="Buscar por código..."
+                                        value={codeSearch}
+                                        onChange={(e) =>
+                                            setCodeSearch(e.target.value)
+                                        }
+                                        onKeyDown={(e) =>
+                                            e.key === 'Enter' &&
+                                            handleCodeSearch()
+                                        }
+                                        disabled={isSearchingByCode}
+                                    />
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="h-9 px-3"
+                                        onClick={handleCodeSearch}
+                                        disabled={
+                                            isSearchingByCode ||
+                                            !codeSearch.trim()
+                                        }
+                                    >
+                                        {isSearchingByCode ? '...' : 'Buscar'}
+                                    </Button>
+                                    {codeSearch && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-9 w-9 text-muted-foreground"
+                                            onClick={() => {
+                                                setCodeSearch('');
+                                            }}
+                                        >
+                                            <X className="size-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                <AcademicSearch
+                                    isAdmin={isAdmin}
+                                    search={search}
+                                    setSearch={setSearch}
+                                    isLoading={isSearching}
+                                />
+                            )}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Info className="size-4 shrink-0 cursor-help text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="text-xs">
+                                        {isAdmin
+                                            ? 'Busca por código de usuario del estudiante'
+                                            : 'Filtro → Grupo → Módulo → Estudiante'}
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+                    </div>
+                }
+                master={
+                    <SupervisionTable
+                        tableManager={tableManager}
+                        isAdmin={isAdmin}
+                        selectedId={selectedId}
+                        selectedModuleId={selectedModuleId}
+                        selectedGroup={selectedGroup}
+                        statusConfig={statusConfig}
+                        onSelect={handleSelect}
+                    />
+                }
+                detail={
+                    <>
                         {selectedId && selectedItem ? (
                             <SupervisionDetailPanel
                                 selectedItem={selectedItem}
@@ -257,9 +251,9 @@ export default function ValidationIndex({
                                 </p>
                             </div>
                         )}
-                    </main>
-                </div>
-            </PageContainer>
+                    </>
+                }
+            />
         </AppLayout>
     );
 }
