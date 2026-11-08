@@ -22,9 +22,9 @@ import {
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
-import { useValidation } from './hooks/use-validation';
-import InternshipDetail from './partials/internship-detail';
-import PlacementDetail from './partials/placement-detail';
+import InternshipDetail from '../../components/validation/internship-detail';
+import PlacementDetail from '../../components/validation/placement-detail';
+import { useValidation } from '../../hooks/use-validation';
 
 interface Props {
     assignments: TableData<InternshipAssignment>;

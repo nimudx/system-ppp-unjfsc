@@ -20,8 +20,8 @@ import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
 import { cn } from '@/shared/lib/utils';
-import DocumentForm from './components/document-form';
-import { usePlacementSubmission } from './hooks/use-placement-submission';
+import DocumentForm from '../../components/submission/document-form';
+import { usePlacementSubmission } from '../../hooks/use-placement-submission';
 
 interface FormalizationProps {
     data: {

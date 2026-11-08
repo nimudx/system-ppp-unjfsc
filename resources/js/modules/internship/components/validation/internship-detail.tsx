@@ -15,7 +15,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 
-import { EvaluationView } from '../../submission/parts/EvaluationView';
+import { EvaluationView } from '../submission/evaluation-view';
 
 interface InternshipDetailProps {
     detailData: InternshipDetailData;

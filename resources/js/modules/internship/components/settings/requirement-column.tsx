@@ -9,7 +9,7 @@ import {
     ComboboxItem,
     ComboboxEmpty,
 } from '@/shared/components/ui/combobox';
-import type { Document } from '../types';
+import type { Document } from '../../types';
 
 interface RequirementColumnProps {
     type: 'development' | 'validation';

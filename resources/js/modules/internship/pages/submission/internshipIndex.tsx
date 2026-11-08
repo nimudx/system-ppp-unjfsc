@@ -17,11 +17,11 @@ import { Badge } from '@/shared/components/ui/badge';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 // Hook
-import { useInternshipSubmission } from './hooks/use-internship-submission';
 // Components
-import { DocumentViewerPanel } from './parts/DocumentViewerPanel';
-import { EvaluationView } from './parts/EvaluationView';
-import { RequirementListPanel } from './parts/RequirementListPanel';
+import { DocumentViewerPanel } from '../../components/submission/document-viewer-panel';
+import { EvaluationView } from '../../components/submission/evaluation-view';
+import { RequirementListPanel } from '../../components/submission/requirement-list-panel';
+import { useInternshipSubmission } from '../../hooks/use-internship-submission';
 
 interface InternshipIndexProps {
     data: {

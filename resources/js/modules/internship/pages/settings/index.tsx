@@ -13,12 +13,15 @@ import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
 
-import { BuilderCard } from './components/BuilderCard';
-import { EvaluationCard } from './components/EvaluationCard';
-import { StepperPreview } from './components/StepperPreview';
-import type { WorkflowStage } from './types';
-import { buildDragEndHandler, RestrictToVerticalAxis } from './useDragSort';
-import { useWorkflow } from './useWorkflow';
+import { BuilderCard } from '../../components/settings/builder-card';
+import { EvaluationCard } from '../../components/settings/evaluation-card';
+import { StepperPreview } from '../../components/settings/stepper-preview';
+import {
+    buildDragEndHandler,
+    RestrictToVerticalAxis,
+} from '../../hooks/use-drag-sort';
+import { useWorkflow } from '../../hooks/use-workflow';
+import type { WorkflowStage } from '../../types';
 
 // ─── Plantilla por defecto para secciones sin configuración ──────────────────
 const createDefaultWorkflow = () => [
