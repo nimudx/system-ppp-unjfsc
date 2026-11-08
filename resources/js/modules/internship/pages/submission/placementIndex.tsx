@@ -1,8 +1,10 @@
 import { Head } from '@inertiajs/react';
-import { RequestHistory } from '@/modules/company/components/request-history';
-import StudentWorkflow from '@/modules/company/components/student-workflow';
-import { useCompanyRequest } from '@/modules/company/components/use-company-request';
-import type { CompanyRequest } from '@/modules/company/services/company-workflow';
+import {
+    RequestHistory,
+    StudentWorkflow,
+    useCompanyRequest,
+    type CompanyRequest,
+} from '@/modules/company';
 import type { DocumentRequirement } from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';

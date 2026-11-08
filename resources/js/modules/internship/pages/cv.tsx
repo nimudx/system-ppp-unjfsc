@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-import { formatDateTime } from '@/modules/documents/components/dossier-shared';
+import { formatDateTime } from '@/modules/documents';
 import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';

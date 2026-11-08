@@ -2,14 +2,14 @@ import { Link, router } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import type { PlacementRecord } from '@/modules/internship/types';
 import {
     MINIMUM_BUSINESS_DAYS,
     MINIMUM_PRACTICE_HOURS,
     countBusinessDays,
     estimatedPracticeHours,
     minimumPracticeEndDate,
-} from '@/modules/internship/utils/practice-duration';
+    type PlacementRecord,
+} from '@/modules/internship';
 import { Button } from '@/shared/components/ui/button';
 import {
     Card,

@@ -1,18 +1,15 @@
 import { Head, Link } from '@inertiajs/react';
 import { useMemo } from 'react';
-import { useCompanyRequest } from '@/modules/company/components/use-company-request';
-import type { CompanyRequest } from '@/modules/company/services/company-workflow';
-import {
-    RequirementsList,
-    SubmissionPanel,
-    type DocumentRequirement,
-} from '@/modules/documents';
+import { useCompanyRequest, type CompanyRequest } from '@/modules/company';
 import {
     DocumentHistoryPanel,
     DossierProgress,
     PendingActionsCard,
+    RequirementsList,
+    SubmissionPanel,
     buildDossierHistory,
-} from '@/modules/documents/components/dossier-shared';
+    type DocumentRequirement,
+} from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
