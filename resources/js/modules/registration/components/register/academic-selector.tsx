@@ -16,7 +16,7 @@ import {
 } from '@/shared/components/ui/select';
 import { ROLES } from '@/shared/config/roles';
 
-import { useAcademicAutoResolver } from './useAcademicAutoResolver';
+import { useAcademicAutoResolver } from '../../hooks/use-academic-auto-resolver';
 
 export function AcademicSelectorRHF({
     roleId,

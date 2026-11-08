@@ -25,10 +25,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { AcademicSelectorRHF } from '../../../../components/AcademicSelector/AcademicSelector';
+import { AcademicSelectorRHF } from '../register/academic-selector';
 
-import type { PersonInitValues } from './schema';
-import { personInitSchema } from './schema';
+import type { PersonInitValues } from './step-one.schema';
+import { personInitSchema } from './step-one.schema';
 
 interface PersonInitProps {
     roles: RoleOption[];

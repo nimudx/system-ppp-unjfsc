@@ -1,6 +1,6 @@
 import { UploadCloud } from 'lucide-react';
 import type { CsvRow, CsvValidationError } from '@/modules/registration/types';
-import { parseCSV, validateRows } from '../csv.utils';
+import { parseCSV, validateRows } from './csv.utils';
 
 interface CsvUploaderProps {
     onChange: (result: {

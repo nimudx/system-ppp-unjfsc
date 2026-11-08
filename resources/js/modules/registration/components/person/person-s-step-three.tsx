@@ -1,6 +1,6 @@
 import type { Faculty } from '@/modules/academic';
-import type { PersonInitialState } from '@/modules/registration/pages/register/person/person.types';
 import type { RoleOption } from '@/modules/registration/types';
+import type { PersonInitialState } from '../../types';
 function SummaryRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-center justify-between py-2 text-xs">

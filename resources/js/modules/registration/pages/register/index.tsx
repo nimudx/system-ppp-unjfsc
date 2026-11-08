@@ -9,11 +9,11 @@ import { type BreadcrumbItem } from '@/shared/types';
 // Layouts & UI Base
 
 // Componentes Desacoplados de UI
-import { SidebarInfo } from './components/SidebarInfo';
-import { ToggleGroup } from './components/ToggleGroup';
+import { PersonFlow } from '../../components/person/person-flow';
+import { SidebarInfo } from '../../components/register/sidebar-info';
+import { ToggleGroup } from '../../components/register/toggle-group';
 
 // Flujos (Inyectados)
-import { PersonFlow } from './person/PersonFlow';
 
 interface PageProps {
     roles: RoleOption[];

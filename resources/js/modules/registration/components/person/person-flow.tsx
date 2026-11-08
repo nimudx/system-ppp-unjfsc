@@ -5,20 +5,19 @@ import { toast } from 'sonner';
 import { Stepper } from '@/shared/components/stepper';
 import { Button } from '@/shared/components/ui/button';
 import { apiErrorBody } from '@/shared/lib/api-error';
-import { RegistrationModeSelector } from '../components/RegistrationModeSelector';
-import { getRegistrationSteps } from '../components/steps.config';
-
-import { PersonVStepOne } from './partials/person/step-one/PersonVStepOne';
-import type { PersonInitValues } from './partials/person/step-one/schema';
-import { PersonSStepThree } from './partials/person/step-three/PersonSStepThree';
-import { PersonFStepTwo } from './partials/person/step-two/PersonFStepTwo';
-import type { PersonValues } from './partials/person/step-two/schema';
-import { MassiveVStepOne } from './partials/person-massive/step-one/MassiveVStepOne';
-import type { MassivePersonInitValues } from './partials/person-massive/step-one/schema';
-import { MassiveRStepThree } from './partials/person-massive/step-three/MassiveRStepThree';
-import { MassiveSStepTwo } from './partials/person-massive/step-two/MassiveSStepTwo';
-import { personService } from './person.service';
-import type { PersonFlowProps, PersonInitialState } from './person.types';
+import { personService } from '../../services/person.service';
+import type { PersonFlowProps, PersonInitialState } from '../../types';
+import { MassiveRStepThree } from '../person-massive/massive-r-step-three';
+import { MassiveSStepTwo } from '../person-massive/massive-s-step-two';
+import { MassiveVStepOne } from '../person-massive/massive-v-step-one';
+import type { MassivePersonInitValues } from '../person-massive/step-one.schema';
+import { RegistrationModeSelector } from '../register/registration-mode-selector';
+import { getRegistrationSteps } from '../register/steps.config';
+import { PersonFStepTwo } from './person-f-step-two';
+import { PersonSStepThree } from './person-s-step-three';
+import { PersonVStepOne } from './person-v-step-one';
+import type { PersonInitValues } from './step-one.schema';
+import type { PersonValues } from './step-two.schema';
 
 export function PersonFlow({ roles, faculties, mode }: PersonFlowProps) {
     const [step, setStep] = useState(1);

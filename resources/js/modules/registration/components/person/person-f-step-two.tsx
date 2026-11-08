@@ -24,8 +24,8 @@ import {
 } from '@/shared/components/ui/select';
 import { Separator } from '@/shared/components/ui/separator';
 
-import type { PersonValues } from './schema';
-import { personSchema } from './schema';
+import type { PersonValues } from './step-two.schema';
+import { personSchema } from './step-two.schema';
 
 interface PersonFormProps {
     initialValues?: Partial<PersonValues>;

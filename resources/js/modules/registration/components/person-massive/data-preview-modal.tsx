@@ -6,7 +6,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from '@/shared/components/ui/dialog';
-import { CsvPreview } from '../../step-one/components/CsvPreview';
+import { CsvPreview } from './csv-preview';
 
 interface DataPreviewModalProps {
     open: boolean;

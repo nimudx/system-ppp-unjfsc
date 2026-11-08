@@ -5,7 +5,6 @@ import { useState } from 'react'; // 👈 Añadido useEffect
 import { useWatch } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import type { Faculty } from '@/modules/academic';
-import { AcademicSelectorRHF } from '@/modules/registration/pages/register/components/AcademicSelector/AcademicSelector';
 import type { RoleOption } from '@/modules/registration/types';
 import type { CsvRow, CsvValidationError } from '@/modules/registration/types';
 import { Button } from '@/shared/components/ui/button';
@@ -24,10 +23,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { CsvPreview } from './components/CsvPreview';
-import { CsvUploader } from './components/CsvUploader';
-import type { MassivePersonInitValues } from './schema';
-import { massivePersonInitSchema } from './schema';
+import { AcademicSelectorRHF } from '../register/academic-selector';
+import { CsvPreview } from './csv-preview';
+import { CsvUploader } from './csv-uploader';
+import type { MassivePersonInitValues } from './step-one.schema';
+import { massivePersonInitSchema } from './step-one.schema';
 
 interface MassivePersonInitProps {
     roles: RoleOption[];

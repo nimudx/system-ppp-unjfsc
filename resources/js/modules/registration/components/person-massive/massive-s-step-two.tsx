@@ -3,7 +3,6 @@ import { FileSpreadsheet, Users, Eye, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
 
-import type { PersonInitialState } from '@/modules/registration/pages/register/person/person.types';
 import type { RoleOption } from '@/modules/registration/types';
 
 import { Badge } from '@/shared/components/ui/badge';
@@ -15,7 +14,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
-import { DataPreviewModal } from './partials/DataPreviewModal';
+import type { PersonInitialState } from '../../types';
+import { DataPreviewModal } from './data-preview-modal';
 
 interface MassiveSummaryProps {
     data: PersonInitialState;
