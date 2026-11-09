@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import type { DocumentTypeOption } from '@/modules/documents/types';
+import documentSettings from '@/routes/settings/academic/document';
 
 export function useDocumentSetup() {
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -69,7 +70,7 @@ export function useDocumentSetup() {
         e.preventDefault();
 
         if (editingDoc) {
-            put(`/settings/document/${editingDoc.id}`, {
+            put(documentSettings.update(editingDoc.id).url, {
                 onSuccess: () => {
                     closeForm();
                 },
@@ -78,7 +79,7 @@ export function useDocumentSetup() {
                 },
             });
         } else {
-            post('/settings/document', {
+            post(documentSettings.store().url, {
                 onSuccess: () => {
                     closeForm();
                 },
@@ -92,7 +93,7 @@ export function useDocumentSetup() {
     const confirmDelete = () => {
         if (!deletingDoc) return;
 
-        destroy(`/settings/document/${deletingDoc.id}`, {
+        destroy(documentSettings.destroy(deletingDoc.id).url, {
             onSuccess: () => {
                 closeDelete();
             },

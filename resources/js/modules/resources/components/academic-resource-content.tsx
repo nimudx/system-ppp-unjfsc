@@ -27,6 +27,7 @@ import type {
     ResourcePageProps,
 } from '@/modules/resources/types';
 
+import storage from '@/routes/storage';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -309,7 +310,7 @@ function ResourceCard({
     onDelete: () => void;
 }) {
     const document = resource.documents?.[0];
-    const url = document?.path ? `/storage/${document.path}` : null;
+    const url = document?.path ? storage.local(document.path).url : null;
     const kind = getFileKind(document);
     const level = LEVELS[resource.level] ?? FALLBACK_LEVEL;
     const KindIcon = kind.icon;

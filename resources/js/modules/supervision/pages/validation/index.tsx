@@ -11,7 +11,7 @@ import type { GroupOption } from '@/modules/supervision/components/group-selecto
 import { GroupSelector } from '@/modules/supervision/components/group-selector';
 import { ModuleSelector } from '@/modules/supervision/components/module-selector';
 import type { StudentSupervision } from '@/modules/supervision/types';
-
+import { submission as supervisionSubmission } from '@/routes/academic/supervision';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -39,7 +39,7 @@ interface Props {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Supervisión de prácticas', href: '/supervision/submission' },
+    { title: 'Supervisión de prácticas', href: supervisionSubmission.url() },
 ];
 
 export default function ValidationIndex({

@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { status as updateRequestStatus } from '@/routes/requests/management';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -52,7 +53,7 @@ function PendingGradeChangeModalContent({
         if (!request?.id) return;
 
         router.patch(
-            `/requests/${request.id}/management-status`,
+            updateRequestStatus(request.id).url,
             {
                 approval_status: approvalStatus,
                 justification: justification,

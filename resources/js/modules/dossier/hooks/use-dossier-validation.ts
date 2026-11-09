@@ -21,7 +21,7 @@ export function useDossierValidation({
 }: Props) {
     // 1. Manejo de la tabla (Sigue igual)
     const tableManager = useConfigTable<AssignmentRecord>({
-        endpoint: '/api/dossiers/filter',
+        endpoint: dossiers.api.filter.url(),
         initialData,
         isAdmin,
         pageSize: 10,
@@ -80,7 +80,8 @@ export function useDossierValidation({
                 // Refrescar tabla si es Admin para recuperar últimos estados
                 if (isAdmin) {
                     const currentPath =
-                        tableManager.pagination?.path || '/api/dossiers/filter';
+                        tableManager.pagination?.path ||
+                        dossiers.api.filter.url();
                     const params = {
                         target_role_id,
                         search: tableManager.search.trim(),

@@ -10,6 +10,7 @@ import {
     type DocumentRequirement,
 } from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
+import internship from '@/routes/academic/internship';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
@@ -45,7 +46,7 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
     return (
         <AppLayout
             breadcrumbs={[
-                { title: 'Rev. Informe', href: '/internship/annexes' },
+                { title: 'Rev. Informe', href: internship.annexes.url() },
             ]}
         >
             <Head title="Rev. Informe" />
@@ -80,7 +81,9 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
                             </p>
 
                             <Button asChild variant="outline">
-                                <Link href="/internship">Ir a Pasantía</Link>
+                                <Link href={internship.submission.url()}>
+                                    Ir a Pasantía
+                                </Link>
                             </Button>
                         </SectionCard.Body>
                     </SectionCard>

@@ -4,6 +4,7 @@ import { Plus, Save, GitMerge } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import type { Faculty } from '@/modules/academic';
+import { dashboard } from '@/routes';
 import internship from '@/routes/academic/internship';
 import type { AcademicFilterValues } from '@/shared/components/data-table/academic-filter';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
@@ -118,7 +119,7 @@ export default function InternshipSettingsIndex({
 
     // ── Render ────────────────────────────────────────────────────────────────
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: 'Configuración de Prácticas', href: '#' },
     ];
 

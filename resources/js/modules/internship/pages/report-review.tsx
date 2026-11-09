@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import internship from '@/routes/academic/internship';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
@@ -54,11 +55,10 @@ type Props = {
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Prácticas Pre-Profesionales', href: '/internship' },
+    { title: 'Prácticas Pre-Profesionales', href: internship.submission.url() },
 ];
 
-// TODO: cambiar por la ruta de Wayfinder cuando se genere (academic.internship.report-review.store)
-const SUBMIT_URL = '/internship/report-review/submissions';
+const SUBMIT_URL = internship.reportReview.store.url();
 
 const formatDate = (iso: string | null) =>
     iso

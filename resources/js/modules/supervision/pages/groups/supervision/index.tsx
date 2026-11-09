@@ -14,6 +14,7 @@ import {
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
 import type { InternshipGroup } from '@/modules/supervision';
+import internship from '@/routes/academic/internship';
 import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
@@ -39,7 +40,10 @@ interface Props {
 export default function GroupSupervisionIndex({ groups = [] }: Props) {
     const title = 'Seguimiento de Prácticas';
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Prácticas Pre-Profesionales', href: '/internship' },
+        {
+            title: 'Prácticas Pre-Profesionales',
+            href: internship.submission.url(),
+        },
         { title: 'Supervisión', href: '#' },
     ];
 

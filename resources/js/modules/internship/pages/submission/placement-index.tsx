@@ -7,6 +7,7 @@ import {
 } from '@/modules/company';
 import type { DocumentRequirement } from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
+import internship from '@/routes/academic/internship';
 import Heading from '@/shared/components/heading';
 import AppLayout from '@/shared/layouts/app-layout';
 import { TypeSelector } from '../../components/submission/type-selector';
@@ -37,7 +38,11 @@ export default function PlacementIndex({
     });
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Pasantía', href: '/internship' }]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Pasantía', href: internship.submission.url() },
+            ]}
+        >
             <Head title="Pasantía" />
             <div className="space-y-6 p-4 md:p-6 lg:p-8">
                 <Heading

@@ -19,6 +19,8 @@ import {
 import { useMemo, useState } from 'react';
 
 import { getDocumentStatusMeta } from '@/modules/documents';
+import internship from '@/routes/academic/internship';
+import supervision from '@/routes/academic/supervision';
 import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
@@ -56,9 +58,7 @@ type Props = {
 
 type StatusFilter = 'Todos' | '2' | '3' | '1';
 
-// TODO: cambiar por la ruta de Wayfinder cuando se genere (academic.supervision.practice.review)
-const reviewUrl = (id: number) =>
-    `/supervision/practice-submissions/${id}/review`;
+const reviewUrl = (id: number) => supervision.practice.review.url(id);
 
 const formatDate = (iso: string | null) =>
     iso
@@ -184,8 +184,8 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
     const plural = isPlan ? 'Planes de prácticas' : 'Informes de prácticas';
     const singular = isPlan ? 'plan' : 'informe';
     const href = isPlan
-        ? '/internship/practice-plans'
-        : '/internship/practice-reports';
+        ? internship.practicePlans.url()
+        : internship.practiceReports.url();
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Documentos de prácticas', href },

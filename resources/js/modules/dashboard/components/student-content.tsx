@@ -35,6 +35,9 @@ import {
     toneClasses,
 } from '@/modules/dashboard/utils';
 import { getDocumentStatusMeta } from '@/modules/documents';
+import dossiers from '@/routes/academic/dossiers';
+import internship from '@/routes/academic/internship';
+import notificationsRoute from '@/routes/notifications';
 import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -282,7 +285,7 @@ function SubmissionCard({ submission }: { submission: StudentSubmission }) {
                 )}
                 {submission.can_submit && (
                     <Button asChild size="sm">
-                        <Link href="/internship/report-review">
+                        <Link href={internship.reportReview.url()}>
                             {submission.status === 0
                                 ? 'Subir documento'
                                 : 'Reenviar entrega'}
@@ -645,12 +648,17 @@ export default function StudentDashboardContent({
             total: dossier.total,
             percent: dossier.percent,
             tone: 'bg-primary',
-            href: '/dossier',
+            href: dossiers.submission.url(),
             cta: 'Ir a mi expediente',
             entries: dossier.items.map((document) => ({
                 key: document.code,
                 status: document.status,
-                node: <DocumentRow document={document} href="/dossier" />,
+                node: (
+                    <DocumentRow
+                        document={document}
+                        href={dossiers.submission.url()}
+                    />
+                ),
             })),
         },
         {
@@ -661,7 +669,7 @@ export default function StudentDashboardContent({
             total: formalization.total_documents,
             percent: formalization.percent,
             tone: 'bg-blue-500',
-            href: '/internship/formalization',
+            href: internship.formalization.url(),
             cta: 'Ir a formalización',
             extra: (
                 <>
@@ -682,7 +690,7 @@ export default function StudentDashboardContent({
                 node: (
                     <DocumentRow
                         document={document}
-                        href="/internship/formalization"
+                        href={internship.formalization.url()}
                     />
                 ),
             })),
@@ -695,7 +703,7 @@ export default function StudentDashboardContent({
             total: submissions.length,
             percent: submissionPercent,
             tone: 'bg-emerald-500',
-            href: '/internship/report-review',
+            href: internship.reportReview.url(),
             cta: 'Ir a plan e informe',
             entries: submissions.map((submission) => ({
                 key: String(submission.type),
@@ -818,7 +826,7 @@ export default function StudentDashboardContent({
                             </div>
                         </div>
                         <Button asChild size="sm">
-                            <Link href="/internship/cv">Subir mi CV</Link>
+                            <Link href={internship.cv.url()}>Subir mi CV</Link>
                         </Button>
                     </CardContent>
                 </Card>
@@ -947,7 +955,10 @@ export default function StudentDashboardContent({
                             </CardDescription>
                         </div>
                         <Button asChild variant="ghost" size="sm">
-                            <Link href="/notifications" className="gap-1">
+                            <Link
+                                href={notificationsRoute.index().url}
+                                className="gap-1"
+                            >
                                 {notifications.unread > 0 && (
                                     <Badge className="h-5 min-w-5 px-1.5">
                                         {notifications.unread}

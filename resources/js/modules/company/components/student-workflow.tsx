@@ -10,6 +10,7 @@ import {
     minimumPracticeEndDate,
     type PlacementRecord,
 } from '@/modules/internship';
+import internship from '@/routes/academic/internship';
 import { Button } from '@/shared/components/ui/button';
 import {
     Card,
@@ -680,7 +681,7 @@ export default function StudentWorkflow({
                         formalización en el menú Formalización.
                     </p>
                     <Button asChild variant="outline" size="sm">
-                        <Link href="/internship/formalization">
+                        <Link href={internship.formalization.url()}>
                             Ir a Formalización
                         </Link>
                     </Button>

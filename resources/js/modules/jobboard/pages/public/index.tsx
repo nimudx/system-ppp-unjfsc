@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
+import { home } from '@/routes';
+import { registro as companyRegistration } from '@/routes/empresa';
 import { store } from '@/routes/login';
 import { request as requestPasswordReset } from '@/routes/password';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
@@ -47,7 +49,7 @@ export default function LoginEmpresa() {
                     <div className="pointer-events-none absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl" />
 
                     <Link
-                        href="/"
+                        href={home().url}
                         className="relative z-10 inline-flex w-fit items-center gap-3 rounded-lg"
                     >
                         <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
@@ -134,7 +136,7 @@ export default function LoginEmpresa() {
                 <section className="flex flex-1 items-center justify-center px-5 py-12 sm:px-8 lg:px-12">
                     <div className="w-full max-w-md">
                         <Link
-                            href="/"
+                            href={home().url}
                             className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-[#102747]"
                         >
                             <ArrowLeft className="size-4" />
@@ -282,7 +284,7 @@ export default function LoginEmpresa() {
                                     </p>
 
                                     <Link
-                                        href="/registro-empresa"
+                                        href={companyRegistration().url}
                                         className="mt-3 inline-flex text-sm font-semibold text-blue-800 hover:text-blue-950"
                                     >
                                         Registrar empresa

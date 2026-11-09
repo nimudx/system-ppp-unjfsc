@@ -1,6 +1,9 @@
 import { router, usePage } from '@inertiajs/react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { NotificationDropdown } from '@/modules/notifications';
+import { select as selectAssignment } from '@/routes/assignments';
+import { select as selectSemester } from '@/routes/semesters';
+import { select as selectStaff } from '@/routes/staffs';
 import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import {
     DropdownMenu,
@@ -85,8 +88,8 @@ export function AppSidebarHeader({
                         onSelect={(id: number, type: string) => {
                             const route =
                                 type === 'academic'
-                                    ? `/assignments/${id}/select`
-                                    : `/staffs/${id}/select`;
+                                    ? selectAssignment(id).url
+                                    : selectStaff(id).url;
                             router.patch(route, {}, { preserveState: false });
                         }}
                     />
@@ -109,7 +112,7 @@ const SemesterSelector = ({
 
     const onSelect = (id: number) => {
         // Mantenemos tu lógica para que el Toast salga siempre
-        router.patch(`/semesters/${id}/select`, {}, { preserveState: false });
+        router.patch(selectSemester(id).url, {}, { preserveState: false });
     };
 
     return (

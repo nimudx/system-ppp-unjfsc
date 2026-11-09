@@ -1,16 +1,18 @@
+import { dashboard } from '@/routes';
 import academic from '@/routes/academic';
+import company from '@/routes/company';
 import type { NotificationParams } from './types';
 
 export function resolveWayfinderUrl(
     routeName: string | undefined,
     params: NotificationParams = {},
 ): string | null {
-    if (routeName === 'dashboard') return '/dashboard';
+    if (routeName === 'dashboard') return dashboard().url;
     if (!routeName) return null;
     if (routeName === 'company-validation.requests.show') {
         const id = Number(params.companyRequest);
         return Number.isSafeInteger(id) && id > 0
-            ? `/solicitudes-empresa/${id}`
+            ? company.requestScreen(id).url
             : null;
     }
     let current: unknown = { academic };

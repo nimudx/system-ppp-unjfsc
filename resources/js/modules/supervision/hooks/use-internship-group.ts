@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { InternshipGroup } from '@/modules/supervision/types';
+import groups from '@/routes/academic/groups';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 
@@ -22,7 +23,7 @@ export function useInternshipGroup({
 
     // --- 2. Lógica de Tabla (Hook Genérico) ---
     const tableManager = useConfigTable<InternshipGroup>({
-        endpoint: '/api/groups/internship/filter',
+        endpoint: groups.api.internship.filter.url(),
         initialData,
         isAdmin,
         pageSize: 15,

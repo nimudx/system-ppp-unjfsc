@@ -10,6 +10,7 @@ import {
 
 import type { InternshipDetailData } from '@/modules/internship/types';
 import internship from '@/routes/academic/internship';
+import { internship as internshipSettings } from '@/routes/settings/academic';
 import { Stepper } from '@/shared/components/stepper';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -84,7 +85,13 @@ export default function InternshipDetail({
             detailData?.assignment?.section?.school?.faculty_id ||
             detailData?.assignment?.section?.school?.faculty?.id ||
             '';
-        const settingsUrl = `/settings/internship?faculty_id=${facultyId}&school_id=${schoolId}&section_id=${sectionId}`;
+        const settingsUrl = internshipSettings.url({
+            query: {
+                faculty_id: facultyId,
+                school_id: schoolId,
+                section_id: sectionId,
+            },
+        });
 
         return (
             <div className="flex h-full flex-col items-center justify-center p-8">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { UserAssignment } from '@/modules/identity/types';
+import users from '@/routes/academic/users';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 
@@ -11,7 +12,7 @@ interface Props {
 
 export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
     const table = useConfigTable<UserAssignment>({
-        endpoint: '/users/filter',
+        endpoint: users.filter.url(),
         initialData,
         isAdmin,
         pageSize: 15,
@@ -43,7 +44,7 @@ export function useUserManagement({ initialData, roleId, isAdmin }: Props) {
 
     const reload = () => {
         if (isAdmin) {
-            const currentPath = table.pagination?.path || '/users/filter';
+            const currentPath = table.pagination?.path || users.filter.url();
             const params = {
                 target_role_id: roleId,
                 search: table.search.trim(),

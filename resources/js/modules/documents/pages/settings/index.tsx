@@ -4,6 +4,8 @@ import { DocumentTypeForm } from '@/modules/documents/components/document-type-f
 import { DocumentTypeTable } from '@/modules/documents/components/document-type-table';
 import { useDocumentSetup } from '@/modules/documents/hooks/use-document';
 import type { DocumentTypeOption } from '@/modules/documents/types';
+import { dashboard } from '@/routes';
+import { internship as internshipSettings } from '@/routes/settings/academic';
 import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
@@ -32,8 +34,8 @@ export default function DocumentSettingsIndex({ documentTypes, roles }: Props) {
     } = useDocumentSetup();
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
-        { title: 'Configuraciones', href: '/settings/internship' },
+        { title: 'Panel', href: dashboard().url },
+        { title: 'Configuraciones', href: internshipSettings.url() },
         { title: 'Tipos de Documentos', href: '#' },
     ];
 

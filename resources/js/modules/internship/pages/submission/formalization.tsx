@@ -11,6 +11,7 @@ import {
     type DocumentRequirement,
 } from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
+import internship from '@/routes/academic/internship';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
@@ -55,7 +56,10 @@ export default function Formalization({
     return (
         <AppLayout
             breadcrumbs={[
-                { title: 'Formalización', href: '/internship/formalization' },
+                {
+                    title: 'Formalización',
+                    href: internship.formalization.url(),
+                },
             ]}
         >
             <Head title="Formalización" />
@@ -97,7 +101,9 @@ export default function Formalization({
                             </p>
 
                             <Button asChild variant="outline">
-                                <Link href="/internship">Ir a Pasantía</Link>
+                                <Link href={internship.submission.url()}>
+                                    Ir a Pasantía
+                                </Link>
                             </Button>
                         </SectionCard.Body>
                     </SectionCard>
@@ -110,7 +116,7 @@ export default function Formalization({
                             </p>
 
                             <Button asChild variant="outline" size="sm">
-                                <Link href="/internship/report-review">
+                                <Link href={internship.reportReview.url()}>
                                     Rev. Prácticas
                                 </Link>
                             </Button>

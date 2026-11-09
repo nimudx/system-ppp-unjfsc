@@ -2,6 +2,8 @@ import type {
     InternshipDetailData,
     InternshipAssignment,
 } from '@/modules/internship/types';
+import internship from '@/routes/academic/internship';
+import { filter as validationFilter } from '@/routes/academic/internship/api/validation';
 import type { TableData } from '@/shared/hooks/use-config-table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 import { useItemDetail } from '@/shared/hooks/use-item-detail';
@@ -14,7 +16,7 @@ interface Props {
 export function useValidation({ initialData, isAdmin }: Props) {
     // 1. Manejo de Tabla (Estandarizado)
     const tableManager = useConfigTable<InternshipAssignment>({
-        endpoint: '/api/internship/validation/filter',
+        endpoint: validationFilter.url(),
         initialData,
         isAdmin,
         pageSize: 10,
@@ -33,7 +35,7 @@ export function useValidation({ initialData, isAdmin }: Props) {
         isLoading: isLoadingDetail,
         actions: detailActions,
     } = useItemDetail<InternshipDetailData>({
-        fetchUrl: (id) => `/api/internship/validation/${id}`,
+        fetchUrl: (id) => internship.api.validation.url(id),
     });
 
     const selectedItem = tableManager.displayData.find(

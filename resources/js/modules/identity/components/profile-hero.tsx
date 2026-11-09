@@ -3,6 +3,7 @@ import { Camera, ImagePlus, Trash2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { update as updateMedia } from '@/routes/profile/media';
+import storage from '@/routes/storage';
 import {
     Avatar,
     AvatarFallback,
@@ -26,7 +27,7 @@ export default function ProfileHero({
         if (!path) return null;
         if (path.startsWith('http') || path.startsWith('/storage/'))
             return path;
-        return `/storage/${path}`;
+        return storage.local(path).url;
     };
 
     // Estados para las previsualizaciones visuales

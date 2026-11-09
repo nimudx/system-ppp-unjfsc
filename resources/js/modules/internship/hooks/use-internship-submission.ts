@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import type { DocumentRequirement } from '@/modules/documents';
 
 import type { InternshipStep } from '@/modules/internship/types';
+import internship from '@/routes/academic/internship';
 
 interface UseInternshipSubmissionProps {
     initialData: {
@@ -58,7 +59,7 @@ export function useInternshipSubmission({
     const handleStepClick = (id: number) => {
         if (id <= initialData.currentStep && id !== viewStep) {
             router.get(
-                `/internship?step=${id}`,
+                internship.submission.url({ query: { step: id } }),
                 {},
                 {
                     preserveState: true,
@@ -95,7 +96,7 @@ export function useInternshipSubmission({
         formData.append('code', currentRequirement.code);
         formData.append('target_id', String(internshipId));
 
-        router.post(`/internship/documents/${internshipId}`, formData, {
+        router.post(internship.documents.store.url(internshipId), formData, {
             onBefore: () => setUploading(true),
             onFinish: () => setUploading(false),
             onSuccess: () => {

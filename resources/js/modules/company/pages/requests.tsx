@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import company from '@/routes/company';
 import AppLayout from '@/shared/layouts/app-layout';
 import RequestManagement from '../components/request-management';
 
@@ -8,7 +9,7 @@ export default function CompanyRequests() {
             breadcrumbs={[
                 {
                     title: 'Solicitudes de estudiantes',
-                    href: '/empresa/solicitudes',
+                    href: company.requests.url(),
                 },
             ]}
         >

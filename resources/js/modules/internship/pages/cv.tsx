@@ -10,6 +10,7 @@ import {
 import { useState } from 'react';
 
 import { formatDateTime } from '@/modules/documents';
+import internship from '@/routes/academic/internship';
 import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
@@ -43,7 +44,7 @@ export default function StudentCv({ cv }: Props) {
         if (!file) return;
 
         router.post(
-            '/internship/cv',
+            internship.cv.store.url(),
             { file },
             {
                 forceFormData: true,
@@ -80,7 +81,9 @@ export default function StudentCv({ cv }: Props) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Mi CV', href: '/internship/cv' }]}>
+        <AppLayout
+            breadcrumbs={[{ title: 'Mi CV', href: internship.cv.url() }]}
+        >
             <Head title="Mi CV" />
 
             <PageContainer>

@@ -3,7 +3,8 @@ import { X, Users, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
 import type { InternshipGroup, StudentSummary } from '@/modules/supervision';
-
+import { dashboard } from '@/routes';
+import academicGroups from '@/routes/academic/groups';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -53,7 +54,7 @@ export default function StudentGroupIndex({
         localTotalPages,
         handlePageChange,
     } = useConfigTable({
-        endpoint: '/api/groups/internship/filter',
+        endpoint: academicGroups.api.internship.filter.url(),
         initialData: groups,
         isAdmin,
         pageSize: 15,
@@ -69,7 +70,7 @@ export default function StudentGroupIndex({
     const selectedItem = displayData.find((item) => item.id === selectedId);
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: 'Grupos por Estudiante', href: '#' },
     ];
 

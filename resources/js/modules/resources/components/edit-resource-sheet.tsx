@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import type { ResourceItem } from '@/modules/resources/types';
+import { update as updateResource } from '@/routes/resource';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -27,12 +28,11 @@ export function EditResourceSheet({
     open,
     onOpenChange,
 }: EditResourceSheetProps) {
-    const { data, setData, post, processing, errors, reset, clearErrors } =
+    const { data, setData, put, processing, errors, reset, clearErrors } =
         useForm({
             name: '',
             description: '',
             file: null as File | null,
-            _method: 'PUT',
         });
 
     // Populate form when resource changes
@@ -42,7 +42,6 @@ export function EditResourceSheet({
                 name: resource.name || '',
                 description: resource.description || '',
                 file: null,
-                _method: 'PUT',
             });
             clearErrors();
         }
@@ -52,7 +51,7 @@ export function EditResourceSheet({
         e.preventDefault();
         if (!resource) return;
 
-        post(`/resource/${resource.id}`, {
+        put(updateResource(resource.id).url, {
             onSuccess: () => {
                 onOpenChange(false);
                 reset();

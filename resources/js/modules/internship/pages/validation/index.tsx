@@ -4,6 +4,8 @@ import type { Faculty } from '@/modules/academic';
 import { DetailHeader } from '@/modules/documents';
 
 import type { InternshipAssignment } from '@/modules/internship/types';
+import { dashboard } from '@/routes';
+import { filter as validationFilter } from '@/routes/academic/internship/api/validation';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -48,11 +50,11 @@ export default function InternshipValidationIndex({
         // Sincronizar tabla localmente o vía backend
         const search = tableManager.search.trim();
         const params = search ? { search } : tableManager.activeFilters || {};
-        tableManager.fetchData('/api/internship/validation/filter', params);
+        tableManager.fetchData(validationFilter.url(), params);
     };
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: title, href: '#' },
     ];
 

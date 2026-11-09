@@ -5,6 +5,7 @@ import type {
     GroupAssignment,
     InternshipGroup,
 } from '@/modules/supervision/types';
+import groups from '@/routes/academic/groups';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
 
 interface UseGroupSupervisionOptions {
@@ -66,7 +67,7 @@ export function useGroupSupervision({
             try {
                 setIsLoadingStudents(true);
                 const response = await axios.get(
-                    `/groups/api/supervision/${selectedGroupId}/students`,
+                    groups.api.supervision_students.url(selectedGroupId),
                 );
                 setStudents(response.data.students || []);
             } catch (error) {

@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import type { Faculty } from '@/modules/academic';
 import type { DocumentRequirement } from '@/modules/documents';
 import type { AssignmentRecord, DossierDetail } from '@/modules/identity';
+import { dashboard } from '@/routes';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
@@ -39,7 +40,7 @@ export default function DossierValidationIndex({ ...props }: Props) {
     });
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: title, href: '#' },
     ];
 

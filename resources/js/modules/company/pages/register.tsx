@@ -5,6 +5,7 @@ import {
     ClipboardCheck,
     FileSearch,
 } from 'lucide-react';
+import { home, login as loginPage } from '@/routes';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -22,7 +23,7 @@ export default function CompanyRegister() {
 
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm">
                 <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                    <Link href="/" className="flex items-center gap-3">
+                    <Link href={home().url} className="flex items-center gap-3">
                         <div className="flex aspect-square size-10 items-center justify-center rounded-md">
                             <AppLogoIcon className="size-9 fill-current" />
                         </div>
@@ -36,7 +37,7 @@ export default function CompanyRegister() {
                         </div>
                     </Link>
                     <Button variant="outline" asChild>
-                        <Link href="/login">Iniciar sesión</Link>
+                        <Link href={loginPage().url}>Iniciar sesión</Link>
                     </Button>
                 </div>
             </header>
@@ -120,7 +121,7 @@ export default function CompanyRegister() {
 
                         <div className="flex justify-center">
                             <Button asChild>
-                                <Link href="/login">
+                                <Link href={loginPage().url}>
                                     Iniciar sesión para continuar
                                 </Link>
                             </Button>
