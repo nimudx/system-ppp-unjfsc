@@ -114,7 +114,13 @@ class CompanyValidationController extends Controller
     public function placement(StorePlacementRequest $request, PlacementService $placements)
     {
         $student = $this->access->assignment($request->user(), 5, true);
-        $placement = $placements->registerPlacement($request->validated(), $student);
+        $existing = $student->placement;
+
+        // Si ya existe una formalización, los datos se actualizan y vuelven a
+        // revisión en lugar de bloquear la edición del estudiante.
+        $placement = $existing
+            ? $placements->updatePlacement($existing, $request->validated(), $student)
+            : $placements->registerPlacement($request->validated(), $student);
 
         return response()->json(['data' => $placement->load('company', 'area'), 'internship_id' => \App\Domains\Internship\Models\Internship::where('placement_id', $placement->id)->value('id'), 'can_upload_documents' => true], 201);
     }

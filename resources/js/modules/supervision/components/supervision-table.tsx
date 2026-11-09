@@ -2,6 +2,7 @@ import { ChevronRight, User } from 'lucide-react';
 import type { GroupOption } from '@/modules/supervision/components/group-selector';
 import type { StudentSupervision } from '@/modules/supervision/types';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
+import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,
@@ -209,28 +210,23 @@ export default function SupervisionTable({
                     <TableBody>
                         <TableRow>
                             <TableCell colSpan={5} className="h-36 text-center">
-                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                    <User className="size-8 opacity-20" />
-                                    <p className="text-sm font-medium">
-                                        {!selectedGroup
+                                <EmptyState
+                                    icon={User}
+                                    title={
+                                        !selectedGroup
                                             ? 'Selecciona un grupo para continuar'
-                                            : 'Selecciona un módulo'}
-                                    </p>
-                                    <p className="text-xs opacity-60">
-                                        Usa los selectores de arriba
-                                    </p>
-                                </div>
+                                            : 'Selecciona un módulo'
+                                    }
+                                    description="Usa los selectores de arriba"
+                                />
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 ) : (
                     <TableBody>
                         <TableRow>
-                            <TableCell
-                                colSpan={5}
-                                className="h-24 text-center text-sm text-muted-foreground italic"
-                            >
-                                No se encontraron estudiantes registrados.
+                            <TableCell colSpan={5} className="h-24 text-center">
+                                <EmptyState title="No se encontraron estudiantes registrados." />
                             </TableCell>
                         </TableRow>
                     </TableBody>

@@ -1,27 +1,19 @@
 import { Head } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
+import { DocumentTypeForm } from '@/modules/documents/components/document-type-form';
+import { DocumentTypeTable } from '@/modules/documents/components/document-type-table';
+import { useDocumentSetup } from '@/modules/documents/hooks/use-document';
+import type { DocumentTypeOption } from '@/modules/documents/types';
+import { dashboard } from '@/routes';
+import { internship as internshipSettings } from '@/routes/settings/academic';
+import ConfirmDeleteDialog from '@/shared/components/confirm-delete-dialog';
 import Heading from '@/shared/components/heading';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
 
-import { DocumentTypeForm } from './components/DocumentTypeForm';
-import { DocumentTypeTable } from './components/DocumentTypeTable';
-import type { DocumentType } from './hooks/use-document';
-import { useDocumentSetup } from './hooks/use-document';
-
 interface Props {
-    documentTypes: DocumentType[];
+    documentTypes: DocumentTypeOption[];
     roles: Array<{ id: number; name: string }>;
 }
 
@@ -42,8 +34,8 @@ export default function DocumentSettingsIndex({ documentTypes, roles }: Props) {
     } = useDocumentSetup();
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
-        { title: 'Configuraciones', href: '/settings/internship' },
+        { title: 'Panel', href: dashboard().url },
+        { title: 'Configuraciones', href: internshipSettings.url() },
         { title: 'Tipos de Documentos', href: '#' },
     ];
 
@@ -84,38 +76,28 @@ export default function DocumentSettingsIndex({ documentTypes, roles }: Props) {
                     />
 
                     {/* Alerta de Eliminación */}
-                    <AlertDialog
+                    <ConfirmDeleteDialog
                         open={isDeleteDialogOpen}
-                        onOpenChange={closeDelete}
-                    >
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    ¿Eliminar tipo de documento?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Estás a punto de eliminar el documento "
-                                    {deletingDoc?.name}".
-                                    <br />
-                                    <br />
-                                    <strong>Precaución:</strong> Si este
-                                    documento ya se está usando en expedientes
-                                    activos, podría causar pérdida de
-                                    accesibilidad de archivos vinculados. Esta
-                                    acción no se puede deshacer.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={confirmDelete}
-                                    className="bg-red-600 hover:bg-red-700"
-                                >
-                                    Sí, eliminar
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                        onOpenChange={(open) => {
+                            if (!open) closeDelete();
+                        }}
+                        title="¿Eliminar tipo de documento?"
+                        description={
+                            <>
+                                Estás a punto de eliminar el documento "
+                                {deletingDoc?.name}".
+                                <br />
+                                <br />
+                                <strong>Precaución:</strong> Si este documento
+                                ya se está usando en expedientes activos, podría
+                                causar pérdida de accesibilidad de archivos
+                                vinculados. Esta acción no se puede deshacer.
+                            </>
+                        }
+                        confirmLabel="Sí, eliminar"
+                        processing={processing}
+                        onConfirm={confirmDelete}
+                    />
                 </div>
             </AcademicSettingsLayout>
         </AppLayout>

@@ -1,14 +1,15 @@
 import { Head } from '@inertiajs/react';
-import { usePage } from '@inertiajs/react';
 import { User, ChevronRight, Building2, Loader2 } from 'lucide-react';
 import type { Faculty } from '@/modules/academic';
 import { DetailHeader } from '@/modules/documents';
 
 import type { InternshipAssignment } from '@/modules/internship/types';
+import { dashboard } from '@/routes';
+import { filter as validationFilter } from '@/routes/academic/internship/api/validation';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
-import Heading from '@/shared/components/heading';
+import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import {
     Table,
@@ -19,10 +20,12 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
-import { useValidation } from './hooks/use-validation';
-import InternshipDetail from './partials/internship-detail';
-import PlacementDetail from './partials/placement-detail';
+import MasterDetailLayout from '@/shared/layouts/master-detail-layout';
+import InternshipDetail from '../../components/validation/internship-detail';
+import PlacementDetail from '../../components/validation/placement-detail';
+import { useValidation } from '../../hooks/use-validation';
 
 interface Props {
     assignments: TableData<InternshipAssignment>;
@@ -35,8 +38,7 @@ export default function InternshipValidationIndex({
     faculties = [],
     title,
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const { tableManager, state, actions } = useValidation({
         initialData: assignments,
@@ -48,11 +50,11 @@ export default function InternshipValidationIndex({
         // Sincronizar tabla localmente o vía backend
         const search = tableManager.search.trim();
         const params = search ? { search } : tableManager.activeFilters || {};
-        tableManager.fetchData('/api/internship/validation/filter', params);
+        tableManager.fetchData(validationFilter.url(), params);
     };
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: title, href: '#' },
     ];
 
@@ -60,248 +62,225 @@ export default function InternshipValidationIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Validación de Prácticas" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
-                <div className="flex items-end justify-between">
-                    <Heading
-                        variant="small"
-                        title={title}
-                        description="El docente titular (coordinador académico) y los roles autorizados revisan la formalización y el seguimiento de prácticas."
-                    />
-                </div>
-
-                <div className="relative flex flex-1 gap-6 overflow-hidden pr-1 pb-1">
-                    {/* PANEL IZQUIERDO: Listado de Estudiantes */}
-                    <aside
-                        className={`flex shrink-0 flex-col transition-all duration-300 ease-in-out ${state.selectedId ? 'w-87.5 lg:w-95' : 'w-full'} `}
-                    >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            {isAdmin && (
-                                <AcademicFilter
-                                    key={tableManager.filterClearKey}
-                                    faculties={faculties}
-                                    onFilter={tableManager.handleFilter}
-                                    isLoading={tableManager.isSearching}
-                                    initialValues={tableManager.activeFilters}
-                                />
-                            )}
-                            <AcademicSearch
-                                isAdmin={isAdmin}
-                                search={tableManager.search}
-                                setSearch={tableManager.setSearch}
-                                onSearch={tableManager.handleBackendSearch}
+            <MasterDetailLayout
+                title={title}
+                description="El docente titular (coordinador académico) y los roles autorizados revisan la formalización y el seguimiento de prácticas."
+                hasSelection={Boolean(state.selectedId)}
+                masterWidthClassName="w-87.5 lg:w-95"
+                toolbar={
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        {isAdmin && (
+                            <AcademicFilter
+                                key={tableManager.filterClearKey}
+                                faculties={faculties}
+                                onFilter={tableManager.handleFilter}
                                 isLoading={tableManager.isSearching}
+                                initialValues={tableManager.activeFilters}
                             />
-                        </div>
-
-                        <div className="relative mt-6 overflow-hidden rounded-md border bg-card">
-                            {tableManager.isSearching && (
-                                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-background/60 backdrop-blur-[1px]">
-                                    <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
-                                        <Loader2 className="size-4 animate-spin text-primary" />
-                                        Cargando listado...
-                                    </div>
+                        )}
+                        <AcademicSearch
+                            isAdmin={isAdmin}
+                            search={tableManager.search}
+                            setSearch={tableManager.setSearch}
+                            onSearch={tableManager.handleBackendSearch}
+                            isLoading={tableManager.isSearching}
+                        />
+                    </div>
+                }
+                master={
+                    <div className="relative mt-6 overflow-hidden rounded-md border bg-card">
+                        {tableManager.isSearching && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-background/60 backdrop-blur-[1px]">
+                                <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
+                                    <Loader2 className="size-4 animate-spin text-primary" />
+                                    Cargando listado...
                                 </div>
-                            )}
-                            <Table>
-                                <colgroup>
-                                    <col className="w-[20%]" />
+                            </div>
+                        )}
+                        <Table>
+                            <colgroup>
+                                <col className="w-[20%]" />
+                                {!state.selectedId && (
+                                    <>
+                                        <col className="w-[25%]" />
+                                        <col className="w-[24%]" />
+                                        <col className="w-[10%]" />
+                                    </>
+                                )}
+                                <col className="w-[8%]" />
+                                <col className="w-[2%]" />
+                            </colgroup>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Nombre / Usuario</TableHead>
                                     {!state.selectedId && (
                                         <>
-                                            <col className="w-[25%]" />
-                                            <col className="w-[24%]" />
-                                            <col className="w-[10%]" />
+                                            <TableHead className="hidden md:table-cell">
+                                                Facultad
+                                            </TableHead>
+                                            <TableHead className="hidden md:table-cell">
+                                                Escuela
+                                            </TableHead>
+                                            <TableHead className="hidden lg:table-cell">
+                                                Sección
+                                            </TableHead>
                                         </>
                                     )}
-                                    <col className="w-[8%]" />
-                                    <col className="w-[2%]" />
-                                </colgroup>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Nombre / Usuario</TableHead>
-                                        {!state.selectedId && (
-                                            <>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Facultad
-                                                </TableHead>
-                                                <TableHead className="hidden md:table-cell">
-                                                    Escuela
-                                                </TableHead>
-                                                <TableHead className="hidden lg:table-cell">
-                                                    Sección
-                                                </TableHead>
-                                            </>
-                                        )}
-                                        <TableHead className="text-center">
-                                            Estado
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {tableManager.displayData.length > 0 ? (
-                                        tableManager.displayData.map((item) => (
-                                            <TableRow
-                                                key={item.id}
-                                                onClick={() =>
-                                                    actions.handleSelect(
-                                                        item.id,
-                                                    )
-                                                }
-                                                className={`group cursor-pointer transition-colors ${state.selectedId === item.id ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
-                                            >
-                                                <TableCell>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex size-8 items-center justify-center rounded-full bg-muted">
-                                                            <User className="size-4 text-muted-foreground" />
-                                                        </div>
-                                                        <div className="flex flex-col overflow-hidden">
-                                                            <span className="max-w-37.5 truncate text-xs font-bold uppercase lg:max-w-none">
+                                    <TableHead className="text-center">
+                                        Estado
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {tableManager.displayData.length > 0 ? (
+                                    tableManager.displayData.map((item) => (
+                                        <TableRow
+                                            key={item.id}
+                                            onClick={() =>
+                                                actions.handleSelect(item.id)
+                                            }
+                                            className={`group cursor-pointer transition-colors ${state.selectedId === item.id ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
+                                        >
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex size-8 items-center justify-center rounded-full bg-muted">
+                                                        <User className="size-4 text-muted-foreground" />
+                                                    </div>
+                                                    <div className="flex flex-col overflow-hidden">
+                                                        <span className="max-w-37.5 truncate text-xs font-bold uppercase lg:max-w-none">
+                                                            {
+                                                                item.user
+                                                                    ?.person
+                                                                    ?.surnames
+                                                            }{' '}
+                                                            {
+                                                                item.user
+                                                                    ?.person
+                                                                    ?.names
+                                                            }
+                                                        </span>
+                                                        {!state.selectedId ? (
+                                                            <span className="truncate text-[10px] text-muted-foreground">
                                                                 {
                                                                     item.user
-                                                                        ?.person
-                                                                        ?.surnames
-                                                                }{' '}
-                                                                {
-                                                                    item.user
-                                                                        ?.person
-                                                                        ?.names
+                                                                        ?.email
                                                                 }
                                                             </span>
-                                                            {!state.selectedId ? (
+                                                        ) : (
+                                                            <div className="flex gap-2">
                                                                 <span className="truncate text-[10px] text-muted-foreground">
                                                                     {
                                                                         item
-                                                                            .user
-                                                                            ?.email
+                                                                            .section
+                                                                            ?.school
+                                                                            ?.name
                                                                     }
                                                                 </span>
-                                                            ) : (
-                                                                <div className="flex gap-2">
-                                                                    <span className="truncate text-[10px] text-muted-foreground">
-                                                                        {
-                                                                            item
-                                                                                .section
-                                                                                ?.school
-                                                                                ?.name
-                                                                        }
-                                                                    </span>
-                                                                    <span className="truncate text-[10px] text-muted-foreground">
-                                                                        -{' '}
-                                                                        {
-                                                                            item
-                                                                                .section
-                                                                                ?.name
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
+                                                                <span className="truncate text-[10px] text-muted-foreground">
+                                                                    -{' '}
+                                                                    {
+                                                                        item
+                                                                            .section
+                                                                            ?.name
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </TableCell>
+                                                </div>
+                                            </TableCell>
 
-                                                {/* Columnas que desaparecen en modo split */}
-                                                {!state.selectedId && (
-                                                    <>
-                                                        <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
-                                                            {item.section
-                                                                ?.school
-                                                                ?.faculty
-                                                                ?.name || 'N/A'}
-                                                        </TableCell>
-                                                        <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
-                                                            {item.section
-                                                                ?.school
-                                                                ?.name || 'N/A'}
-                                                        </TableCell>
-                                                        <TableCell className="hidden font-bold lg:table-cell">
-                                                            {item.section
-                                                                ?.name || 'N/A'}
-                                                        </TableCell>
-                                                    </>
+                                            {/* Columnas que desaparecen en modo split */}
+                                            {!state.selectedId && (
+                                                <>
+                                                    <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
+                                                        {item.section?.school
+                                                            ?.faculty?.name ||
+                                                            'N/A'}
+                                                    </TableCell>
+                                                    <TableCell className="hidden text-sm font-medium text-muted-foreground md:table-cell">
+                                                        {item.section?.school
+                                                            ?.name || 'N/A'}
+                                                    </TableCell>
+                                                    <TableCell className="hidden font-bold lg:table-cell">
+                                                        {item.section?.name ||
+                                                            'N/A'}
+                                                    </TableCell>
+                                                </>
+                                            )}
+
+                                            <TableCell className="text-center">
+                                                {!item.placement ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="border-none bg-slate-100 text-[9px] font-bold text-slate-500"
+                                                    >
+                                                        NO INICIADO
+                                                    </Badge>
+                                                ) : item.placement
+                                                      ?.approval_status ===
+                                                  1 ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="border-none bg-green-500 text-[9px] font-bold text-white"
+                                                    >
+                                                        PROCESO
+                                                    </Badge>
+                                                ) : item.placement
+                                                      ?.approval_status ===
+                                                  3 ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="border-none bg-red-500 text-[9px] font-bold text-white"
+                                                    >
+                                                        OBSERVADO
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="border-none bg-amber-500 text-[9px] font-bold text-white uppercase"
+                                                    >
+                                                        Formalización
+                                                    </Badge>
                                                 )}
+                                            </TableCell>
 
-                                                <TableCell className="text-center">
-                                                    {!item.placement ? (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="border-none bg-slate-100 text-[9px] font-bold text-slate-500"
-                                                        >
-                                                            NO INICIADO
-                                                        </Badge>
-                                                    ) : item.placement
-                                                          ?.approval_status ===
-                                                      1 ? (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="border-none bg-green-500 text-[9px] font-bold text-white"
-                                                        >
-                                                            PROCESO
-                                                        </Badge>
-                                                    ) : item.placement
-                                                          ?.approval_status ===
-                                                      3 ? (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="border-none bg-red-500 text-[9px] font-bold text-white"
-                                                        >
-                                                            OBSERVADO
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="border-none bg-amber-500 text-[9px] font-bold text-white uppercase"
-                                                        >
-                                                            Formalización
-                                                        </Badge>
-                                                    )}
-                                                </TableCell>
-
-                                                <TableCell className="text-right">
-                                                    <ChevronRight
-                                                        className={`size-4 text-muted-foreground transition-transform ${state.selectedId === item.id ? 'rotate-180 text-primary' : ''}`}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={
-                                                    state.selectedId ? 3 : 5
-                                                }
-                                                className="h-24 text-center text-xs text-muted-foreground italic"
-                                            >
-                                                No se encontraron resultados.
+                                            <TableCell className="text-right">
+                                                <ChevronRight
+                                                    className={`size-4 text-muted-foreground transition-transform ${state.selectedId === item.id ? 'rotate-180 text-primary' : ''}`}
+                                                />
                                             </TableCell>
                                         </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                            <AcademicPagination
-                                isAdmin={isAdmin}
-                                isLoading={tableManager.isSearching}
-                                links={tableManager.pagination?.links}
-                                total={tableManager.pagination?.total}
-                                showing={tableManager.pagination?.data?.length}
-                                onPageChange={tableManager.handlePageChange}
-                                currentPage={tableManager.localPage}
-                                totalPages={tableManager.localTotalPages}
-                                localShowing={tableManager.displayData.length}
-                                localTotal={
-                                    tableManager.allLocalFiltered.length
-                                }
-                                onLocalPageChange={tableManager.setLocalPage}
-                            />
-                        </div>
-                    </aside>
-
-                    {/* PANEL DERECHO: Detalle de Validación */}
-                    <main
-                        className={`flex min-w-0 flex-1 flex-col transition-all duration-500 ease-in-out ${
-                            state.selectedId
-                                ? 'translate-x-0 opacity-100'
-                                : 'pointer-events-none translate-x-12.5 opacity-0'
-                        }`}
-                    >
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={state.selectedId ? 3 : 5}
+                                            className="h-24 text-center"
+                                        >
+                                            <EmptyState title="No se encontraron resultados." />
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                        <AcademicPagination
+                            isAdmin={isAdmin}
+                            isLoading={tableManager.isSearching}
+                            links={tableManager.pagination?.links}
+                            total={tableManager.pagination?.total}
+                            showing={tableManager.pagination?.data?.length}
+                            onPageChange={tableManager.handlePageChange}
+                            currentPage={tableManager.localPage}
+                            totalPages={tableManager.localTotalPages}
+                            localShowing={tableManager.displayData.length}
+                            localTotal={tableManager.allLocalFiltered.length}
+                            onLocalPageChange={tableManager.setLocalPage}
+                        />
+                    </div>
+                }
+                detail={
+                    <>
                         {state.selectedId && state.selectedItem ? (
                             <div className="flex flex-1 flex-col overflow-hidden">
                                 {/* Header del detalle: Usamos data local (selectedAssignment) para inmediatez */}
@@ -386,9 +365,9 @@ export default function InternshipValidationIndex({
                                 </p>
                             </div>
                         )}
-                    </main>
-                </div>
-            </div>
+                    </>
+                }
+            />
         </AppLayout>
     );
 }

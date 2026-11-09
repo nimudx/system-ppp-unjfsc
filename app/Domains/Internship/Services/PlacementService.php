@@ -94,6 +94,7 @@ class PlacementService
                 'history' => $docsOfType->map(fn ($d) => [
                     'id' => $d->id,
                     'name' => $d->name,
+                    'path' => $d->signedFileUrl(),
                     'approval_status' => $d->approval_status,
                     'comment' => $d->comment,
                     'created_at' => $d->created_at,
@@ -184,11 +185,6 @@ class PlacementService
     public function updatePlacement(Placement $placement, array $data, Assignment $assignment): Placement
     {
         return DB::transaction(function () use ($placement, $data, $assignment) {
-            // si el placemente ya esta aprobado, no se puede editar
-            if ($placement->approval_status === 1 || $placement->validation_status === 1) {
-                throw new \Exception('El placement ya esta aprobado, no se puede editar');
-            }
-
             abort_unless($placement->assignment_id === $assignment->id, 403, 'La práctica no pertenece al estudiante.');
             app(\App\Domains\Company\Services\CompanyAcceptanceService::class)->accepted($assignment, $placement->company_id);
             if (isset($data['company']['id'])) {

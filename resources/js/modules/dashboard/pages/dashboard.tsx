@@ -15,6 +15,7 @@ import type {
 
 import { dashboard } from '@/routes';
 import { PlaceholderPattern } from '@/shared/components/ui/placeholder-pattern';
+import { ROLES } from '@/shared/config/roles';
 import AppLayout from '@/shared/layouts/app-layout';
 import type { BreadcrumbItem } from '@/shared/types';
 import type { Auth } from '@/shared/types/auth';
@@ -70,13 +71,18 @@ export default function Dashboard({
     if (userType === 'Académico') {
         // Los indicadores llegan del servidor según el rol activo (DashboardService).
         const academicView: Record<number, React.ReactNode> = {
-            1: <AdminContent stats={stats as AdminStats} />,
-            2: <AdminContent stats={stats as AdminStats} />, // Sub Admin también ve panel admin
-            3: <TeacherContent stats={stats as TeacherStats} />,
-            4: <SupervisorContent stats={stats as SupervisorStats} />,
-            5: <StudentContent stats={stats as StudentStats} />,
+            [ROLES.ADMIN]: <AdminContent stats={stats as AdminStats} />,
+            [ROLES.SUBADMIN]: <AdminContent stats={stats as AdminStats} />, // Sub Admin también ve panel admin
+            [ROLES.TEACHER]: <TeacherContent stats={stats as TeacherStats} />,
+            [ROLES.SUPERVISOR]: (
+                <SupervisorContent stats={stats as SupervisorStats} />
+            ),
+            [ROLES.STUDENT]: <StudentContent stats={stats as StudentStats} />,
         };
-        const view = (stats || role === 5) && role ? academicView[role] : null;
+        const view =
+            (stats || role === ROLES.STUDENT) && role
+                ? academicView[role]
+                : null;
 
         return (
             <AppLayout breadcrumbs={breadcrumbs}>

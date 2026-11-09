@@ -1,3 +1,9 @@
+import { activate, show as showInvitation } from '@/routes/company-invitations';
+import { current } from '@/routes/company-validation';
+import { lookup } from '@/routes/company-validation/companies';
+import { store as storePlacement } from '@/routes/company-validation/placement';
+import requests from '@/routes/company-validation/requests';
+
 export type CompanyData = {
     id?: number;
     ruc: string;
@@ -132,24 +138,20 @@ export async function workflowApi<T>(
 }
 export const workflow = {
     lookup: (ruc: string) =>
-        workflowApi<Lookup>(
-            `/api/company-validation/companies/${encodeURIComponent(ruc)}`,
-        ),
+        workflowApi<Lookup>(lookup(encodeURIComponent(ruc)).url),
     current: (signal?: AbortSignal) =>
         workflowApi<{ data: CompanyRequest | null }>(
-            '/api/company-validation/current',
+            current.url(),
             'GET',
             undefined,
             signal,
         ),
     show: (id: number) =>
-        workflowApi<{ data: CompanyRequest }>(
-            `/api/company-validation/requests/${id}`,
-        ),
+        workflowApi<{ data: CompanyRequest }>(requests.show(id).url),
     submit: (data: FormData, id?: number) => {
         if (id) data.set('_method', 'PATCH');
         return workflowApi<{ data: CompanyRequest }>(
-            `/api/company-validation/requests${id ? `/${id}` : ''}`,
+            id ? requests.resubmit(id).url : requests.store().url,
             'POST',
             data,
         );
@@ -159,44 +161,44 @@ export const workflow = {
             data: CompanyRequest[];
             meta: { current_page: number; last_page: number };
         }>(
-            `/api/company-validation/requests?${query}`,
+            `${requests.index().url}${query ? `?${query}` : ''}`,
             'GET',
             undefined,
             signal,
         ),
     review: (id: number, decision: string, comment: string) =>
         workflowApi<{ data: CompanyRequest }>(
-            `/api/company-validation/requests/${id}/review`,
+            requests.review(id).url,
             'PATCH',
-            { decision, comment },
+            {
+                decision,
+                comment,
+            },
         ),
     resend: (id: number) =>
-        workflowApi<{ data: CompanyRequest }>(
-            `/api/company-validation/requests/${id}/resend`,
-            'POST',
-        ),
+        workflowApi<{ data: CompanyRequest }>(requests.resend(id).url, 'POST'),
     decide: (id: number, decision: string, comment: string) =>
         workflowApi<{ data: CompanyRequest }>(
-            `/api/company-validation/requests/${id}/decision`,
+            requests.decision(id).url,
             'PATCH',
             { decision, comment },
         ),
     placement: (data: object) =>
         workflowApi<{ internship_id: number; can_upload_documents: boolean }>(
-            '/api/company-validation/placement',
+            storePlacement().url,
             'POST',
             data,
         ),
     invitation: (token: string, signal?: AbortSignal) =>
         workflowApi<{ data: Invitation }>(
-            `/api/company-invitations/${encodeURIComponent(token)}`,
+            showInvitation(encodeURIComponent(token)).url,
             'GET',
             undefined,
             signal,
         ),
     activate: (token: string, data: object) =>
         workflowApi<{ next_url: string }>(
-            `/api/company-invitations/${encodeURIComponent(token)}/activate`,
+            activate(encodeURIComponent(token)).url,
             'POST',
             data,
         ),

@@ -1,16 +1,16 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { X, Users, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import type { Faculty } from '@/modules/academic';
-import type {
-    InternshipGroup,
-    Assignment,
-} from '@/modules/supervision/hooks/use-internship-group';
-
+import type { InternshipGroup, StudentSummary } from '@/modules/supervision';
+import { dashboard } from '@/routes';
+import academicGroups from '@/routes/academic/groups';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import {
     Table,
@@ -21,12 +21,13 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import { useConfigTable } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
-import StudentManagementTabs from './partials/student-management-tabs';
+import StudentManagementTabs from '../../../components/student-management-tabs';
 
 interface Props {
     groups: InternshipGroup[];
-    students: Assignment[];
+    students: StudentSummary[];
     faculties?: Faculty[];
 }
 
@@ -34,8 +35,7 @@ export default function StudentGroupIndex({
     groups = [],
     faculties = [],
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const {
@@ -54,7 +54,7 @@ export default function StudentGroupIndex({
         localTotalPages,
         handlePageChange,
     } = useConfigTable({
-        endpoint: '/api/groups/internship/filter',
+        endpoint: academicGroups.api.internship.filter.url(),
         initialData: groups,
         isAdmin,
         pageSize: 15,
@@ -70,7 +70,7 @@ export default function StudentGroupIndex({
     const selectedItem = displayData.find((item) => item.id === selectedId);
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: 'Grupos por Estudiante', href: '#' },
     ];
 
@@ -78,7 +78,7 @@ export default function StudentGroupIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Grupos por Estudiante" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 <div className="flex items-end justify-between">
                     <Heading
                         variant="small"
@@ -241,14 +241,19 @@ export default function StudentGroupIndex({
                                         <TableRow>
                                             <TableCell
                                                 colSpan={selectedId ? 2 : 6}
-                                                className="h-24 text-center text-muted-foreground italic"
+                                                className="h-24 text-center"
                                             >
-                                                {isAdmin &&
-                                                displayData.length === 0 &&
-                                                !search &&
-                                                !activeFilters
-                                                    ? 'Usa el filtro o buscador para cargar grupos.'
-                                                    : 'No se encontraron resultados'}
+                                                <EmptyState
+                                                    title={
+                                                        isAdmin &&
+                                                        displayData.length ===
+                                                            0 &&
+                                                        !search &&
+                                                        !activeFilters
+                                                            ? 'Usa el filtro o buscador para cargar grupos.'
+                                                            : 'No se encontraron resultados'
+                                                    }
+                                                />
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -352,7 +357,7 @@ export default function StudentGroupIndex({
                         )}
                     </main>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

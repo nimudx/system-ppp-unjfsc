@@ -16,7 +16,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import internship from '@/routes/academic/internship';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -53,11 +55,10 @@ type Props = {
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Prácticas Pre-Profesionales', href: '/internship' },
+    { title: 'Prácticas Pre-Profesionales', href: internship.submission.url() },
 ];
 
-// TODO: cambiar por la ruta de Wayfinder cuando se genere (academic.internship.report-review.store)
-const SUBMIT_URL = '/internship/report-review/submissions';
+const SUBMIT_URL = internship.reportReview.store.url();
 
 const formatDate = (iso: string | null) =>
     iso
@@ -137,15 +138,15 @@ export default function ReportReview({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Rev. Informe" />
+            <Head title="Rev. Prácticas" />
 
-            <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer fullHeight>
                 {/* Encabezado */}
                 <div className="flex items-end justify-between">
                     <Heading
                         variant="small"
-                        title="Rev. Informe"
-                        description="Gestiona tu plan, informe y revisa las observaciones de tu docente."
+                        title="Rev. Prácticas"
+                        description="Gestiona tu plan e informe de prácticas y revisa las observaciones de tu docente."
                     />
 
                     <div className="hidden items-center gap-2 rounded-lg border bg-card px-3 py-2 md:flex">
@@ -555,7 +556,7 @@ export default function ReportReview({
                         </SectionCard>
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

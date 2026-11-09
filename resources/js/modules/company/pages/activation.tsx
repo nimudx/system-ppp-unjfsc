@@ -1,5 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState, type FormEvent } from 'react';
+import { logout } from '@/routes';
+import company from '@/routes/company';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
 import PasswordInput from '@/shared/components/password-input';
 import PasswordStrength from '@/shared/components/password-strength';
@@ -104,7 +106,7 @@ export default function CompanyActivation() {
                         </div>
                         {!invitation.requires_activation ? (
                             <Button asChild>
-                                <Link href="/empresa/solicitudes">
+                                <Link href={company.requests.url()}>
                                     Ingresar para revisar solicitudes
                                 </Link>
                             </Button>
@@ -114,7 +116,7 @@ export default function CompanyActivation() {
                                 cuenta empresarial.{' '}
                                 <Link
                                     className="text-primary underline"
-                                    href="/logout"
+                                    href={logout().url}
                                     method="post"
                                     as="button"
                                 >

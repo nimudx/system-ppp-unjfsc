@@ -18,7 +18,13 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { getDocumentStatusMeta } from '@/modules/documents';
+import internship from '@/routes/academic/internship';
+import supervision from '@/routes/academic/supervision';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
+import PageContainer from '@/shared/components/page-container';
+import StatCard from '@/shared/components/stat-card';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
@@ -52,21 +58,7 @@ type Props = {
 
 type StatusFilter = 'Todos' | '2' | '3' | '1';
 
-// TODO: cambiar por la ruta de Wayfinder cuando se genere (academic.supervision.practice.review)
-const reviewUrl = (id: number) =>
-    `/supervision/practice-submissions/${id}/review`;
-
-const statusStyles: Record<number, string> = {
-    2: 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400',
-    3: 'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400',
-    1: 'border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-400',
-};
-
-const statusLabel: Record<number, string> = {
-    2: 'Pendiente',
-    3: 'Observado',
-    1: 'Aprobado',
-};
+const reviewUrl = (id: number) => supervision.practice.review.url(id);
 
 const formatDate = (iso: string | null) =>
     iso
@@ -78,47 +70,16 @@ const formatDate = (iso: string | null) =>
         : '';
 
 function StatusBadge({ status }: { status: 1 | 2 | 3 }) {
-    const Icon =
-        status === 2 ? Clock : status === 3 ? AlertCircle : CheckCircle2;
+    const meta = getDocumentStatusMeta(status);
+    const Icon = meta.icon;
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${statusStyles[status]}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${meta.badge}`}
         >
             <Icon className="size-3.5" />
-            {statusLabel[status]}
+            {meta.label}
         </span>
-    );
-}
-
-function SummaryCard({
-    title,
-    value,
-    description,
-    icon: Icon,
-}: {
-    title: string;
-    value: number;
-    description: string;
-    icon: typeof ClipboardList;
-}) {
-    return (
-        <div className="rounded-xl border bg-card p-4 transition-shadow hover:shadow-sm sm:p-5">
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    <p className="text-sm text-muted-foreground">{title}</p>
-                    <p className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-                        {value}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                        {description}
-                    </p>
-                </div>
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                    <Icon className="size-5 text-muted-foreground" />
-                </div>
-            </div>
-        </div>
     );
 }
 
@@ -223,8 +184,8 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
     const plural = isPlan ? 'Planes de prácticas' : 'Informes de prácticas';
     const singular = isPlan ? 'plan' : 'informe';
     const href = isPlan
-        ? '/internship/practice-plans'
-        : '/internship/practice-reports';
+        ? internship.practicePlans.url()
+        : internship.practiceReports.url();
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Documentos de prácticas', href },
@@ -263,7 +224,7 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={plural} />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
+            <PageContainer>
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <Heading
                         variant="small"
@@ -285,25 +246,25 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <SummaryCard
+                    <StatCard
                         title={`Total de ${isPlan ? 'planes' : 'informes'}`}
                         value={submissions.length}
                         description="Estudiantes que ya entregaron"
                         icon={ClipboardList}
                     />
-                    <SummaryCard
+                    <StatCard
                         title="Pendientes"
                         value={countByStatus(2)}
                         description="A la espera de revisión"
                         icon={Clock}
                     />
-                    <SummaryCard
+                    <StatCard
                         title="Observados"
                         value={countByStatus(3)}
                         description="Requieren corrección"
                         icon={AlertCircle}
                     />
-                    <SummaryCard
+                    <StatCard
                         title="Aprobados"
                         value={countByStatus(1)}
                         description="Ya calificados"
@@ -463,19 +424,21 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                                                         colSpan={5}
                                                         className="px-4 py-12 text-center"
                                                     >
-                                                        <Search className="mx-auto mb-3 size-8 text-muted-foreground/50" />
-                                                        <p className="text-sm font-medium">
-                                                            {submissions.length ===
-                                                            0
-                                                                ? `Aún no hay ${isPlan ? 'planes' : 'informes'} entregados`
-                                                                : 'No se encontraron resultados'}
-                                                        </p>
-                                                        <p className="mt-1 text-xs text-muted-foreground">
-                                                            {submissions.length ===
-                                                            0
-                                                                ? 'Aparecerán cuando tus estudiantes los envíen.'
-                                                                : 'Cambia la búsqueda o selecciona otro estado.'}
-                                                        </p>
+                                                        <EmptyState
+                                                            icon={Search}
+                                                            title={
+                                                                submissions.length ===
+                                                                0
+                                                                    ? `Aún no hay ${isPlan ? 'planes' : 'informes'} entregados`
+                                                                    : 'No se encontraron resultados'
+                                                            }
+                                                            description={
+                                                                submissions.length ===
+                                                                0
+                                                                    ? 'Aparecerán cuando tus estudiantes los envíen.'
+                                                                    : 'Cambia la búsqueda o selecciona otro estado.'
+                                                            }
+                                                        />
                                                     </td>
                                                 </tr>
                                             )}
@@ -721,7 +684,7 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
                         )}
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

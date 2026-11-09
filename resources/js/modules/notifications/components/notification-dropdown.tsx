@@ -5,6 +5,7 @@ import type { NotificationMeta } from '@/modules/notifications/config/notificati
 import { resolveConfig } from '@/modules/notifications/config/notification';
 import { resolveWayfinderUrl } from '@/modules/notifications/resolve-url';
 import type { NotificationSummary } from '@/modules/notifications/types';
+import { dashboard } from '@/routes';
 import notificationsRoute from '@/routes/notifications';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -41,8 +42,6 @@ export function NotificationDropdown({
                     const routeName = action.route;
                     const params = action.params || {};
 
-                    console.log('Resolving route:', routeName, params);
-
                     const url = resolveWayfinderUrl(routeName, params);
 
                     if (url) {
@@ -53,7 +52,7 @@ export function NotificationDropdown({
                             routeName,
                             '. Redirigiendo a dashboard.',
                         );
-                        router.visit('/dashboard');
+                        router.visit(dashboard().url);
                     }
                 },
             },
@@ -186,7 +185,7 @@ export function NotificationDropdown({
                         </div>
                     )}
                 </ScrollArea>
-                <Link href="/notifications">
+                <Link href={notificationsRoute.index().url}>
                     <div className="border-t border-neutral-100 p-2 dark:border-neutral-800">
                         <Button
                             variant="ghost"

@@ -7,10 +7,12 @@ use App\Domains\Identity\Models\Assignment;
 use App\Domains\Internship\Http\Requests\StorePlacementRequest;
 use App\Domains\Internship\Models\Placement;
 use App\Domains\Internship\Services\PlacementService;
+use App\Domains\Internship\Support\PracticeDuration;
 use App\Shared\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -117,8 +119,27 @@ class PlacementController extends Controller
             'placement.position' => 'required|string',
             'placement.description' => 'required|string',
             'placement.start_date' => 'required|date',
-            'placement.end_date' => 'required|date',
+            'placement.end_date' => 'required|date|after:placement.start_date',
         ]);
+
+        $days = PracticeDuration::businessDays(
+            $data['placement']['start_date'] ?? null,
+            $data['placement']['end_date'] ?? null,
+        );
+        $requiredDays = PracticeDuration::minimumBusinessDays();
+
+        if ($days < $requiredDays) {
+            throw ValidationException::withMessages([
+                'placement.end_date' => sprintf(
+                    'La práctica debe cubrir al menos %d horas. Con un máximo de %d horas diarias necesitas al menos %d días hábiles; el rango elegido tiene %d días hábiles (%d horas estimadas).',
+                    PracticeDuration::MINIMUM_HOURS,
+                    PracticeDuration::MAX_HOURS_PER_DAY,
+                    $requiredDays,
+                    $days,
+                    PracticeDuration::estimatedHours($days),
+                ),
+            ]);
+        }
 
         $assignment = Assignment::findOrFail(session('assignment_id'));
 
@@ -130,8 +151,12 @@ class PlacementController extends Controller
     public function storeDocument(Request $request, Placement $placement)
     {
         $request->validate([
-            'code' => 'required|string|in:fut,carta_presentacion,carta_aceptacion',
+            'code' => 'required|string|in:fut,carta_presentacion,carta_aceptacion,anexo_1,anexo_2,anexo_3',
             'file' => 'required|file|mimes:pdf|max:2048',
+        ], [
+            'code.in' => 'El tipo de documento no es válido.',
+            'file.mimes' => 'El documento debe ser un archivo PDF.',
+            'file.max' => 'El documento no debe superar los 2 MB.',
         ]);
 
         $assignment = Assignment::findOrFail(session('assignment_id'));

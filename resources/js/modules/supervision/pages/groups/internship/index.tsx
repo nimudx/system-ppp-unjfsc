@@ -1,9 +1,11 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { MoreHorizontal, Plus, Users, Pencil, Trash2 } from 'lucide-react';
 import type { Faculty } from '@/modules/academic';
+import type { InternshipGroup } from '@/modules/supervision';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -23,14 +25,14 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import type { TableData } from '@/shared/hooks/use-config-table';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
-import type { InternshipGroup } from '../../../hooks/use-internship-group';
+import CreateGroupModal from '../../../components/groups/create-group-modal';
+import DeleteGroupModal from '../../../components/groups/delete-group-modal';
+import EditGroupModal from '../../../components/groups/edit-group-modal';
 import { useInternshipGroup } from '../../../hooks/use-internship-group';
-import CreateGroupModal from './partials/create-group-modal';
-import DeleteGroupModal from './partials/delete-group-modal';
-import EditGroupModal from './partials/edit-group-modal';
 
 interface Props {
     groups: TableData<InternshipGroup>;
@@ -46,8 +48,7 @@ export default function InternshipGroupsIndex({
     groups = [],
     faculties,
 }: Props) {
-    const { role } = usePage().props;
-    const isAdmin = [1, 2].includes(Number(role));
+    const { isAdmin } = useRole();
 
     // --- USAMOS EL NUEVO HOOK ESPECÍFICO ---
     const { tableManager, modals, actions } = useInternshipGroup({
@@ -290,10 +291,9 @@ export default function InternshipGroupsIndex({
                                 <TableRow>
                                     <TableCell
                                         colSpan={8}
-                                        className="h-24 text-center text-muted-foreground italic"
+                                        className="h-24 text-center"
                                     >
-                                        No hay grupos registrados o no coinciden
-                                        con la búsqueda.
+                                        <EmptyState title="No hay grupos registrados o no coinciden con la búsqueda." />
                                     </TableCell>
                                 </TableRow>
                             )}

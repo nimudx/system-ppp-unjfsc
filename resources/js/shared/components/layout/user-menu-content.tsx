@@ -1,7 +1,9 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { logout } from '@/routes';
+import { select as selectAssignment } from '@/routes/assignments';
 import { edit } from '@/routes/profile';
+import { select as selectStaff } from '@/routes/staffs';
 import { UserInfo } from '@/shared/components/layout/user-info';
 import {
     DropdownMenuGroup,
@@ -27,8 +29,8 @@ export function UserMenuContent({ user }: Props) {
     const handleProfileSelect = (id: number, type: string) => {
         const route =
             type === 'academic'
-                ? `/assignments/${id}/select`
-                : `/staffs/${id}/select`;
+                ? selectAssignment(id).url
+                : selectStaff(id).url;
         router.patch(route, {}, { preserveState: false });
         cleanup();
     };

@@ -91,7 +91,7 @@ test('student entry points and company notifications open the appropriate HTML s
     $student = companyProfile(5);
     companyLogin($this, $student);
     $this->get('/estudiante/registro-empresa')->assertRedirect(route('academic.internship.submission'));
-    $this->get('/internship')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/placementIndex'));
+    $this->get('/internship')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/placement-index'));
     $this->get('/internship/formalization')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/formalization'));
     $this->get('/solicitudes-empresa/1')->assertRedirect(route('academic.internship.submission'));
 

@@ -256,6 +256,13 @@ class DashboardService
             ->values()
             ->all();
 
+        // Currículum del estudiante (se guarda en su expediente).
+        $cvDocument = $dossierDocuments
+            ->filter(fn (Document $document) => $document->documentType?->code === 'cv')
+            ->sortByDesc('id')
+            ->first();
+        $cvUploaded = $cvDocument !== null;
+
         // Documentos de formalización.
         $placementDocuments = $placement?->documents ?? collect();
 
@@ -386,6 +393,11 @@ class DashboardService
                 'percent' => $this->percent($approvedDossier, count($dossierItems)),
                 'items' => $dossierItems,
             ],
+            'cv' => [
+                'uploaded' => $cvUploaded,
+                'updated_at' => $cvDocument?->updated_at?->toIso8601String(),
+                'file_url' => $cvDocument?->signedFileUrl(),
+            ],
             'formalization' => $formalization,
             'practice' => $practice,
             'submissions' => $submissionItems,
@@ -413,6 +425,7 @@ class DashboardService
                 $placementItems,
                 $submissionItems,
                 $canUpload,
+                $cvUploaded,
             ),
         ];
     }
@@ -638,12 +651,17 @@ class DashboardService
         array $placementItems,
         array $submissions,
         bool $canUpload,
+        bool $cvUploaded,
     ): array {
         $tasks = [];
 
         $push = function (string $title, string $detail, string $href, string $priority) use (&$tasks) {
             $tasks[] = compact('title', 'detail', 'href', 'priority');
         };
+
+        if (! $cvUploaded) {
+            $push('Sube tu CV', 'Adjunta tu currículum para completar tu perfil de prácticas.', '/internship/cv', 'high');
+        }
 
         if (! $placement) {
             if (! $request) {

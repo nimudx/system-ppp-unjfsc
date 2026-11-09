@@ -1,3 +1,4 @@
+import storage from '@/routes/storage';
 import {
     Avatar,
     AvatarFallback,
@@ -20,7 +21,7 @@ export function UserInfo({
         if (!path) return undefined;
         if (path.startsWith('http') || path.startsWith('/storage/'))
             return path;
-        return `/storage/${path}`;
+        return storage.local(path).url;
     };
 
     return (

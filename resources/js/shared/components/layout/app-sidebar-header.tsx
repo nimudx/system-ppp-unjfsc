@@ -1,6 +1,9 @@
 import { router, usePage } from '@inertiajs/react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { NotificationDropdown } from '@/modules/notifications';
+import { select as selectAssignment } from '@/routes/assignments';
+import { select as selectSemester } from '@/routes/semesters';
+import { select as selectStaff } from '@/routes/staffs';
 import { Breadcrumbs } from '@/shared/components/layout/breadcrumbs';
 import {
     DropdownMenu,
@@ -12,11 +15,12 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/shared/components/ui/sidebar';
+import { USER_TYPES } from '@/shared/config/roles';
 import type {
+    AuthAssignment,
     BreadcrumbItem as BreadcrumbItemType,
     Semester,
 } from '@/shared/types';
-import type { Assignment } from '@/shared/types/auth';
 
 const ROLE_COLORS: Record<string, string> = {
     Administrador: 'bg-blue-600',
@@ -74,7 +78,7 @@ export function AppSidebarHeader({
                         currentId={selectedSemester?.id}
                     />
                 )}
-                {auth?.user?.type_id === 3 ? (
+                {auth?.user?.type_id === USER_TYPES.COMPANY ? (
                     <div className="rounded-md border px-3 py-2 text-sm font-semibold">
                         Empresa
                     </div>
@@ -84,8 +88,8 @@ export function AppSidebarHeader({
                         onSelect={(id: number, type: string) => {
                             const route =
                                 type === 'academic'
-                                    ? `/assignments/${id}/select`
-                                    : `/staffs/${id}/select`;
+                                    ? selectAssignment(id).url
+                                    : selectStaff(id).url;
                             router.patch(route, {}, { preserveState: false });
                         }}
                     />
@@ -108,7 +112,7 @@ const SemesterSelector = ({
 
     const onSelect = (id: number) => {
         // Mantenemos tu lógica para que el Toast salga siempre
-        router.patch(`/semesters/${id}/select`, {}, { preserveState: false });
+        router.patch(selectSemester(id).url, {}, { preserveState: false });
     };
 
     return (
@@ -177,7 +181,7 @@ const AvatarStack = ({
     profiles,
     onSelect,
 }: {
-    profiles: (Assignment & { type: string; color: string })[];
+    profiles: (AuthAssignment & { type: string; color: string })[];
     onSelect: (id: number, type: string) => void;
 }) => {
     const selectedProfile = profiles.find((p) => p.selected);
@@ -188,7 +192,7 @@ const AvatarStack = ({
     const staffProfiles = profiles.filter((p) => p.type === 'staff');
 
     const renderProfileItem = (
-        p: Assignment & { type: string; color: string },
+        p: AuthAssignment & { type: string; color: string },
     ) => (
         <DropdownMenuItem
             key={`${p.type}-${p.id}`}

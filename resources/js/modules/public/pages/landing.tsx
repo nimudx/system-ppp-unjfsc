@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { dashboard, login as loginPage } from '@/routes';
+import { registro as companyRegistration } from '@/routes/empresa';
 import AppLogoIcon from '@/shared/components/app-logo-icon';
 import AppearanceToggleTab from '@/shared/components/appearance-tabs';
 import {
@@ -212,14 +214,14 @@ function AccessButton({
 }) {
     return isAuthenticated ? (
         <Button asChild variant="secondary" className={className}>
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href={dashboard().url} className="flex items-center gap-2">
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Ir al Panel</span>
             </Link>
         </Button>
     ) : (
         <Button asChild className={className}>
-            <Link href="/login" className="flex items-center gap-2">
+            <Link href={loginPage().url} className="flex items-center gap-2">
                 <LogIn className="h-4 w-4" />
                 <span>Acceder</span>
             </Link>
@@ -529,7 +531,7 @@ function PlatformStructure() {
                             </p>
                         </div>
                         <Button asChild>
-                            <Link href="/registro-empresa">
+                            <Link href={companyRegistration().url}>
                                 <Building2 className="h-4 w-4" />
                                 Registrar empresa
                             </Link>
@@ -665,14 +667,14 @@ export default function Landing() {
                                     </a>
                                 </Button>
                                 <Button size="lg" variant="outline" asChild>
-                                    <Link href="/login">
+                                    <Link href={loginPage().url}>
                                         Acceder al Sistema
                                     </Link>
                                 </Button>
                             </div>
 
                             <Link
-                                href="/registro-empresa"
+                                href={companyRegistration().url}
                                 className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
                             >
                                 <Building2 className="h-4 w-4" />

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Identity\Http\Controllers\Settings;
 
+use App\Domains\Company\Models\Company;
 use App\Domains\Identity\Http\Requests\ProfileDeleteRequest;
 use App\Domains\Identity\Http\Requests\ProfileUpdateRequest;
 use App\Shared\Http\Controllers\Controller;
@@ -19,12 +20,14 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        $user = $request->user()->load('person');
+        $user = $request->user()->loadMissing('person', 'company');
+        $profile = $user->profileOwner();
 
         return Inertia::render('identity/settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
-            'profileData' => $user->person,
+            'profileData' => $profile,
+            'profileType' => $profile instanceof Company ? 'company' : 'person',
         ]);
     }
 

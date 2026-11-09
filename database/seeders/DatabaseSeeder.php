@@ -37,6 +37,9 @@ class DatabaseSeeder extends Seeder
                 SupervisorUserSeeder::class,
                 StudentUserSeeder::class,
                 DemoCompanySeeder::class,
+                ValidatedStudentSeeder::class,
+                InternshipSettingSeeder::class,
+                StudentInternshipSeeder::class,
             ]);
         }
     }

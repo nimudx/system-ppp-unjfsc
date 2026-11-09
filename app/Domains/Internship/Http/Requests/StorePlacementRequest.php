@@ -2,8 +2,10 @@
 
 namespace App\Domains\Internship\Http\Requests;
 
+use App\Domains\Internship\Support\PracticeDuration;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StorePlacementRequest extends FormRequest
 {
@@ -69,6 +71,41 @@ class StorePlacementRequest extends FormRequest
             'placement.start_date' => 'required|date',
             'placement.end_date' => 'required|date|after:placement.start_date',
         ];
+    }
+
+    /**
+     * La práctica debe cubrir el mínimo legal de 320 horas contando días
+     * hábiles y una jornada máxima de 6 horas.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $start = $this->input('placement.start_date');
+            $end = $this->input('placement.end_date');
+            $days = PracticeDuration::businessDays($start, $end);
+            $required = PracticeDuration::minimumBusinessDays();
+
+            if ($days >= $required) {
+                return;
+            }
+
+            $validator->errors()->add(
+                'placement.end_date',
+                sprintf(
+                    'La práctica debe cubrir al menos %d horas. Con un máximo de %d horas diarias necesitas al menos %d días hábiles (unas %d semanas); el rango elegido tiene %d días hábiles (%d horas estimadas).',
+                    PracticeDuration::MINIMUM_HOURS,
+                    PracticeDuration::MAX_HOURS_PER_DAY,
+                    $required,
+                    (int) ceil($required / 5),
+                    $days,
+                    PracticeDuration::estimatedHours($days),
+                )
+            );
+        });
     }
 
     public function messages(): array

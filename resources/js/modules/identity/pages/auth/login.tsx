@@ -1,6 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { Building2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { registro as companyRegistration } from '@/routes/empresa';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import InputError from '@/shared/components/input-error';
@@ -136,7 +137,7 @@ export default function Login({ status, canResetPassword }: Props) {
             <div className="mt-2 space-y-3">
                 <Separator />
                 <Button variant="outline" className="w-full" asChild>
-                    <Link href="/registro-empresa">
+                    <Link href={companyRegistration().url}>
                         <Building2 className="h-4 w-4" />
                         ¿Representas una empresa? Regístrate aquí
                     </Link>

@@ -1,24 +1,28 @@
 import { DragDropProvider } from '@dnd-kit/react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Plus, Save, GitMerge } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import type { Faculty } from '@/modules/academic';
+import { dashboard } from '@/routes';
 import internship from '@/routes/academic/internship';
 import type { AcademicFilterValues } from '@/shared/components/data-table/academic-filter';
 import { AcademicFilter } from '@/shared/components/data-table/academic-filter';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
+import { useRole } from '@/shared/hooks/use-role';
 import AppLayout from '@/shared/layouts/app-layout';
 import AcademicSettingsLayout from '@/shared/layouts/settings/academic-settings-layout';
 
-import { BuilderCard } from './components/BuilderCard';
-import { EvaluationCard } from './components/EvaluationCard';
-import { JsonPreview } from './components/JsonPreview';
-import { StepperPreview } from './components/StepperPreview';
-import type { WorkflowStage } from './types';
-import { buildDragEndHandler, RestrictToVerticalAxis } from './useDragSort';
-import { useWorkflow } from './useWorkflow';
+import { BuilderCard } from '../../components/settings/builder-card';
+import { EvaluationCard } from '../../components/settings/evaluation-card';
+import { StepperPreview } from '../../components/settings/stepper-preview';
+import {
+    buildDragEndHandler,
+    RestrictToVerticalAxis,
+} from '../../hooks/use-drag-sort';
+import { useWorkflow } from '../../hooks/use-workflow';
+import type { WorkflowStage } from '../../types';
 
 // ─── Plantilla por defecto para secciones sin configuración ──────────────────
 const createDefaultWorkflow = () => [
@@ -57,7 +61,7 @@ export default function InternshipSettingsIndex({
     currentSectionId: number | null;
     availableDocuments?: { id: number; name: string; code: string }[];
 }) {
-    const { role } = usePage().props;
+    const { isTeacher } = useRole();
     const {
         workflow,
         initializeWorkflow,
@@ -115,7 +119,7 @@ export default function InternshipSettingsIndex({
 
     // ── Render ────────────────────────────────────────────────────────────────
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: 'Configuración de Prácticas', href: '#' },
     ];
 
@@ -133,7 +137,7 @@ export default function InternshipSettingsIndex({
 
                     {/* Filtro de sección + botones de acción */}
                     <div className="flex items-center justify-between gap-3 sm:flex-row">
-                        {role !== 3 && (
+                        {!isTeacher && (
                             <AcademicFilter
                                 faculties={faculties || []}
                                 onFilter={handleFilter}
@@ -141,7 +145,7 @@ export default function InternshipSettingsIndex({
                         )}
                         {currentSectionId && (
                             <div
-                                className={`flex gap-2 ${role === 3 ? 'ml-auto' : ''}`}
+                                className={`flex gap-2 ${isTeacher ? 'ml-auto' : ''}`}
                             >
                                 <Button
                                     onClick={addStage}
@@ -209,7 +213,6 @@ export default function InternshipSettingsIndex({
                                 <div className="lg:col-span-5">
                                     <div className="sticky top-8 space-y-6">
                                         <StepperPreview workflow={workflow} />
-                                        <JsonPreview workflow={workflow} />
                                     </div>
                                 </div>
                             </div>

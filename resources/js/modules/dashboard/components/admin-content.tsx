@@ -1,6 +1,8 @@
 import { Users, GraduationCap, FileText, ClipboardCheck } from 'lucide-react';
 import type { AdminStats } from '@/modules/dashboard/types';
 import { formatNumber } from '@/modules/dashboard/utils';
+import EmptyState from '@/shared/components/empty-state';
+import StatCard from '@/shared/components/stat-card';
 import {
     Card,
     CardContent,
@@ -22,81 +24,39 @@ export default function AcademicAdminContent({ stats }: { stats: AdminStats }) {
     return (
         <div className="flex flex-1 flex-col gap-4 p-4">
             <div className="grid auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Total Estudiantes
-                        </CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatNumber(students.total)}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            +{formatNumber(students.thisMonth)} este mes
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Docentes Activos
-                        </CardTitle>
-                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatNumber(teachers.total)}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            En {teachers.schools}{' '}
-                            {teachers.schools === 1 ? 'escuela' : 'escuelas'}
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Prácticas en Curso
-                        </CardTitle>
-                        <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatNumber(internships.total)}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            {internships.withSupervisorPercent}% con supervisor
-                            asignado
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Documentos Pendientes
-                        </CardTitle>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatNumber(pendingDocuments)}
-                        </div>
-                        <p
-                            className={cn(
-                                'text-xs font-medium',
-                                pendingDocuments > 0
-                                    ? 'text-red-500'
-                                    : 'text-muted-foreground',
-                            )}
-                        >
-                            {pendingDocuments > 0
-                                ? 'Requieren revisión'
-                                : 'Todo revisado'}
-                        </p>
-                    </CardContent>
-                </Card>
+                <StatCard
+                    title="Total Estudiantes"
+                    value={formatNumber(students.total)}
+                    description={`+${formatNumber(students.thisMonth)} este mes`}
+                    icon={Users}
+                />
+                <StatCard
+                    title="Docentes Activos"
+                    value={formatNumber(teachers.total)}
+                    description={`En ${teachers.schools} ${
+                        teachers.schools === 1 ? 'escuela' : 'escuelas'
+                    }`}
+                    icon={GraduationCap}
+                />
+                <StatCard
+                    title="Prácticas en Curso"
+                    value={formatNumber(internships.total)}
+                    description={`${internships.withSupervisorPercent}% con supervisor asignado`}
+                    icon={ClipboardCheck}
+                />
+                <StatCard
+                    title="Documentos Pendientes"
+                    value={formatNumber(pendingDocuments)}
+                    description={
+                        pendingDocuments > 0
+                            ? 'Requieren revisión'
+                            : 'Todo revisado'
+                    }
+                    descriptionClassName={
+                        pendingDocuments > 0 ? 'text-red-500 font-medium' : ''
+                    }
+                    icon={FileText}
+                />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -106,10 +66,10 @@ export default function AcademicAdminContent({ stats }: { stats: AdminStats }) {
                     </CardHeader>
                     <CardContent>
                         {stats.bySchool.length === 0 ? (
-                            <p className="py-10 text-center text-sm text-muted-foreground">
-                                Aún no hay estudiantes registrados en este
-                                semestre.
-                            </p>
+                            <EmptyState
+                                className="py-10"
+                                title="Aún no hay estudiantes registrados en este semestre."
+                            />
                         ) : (
                             <ul className="space-y-4">
                                 {stats.bySchool.map((row) => (

@@ -14,6 +14,7 @@ import type { NotificationMeta } from '@/modules/notifications/config/notificati
 import { resolveConfig } from '@/modules/notifications/config/notification';
 import { resolveWayfinderUrl } from '@/modules/notifications/resolve-url';
 import type { NotificationParams } from '@/modules/notifications/types';
+import { dashboard } from '@/routes';
 import notificationsRoute from '@/routes/notifications';
 import Heading from '@/shared/components/heading';
 import { Button } from '@/shared/components/ui/button';
@@ -64,7 +65,7 @@ export default function NotificationIndex({ notifications }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const breadcrumbs = [
-        { title: 'Panel', href: '/dashboard' },
+        { title: 'Panel', href: dashboard().url },
         { title: 'Notificaciones', href: '#' },
     ];
 

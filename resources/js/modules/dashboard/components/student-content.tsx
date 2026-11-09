@@ -34,6 +34,11 @@ import {
     timeAgo,
     toneClasses,
 } from '@/modules/dashboard/utils';
+import { getDocumentStatusMeta } from '@/modules/documents';
+import dossiers from '@/routes/academic/dossiers';
+import internship from '@/routes/academic/internship';
+import notificationsRoute from '@/routes/notifications';
+import EmptyState from '@/shared/components/empty-state';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -48,20 +53,6 @@ import { cn } from '@/shared/lib/utils';
 /* -------------------------------------------------------------------------- */
 /*  Estilos y constantes                                                      */
 /* -------------------------------------------------------------------------- */
-
-const statusStyles: Record<number, string> = {
-    0: 'bg-muted text-muted-foreground',
-    1: 'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400',
-    2: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400',
-    3: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400',
-};
-
-const statusIcons: Record<number, LucideIcon> = {
-    0: FileText,
-    1: CheckCircle2,
-    2: Clock,
-    3: AlertTriangle,
-};
 
 const activityIcons: Record<StudentActivity['tone'], LucideIcon> = {
     success: CheckCircle2,
@@ -104,9 +95,9 @@ function useCountUp(target: number, duration = 900) {
 
     useEffect(() => {
         if (prefersReducedMotion()) {
-            setValue(target);
+            const reducedFrame = requestAnimationFrame(() => setValue(target));
 
-            return;
+            return () => cancelAnimationFrame(reducedFrame);
         }
 
         let frame = 0;
@@ -153,15 +144,13 @@ function clamp(value: number) {
 }
 
 function StatusBadge({ status, label }: { status: number; label: string }) {
-    const Icon = statusIcons[status] ?? FileText;
+    const meta = getDocumentStatusMeta(status);
+    const Icon = meta.icon;
 
     return (
         <Badge
             variant="outline"
-            className={cn(
-                'gap-1 border-transparent',
-                statusStyles[status] ?? statusStyles[0],
-            )}
+            className={cn('gap-1 border-transparent', meta.surface)}
         >
             <Icon className="size-3" />
             {label}
@@ -222,7 +211,7 @@ function DocumentRow({
                 <div
                     className={cn(
                         'rounded-md p-2 transition-transform group-hover:scale-110',
-                        statusStyles[document.status] ?? statusStyles[0],
+                        getDocumentStatusMeta(document.status).surface,
                     )}
                 >
                     <FileText className="size-4" />
@@ -296,7 +285,7 @@ function SubmissionCard({ submission }: { submission: StudentSubmission }) {
                 )}
                 {submission.can_submit && (
                     <Button asChild size="sm">
-                        <Link href="/internship/report-review">
+                        <Link href={internship.reportReview.url()}>
                             {submission.status === 0
                                 ? 'Subir documento'
                                 : 'Reenviar entrega'}
@@ -315,7 +304,7 @@ function ModuleRow({ module }: { module: StudentModule }) {
                 <div
                     className={cn(
                         'grid size-8 shrink-0 place-items-center rounded-full text-xs font-semibold',
-                        statusStyles[module.status] ?? statusStyles[0],
+                        getDocumentStatusMeta(module.status).surface,
                     )}
                 >
                     {module.module}
@@ -559,7 +548,11 @@ function AreaPanel({
 /*  Encabezado: identidad + avance de la práctica                             */
 /* -------------------------------------------------------------------------- */
 
-function PracticeProgress({ practice }: { practice: StudentStats['practice'] }) {
+function PracticeProgress({
+    practice,
+}: {
+    practice: StudentStats['practice'];
+}) {
     const percent = useCountUp(practice.percent);
 
     const caption = !(practice.start_date && practice.end_date)
@@ -616,6 +609,7 @@ export default function StudentDashboardContent({
     const {
         meta,
         dossier,
+        cv,
         formalization,
         practice,
         submissions,
@@ -654,12 +648,17 @@ export default function StudentDashboardContent({
             total: dossier.total,
             percent: dossier.percent,
             tone: 'bg-primary',
-            href: '/dossier',
+            href: dossiers.submission.url(),
             cta: 'Ir a mi expediente',
             entries: dossier.items.map((document) => ({
                 key: document.code,
                 status: document.status,
-                node: <DocumentRow document={document} href="/dossier" />,
+                node: (
+                    <DocumentRow
+                        document={document}
+                        href={dossiers.submission.url()}
+                    />
+                ),
             })),
         },
         {
@@ -670,7 +669,7 @@ export default function StudentDashboardContent({
             total: formalization.total_documents,
             percent: formalization.percent,
             tone: 'bg-blue-500',
-            href: '/internship/formalization',
+            href: internship.formalization.url(),
             cta: 'Ir a formalización',
             extra: (
                 <>
@@ -691,7 +690,7 @@ export default function StudentDashboardContent({
                 node: (
                     <DocumentRow
                         document={document}
-                        href="/internship/formalization"
+                        href={internship.formalization.url()}
                     />
                 ),
             })),
@@ -704,7 +703,7 @@ export default function StudentDashboardContent({
             total: submissions.length,
             percent: submissionPercent,
             tone: 'bg-emerald-500',
-            href: '/internship/report-review',
+            href: internship.reportReview.url(),
             cta: 'Ir a plan e informe',
             entries: submissions.map((submission) => ({
                 key: String(submission.type),
@@ -779,8 +778,7 @@ export default function StudentDashboardContent({
                                         meta.semester,
                                     ]
                                         .filter(Boolean)
-                                        .join(' · ') ||
-                                        'Sin datos académicos'}
+                                        .join(' · ') || 'Sin datos académicos'}
                                 </p>
                             </div>
                             <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -808,7 +806,33 @@ export default function StudentDashboardContent({
                 </CardContent>
             </Card>
 
-            {/* 2. Qué hago ahora (tareas) y cómo voy (áreas) */}
+            {/* 2. Recordatorio del CV */}
+            {!cv.uploaded && (
+                <Card className="border-amber-500/40 bg-amber-500/5">
+                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-3">
+                            <div className="rounded-lg bg-amber-500/15 p-2 text-amber-600 dark:text-amber-400">
+                                <FileText className="size-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold">
+                                    Sube tu CV
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    Aún no has adjuntado tu currículum.
+                                    Complétalo para tener tu perfil de prácticas
+                                    al día.
+                                </p>
+                            </div>
+                        </div>
+                        <Button asChild size="sm">
+                            <Link href={internship.cv.url()}>Subir mi CV</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* 3. Qué hago ahora (tareas) y cómo voy (áreas) */}
             <div className="grid gap-4 lg:grid-cols-7">
                 {/* Tareas: primero en móvil, a la derecha en escritorio */}
                 <Card className="order-1 lg:order-none lg:col-span-3 lg:col-start-5 lg:row-start-1">
@@ -931,7 +955,10 @@ export default function StudentDashboardContent({
                             </CardDescription>
                         </div>
                         <Button asChild variant="ghost" size="sm">
-                            <Link href="/notifications" className="gap-1">
+                            <Link
+                                href={notificationsRoute.index().url}
+                                className="gap-1"
+                            >
                                 {notifications.unread > 0 && (
                                     <Badge className="h-5 min-w-5 px-1.5">
                                         {notifications.unread}
@@ -943,12 +970,15 @@ export default function StudentDashboardContent({
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {activity.length === 0 ? (
-                            <div className="py-8 text-center text-sm text-muted-foreground">
-                                Aún no hay actividad registrada.
-                            </div>
+                            <EmptyState
+                                className="py-8"
+                                title="Aún no hay actividad registrada."
+                            />
                         ) : (
                             <>
-                                <ActivityTimeline activities={visibleActivity} />
+                                <ActivityTimeline
+                                    activities={visibleActivity}
+                                />
                                 {hiddenActivity > 0 && (
                                     <Button
                                         type="button"
@@ -957,7 +987,9 @@ export default function StudentDashboardContent({
                                         className="w-full"
                                         aria-expanded={showAllActivity}
                                         onClick={() =>
-                                            setShowAllActivity((value) => !value)
+                                            setShowAllActivity(
+                                                (value) => !value,
+                                            )
                                         }
                                     >
                                         {showAllActivity

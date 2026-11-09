@@ -141,6 +141,11 @@ export type StudentStats = {
         percent: number;
         items: StudentDocument[];
     };
+    cv: {
+        uploaded: boolean;
+        updated_at: string | null;
+        file_url: string | null;
+    };
     formalization: {
         state: string;
         state_label: string;

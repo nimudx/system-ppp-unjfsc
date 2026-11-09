@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { School, Faculty } from '@/modules/academic/types';
 import AcademicPagination from '@/shared/components/data-table/academic-pagination';
 import AcademicSearch from '@/shared/components/data-table/academic-search';
+import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -18,9 +19,9 @@ import {
 import { useAcademicTable } from '@/shared/hooks/use-academic-table';
 import AppLayout from '@/shared/layouts/app-layout';
 
-import CreateSchoolModal from './partials/create-school-modal';
-import DeleteSchoolModal from './partials/delete-school-modal';
-import UpdateSchoolModal from './partials/update-school-modal';
+import CreateSchoolModal from '../../components/school/create-school-modal';
+import DeleteSchoolModal from '../../components/school/delete-school-modal';
+import UpdateSchoolModal from '../../components/school/update-school-modal';
 
 interface Props {
     schools: School[];
@@ -184,9 +185,9 @@ export default function Schools({ schools, faculties }: Props) {
                                 <TableRow>
                                     <TableCell
                                         colSpan={5}
-                                        className="h-24 text-center text-muted-foreground italic"
+                                        className="h-24 text-center"
                                     >
-                                        No hay escuelas registradas.
+                                        <EmptyState title="No hay escuelas registradas." />
                                     </TableCell>
                                 </TableRow>
                             )}

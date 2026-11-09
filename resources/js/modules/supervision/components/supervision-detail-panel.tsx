@@ -22,7 +22,6 @@ interface SupervisionDetailPanelProps {
     onUpload?: (file: File) => void;
     tempFile?: File | null;
     renderActionForm: (annex: SupervisionAnnex) => React.ReactNode;
-    actionTitle?: string;
 }
 
 export default function SupervisionDetailPanel({

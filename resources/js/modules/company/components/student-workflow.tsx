@@ -2,7 +2,15 @@ import { Link, router } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import type { PlacementRecord } from '@/modules/internship/types';
+import {
+    MINIMUM_BUSINESS_DAYS,
+    MINIMUM_PRACTICE_HOURS,
+    countBusinessDays,
+    estimatedPracticeHours,
+    minimumPracticeEndDate,
+    type PlacementRecord,
+} from '@/modules/internship';
+import internship from '@/routes/academic/internship';
 import { Button } from '@/shared/components/ui/button';
 import {
     Card,
@@ -241,25 +249,45 @@ function PracticeForm({
     const [error, setError] = useState<unknown>(null);
     const [checked, setChecked] = useState(false);
     const [editing, setEditing] = useState(!placement);
-    const locked = placement?.approval_status === 1;
-    const showForm = !locked && (!placement || editing);
+    const showForm = !placement || editing;
+    const wasApproved = placement?.approval_status === 1;
+    const [startDate, setStartDate] = useState(
+        placement?.start_date?.slice(0, 10) ?? '',
+    );
+    const [endDate, setEndDate] = useState(
+        placement?.end_date?.slice(0, 10) ?? '',
+    );
+    const businessDays = countBusinessDays(startDate, endDate);
+    const estimatedHours = estimatedPracticeHours(businessDays);
+    const durationIsValid = estimatedHours >= MINIMUM_PRACTICE_HOURS;
+    const minimumEndDate = minimumPracticeEndDate(startDate);
     const save = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!checked || !current.can_register_practice || !current.company_id)
             return;
         const values = Object.fromEntries(new FormData(event.currentTarget));
+        // El placement puede venir de datos antiguos con el tipo en español.
+        // La API solo acepta los valores en inglés.
+        const internshipType =
+            type === 'desarrollo'
+                ? 'development'
+                : type === 'convalidacion'
+                  ? 'validation'
+                  : type;
         setBusy(true);
         setError(null);
         try {
             await workflow.placement({
                 company: { id: current.company_id },
-                internship_type: type,
+                internship_type: internshipType,
                 origin_type: origin,
                 practice_declaration_accepted: true,
                 placement: values,
             });
             toast.success(
-                'Jefe inmediato y datos de práctica guardados. Ya puedes presentar documentos en Formalización.',
+                placement
+                    ? 'Datos actualizados. La formalización volverá a revisión.'
+                    : 'Jefe inmediato y datos de práctica guardados. Ya puedes presentar documentos en Formalización.',
             );
             setEditing(false);
             setChecked(false);
@@ -271,16 +299,15 @@ function PracticeForm({
             setBusy(false);
         }
     };
-    const date = (value?: string) => value?.slice(0, 10) ?? '';
     return (
         <section className="space-y-5">
             <h3 className="font-semibold">
                 3. Jefe inmediato y datos de la práctica
             </h3>
-            {locked && (
+            {placement && !showForm && wasApproved && (
                 <p className="text-sm text-muted-foreground">
-                    La formalización fue aprobada y sus datos están bloqueados
-                    para edición.
+                    Estos datos ya fueron aprobados. Si los editas, la
+                    formalización volverá a revisión.
                 </p>
             )}
             {placement && !showForm && (
@@ -291,23 +318,21 @@ function PracticeForm({
                             Revisa la información de tu jefe inmediato y de la
                             práctica.
                         </CardDescription>
-                        {placement && !locked && (
-                            <CardAction>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                        setEditing(true);
-                                        setChecked(false);
-                                        setError(null);
-                                    }}
-                                >
-                                    <Pencil />
-                                    Editar
-                                </Button>
-                            </CardAction>
-                        )}
+                        <CardAction>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                    setEditing(true);
+                                    setChecked(false);
+                                    setError(null);
+                                }}
+                            >
+                                <Pencil />
+                                Editar
+                            </Button>
+                        </CardAction>
                     </CardHeader>
                     <CardContent className="space-y-4 pt-4">
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -398,7 +423,10 @@ function PracticeForm({
                                 <Input
                                     name="start_date"
                                     type="date"
-                                    defaultValue={date(placement?.start_date)}
+                                    value={startDate}
+                                    onChange={(event) =>
+                                        setStartDate(event.target.value)
+                                    }
                                     required
                                 />
                             </Field>
@@ -406,10 +434,42 @@ function PracticeForm({
                                 <Input
                                     name="end_date"
                                     type="date"
-                                    defaultValue={date(placement?.end_date)}
+                                    value={endDate}
+                                    min={minimumEndDate ?? undefined}
+                                    onChange={(event) =>
+                                        setEndDate(event.target.value)
+                                    }
                                     required
                                 />
                             </Field>
+                        </div>
+                        <div
+                            className={
+                                startDate && endDate && !durationIsValid
+                                    ? 'rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive'
+                                    : 'rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground'
+                            }
+                        >
+                            {startDate && endDate ? (
+                                <p className="font-medium">
+                                    {businessDays} días hábiles ·{' '}
+                                    {estimatedHours} horas estimadas (máximo 6
+                                    h/día)
+                                </p>
+                            ) : (
+                                <p className="font-medium">
+                                    Duración mínima: {MINIMUM_PRACTICE_HOURS}{' '}
+                                    horas
+                                </p>
+                            )}
+                            <p className="mt-1 leading-relaxed">
+                                La práctica debe cubrir al menos{' '}
+                                {MINIMUM_PRACTICE_HOURS} horas. Con un máximo de
+                                6 horas diarias necesitas al menos{' '}
+                                {MINIMUM_BUSINESS_DAYS} días hábiles. Si tu
+                                jornada es de 4 horas, necesitarás 80 días
+                                hábiles.
+                            </p>
                         </div>
                         <Field label="Descripción de funciones">
                             <Textarea
@@ -621,7 +681,7 @@ export default function StudentWorkflow({
                         formalización en el menú Formalización.
                     </p>
                     <Button asChild variant="outline" size="sm">
-                        <Link href="/internship/formalization">
+                        <Link href={internship.formalization.url()}>
                             Ir a Formalización
                         </Link>
                     </Button>

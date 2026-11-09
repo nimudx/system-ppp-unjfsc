@@ -1,5 +1,4 @@
 import * as React from 'react';
-import FileHistory from '@/modules/documents/components/FileHistory';
 import { ValidationForm } from '@/modules/documents/components/validation-form';
 import type { DocumentFile } from '@/modules/documents/types';
 import { SectionCard } from '@/shared/components/ui/section-card';
@@ -9,6 +8,7 @@ import {
     TabsList,
     TabsTrigger,
 } from '@/shared/components/ui/tabs';
+import FileHistory from './file-history';
 
 export interface ValidationPanelProps {
     status?: number;

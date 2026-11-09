@@ -9,11 +9,11 @@ import { type BreadcrumbItem } from '@/shared/types';
 // Layouts & UI Base
 
 // Componentes Desacoplados de UI
-import { SidebarInfo } from './components/SidebarInfo';
-import { ToggleGroup } from './components/ToggleGroup';
+import { PersonFlow } from '../../components/person/person-flow';
+import { SidebarInfo } from '../../components/register/sidebar-info';
+import { ToggleGroup } from '../../components/register/toggle-group';
 
 // Flujos (Inyectados)
-import { PersonFlow } from './person/PersonFlow';
 
 interface PageProps {
     roles: RoleOption[];
@@ -69,11 +69,7 @@ export default function UserRegistration(props: PageProps) {
                     <div className="lg:col-span-2">
                         <div>
                             {entityType === 'persona' && (
-                                <PersonFlow
-                                    {...props}
-                                    mode={mode}
-                                    onBack={() => {}}
-                                />
+                                <PersonFlow {...props} mode={mode} />
                             )}
 
                             {entityType === 'empresa' && (

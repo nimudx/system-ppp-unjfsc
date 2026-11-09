@@ -1,4 +1,6 @@
 import { Link } from '@inertiajs/react';
+import company from '@/routes/company';
+import { edit as editProfile } from '@/routes/profile';
 import { Button } from '@/shared/components/ui/button';
 import {
     Card,
@@ -21,7 +23,7 @@ export function CompanyContent() {
                 </CardHeader>
                 <CardContent>
                     <Button asChild>
-                        <Link href="/empresa/solicitudes">
+                        <Link href={company.requests.url()}>
                             Revisar y aceptar estudiantes
                         </Link>
                     </Button>
@@ -36,7 +38,7 @@ export function CompanyContent() {
                 </CardHeader>
                 <CardContent>
                     <Button asChild variant="outline">
-                        <Link href="/settings/profile">Ver perfil</Link>
+                        <Link href={editProfile().url}>Ver perfil</Link>
                     </Button>
                 </CardContent>
             </Card>

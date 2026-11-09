@@ -79,7 +79,7 @@ export function useSupervision({ initialData, groups, isAdmin }: Props) {
     const tableManager = useConfigTable<StudentSupervision>({
         endpoint:
             selectedGroup && selectedModuleId
-                ? `/supervision/api/groups/${selectedGroup.id}/students/filter`
+                ? supervision.api.group_students_filter.url(selectedGroup.id)
                 : '',
         initialData: initialData as unknown as TableData<StudentSupervision>,
         isAdmin,
@@ -128,7 +128,7 @@ export function useSupervision({ initialData, groups, isAdmin }: Props) {
     useEffect(() => {
         if (selectedGroup && selectedModuleId) {
             fetchData(
-                `/supervision/api/groups/${selectedGroup.id}/students/filter`,
+                supervision.api.group_students_filter.url(selectedGroup.id),
                 { module_id: selectedModuleId },
             );
         }
@@ -190,7 +190,6 @@ export function useSupervision({ initialData, groups, isAdmin }: Props) {
                     preserveScroll: true,
                     onSuccess: () => {
                         detailActions.reloadDetail(); // Refresca panel sin perder selección
-                        toast.success('Validación registrada correctamente.');
                     },
                 },
             );

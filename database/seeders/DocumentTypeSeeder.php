@@ -11,8 +11,12 @@ class DocumentTypeSeeder extends Seeder
     {
         $types = [
             ['code' => 'OTH', 'name' => 'Otros', 'description' => 'Documentos generales, manuales y recursos públicos'],
+            ['code' => 'anexo_1', 'name' => 'Anexo 1', 'description' => 'Documento de anexo 1 de la práctica'],
+            ['code' => 'anexo_2', 'name' => 'Anexo 2', 'description' => 'Documento de anexo 2 de la práctica'],
+            ['code' => 'anexo_3', 'name' => 'Anexo 3', 'description' => 'Documento de anexo 3 de la práctica'],
             ['code' => 'anexo_7', 'name' => 'Anexo 7', 'description' => 'Documento de anexo 7'],
             ['code' => 'anexo_8', 'name' => 'Anexo 8', 'description' => 'Documento de anexo 8'],
+            ['code' => 'cv', 'name' => 'Currículum Vitae', 'description' => 'Currículum vitae del estudiante'],
             ['code' => 'horario', 'name' => 'Horario', 'description' => 'Documento de horario'],
             ['code' => 'carga_lectiva', 'name' => 'Carga Lectiva', 'description' => 'Documento de carga lectiva'],
             ['code' => 'resolucion_designacion', 'name' => 'Resolución de Designación', 'description' => 'Documento de resolución'],
