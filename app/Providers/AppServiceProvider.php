@@ -16,7 +16,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Domains\Company\Contracts\ActiveCompanyResolver::class,
+            \App\Domains\Company\Support\CompanyWorkflowAccess::class,
+        );
+
+        \Illuminate\Support\Facades\Gate::policy(
+            \App\Domains\JobBoard\Models\Vacancy::class,
+            \App\Domains\JobBoard\Policies\VacancyPolicy::class,
+        );
+
+        \Illuminate\Support\Facades\Gate::policy(
+            \App\Domains\JobBoard\Models\VacancyCandidate::class,
+            \App\Domains\JobBoard\Policies\VacancyCandidatePolicy::class,
+        );
     }
 
     /**
@@ -57,6 +70,8 @@ class AppServiceProvider extends ServiceProvider
             'App\\Models\\Supervision' => \App\Domains\Supervision\Models\Supervision::class,
             'App\\Models\\TypeUser' => \App\Domains\Identity\Models\TypeUser::class,
             'practice_submission' => \App\Domains\Supervision\Models\PracticeSubmission::class,
+            'vacancy' => \App\Domains\JobBoard\Models\Vacancy::class,
+            'vacancy_candidate' => \App\Domains\JobBoard\Models\VacancyCandidate::class,
             'App\\Models\\User' => \App\Domains\Identity\Models\User::class,
             'App\\Models\\UserRequest' => \App\Domains\Requests\Models\UserRequest::class,
         ]);

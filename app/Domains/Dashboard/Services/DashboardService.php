@@ -877,6 +877,10 @@ class DashboardService
             'PLACEMENT_DOCUMENT_VALIDATION' => 'Documento de práctica revisado',
             'PLACEMENT_FINALIZED' => 'Formalización de práctica aprobada',
             'PRACTICE_REVIEW' => 'Plan o informe calificado',
+            'VACANCY_SUBMITTED' => 'Vacante enviada a revisión',
+            'VACANCY_REVIEWED' => 'Vacante revisada',
+            'VACANCY_PUBLISHED' => 'Vacante publicada',
+            'CANDIDATE_PROPOSED' => 'Candidato propuesto',
         ];
 
         return Notification::latest('id')->limit(5)->get()

@@ -2,13 +2,14 @@
 
 namespace App\Domains\Company\Support;
 
+use App\Domains\Company\Contracts\ActiveCompanyResolver;
 use App\Domains\Company\Models\Company;
 use App\Domains\Company\Models\CompanyValidationRequest;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class CompanyWorkflowAccess
+class CompanyWorkflowAccess implements ActiveCompanyResolver
 {
     public function assignment(User $user, int $role, bool $write = false): Assignment
     {
