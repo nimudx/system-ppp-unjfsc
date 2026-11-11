@@ -13,14 +13,20 @@
 │   ├── 🆕 📁 Internship   # placement → validación → creación de internship, avance de etapas
 │   ├── 🆕 📁 Supervision  # grupos, un supervisor por grupo activo, evaluaciones
 │   ├── 🆕 📁 Documents    # tamaño, tipo, URL firmada, acceso a archivos ajenos
-│   └── 🆕 📁 JobBoard
-│       ├── 🆕 📄 CompanyIsolationTest.php             # una empresa NO ve ni edita vacantes de otra
-│       ├── 🆕 📄 DuplicateApplicationTest.php         # índice único + excepción de negocio
-│       ├── 🆕 📄 EligibilityTest.php
-│       ├── 🆕 📄 VacancyStatusTransitionsTest.php
-│       ├── 🆕 📄 ApplicationStatusTransitionsTest.php
-│       ├── 🆕 📄 PublicListingTest.php                # solo campos no sensibles + throttle + caché
-│       └── 🆕 📄 CompanyApprovalTest.php              # empresa pendiente no puede publicar
+│   └── 🆕 📁 JobBoard                                  # flujo empresa → admin → titular
+│       ├── 🆕 📄 CompanyIsolationTest.php              # una empresa NO ve ni edita vacantes de otra
+│       ├── 🆕 📄 CompanyApprovalTest.php               # empresa sin activar/inactiva no publica
+│       ├── 🆕 📄 VacancyStatusTransitionsTest.php      # borrador → revisión → publicada → cerrada + escuelas destino
+│       ├── 🆕 📄 EligibilityTest.php                   # titular solo propone estudiantes de su sección
+│       ├── 🆕 📄 DuplicateApplicationTest.php          # duplicados + índice único de candidatos
+│       ├── 🆕 📄 ApplicationStatusTransitionsTest.php  # estados manuales del candidato y retiro
+│       ├── 🆕 📄 PublicListingTest.php                 # v1 sin listado público; rutas internas protegidas
+│       ├── 🆕 📄 NewBadgeTest.php                      # "Nuevo" desaparece tras abrir el detalle
+│       ├── 🆕 📄 NotificationsTest.php                 # destinatarios y avisos del módulo
+│       ├── 🆕 📄 SubadminScopeTest.php                 # subadmin limitado a su facultad
+│       ├── 🆕 📄 AdminTeacherScreensSmokeTest.php
+│       └── 🆕 📄 CompanyScreensSmokeTest.php
+├── 🆕 📁 Support
+│   └── 🆕 📄 JobBoardFixtures.php                      # helpers compartidos de las pruebas JobBoard
 └── 📁 Unit
-    ├── 🗑️ ExampleTest.php
-    └── 🆕 📁 JobBoard     # enums y reglas de transición
+    └── 🗑️ ExampleTest.php

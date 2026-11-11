@@ -1,3 +1,4 @@
+```
 📁 database
 ├── 📁 factories
 │   ├── 🐘 PersonFactory.php
@@ -31,3 +32,58 @@
 │   ├── 🐘 TypeUserSeeder.php
 │   └── 🆕 🐘 JobBoardDemoSeeder.php                    # solo para entornos local/staging
 └── ⚙️ .gitignore
+```
+
+## Bolsa laboral (JobBoard)
+
+Migraciones del módulo (no modifican las migraciones heredadas):
+
+| Migración | Contenido |
+|---|---|
+| `2026_11_08_000001_create_vacancy_candidates_table.php` | Propuestas de candidatos hechas por el docente titular. |
+| `2026_11_08_000002_create_vacancy_views_table.php` | Vistas por usuario para calcular la etiqueta "Nuevo". |
+| `2026_11_08_000003_extend_vacancies_table.php` | Diferencial de `vacancies`: tipo, modalidad, área, ubicación, posiciones, requisitos, fecha límite, revisión, publicación y cierre. |
+| `2026_11_08_000004_add_unique_vacancy_schools.php` | Único `(vacancy_id, school_id)` en escuelas destino. |
+
+### `vacancies` (extendida)
+
+- `company_id` → `companies` (FK).
+- `semester_id` → `semesters` (FK nullable, solo reporte).
+- `title`, `description` (nullable), `type` (`practicas|empleo`), `modality`
+  (`presencial|remoto|hibrido`), `area_name`, `location`, `positions_count`,
+  `requirements`, `deadline_at`.
+- `status` (`draft|pending_review|observed|rejected|published|closed`).
+- `review_comment`, `reviewed_by_assignment_id` (FK nullable), `reviewed_at`,
+  `published_at`, `closed_at`, `closed_reason` (`filled|expired|withdrawn`).
+- Las columnas heredadas `staff_id`, `start_date` y `end_date` pasan a nullable.
+- Índices: `(status, semester_id)` y `(company_id, status)`.
+
+### `vacancy_schools`
+
+- `vacancy_id` (FK, cascade), `school_id` (FK, cascade), `status`.
+- Único `(vacancy_id, school_id)`.
+
+### `vacancy_candidates`
+
+- `vacancy_id` (FK, cascade).
+- `student_assignment_id` (FK a `assignments`, restrictOnDelete).
+- `proposed_by_assignment_id` (FK a `assignments`, restrictOnDelete).
+- `note` (max. 500), `status` (`proposed|contacted|hired|discarded`),
+  `status_note` (max. 500), timestamps.
+- Único `(vacancy_id, student_assignment_id)` e índice `(vacancy_id, status)`.
+- La violación del único se traduce a `CandidateAlreadyProposed` (409).
+
+### `vacancy_views`
+
+- `vacancy_id` (FK, cascade), `user_id` (FK, cascade), `seen_at`, timestamps.
+- Único `(vacancy_id, user_id)`.
+
+### Notas
+
+- La tabla heredada `applications` **no se usa** en el flujo v1 (selección por
+  docente titular). Se conserva por compatibilidad histórica.
+- `Vacancy` y `VacancyCandidate` están registrados en el morph map de
+  `AppServiceProvider` como `vacancy` y `vacancy_candidate` para las
+  notificaciones.
+- La etiqueta "Nuevo" se calcula con `vacancy_views` +
+  `config('jobboard.new_days')` (14 días por defecto).
