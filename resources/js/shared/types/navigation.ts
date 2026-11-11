@@ -13,5 +13,7 @@ export type NavItem = {
     roles?: number[];
     userTypes?: number[];
     isActive?: boolean;
+    /** Etiqueta corta opcional, por ejemplo "Nuevo". */
+    badge?: string;
     items?: NavItem[];
 };

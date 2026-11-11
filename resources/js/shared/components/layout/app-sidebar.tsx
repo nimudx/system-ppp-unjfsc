@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { LayoutGrid } from 'lucide-react';
 
+import { useJobBoardMenuBadge } from '@/modules/jobboard/hooks/use-menu-badge';
 import { dashboard } from '@/routes';
 import { NavFooter } from '@/shared/components/layout/nav-footer';
 import { NavMain } from '@/shared/components/layout/nav-main';
@@ -26,6 +27,7 @@ import AppLogo from '../app-logo';
 
 export function AppSidebar() {
     const { auth, role } = usePage().props;
+    const showJobBoardBadge = useJobBoardMenuBadge();
 
     const userType = auth?.user?.type || 'DEFAULT';
     const userTypeId = auth?.user?.type_id || 0;
@@ -66,6 +68,16 @@ export function AppSidebar() {
         return item.userTypes.includes(userTypeId);
     });
 
+    const withJobBoardBadge = (items: NavItem[]): NavItem[] =>
+        items.map((item) => ({
+            ...item,
+            badge:
+                item.title === 'Bolsa laboral' && !showJobBoardBadge
+                    ? undefined
+                    : item.badge,
+            items: item.items ? withJobBoardBadge(item.items) : item.items,
+        }));
+
     return (
         <Sidebar collapsible="icon" variant="sidebar">
             <SidebarHeader>
@@ -81,7 +93,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={filterItems(mainNavItems, role ?? 0)} />
+                <NavMain items={withJobBoardBadge(filterItems(mainNavItems, role ?? 0))} />
             </SidebarContent>
 
             <SidebarFooter>

@@ -29,6 +29,9 @@ declare module '@inertiajs/core' {
                 selectedAssignmentId?: number;
                 sessionToken: string | null;
             };
+            jobboard?: {
+                menuBadgeUntil: string | null;
+            };
             [key: string]: unknown;
         };
     }

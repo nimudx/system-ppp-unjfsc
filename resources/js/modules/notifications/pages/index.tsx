@@ -47,7 +47,7 @@ interface Notification {
     title: string;
     role: string;
     document: string;
-    status: number | null;
+    status: number | string | null;
     comment: string | null;
     entity: string | null;
     action: NotificationAction;

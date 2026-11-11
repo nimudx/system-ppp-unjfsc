@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import company from '@/routes/company';
+import { index as jobboardIndex } from '@/routes/company/jobboard';
 import { edit as editProfile } from '@/routes/profile';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -12,7 +13,23 @@ import {
 
 export function CompanyContent() {
     return (
-        <div className="grid gap-4 p-4 md:grid-cols-2">
+        <div className="grid gap-4 p-4 md:grid-cols-3">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Bolsa laboral</CardTitle>
+                    <CardDescription>
+                        Publica vacantes y recibe candidatos propuestos por los
+                        docentes titulares de la universidad.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href={jobboardIndex().url}>
+                            Publicar mi primera vacante
+                        </Link>
+                    </Button>
+                </CardContent>
+            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Solicitudes de estudiantes</CardTitle>

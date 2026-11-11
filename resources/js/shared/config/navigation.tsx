@@ -4,6 +4,7 @@ import {
     BookMarked,
     Boxes,
     Briefcase,
+    BriefcaseBusiness,
     Building2,
     ClipboardCheck,
     Folder,
@@ -36,6 +37,8 @@ import {
     submission as internshipSubmissionIndex,
     validation as internshipValidationIndex,
 } from '@/routes/academic/internship';
+import { index as adminJobBoardIndex } from '@/routes/academic/jobboard/admin';
+import { index as teacherJobBoardIndex } from '@/routes/academic/jobboard/teacher';
 import { index as schoolsIndex } from '@/routes/academic/schools';
 import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
@@ -46,6 +49,7 @@ import { submission as supervisionSubmissionIndex } from '@/routes/academic/supe
 import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
 import { requests as companyRequests } from '@/routes/company';
+import { index as companyJobBoardIndex } from '@/routes/company/jobboard';
 import { edit as profileEdit } from '@/routes/profile';
 import { index as registerIndex } from '@/routes/register';
 import { index as resourceIndex } from '@/routes/resource';
@@ -59,6 +63,20 @@ export const ACADEMIC_NAV = [
         title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
+    },
+    {
+        title: 'Bolsa laboral',
+        href: adminJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        roles: [1, 2],
+        badge: 'Nuevo',
+    },
+    {
+        title: 'Bolsa laboral',
+        href: teacherJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        roles: [3],
+        badge: 'Nuevo',
     },
     {
         title: 'Validaciones',
@@ -272,6 +290,12 @@ export const COMPANY_NAV = [
         title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
+    },
+    {
+        title: 'Bolsa laboral',
+        href: companyJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        badge: 'Nuevo',
     },
     {
         title: 'Solicitudes de estudiantes',
