@@ -37,10 +37,17 @@ class DatabaseSeeder extends Seeder
                 SupervisorUserSeeder::class,
                 StudentUserSeeder::class,
                 DemoCompanySeeder::class,
-                ValidatedStudentSeeder::class,
                 InternshipSettingSeeder::class,
-                StudentInternshipSeeder::class,
             ]);
+
+            // Flujos ya iniciados (solicitud aceptada, práctica registrada). No se
+            // siembran en pruebas para que cada test parta de un estado limpio.
+            if (! app()->runningUnitTests()) {
+                $this->call([
+                    ValidatedStudentSeeder::class,
+                    StudentInternshipSeeder::class,
+                ]);
+            }
         }
     }
 }
