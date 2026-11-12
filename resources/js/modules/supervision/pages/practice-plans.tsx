@@ -1,6 +1,6 @@
 import PracticeSubmissionsView, {
     type SupervisorSubmission,
-} from '@/modules/internship/components/practice-submissions-view';
+} from '@/modules/supervision/components/practice-submissions-view';
 
 export default function PracticePlansIndex({
     submissions,

@@ -4,6 +4,7 @@ namespace App\Domains\Dashboard\Services;
 
 use App\Domains\Academic\Models\School;
 use App\Domains\Academic\Models\Section;
+use App\Domains\Academic\Models\Semester;
 use App\Domains\Company\Enums\CompanyRequestState;
 use App\Domains\Company\Models\Company;
 use App\Domains\Company\Models\CompanyValidationRequest;
@@ -11,10 +12,14 @@ use App\Domains\Documents\Models\Document;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\FailedLogin;
 use App\Domains\Identity\Models\Person;
+use App\Domains\Identity\Models\TypeUser;
 use App\Domains\Identity\Models\User;
 use App\Domains\Internship\Models\Placement;
+use App\Domains\JobBoard\Enums\VacancyStatus;
+use App\Domains\JobBoard\Models\Vacancy;
 use App\Domains\Notifications\Models\Notification;
 use App\Domains\Notifications\Models\NotificationRecipient;
+use App\Domains\Resources\Models\Resource as ResourceFile;
 use App\Domains\Supervision\Enums\PracticeSubmissionStatus;
 use App\Domains\Supervision\Enums\PracticeSubmissionType;
 use App\Domains\Supervision\Models\Evaluation;
@@ -62,10 +67,87 @@ class DashboardService
         $failedToday = FailedLogin::where('created_at', '>=', today())->count();
         $lockoutsToday = FailedLogin::where('created_at', '>=', today())->where('locked_out', true)->count();
 
+        $semester = Semester::getActiveSemester();
+        $semesterId = $semester?->id;
+        $monthStart = now()->startOfMonth();
+
+        $students = Assignment::query()
+            ->where('role_id', Role::ESTUDIANTE->value)
+            ->where('status', 1)
+            ->when($semesterId, fn ($query) => $query->where('semester_id', $semesterId));
+        $studentIds = (clone $students)->pluck('id');
+
+        $teachers = Assignment::query()
+            ->whereIn('role_id', [Role::DTITULAR->value, Role::DSUPERVISOR->value])
+            ->where('status', 1)
+            ->when($semesterId, fn ($query) => $query->where('semester_id', $semesterId));
+
+        $placements = Placement::query()->whereIn('assignment_id', $studentIds);
+        $studentsWithPlacement = (clone $placements)->distinct()->count('assignment_id');
+        $studentsWithSupervisor = StudentGroup::query()
+            ->whereIn('student_assignment_id', (clone $placements)->select('assignment_id'))
+            ->where('status', 1)
+            ->distinct()
+            ->count('student_assignment_id');
+
+        $pendingDocuments = Document::query()
+            ->where('approval_status', 2)
+            ->where('status', 1)
+            ->whereIn('uploaded_by', $studentIds)
+            ->count();
+
+        $pendingCompanies = CompanyValidationRequest::query()
+            ->whereIn('state', [CompanyRequestState::PENDING_REVIEW, CompanyRequestState::OBSERVED])
+            ->when($semesterId, fn ($query) => $query->where('semester_id', $semesterId))
+            ->count();
+
+        $pendingSubmissions = PracticeSubmission::query()
+            ->whereIn('assignment_id', $studentIds)
+            ->where('approval_status', 2)
+            ->count();
+
+        $pendingVacancies = Vacancy::query()
+            ->where('status', VacancyStatus::PENDING_REVIEW)
+            ->when($semesterId, fn ($query) => $query->where('semester_id', $semesterId))
+            ->count();
+
+        $publishedVacancies = Vacancy::query()
+            ->where('status', VacancyStatus::PUBLISHED)
+            ->when($semesterId, fn ($query) => $query->where('semester_id', $semesterId))
+            ->count();
+
+        $resources = ResourceFile::query()
+            ->where('status', 1)
+            ->when($semesterId, fn ($query) => $query->where(function ($query) use ($semesterId) {
+                $query->where('semester_id', $semesterId)->orWhereNull('semester_id');
+            }))
+            ->count();
+
+        $operations = [
+            'students' => [
+                'total' => $studentIds->count(),
+                'thisMonth' => (clone $students)->where('created_at', '>=', $monthStart)->count(),
+            ],
+            'teachers' => [
+                'total' => (clone $teachers)->count(),
+            ],
+            'internships' => [
+                'total' => $studentsWithPlacement,
+                'withSupervisorPercent' => $this->percent($studentsWithSupervisor, $studentsWithPlacement),
+            ],
+            'pendingDocuments' => $pendingDocuments,
+            'pendingCompanies' => $pendingCompanies,
+            'pendingSubmissions' => $pendingSubmissions,
+            'pendingVacancies' => $pendingVacancies,
+            'publishedVacancies' => $publishedVacancies,
+            'resources' => $resources,
+        ];
+
         return [
+            'semester' => $semester?->code,
             'companies' => [
                 'total' => Company::count(),
-                'thisMonth' => Company::where('created_at', '>=', now()->startOfMonth())->count(),
+                'thisMonth' => Company::where('created_at', '>=', $monthStart)->count(),
             ],
             'users' => [
                 'total' => $users,
@@ -75,10 +157,98 @@ class DashboardService
                 'failedToday' => $failedToday,
                 'lockoutsToday' => $lockoutsToday,
             ],
+            'operations' => $operations,
+            'usersByType' => TypeUser::query()
+                ->withCount('users')
+                ->orderByDesc('users_count')
+                ->get()
+                ->map(fn (TypeUser $type) => [
+                    'name' => $type->name,
+                    'total' => $type->users_count,
+                    'percent' => $this->percent($type->users_count, $users),
+                ])
+                ->values()
+                ->all(),
+            'bySchool' => $this->studentsBySchool($semesterId, null),
+            'recentUsers' => User::query()
+                ->with(['typeUser', 'person'])
+                ->latest('id')
+                ->limit(5)
+                ->get()
+                ->map(fn (User $user) => [
+                    'id' => $user->id,
+                    'name' => $this->personName($user->person) ?: $user->name,
+                    'email' => $user->email,
+                    'type' => $user->typeUser?->name,
+                    'created_at' => $user->created_at?->toIso8601String(),
+                ])
+                ->values()
+                ->all(),
+            'tasks' => $this->superAdminTasks($operations),
             'storage' => $this->storageUsage(),
             'server' => $this->serverLoad(),
             'recentActions' => $this->recentActions(),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $operations
+     * @return array<int, array{title: string, detail: string, href: string, priority: string}>
+     */
+    private function superAdminTasks(array $operations): array
+    {
+        $tasks = [];
+
+        $push = function (string $title, string $detail, string $href, string $priority) use (&$tasks) {
+            $tasks[] = compact('title', 'detail', 'href', 'priority');
+        };
+
+        if ($operations['pendingDocuments'] > 0) {
+            $push(
+                'Documentos de expediente por revisar',
+                $operations['pendingDocuments'].' documento(s) esperando validación.',
+                '/dossiers/student',
+                'high',
+            );
+        }
+
+        if ($operations['pendingSubmissions'] > 0) {
+            $push(
+                'Planes e informes en revisión',
+                $operations['pendingSubmissions'].' entrega(s) pendientes de calificación.',
+                '/supervision/validation',
+                'high',
+            );
+        }
+
+        if ($operations['pendingVacancies'] > 0) {
+            $push(
+                'Vacantes de la bolsa por revisar',
+                $operations['pendingVacancies'].' vacante(s) esperando aprobación.',
+                '/bolsa/administracion',
+                'medium',
+            );
+        }
+
+        if ($operations['pendingCompanies'] > 0) {
+            $push(
+                'Solicitudes de empresa pendientes',
+                $operations['pendingCompanies'].' solicitud(es) en revisión u observadas.',
+                '/internship/validation',
+                'medium',
+            );
+        }
+
+        if ($operations['students']['thisMonth'] > 0) {
+            $push(
+                'Nuevos estudiantes este mes',
+                $operations['students']['thisMonth'].' asignación(es) registradas en el mes.',
+                '/students',
+                'low',
+            );
+        }
+
+        return $tasks;
     }
 
     public function admin(Assignment $assignment): array
@@ -660,7 +830,7 @@ class DashboardService
         };
 
         if (! $cvUploaded) {
-            $push('Sube tu CV', 'Adjunta tu currículum para completar tu perfil de prácticas.', '/internship/cv', 'high');
+            $push('Sube tu CV', 'Adjunta tu currículum para completar tu perfil de prácticas.', '/cv', 'high');
         }
 
         if (! $placement) {
@@ -846,12 +1016,13 @@ class DashboardService
             ->all();
     }
 
-    private function studentsBySchool(int $semesterId, ?int $facultyId): array
+    private function studentsBySchool(?int $semesterId, ?int $facultyId): array
     {
         return School::query()
             ->when($facultyId, fn ($q) => $q->where('faculty_id', $facultyId))
             ->withCount([
-                'sections as students_count' => fn ($q) => $q->where('sections.semester_id', $semesterId)
+                'sections as students_count' => fn ($q) => $q
+                    ->when($semesterId, fn ($q) => $q->where('sections.semester_id', $semesterId))
                     ->join('assignments', 'assignments.section_id', '=', 'sections.id')
                     ->where('assignments.role_id', Role::ESTUDIANTE->value)
                     ->where('assignments.status', 1),

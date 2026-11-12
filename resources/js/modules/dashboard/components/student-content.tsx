@@ -35,6 +35,7 @@ import {
     toneClasses,
 } from '@/modules/dashboard/utils';
 import { getDocumentStatusMeta } from '@/modules/documents';
+import { cv as cvRoute } from '@/routes/academic';
 import dossiers from '@/routes/academic/dossiers';
 import internship from '@/routes/academic/internship';
 import notificationsRoute from '@/routes/notifications';
@@ -826,7 +827,7 @@ export default function StudentDashboardContent({
                             </div>
                         </div>
                         <Button asChild size="sm">
-                            <Link href={internship.cv.url()}>Subir mi CV</Link>
+                            <Link href={cvRoute.url()}>Subir mi CV</Link>
                         </Button>
                     </CardContent>
                 </Card>

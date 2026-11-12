@@ -30,6 +30,7 @@
 │   ├── 🐘 DocumentTypeRoleSeeder.php
 │   ├── 🐘 RoleSeeder.php
 │   ├── 🐘 TypeUserSeeder.php
+│   ├── 🆕 🐘 SubAdminUserSeeder.php                   # subadmins de Sistemas y Ciencias
 │   └── 🆕 🐘 JobBoardDemoSeeder.php                    # solo para entornos local/staging
 └── ⚙️ .gitignore
 ```

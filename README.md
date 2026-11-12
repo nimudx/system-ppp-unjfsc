@@ -126,6 +126,26 @@ Sin esto, `composer install` falla pidiendo `ext-iconv`, y `php artisan migrate`
     | `supervisor1@gmail.com`, `supervisor2@gmail.com` | Docente Supervisor |
     | `estudiante1@gmail.com`, `estudiante2@gmail.com` | Estudiante |
 
+    Usuarios del equipo creados por `DatabaseSeeder` (misma contraseña):
+
+    | Email | Rol |
+    |---|---|
+    | `brunoadmin@gmail.com`, `mirkoadmin@gmail.com`, … | Administrador |
+    | `brunosubadmin@unjfsc.edu.pe`, `mirkosubadmin@unjfsc.edu.pe`, … | Sub Administrador (Ingeniería de Sistemas) |
+    | `carlasubadmin@unjfsc.edu.pe` | Sub Administrador (Facultad de Ciencias) |
+    | `brunotitular@unjfsc.edu.pe`, `mirkotitular@unjfsc.edu.pe`, … | Docente Titular |
+    | `brunosupervisor@unjfsc.edu.pe`, `mirkosupervisor@unjfsc.edu.pe`, … | Docente Supervisor |
+    | `brunoestudiante@unjfsc.edu.pe`, `mirkoestudiante@unjfsc.edu.pe`, … | Estudiante |
+    | `empresa.demo@unjfsc.edu.pe` | Empresa (Empresa Demo S.A.C.) |
+    | `empresa.tech@unjfsc.edu.pe` | Empresa (TechSolutions Perú S.A.C.) |
+    | `empresa.innovacion@unjfsc.edu.pe` | Empresa (Innovación Digital del Pacífico S.A.C.) |
+
+    En local/staging, `DatabaseSeeder` también ejecuta `JobBoardDemoSeeder` con
+    vacantes en todos los estados de la Bolsa Laboral, propuestas de los seis
+    estudiantes del equipo y observaciones del administrador. El subadmin de
+    Sistemas solo verá las vacantes de su facultad; el de Ciencias verá las de
+    Biología y Matemáticas.
+
     > **¿No puedes ingresar con `12345678`?** Los seeders usan `firstOrCreate`: si el usuario ya existía en tu base (por ejemplo, de una instalación anterior), **no le cambian la contraseña**. Restablécela con:
     > ```bash
     > php artisan tinker --execute="App\Models\User::where('email','admin@unjfsc.edu.pe')->update(['password' => Hash::make('12345678')]);"

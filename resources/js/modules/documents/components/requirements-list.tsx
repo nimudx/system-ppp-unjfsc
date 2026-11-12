@@ -4,6 +4,7 @@ import {
     FileText,
     ShieldCheck,
     FileCheck,
+    ListChecks,
     Lock as LockIcon,
 } from 'lucide-react';
 import type { DocumentFile } from '@/modules/documents/types';
@@ -60,10 +61,22 @@ export default function RequirementsList({
 
     return (
         <SectionCard>
-            <SectionCard.Header
-                title="Archivos requeridos"
-                description="Selecciona un archivo para gestionar"
-            />
+            <SectionCard.Header>
+                <div className="flex items-center gap-3">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/50">
+                        <ListChecks className="size-4 text-muted-foreground" />
+                    </div>
+
+                    <div className="min-w-0">
+                        <h3 className="text-sm leading-none font-semibold tracking-tight">
+                            Archivos requeridos
+                        </h3>
+                        <p className="mt-1 truncate text-xs text-muted-foreground">
+                            Selecciona un archivo para gestionar
+                        </p>
+                    </div>
+                </div>
+            </SectionCard.Header>
             <SectionCard.Body className="space-y-2">
                 {requirements.map((req, idx) => {
                     const isActive = selectedType === idx;

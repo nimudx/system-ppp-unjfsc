@@ -47,7 +47,7 @@ export function AppSidebar() {
         },
     ];
 
-    // Asumiendo que NavItem es tu interfaz
+    // Filtra los ítems por rol, incluyendo los submenús anidados.
     const filterItems = (items: NavItem[], userRole: number): NavItem[] => {
         return items
             .filter((item) => !item.roles || item.roles.includes(userRole))
@@ -93,7 +93,11 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={withJobBoardBadge(filterItems(mainNavItems, role ?? 0))} />
+                <NavMain
+                    items={withJobBoardBadge(
+                        filterItems(mainNavItems, role ?? 0),
+                    )}
+                />
             </SidebarContent>
 
             <SidebarFooter>

@@ -19,7 +19,6 @@ import {
 import { useMemo, useState } from 'react';
 
 import { getDocumentStatusMeta } from '@/modules/documents';
-import internship from '@/routes/academic/internship';
 import supervision from '@/routes/academic/supervision';
 import EmptyState from '@/shared/components/empty-state';
 import Heading from '@/shared/components/heading';
@@ -184,8 +183,8 @@ export default function PracticeSubmissionsView({ kind, submissions }: Props) {
     const plural = isPlan ? 'Planes de prácticas' : 'Informes de prácticas';
     const singular = isPlan ? 'plan' : 'informe';
     const href = isPlan
-        ? internship.practicePlans.url()
-        : internship.practiceReports.url();
+        ? supervision.practicePlans.url()
+        : supervision.practiceReports.url();
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Documentos de prácticas', href },

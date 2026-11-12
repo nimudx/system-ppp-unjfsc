@@ -7,8 +7,12 @@ use App\Domains\Academic\Models\School;
 use App\Domains\Academic\Models\Section;
 use App\Domains\Company\Models\Company;
 use App\Domains\Documents\Services\DocumentService;
+use App\Domains\Identity\Models\Assignment;
+use App\Domains\Identity\Models\Person;
+use App\Domains\Identity\Models\User;
 use App\Domains\Resources\Models\Resource;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class ResourceService
@@ -81,6 +85,96 @@ class ResourceService
         });
 
         return $query->with('documents')->get();
+    }
+
+    /**
+     * Listado completo para el administrador: incluye los recursos publicados
+     * por cualquier rol y muestra quién los subió.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function listAllResources(?int $semesterId = null)
+    {
+        return Resource::query()
+            ->where('status', 1)
+            ->when($semesterId, fn ($query) => $query->where(function ($query) use ($semesterId) {
+                $query->where('semester_id', $semesterId)->orWhereNull('semester_id');
+            }))
+            ->with([
+                'documents',
+                'role',
+                'documentType',
+                'location',
+                'uploader' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Assignment::class => ['user.person'],
+                    ]);
+                },
+            ])
+            ->latest('id')
+            ->get()
+            ->map(fn (Resource $resource) => $this->adminResourcePayload($resource));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function adminResourcePayload(Resource $resource): array
+    {
+        [$uploaderName, $uploaderKind] = $this->uploaderMeta($resource->uploader);
+
+        return [
+            ...$resource->toArray(),
+            'uploader_name' => $uploaderName,
+            'uploader_kind' => $uploaderKind,
+            'target_role_name' => $resource->role?->name,
+            'document_type_name' => $resource->documentType?->name,
+            'location_name' => $resource->location?->name,
+        ];
+    }
+
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function uploaderMeta(?Model $uploader): array
+    {
+        if ($uploader instanceof Assignment) {
+            $person = $uploader->user?->person;
+            $name = trim(($person?->names ?? '').' '.($person?->surnames ?? ''))
+                ?: ($uploader->user?->name ?? 'Usuario');
+
+            return [
+                $name,
+                match ((int) $uploader->role_id) {
+                    1 => 'Administración',
+                    2 => 'Subadministración',
+                    3, 4 => 'Docente',
+                    5 => 'Estudiante',
+                    default => 'Usuario',
+                },
+            ];
+        }
+
+        if ($uploader instanceof User) {
+            $person = $uploader->person;
+            $name = trim(($person?->names ?? '').' '.($person?->surnames ?? ''))
+                ?: $uploader->name;
+
+            return [$name ?: 'Administración', 'Administración'];
+        }
+
+        if ($uploader instanceof Person) {
+            return [
+                trim(($uploader->names ?? '').' '.($uploader->surnames ?? '')) ?: 'Empresa',
+                'Empresa',
+            ];
+        }
+
+        if ($uploader instanceof Company) {
+            return [$uploader->name, 'Empresa'];
+        }
+
+        return ['Sistema', 'Sistema'];
     }
 
     public function registerResourceAcademic(Model $uploader, array $data): void

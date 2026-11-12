@@ -1,10 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
 import {
-    CheckCircle2,
+    Check,
     ChevronLeft,
     ChevronRight,
+    CircleAlert,
     Download,
-    FileDown,
     FileText,
     History as HistoryIcon,
     Maximize2,
@@ -48,45 +48,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const MAX_FILE_KB = Math.round(MAX_FILE_SIZE / 1024);
+
 /* -------------------------------------------------------------------------- */
-/* Utilidades de animación                                                    */
+/* Utilidades                                                                 */
 /* -------------------------------------------------------------------------- */
 
-function useCountUp(target: number, duration = 700) {
-    const [value, setValue] = useState(0);
-
-    useEffect(() => {
-        if (
-            typeof window !== 'undefined' &&
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ) {
-            /* Sin animación: aplica el valor en el siguiente frame. */
-            const frame = requestAnimationFrame(() => setValue(target));
-
-            return () => cancelAnimationFrame(frame);
-        }
-
-        let frame = 0;
-        const start = performance.now();
-
-        const tick = (now: number) => {
-            const progress = Math.min(1, (now - start) / duration);
-
-            setValue(Math.round(target * (1 - Math.pow(1 - progress, 3))));
-
-            if (progress < 1) {
-                frame = requestAnimationFrame(tick);
-            }
-        };
-
-        frame = requestAnimationFrame(tick);
-
-        return () => cancelAnimationFrame(frame);
-    }, [target, duration]);
-
-    return value;
-}
-
+/* true en el siguiente frame: dispara la animación de entrada una sola vez. */
 function useReady() {
     const [ready, setReady] = useState(false);
 
@@ -100,158 +68,198 @@ function useReady() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Resumen de avance: un segmento por documento, clicable                     */
+/* Resumen del expediente: anillo + una frase que dice qué sigue              */
 /* -------------------------------------------------------------------------- */
 
-function DossierProgress({
+const RING_RADIUS = 18;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+
+function DossierSummary({
     requirements,
-    selectedType,
 }: {
     requirements: DocumentRequirement[];
-    selectedType: number;
 }) {
     const ready = useReady();
     const total = requirements.length;
+
+    if (total === 0) {
+        return null;
+    }
+
     const approved = requirements.filter(
-        (item) => resolveStatus(item) === 1,
+        (item) => item.latest && resolveStatus(item) === 1,
     ).length;
     const observed = requirements.filter(
-        (item) => resolveStatus(item) === 3,
+        (item) => item.latest && resolveStatus(item) === 3,
     ).length;
-    const shown = useCountUp(approved);
+    const missing = requirements.filter((item) => !item.latest).length;
+    const inReview = total - approved - observed - missing;
+
+    const complete = approved === total;
+
+    let headline: string;
+    let detail: string | undefined;
+
+    if (complete) {
+        headline = 'Expedientes completos';
+        detail = 'Todos tus documentos fueron aprobados.';
+    } else if (observed > 0) {
+        headline =
+            observed === 1
+                ? '1 documento por corregir'
+                : `${observed} documentos por corregir`;
+        detail =
+            observed === 1
+                ? 'Revisa el comentario y súbelo de nuevo.'
+                : 'Revisa los comentarios y súbelos de nuevo.';
+    } else if (missing > 0) {
+        headline =
+            missing === 1
+                ? 'Falta 1 documento por subir'
+                : `Faltan ${missing} documentos por subir`;
+        detail = inReview > 0 ? `${inReview} en revisión.` : undefined;
+    } else {
+        headline = 'En revisión';
+        detail = 'Espera la respuesta del revisor.';
+    }
+
+    const tone = complete
+        ? 'stroke-green-500'
+        : observed > 0
+          ? 'stroke-destructive'
+          : 'stroke-primary';
+
+    const offset = ready
+        ? RING_LENGTH * (1 - approved / total)
+        : RING_LENGTH;
 
     return (
-        <div className="flex w-full flex-col gap-2 md:w-72">
-            <div className="flex items-baseline justify-between gap-2">
-                <span className="text-sm font-medium tabular-nums">
-                    {shown} / {total} aprobados
-                </span>
+        <div
+            className="flex items-center gap-3"
+            role="status"
+            aria-label={`${approved} de ${total} documentos aprobados. ${headline}`}
+        >
+            <div className="relative size-11 shrink-0">
+                <svg
+                    viewBox="0 0 44 44"
+                    className="size-full -rotate-90"
+                    aria-hidden
+                >
+                    <circle
+                        cx="22"
+                        cy="22"
+                        r={RING_RADIUS}
+                        fill="none"
+                        strokeWidth="4"
+                        className="stroke-muted"
+                    />
+                    {approved > 0 && (
+                        <circle
+                            cx="22"
+                            cy="22"
+                            r={RING_RADIUS}
+                            fill="none"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeDasharray={RING_LENGTH}
+                            strokeDashoffset={offset}
+                            className={cn(
+                                'transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none',
+                                tone,
+                            )}
+                        />
+                    )}
+                </svg>
 
-                {observed > 0 && (
-                    <span className="text-xs font-medium text-destructive tabular-nums">
-                        {observed} por corregir
-                    </span>
-                )}
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold tabular-nums">
+                    {complete ? (
+                        <Check className="size-4 text-green-500" />
+                    ) : (
+                        `${approved}/${total}`
+                    )}
+                </span>
             </div>
 
-            <div
-                className="flex items-center gap-1"
-                role="img"
-                aria-label={`${approved} de ${total} documentos aprobados`}
-            >
-                {requirements.map((item, index) => {
-                    const meta = getStatusMeta(resolveStatus(item));
-                    const hasUpload = Boolean(item.latest);
-                    const active = index === selectedType;
+            <div className="min-w-0">
+                <p className="text-sm leading-tight font-medium">{headline}</p>
 
-                    return (
-                        <div
-                            key={item.code}
-                            title={`${item.title}: ${hasUpload ? meta.label : 'Sin subir'}`}
-                            className={cn(
-                                'h-1.5 flex-1 origin-left rounded-full transition-all duration-500 ease-out motion-reduce:transition-none',
-                                hasUpload ? meta.dot : 'bg-muted',
-                                active && 'h-2.5',
-                                ready ? 'scale-x-100' : 'scale-x-0',
-                            )}
-                            style={{ transitionDelay: `${index * 50}ms` }}
-                        />
-                    );
-                })}
+                {detail && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                        {detail}
+                    </p>
+                )}
             </div>
         </div>
     );
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pendientes por atender                                                     */
+/* Guía: cómo subir un documento (reemplaza "Por atender" y "Plantilla")      */
 /* -------------------------------------------------------------------------- */
 
-function PendingActionsCard({
-    requirements,
-}: {
-    requirements: DocumentRequirement[];
-}) {
-    const actionable = requirements
-        .map((item) => ({
-            item,
-            observed: resolveStatus(item) === 3,
-        }))
-        .filter(
-            ({ item, observed }) => !item.locked && (!item.latest || observed),
-        );
+function HowToSubmitCard({ hasTemplate }: { hasTemplate: boolean }) {
+    const steps = [
+        {
+            title: 'Descarga el documento oficial',
+            description:
+                'Debe ser el documento oficial, descargado de la intranet de la universidad.',
+        },
+        {
+            title: 'Súbelo aquí',
+            description: 'Sin modificarlo ni escanearlo.',
+        },
+        {
+            title: 'Espera la revisión del Docente Titular',
+            description: 'Si lo observan, corrígelo y vuelve a subirlo.',
+        },
+    ];
 
     return (
         <SectionCard>
             <SectionCard.Header>
-                <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                        <h3 className="text-sm leading-none font-semibold tracking-tight">
-                            Por atender
-                        </h3>
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                            Falta subir o corregir
-                        </p>
-                    </div>
-
-                    <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
-                        {actionable.length}
-                    </span>
+                <div className="flex h-9 items-center">
+                    <h3 className="text-sm leading-none font-semibold tracking-tight">
+                        Subir tu documento correctamente
+                    </h3>
                 </div>
             </SectionCard.Header>
 
-            <SectionCard.Body className="space-y-3">
-                {actionable.length === 0 ? (
-                    <div className="flex items-center gap-3 rounded-lg border border-dashed p-3">
-                        <CheckCircle2 className="size-5 shrink-0 text-green-500" />
-                        <p className="text-xs leading-relaxed text-muted-foreground">
-                            No tienes documentos por subir ni corregir.
-                        </p>
-                    </div>
-                ) : (
-                    <ul className="space-y-1">
-                        {actionable.map(({ item, observed }) => (
-                            <li
-                                key={item.code}
-                                className="flex items-center gap-2.5 rounded-lg px-2.5 py-2"
-                            >
-                                <span
-                                    className={cn(
-                                        'size-2 shrink-0 rounded-full',
-                                        observed
-                                            ? 'bg-destructive'
-                                            : 'bg-muted-foreground/40',
-                                    )}
-                                />
+            <SectionCard.Body>
+                <ol className="space-y-3">
+                    {steps.map((step, index) => (
+                        <li key={step.title} className="flex gap-3">
+                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-medium tabular-nums">
+                                {index + 1}
+                            </span>
 
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-xs font-medium">
-                                        {item.title}
-                                    </span>
-                                    <span
-                                        className={cn(
-                                            'block text-[11px]',
-                                            observed
-                                                ? 'text-destructive'
-                                                : 'text-muted-foreground',
-                                        )}
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium">
+                                    {step.title}
+                                </p>
+                                <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                                    {step.description}
+                                </p>
+
+                                {index === 0 && hasTemplate && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-2 w-full"
                                     >
-                                        {observed ? 'Observado' : 'Sin subir'}
-                                    </span>
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                                        <Download />
+                                        Descargar formato
+                                    </Button>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ol>
+                <div className="mt-4 flex items-start gap-2 border-t pt-3">
+                    <CircleAlert className="mt-0.5 size-4 shrink-0 text-amber-500" />
 
-                <div className="space-y-1 border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
-                    <p>
-                        Los documentos deben ser oficiales, descargados de la
-                        intranet.
-                    </p>
-                    <p className="hidden lg:block">
-                        Usa las flechas ← → del teclado para cambiar de
-                        documento.
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                        Si tu documento no cumple con los requerimientos, no podrá ser cargado y/o posteriormente observado
                     </p>
                 </div>
             </SectionCard.Body>
@@ -530,7 +538,7 @@ export default function MyDossier({
     const onUpload = (file: File) => {
         if (file.size > MAX_FILE_SIZE) {
             toast.error(
-                `El archivo pesa ${Math.round(file.size / 1024)} KB. El máximo es 350 KB.`,
+                `El archivo pesa ${Math.round(file.size / 1024)} KB. El máximo es ${MAX_FILE_KB} KB.`,
             );
             return;
         }
@@ -600,16 +608,6 @@ export default function MyDossier({
 
     const hasFile = Boolean(tempFile || currentFile?.latest);
 
-    const subtitle = tempFile
-        ? 'Archivo listo para enviar'
-        : !currentFile?.latest
-          ? 'Falta subir'
-          : currentStatus === 1
-            ? 'Aprobado'
-            : currentStatus === 3
-              ? 'Observado: revisa el comentario'
-              : 'En revisión';
-
     const handleSubmit = (event?: React.FormEvent) => {
         event?.preventDefault();
 
@@ -645,17 +643,17 @@ export default function MyDossier({
             <Head title="Documentación" />
 
             <PageContainer>
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <Heading
-                        variant="small"
-                        title="Validación de documentos"
-                        description="Sube y sigue los archivos requeridos para tu expediente."
-                    />
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                        <h1 className="text-1xl font-semibold tracking-tight">
+                            Validación de documentos
+                        </h1>
+                        <p className="text-sm text-foreground/70">
+                            Sube y sigue los archivos requeridos para tu expediente.
+                        </p>
+                    </div>
 
-                    <DossierProgress
-                        requirements={list}
-                        selectedType={selectedType}
-                    />
+                    <DossierSummary requirements={list} />
                 </div>
 
                 <DocumentReviewLayout
@@ -677,42 +675,9 @@ export default function MyDossier({
                                 }
                             />
 
-                            {currentFile?.has_template && (
-                                <div
-                                    key={`template-${currentFile.code}`}
-                                    className={cn(
-                                        'rounded-xl border bg-card text-card-foreground shadow-sm',
-                                        enter,
-                                    )}
-                                >
-                                    <div className="flex flex-row items-center justify-between p-4 pb-2">
-                                        <h3 className="text-sm font-semibold tracking-tight">
-                                            Plantilla disponible
-                                        </h3>
-
-                                        <FileDown className="size-4 text-muted-foreground" />
-                                    </div>
-
-                                    <div className="p-4 pt-0">
-                                        <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                            Descarga el formato oficial,
-                                            complétalo y súbelo.
-                                        </p>
-
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            className="w-full"
-                                        >
-                                            <Download />
-                                            Descargar formato
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-
-                            <PendingActionsCard requirements={list} />
+                            <HowToSubmitCard
+                                hasTemplate={Boolean(currentFile?.has_template)}
+                            />
                         </>
                     }
                     document={
@@ -722,7 +687,7 @@ export default function MyDossier({
                                     <div className="flex flex-col items-center gap-2">
                                         <Spinner className="animate-spin text-primary" />
                                         <span className="text-xs font-medium">
-                                            Subiendo documento...
+                                            Validando documento...
                                         </span>
                                     </div>
                                 </div>
@@ -765,20 +730,13 @@ export default function MyDossier({
                                                         {currentFile.title}
                                                     </h3>
 
-                                                    <p
-                                                        className={cn(
-                                                            'mt-1 text-[11px]',
-                                                            tempFile
-                                                                ? 'text-primary'
-                                                                : currentFile.latest
-                                                                  ? getStatusMeta(
-                                                                        currentStatus,
-                                                                    ).text
-                                                                  : 'text-muted-foreground',
-                                                        )}
-                                                    >
-                                                        {subtitle}
-                                                    </p>
+                                                    {/* El estado ya lo muestra el panel lateral; aquí solo avisamos del archivo sin enviar. */}
+                                                    {tempFile && (
+                                                        <p className="mt-1 text-[11px] text-primary">
+                                                            Archivo listo para
+                                                            enviar
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
 

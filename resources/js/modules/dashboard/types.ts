@@ -12,9 +12,36 @@ export type StudentRow = {
 };
 
 export type SuperAdminStats = {
+    semester: string | null;
     companies: { total: number; thisMonth: number };
     users: { total: number; activePercent: number };
     security: { failedToday: number; lockoutsToday: number };
+    operations: {
+        students: { total: number; thisMonth: number };
+        teachers: { total: number };
+        internships: { total: number; withSupervisorPercent: number };
+        pendingDocuments: number;
+        pendingCompanies: number;
+        pendingSubmissions: number;
+        pendingVacancies: number;
+        publishedVacancies: number;
+        resources: number;
+    };
+    usersByType: { name: string; total: number; percent: number }[];
+    bySchool: { school: string; students: number }[];
+    recentUsers: {
+        id: number;
+        name: string;
+        email: string;
+        type: string | null;
+        created_at: string | null;
+    }[];
+    tasks: {
+        title: string;
+        detail: string;
+        href: string;
+        priority: 'high' | 'medium' | 'low';
+    }[];
     storage: {
         usedBytes: number;
         freeBytes: number | null;

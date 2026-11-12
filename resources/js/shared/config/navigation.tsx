@@ -3,21 +3,25 @@ import {
     BadgeCheck,
     BookMarked,
     Boxes,
-    Briefcase,
     BriefcaseBusiness,
     Building2,
-    ClipboardCheck,
+    CalendarRange,
+    ClipboardList,
+    FileSignature,
+    FileText,
     Folder,
+    FolderCheck,
+    GraduationCap,
     LayoutDashboard,
     NotebookPen,
     Settings,
     UserPlus2,
     UserRound,
     UserRoundCog,
-    FileText,
     Users,
 } from 'lucide-react';
 import { dashboard } from '@/routes';
+import { cv as studentCvRoute } from '@/routes/academic';
 import { index as companiesIndex } from '@/routes/academic/companies';
 import { submission as dossierSubmissionIndex } from '@/routes/academic/dossiers';
 import { teacher as teacherDossierIndex } from '@/routes/academic/dossiers';
@@ -29,10 +33,7 @@ import { student as studentIndex } from '@/routes/academic/groups';
 import { supervision as groupSupervisionIndex } from '@/routes/academic/groups';
 import {
     annexes as internshipAnnexes,
-    cv as internshipCv,
     formalization as internshipFormalization,
-    practicePlans as internshipPracticePlans,
-    practiceReports as internshipPracticeReports,
     reportReview as reportReviewIndex,
     submission as internshipSubmissionIndex,
     validation as internshipValidationIndex,
@@ -44,7 +45,11 @@ import { index as sectionsIndex } from '@/routes/academic/sections';
 import { index as semestersIndex } from '@/routes/academic/semesters';
 import { index as studentsIndex } from '@/routes/academic/students';
 import { index as subadminsIndex } from '@/routes/academic/subadmins';
-import { validation as supervisionValidationIndex } from '@/routes/academic/supervision';
+import {
+    practicePlans as supervisionPracticePlans,
+    practiceReports as supervisionPracticeReports,
+    validation as supervisionValidationIndex,
+} from '@/routes/academic/supervision';
 import { submission as supervisionSubmissionIndex } from '@/routes/academic/supervision';
 import { index as supervisorsIndex } from '@/routes/academic/supervisors';
 import { index as teachersIndex } from '@/routes/academic/teachers';
@@ -57,96 +62,125 @@ import {
     document as documentSettings,
     internship as internshipSettings,
 } from '@/routes/settings/academic';
+import { ROLES, USER_TYPES } from '@/shared/config/roles';
+import type { NavItem } from '@/shared/types';
 
-export const ACADEMIC_NAV = [
+export const ACADEMIC_NAV: NavItem[] = [
     {
         title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
     },
+
+    // Docente, supervisor y estudiante: su propio expediente
     {
-        title: 'Bolsa laboral',
-        href: adminJobBoardIndex().url,
-        icon: BriefcaseBusiness,
-        roles: [1, 2],
-        badge: 'Nuevo',
-    },
-    {
-        title: 'Bolsa laboral',
-        href: teacherJobBoardIndex().url,
-        icon: BriefcaseBusiness,
-        roles: [3],
-        badge: 'Nuevo',
-    },
-    {
-        title: 'Validaciones',
-        href: '#',
-        icon: BadgeCheck,
-        roles: [1, 2, 3],
-        items: [
-            {
-                title: 'Documentación',
-                href: dossierSubmissionIndex().url,
-                roles: [3, 4, 5],
-            },
-            {
-                title: 'Docente Titular',
-                href: teacherDossierIndex().url,
-                roles: [1, 2],
-            },
-            {
-                title: 'Docente Supervisor',
-                href: supervisorDossierIndex().url,
-                roles: [1, 2, 3],
-            },
-            {
-                title: 'Estudiante',
-                href: studentDossierIndex().url,
-                roles: [1, 2, 3],
-            },
-        ],
-    },
-    {
-        title: 'Documentación',
+        title: 'Mi documentación',
         href: dossierSubmissionIndex().url,
-        icon: BadgeCheck,
-        roles: [4, 5],
+        icon: FolderCheck,
+        roles: [ROLES.TEACHER, ROLES.SUPERVISOR, ROLES.STUDENT],
+    },
+
+    // Estudiante (en orden de flujo)
+    {
+        title: 'Mi pasantía',
+        href: internshipSubmissionIndex().url,
+        icon: GraduationCap,
+        roles: [ROLES.STUDENT],
     },
     {
-        title: 'Grupos',
-        href: '#',
-        icon: Boxes,
-        roles: [1, 2, 3],
-        items: [
-            {
-                title: 'Por Práctica',
-                href: internshipIndex().url,
-                roles: [1, 2, 3],
-            },
-            {
-                title: 'Por Estudiante',
-                href: studentIndex().url,
-                roles: [1, 2, 3],
-            },
-        ],
+        title: 'Formalización',
+        href: internshipFormalization().url,
+        icon: FileSignature,
+        roles: [ROLES.STUDENT],
+    },
+    {
+        title: 'Mi CV',
+        href: studentCvRoute().url,
+        icon: UserRound,
+        roles: [ROLES.STUDENT],
+    },
+    {
+        title: 'Revisión de prácticas',
+        href: reportReviewIndex().url,
+        icon: ClipboardList,
+        roles: [ROLES.STUDENT],
+    },
+    {
+        title: 'Anexos del informe',
+        href: internshipAnnexes().url,
+        icon: FileText,
+        roles: [ROLES.STUDENT],
+    },
+
+    // Supervisor
+    {
+        title: 'Mis estudiantes',
+        href: groupSupervisionIndex().url,
+        icon: Users,
+        roles: [ROLES.SUPERVISOR],
     },
     {
         title: 'Documentos de prácticas',
         href: '#',
         icon: Folder,
-        roles: [4],
+        roles: [ROLES.SUPERVISOR],
         items: [
             {
                 title: 'Planes de prácticas',
-                href: internshipPracticePlans().url,
-                icon: FileText,
-                roles: [4],
+                href: supervisionPracticePlans().url,
+                roles: [ROLES.SUPERVISOR],
             },
             {
                 title: 'Informes de prácticas',
-                href: internshipPracticeReports().url,
-                icon: FileText,
-                roles: [4],
+                href: supervisionPracticeReports().url,
+                roles: [ROLES.SUPERVISOR],
+            },
+        ],
+    },
+    {
+        title: 'Evaluar estudiantes',
+        href: supervisionSubmissionIndex().url,
+        icon: NotebookPen,
+        roles: [ROLES.SUPERVISOR],
+    },
+
+    // Admin / Subadmin / Docente
+    {
+        title: 'Validar documentación',
+        href: '#',
+        icon: BadgeCheck,
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
+        items: [
+            {
+                title: 'Docentes titulares',
+                href: teacherDossierIndex().url,
+                roles: [ROLES.ADMIN, ROLES.SUBADMIN],
+            },
+            {
+                title: 'Docentes supervisores',
+                href: supervisorDossierIndex().url,
+                roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
+            },
+            {
+                title: 'Estudiantes',
+                href: studentDossierIndex().url,
+                roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
+            },
+        ],
+    },
+    {
+        title: 'Grupos de prácticas',
+        href: '#',
+        icon: Boxes,
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
+        items: [
+            {
+                title: 'Por práctica',
+                href: internshipIndex().url,
+            },
+            {
+                title: 'Por estudiante',
+                href: studentIndex().url,
             },
         ],
     },
@@ -154,98 +188,50 @@ export const ACADEMIC_NAV = [
         title: 'Seguimiento',
         href: '#',
         icon: BookMarked,
-        roles: [1, 2, 3],
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
         items: [
             {
-                title: 'Est. Prácticas',
+                title: 'Prácticas de estudiantes',
                 href: internshipValidationIndex().url,
-                roles: [1, 2, 3],
             },
             {
-                title: 'Eval. Prácticas',
+                title: 'Evaluaciones de supervisión',
                 href: supervisionSubmissionIndex().url,
-                roles: [1, 2, 3],
             },
             {
-                title: 'Rev. Prácticas',
+                title: 'Revisión de evaluaciones',
                 href: supervisionValidationIndex().url,
-                roles: [1, 2, 3],
             },
         ],
-    },
-    {
-        title: 'Pasantía',
-        href: internshipSubmissionIndex().url,
-        icon: Folder,
-        roles: [5],
-    },
-    {
-        title: 'Formalización',
-        href: internshipFormalization().url,
-        icon: ClipboardCheck,
-        roles: [5],
-    },
-    {
-        title: 'Mi CV',
-        href: internshipCv().url,
-        icon: UserRound,
-        roles: [5],
-    },
-    {
-        title: 'Rev. Prácticas',
-        href: reportReviewIndex().url,
-        icon: NotebookPen,
-        roles: [5],
-    },
-    {
-        title: 'Rev. Informe',
-        href: internshipAnnexes().url,
-        icon: FileText,
-        roles: [5],
-    },
-    {
-        title: 'Estudiantes',
-        href: groupSupervisionIndex().url,
-        icon: Users,
-        roles: [4],
-    },
-    {
-        title: 'Evaluación',
-        href: supervisionSubmissionIndex().url,
-        icon: NotebookPen,
-        roles: [4],
     },
     {
         title: 'Usuarios',
         href: '#',
         icon: UserRoundCog,
-        roles: [1, 2, 3],
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
         items: [
             {
-                title: 'Nuevo Usuario',
+                title: 'Registrar usuario',
                 href: registerIndex().url,
                 icon: UserPlus2,
-                roles: [1, 2, 3],
             },
             {
-                title: 'L. de Subadmins',
+                title: 'Subadministradores',
                 href: subadminsIndex().url,
-                roles: [1],
+                roles: [ROLES.ADMIN],
             },
             {
-                title: 'L. de Docentes Titulares',
+                title: 'Docentes titulares',
                 href: teachersIndex().url,
-                roles: [1, 2],
+                roles: [ROLES.ADMIN, ROLES.SUBADMIN],
             },
             {
-                title: 'L. de Docentes Supervisores',
+                title: 'Docentes supervisores',
                 href: supervisorsIndex().url,
-                roles: [1, 2, 3],
             },
             {
-                title: 'L. de Estudiantes',
+                title: 'Estudiantes',
                 href: studentsIndex().url,
-                roles: [1, 2, 3],
             },
         ],
     },
@@ -253,49 +239,53 @@ export const ACADEMIC_NAV = [
         title: 'Empresas',
         href: companiesIndex().url,
         icon: Building2,
-        roles: [3],
+        roles: [ROLES.TEACHER],
     },
     {
-        title: 'Academico',
+        title: 'Académico',
         href: '#',
-        icon: Folder,
-        roles: [1, 2],
+        icon: CalendarRange,
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN],
         items: [
             {
                 title: 'Semestres',
                 href: semestersIndex().url,
-                roles: [1, 2, 3],
             },
             {
                 title: 'Facultades',
                 href: facultiesIndex().url,
-                roles: [1, 2],
             },
             {
                 title: 'Escuelas',
                 href: schoolsIndex().url,
-                roles: [1, 2],
             },
             {
                 title: 'Secciones',
                 href: sectionsIndex().url,
-                roles: [1, 2],
             },
         ],
     },
+    {
+        title: 'Bolsa laboral',
+        href: adminJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN],
+        badge: 'Nuevo',
+    },
+    {
+        title: 'Bolsa laboral',
+        href: teacherJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        roles: [ROLES.TEACHER],
+        badge: 'Nuevo',
+    },
 ];
 
-export const COMPANY_NAV = [
+export const COMPANY_NAV: NavItem[] = [
     {
         title: 'Panel',
         href: dashboard(),
         icon: LayoutDashboard,
-    },
-    {
-        title: 'Bolsa laboral',
-        href: companyJobBoardIndex().url,
-        icon: BriefcaseBusiness,
-        badge: 'Nuevo',
     },
     {
         title: 'Solicitudes de estudiantes',
@@ -307,9 +297,15 @@ export const COMPANY_NAV = [
         href: profileEdit().url,
         icon: Building2,
     },
+    {
+        title: 'Bolsa laboral',
+        href: companyJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        badge: 'Nuevo',
+    },
 ];
 
-export const ADMIN_NAV = [
+export const ADMIN_NAV: NavItem[] = [
     {
         title: 'Panel',
         href: dashboard(),
@@ -318,48 +314,77 @@ export const ADMIN_NAV = [
     {
         title: 'Usuarios',
         href: '#',
-        icon: Briefcase,
+        icon: UserRoundCog,
+        items: [
+            {
+                title: 'Registrar usuario',
+                href: registerIndex().url,
+                icon: UserPlus2,
+            },
+            {
+                title: 'Subadministradores',
+                href: subadminsIndex().url,
+            },
+            {
+                title: 'Docentes titulares',
+                href: teachersIndex().url,
+            },
+            {
+                title: 'Docentes supervisores',
+                href: supervisorsIndex().url,
+            },
+            {
+                title: 'Estudiantes',
+                href: studentsIndex().url,
+            },
+        ],
+    },
+    {
+        title: 'Bolsa laboral',
+        href: adminJobBoardIndex().url,
+        icon: BriefcaseBusiness,
+        badge: 'Nuevo',
     },
 ];
 
-export const ACADEMIC_SETTINGS_NAV = [
+export const ACADEMIC_SETTINGS_NAV: NavItem[] = [
     {
-        title: 'Prácticas',
+        title: 'Configuración de prácticas',
         href: internshipSettings().url,
         icon: Settings,
     },
     {
-        title: 'Documentos',
+        title: 'Configuración de documentos',
         href: documentSettings().url,
         icon: FileText,
-        roles: [1, 2],
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN],
     },
 ];
 
-export const FOOTER_NAV = [
+export const FOOTER_NAV: NavItem[] = [
     {
         title: 'Recursos Administrativos',
         href: resourceIndex().url,
         icon: Archive,
-        userTypes: [1],
+        userTypes: [USER_TYPES.ADMIN],
     },
     {
         title: 'Recursos',
         href: resourceIndex().url,
         icon: Archive,
-        userTypes: [2],
+        userTypes: [USER_TYPES.ACADEMIC],
     },
     {
         title: 'Recursos Empresariales',
         href: resourceIndex().url,
         icon: Archive,
-        userTypes: [3],
+        userTypes: [USER_TYPES.COMPANY],
     },
     {
         title: 'Configuración',
         href: internshipSettings().url,
         icon: Settings,
-        userTypes: [2],
-        roles: [1, 2, 3],
+        userTypes: [USER_TYPES.ACADEMIC],
+        roles: [ROLES.ADMIN, ROLES.SUBADMIN, ROLES.TEACHER],
     },
 ];

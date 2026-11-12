@@ -5,7 +5,6 @@ namespace App\Domains\Supervision\Http\Controllers;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Supervision\Enums\PracticeSubmissionType;
 use App\Domains\Supervision\Http\Requests\ReviewPracticeSubmissionRequest;
-use App\Domains\Supervision\Http\Requests\SubmitPracticeDocumentRequest;
 use App\Domains\Supervision\Models\PracticeSubmission;
 use App\Domains\Supervision\Services\PracticeSubmissionService;
 use App\Shared\Http\Controllers\Controller;
@@ -18,45 +17,19 @@ class PracticeSubmissionController extends Controller
     public function __construct(private readonly PracticeSubmissionService $service) {}
 
     /**
-     * Estudiante: pantalla Rev. Informe (plan e informe de prácticas).
-     */
-    public function reportReview(): Response
-    {
-        $assignment = Assignment::query()->findOrFail(session('assignment_id'));
-
-        return Inertia::render('internship/report-review', $this->service->getStudentData($assignment));
-    }
-
-    /**
-     * Estudiante: entregar o reenviar plan / informe.
-     */
-    public function store(SubmitPracticeDocumentRequest $request): RedirectResponse
-    {
-        $assignment = Assignment::query()->findOrFail(session('assignment_id'));
-
-        $this->service->submit(
-            $assignment,
-            PracticeSubmissionType::from($request->validated('type')),
-            $request->file('file'),
-        );
-
-        return back()->with('message', 'Documento enviado correctamente.');
-    }
-
-    /**
      * Docente supervisor: planes de prácticas de sus estudiantes.
      */
-    public function plansIndex(): Response
+    public function practicePlans(): Response
     {
-        return $this->supervisorIndex(PracticeSubmissionType::PLAN, 'internship/practice-plans');
+        return $this->supervisorIndex(PracticeSubmissionType::PLAN, 'supervision/practice-plans');
     }
 
     /**
      * Docente supervisor: informes de prácticas de sus estudiantes.
      */
-    public function reportsIndex(): Response
+    public function practiceReports(): Response
     {
-        return $this->supervisorIndex(PracticeSubmissionType::REPORT, 'internship/practice-reports');
+        return $this->supervisorIndex(PracticeSubmissionType::REPORT, 'supervision/practice-reports');
     }
 
     private function supervisorIndex(PracticeSubmissionType $type, string $page): Response
