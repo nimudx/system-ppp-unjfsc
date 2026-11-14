@@ -1,5 +1,5 @@
 import { Users, Calendar, CheckSquare, MessageSquare } from 'lucide-react';
-import StudentList from '@/modules/dashboard/components/student-list';
+import StudentList from '@/modules/dashboard/components/lista-estudiante';
 import type { TeacherStats } from '@/modules/dashboard/types';
 import { formatDate, formatNumber } from '@/modules/dashboard/utils';
 import EmptyState from '@/shared/components/empty-state';

@@ -444,8 +444,18 @@ class DashboardService
             ->values()
             ->all();
 
+        // Anexos 1-3 de la práctica.
+        $annexItems = collect([
+            ['code' => 'anexo_1', 'title' => 'Anexo 1'],
+            ['code' => 'anexo_2', 'title' => 'Anexo 2'],
+            ['code' => 'anexo_3', 'title' => 'Anexo 3'],
+        ])->map(fn (array $item) => $this->studentDocument($item, $placementDocuments))
+            ->values()
+            ->all();
+
         $approvedDossier = collect($dossierItems)->where('status', 1)->count();
         $approvedPlacementDocs = collect($placementItems)->where('status', 1)->count();
+        $approvedAnnexes = collect($annexItems)->where('status', 1)->count();
 
         // Entregas de plan e informe, con la última vigente por tipo.
         $canUpload = app(\App\Domains\Company\Services\CompanyAcceptanceService::class)
@@ -569,6 +579,13 @@ class DashboardService
                 'file_url' => $cvDocument?->signedFileUrl(),
             ],
             'formalization' => $formalization,
+            'annexes' => [
+                'approved' => $approvedAnnexes,
+                'uploaded' => collect($annexItems)->where('status', '!=', 0)->count(),
+                'total' => count($annexItems),
+                'percent' => $this->percent($approvedAnnexes, count($annexItems)),
+                'items' => $annexItems,
+            ],
             'practice' => $practice,
             'submissions' => $submissionItems,
             'supervision' => [

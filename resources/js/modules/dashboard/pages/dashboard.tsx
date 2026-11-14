@@ -1,10 +1,10 @@
 import { Head } from '@inertiajs/react';
-import AdminContent from '@/modules/dashboard/components/admin-content';
-import { CompanyContent } from '@/modules/dashboard/components/company-content';
-import StudentContent from '@/modules/dashboard/components/student-content';
+import AdminContent from '@/modules/dashboard/components/admin-dashboard';
+import { CompanyContent } from '@/modules/dashboard/components/empresa-dashboard';
+import StudentContent from '@/modules/dashboard/components/estudiante-dashboard';
 import SuperAdminContent from '@/modules/dashboard/components/superadmin-content';
-import SupervisorContent from '@/modules/dashboard/components/supervisor-content';
-import TeacherContent from '@/modules/dashboard/components/teacher-content';
+import SupervisorContent from '@/modules/dashboard/components/supervisor-dashboard';
+import TeacherContent from '@/modules/dashboard/components/titular-dashboard';
 import type {
     AdminStats,
     StudentStats,

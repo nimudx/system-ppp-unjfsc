@@ -185,6 +185,13 @@ export type StudentStats = {
         total_documents: number;
         documents: StudentDocument[];
     };
+    annexes: {
+        approved: number;
+        uploaded: number;
+        total: number;
+        percent: number;
+        items: StudentDocument[];
+    };
     practice: {
         percent: number;
         days_total: number;

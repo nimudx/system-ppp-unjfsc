@@ -78,6 +78,8 @@ test('students get their own progress dashboard', function () {
         ->and($stats['dossier'])->toHaveKeys(['approved', 'uploaded', 'total', 'percent', 'items'])
         ->and($stats['dossier']['total'])->toBe(2)
         ->and($stats['formalization'])->toHaveKeys(['state', 'state_label', 'percent', 'documents'])
+        ->and($stats['annexes'])->toHaveKeys(['approved', 'uploaded', 'total', 'percent', 'items'])
+        ->and($stats['annexes']['total'])->toBe(3)
         ->and($stats['practice'])->toHaveKeys(['percent', 'days_left', 'active'])
         ->and($stats['submissions'])->toHaveCount(2)
         ->and(collect($stats['submissions'])->pluck('type')->all())->toBe(['plan', 'report'])

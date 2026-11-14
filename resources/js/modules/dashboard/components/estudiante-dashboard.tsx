@@ -17,6 +17,7 @@ import {
     Layers,
     ListTodo,
     MapPin,
+    Paperclip,
     UserRound,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -35,7 +36,6 @@ import {
     toneClasses,
 } from '@/modules/dashboard/utils';
 import { getDocumentStatusMeta } from '@/modules/documents';
-import { cv as cvRoute } from '@/routes/academic';
 import dossiers from '@/routes/academic/dossiers';
 import internship from '@/routes/academic/internship';
 import notificationsRoute from '@/routes/notifications';
@@ -400,10 +400,12 @@ function AreaTrigger({
     area,
     active,
     onSelect,
+    className,
 }: {
     area: Area;
     active: boolean;
     onSelect: () => void;
+    className?: string;
 }) {
     const Icon = area.icon;
     const approved = useCountUp(area.approved);
@@ -416,6 +418,7 @@ function AreaTrigger({
                 active
                     ? 'border-primary bg-primary/5 shadow-sm'
                     : 'hover:border-primary/40 hover:shadow-sm',
+                className,
             )}
         >
             <button
@@ -610,7 +613,7 @@ export default function StudentDashboardContent({
     const {
         meta,
         dossier,
-        cv,
+        annexes,
         formalization,
         practice,
         submissions,
@@ -712,6 +715,28 @@ export default function StudentDashboardContent({
                 node: <SubmissionCard submission={submission} />,
             })),
         },
+        // Los anexos se suben y consultan en su propia pantalla.
+        {
+            key: 'annexes',
+            title: 'Anexos',
+            icon: Paperclip,
+            approved: annexes.approved,
+            total: annexes.total,
+            percent: annexes.percent,
+            tone: 'bg-amber-500',
+            href: internship.annexes.url(),
+            cta: 'Ir a anexos',
+            entries: annexes.items.map((document) => ({
+                key: document.code,
+                status: document.status,
+                node: (
+                    <DocumentRow
+                        document={document}
+                        href={internship.annexes.url()}
+                    />
+                ),
+            })),
+        },
         {
             key: 'supervision',
             title: 'Supervisión',
@@ -747,6 +772,7 @@ export default function StudentDashboardContent({
         document.getElementById(`area-tab-${next.key}`)?.focus();
     };
 
+    // Las tareas ya incluyen el CV pendiente cuando corresponde.
     const sortedTasks = [...tasks].sort(
         (a, b) => priorityRank[a.priority] - priorityRank[b.priority],
     );
@@ -756,6 +782,9 @@ export default function StudentDashboardContent({
         : activity.slice(0, ACTIVITY_PREVIEW);
 
     const hiddenActivity = activity.length - ACTIVITY_PREVIEW;
+
+    // Con un número impar de áreas, la última ocupa todo el ancho de la grilla.
+    const lastIsAlone = areas.length % 2 === 1;
 
     return (
         <div className="flex flex-1 flex-col gap-4 p-4">
@@ -807,33 +836,7 @@ export default function StudentDashboardContent({
                 </CardContent>
             </Card>
 
-            {/* 2. Recordatorio del CV */}
-            {!cv.uploaded && (
-                <Card className="border-amber-500/40 bg-amber-500/5">
-                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-start gap-3">
-                            <div className="rounded-lg bg-amber-500/15 p-2 text-amber-600 dark:text-amber-400">
-                                <FileText className="size-5" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold">
-                                    Sube tu CV
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    Aún no has adjuntado tu currículum.
-                                    Complétalo para tener tu perfil de prácticas
-                                    al día.
-                                </p>
-                            </div>
-                        </div>
-                        <Button asChild size="sm">
-                            <Link href={cvRoute.url()}>Subir mi CV</Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* 3. Qué hago ahora (tareas) y cómo voy (áreas) */}
+            {/* 2. Qué hago ahora (tareas) y cómo voy (áreas) */}
             <div className="grid gap-4 lg:grid-cols-7">
                 {/* Tareas: primero en móvil, a la derecha en escritorio */}
                 <Card className="order-1 lg:order-none lg:col-span-3 lg:col-start-5 lg:row-start-1">
@@ -841,7 +844,9 @@ export default function StudentDashboardContent({
                         <CardTitle className="flex items-center gap-2">
                             <ListTodo className="size-4" />
                             Qué hacer ahora
-                            <Badge variant="secondary">{tasks.length}</Badge>
+                            <Badge variant="secondary">
+                                {sortedTasks.length}
+                            </Badge>
                         </CardTitle>
                         <CardDescription>
                             Ordenadas de más a menos urgente.
@@ -922,12 +927,17 @@ export default function StudentDashboardContent({
                             className="grid gap-3 sm:grid-cols-2"
                             onKeyDown={onTabKeyDown}
                         >
-                            {areas.map((area) => (
+                            {areas.map((area, index) => (
                                 <AreaTrigger
                                     key={area.key}
                                     area={area}
                                     active={area.key === current.key}
                                     onSelect={() => setActiveArea(area.key)}
+                                    className={cn(
+                                        lastIsAlone &&
+                                            index === areas.length - 1 &&
+                                            'sm:col-span-2',
+                                    )}
                                 />
                             ))}
                         </div>

@@ -4,7 +4,7 @@ import {
     CheckCircle2,
     AlertTriangle,
 } from 'lucide-react';
-import StudentList from '@/modules/dashboard/components/student-list';
+import StudentList from '@/modules/dashboard/components/lista-estudiante';
 import type { SupervisorStats } from '@/modules/dashboard/types';
 import { formatNumber, timeAgo } from '@/modules/dashboard/utils';
 import StatCard from '@/shared/components/stat-card';
