@@ -5,12 +5,14 @@ namespace App\Domains\Resources\Http\Controllers;
 use App\Domains\Academic\Models\Faculty;
 use App\Domains\Academic\Models\School;
 use App\Domains\Academic\Models\Section;
+use App\Domains\Company\Models\Company;
 use App\Domains\Documents\Models\DocumentType;
 use App\Domains\Identity\Models\Assignment;
 use App\Domains\Identity\Models\Role;
 use App\Domains\Resources\Http\Requests\ResourceRequest;
 use App\Domains\Resources\Models\Resource;
 use App\Domains\Resources\Services\ResourceService;
+use App\Shared\Enums\Role as RoleEnum;
 use App\Shared\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,7 +27,23 @@ class ResourceController extends Controller
     {
         $assignment = Assignment::with('section')->find(session('assignment_id'));
 
-        $faculties = Faculty::query()->forAssignmentContext($assignment, session('semester_id'), true)->get();
+        if (! $assignment && auth()->user()?->type_user_id === 1) {
+            $assignment = auth()->user()->assignments()
+                ->where('role_id', RoleEnum::ADMIN->value)
+                ->with('section')
+                ->latest('id')
+                ->first();
+        }
+
+        $isAdministrator = $assignment?->role_id === RoleEnum::ADMIN->value;
+        $semesterId = session('semester_id') ?? $assignment?->semester_id;
+
+        $faculties = $assignment
+            ? Faculty::query()->forAssignmentContext($assignment, $semesterId, true)->get()
+            : Faculty::query()
+                ->where('status', 1)
+                ->with(['schools.sections' => fn ($query) => $query->where('semester_id', $semesterId)])
+                ->get();
 
         // Cargar todos los tipos de documentos con sus roles asociados para filtrar en el front
         $queryDocTypes = DocumentType::with([
@@ -54,25 +72,39 @@ class ResourceController extends Controller
 
         $roles = $queryRoles->get();
 
-        // Obtener recursos visibles para el usuario actual
-        $resources = [];
-
-        if ($assignment) {
-            $locations = [];
-
-            // Si tiene sección, agregamos la jerarquía completa (Facultad > Escuela > Sección)
-            if ($assignment->section) {
-                $section = $assignment->section;
-                $locations[] = ['type' => (new Faculty)->getMorphClass(), 'id' => $section->faculty_id];
-                $locations[] = ['type' => (new School)->getMorphClass(), 'id' => $section->school_id];
-                $locations[] = ['type' => (new Section)->getMorphClass(), 'id' => $section->id];
-            }
+        // El administrador ve todos los recursos publicados; el resto, los de su alcance.
+        if ($isAdministrator) {
+            $resources = $this->resourceService->listAllResources($semesterId);
+        } elseif (auth()->user()?->type_user_id === 3) {
+            $company = auth()->user()->company;
 
             $resources = $this->resourceService->listResourcesForUser(
-                $assignment->role_id,
-                $assignment->semester_id,
-                $locations
+                RoleEnum::EMPRESA->value,
+                $semesterId,
+                $company
+                    ? [['type' => (new Company)->getMorphClass(), 'id' => $company->id]]
+                    : []
             );
+        } else {
+            $resources = [];
+
+            if ($assignment) {
+                $locations = [];
+
+                // Si tiene sección, agregamos la jerarquía completa (Facultad > Escuela > Sección)
+                if ($assignment->section) {
+                    $section = $assignment->section;
+                    $locations[] = ['type' => (new Faculty)->getMorphClass(), 'id' => $section->faculty_id];
+                    $locations[] = ['type' => (new School)->getMorphClass(), 'id' => $section->school_id];
+                    $locations[] = ['type' => (new Section)->getMorphClass(), 'id' => $section->id];
+                }
+
+                $resources = $this->resourceService->listResourcesForUser(
+                    $assignment->role_id,
+                    $assignment->semester_id,
+                    $locations
+                );
+            }
         }
 
         $initialFilters = [];
@@ -103,7 +135,7 @@ class ResourceController extends Controller
         // Determinar el cargador (Uploader) según el tipo de usuario
         if (in_array($user->type_user_id, [1, 2])) {
             // Admin (1) o Académico (2) - Usan Asignación activa
-            $uploader = Assignment::find(session('assignment_id')) ?? $user->activeAssignment;
+            $uploader = Assignment::find(session('assignment_id')) ?? $user->activeAssignment ?? $user;
         } elseif ($user->type_user_id === 3) {
             // Empresa (3) - Usa la Empresa directamente vinculada al usuario
             $uploader = $user->person;
@@ -129,7 +161,7 @@ class ResourceController extends Controller
 
         // Determinar el cargador (Uploader) según el tipo de usuario
         if (in_array($user->type_user_id, [1, 2])) {
-            $uploader = Assignment::find(session('assignment_id')) ?? $user->activeAssignment;
+            $uploader = Assignment::find(session('assignment_id')) ?? $user->activeAssignment ?? $user;
         } elseif ($user->type_user_id === 3) {
             $uploader = $user->person;
         }

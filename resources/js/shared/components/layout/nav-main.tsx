@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
+import { Badge } from '@/shared/components/ui/badge';
 import {
     Collapsible,
     CollapsibleContent,
@@ -40,6 +41,14 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <Link href={item.href} prefetch>
                                         {item.icon && <item.icon />}
                                         <span>{item.title}</span>
+                                        {item.badge && (
+                                            <Badge
+                                                variant="secondary"
+                                                className="ml-auto h-5 px-1.5 text-[10px] font-bold"
+                                            >
+                                                {item.badge}
+                                            </Badge>
+                                        )}
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
@@ -57,6 +66,14 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <SidebarMenuButton tooltip={item.title}>
                                         {item.icon && <item.icon />}
                                         <span>{item.title}</span>
+                                        {item.badge && (
+                                            <Badge
+                                                variant="secondary"
+                                                className="ml-auto h-5 px-1.5 text-[10px] font-bold"
+                                            >
+                                                {item.badge}
+                                            </Badge>
+                                        )}
                                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                     </SidebarMenuButton>
                                 </CollapsibleTrigger>
@@ -77,6 +94,14 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                                         <span>
                                                             {subItem.title}
                                                         </span>
+                                                        {subItem.badge && (
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="ml-auto h-5 px-1.5 text-[10px] font-bold"
+                                                            >
+                                                                {subItem.badge}
+                                                            </Badge>
+                                                        )}
                                                     </Link>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>

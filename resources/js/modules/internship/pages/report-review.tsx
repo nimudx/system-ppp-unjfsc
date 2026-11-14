@@ -1,27 +1,36 @@
 import { Head, router } from '@inertiajs/react';
 import {
     AlertCircle,
-    CalendarDays,
+    Check,
     CheckCircle2,
-    ClipboardCheck,
+    ChevronLeft,
+    ChevronRight,
+    CircleAlert,
     Clock,
     ExternalLink,
-    Eye,
     FileCheck,
     FileText,
-    History,
+    History as HistoryIcon,
     MessageSquare,
-    Paperclip,
     Upload,
+    X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { DragEvent } from 'react';
 
+import {
+    enter,
+    formatDateTime,
+    RequirementsList,
+    type DocumentRequirement,
+} from '@/modules/documents';
 import internship from '@/routes/academic/internship';
-import Heading from '@/shared/components/heading';
 import PageContainer from '@/shared/components/page-container';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import AppLayout from '@/shared/layouts/app-layout';
+import DocumentReviewLayout from '@/shared/layouts/document-review-layout';
+import { cn } from '@/shared/lib/utils';
 import type { BreadcrumbItem } from '@/shared/types';
 
 type DocumentId = 'plan' | 'report';
@@ -59,36 +68,497 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const SUBMIT_URL = internship.reportReview.store.url();
+const MAX_MB = 10;
 
-const formatDate = (iso: string | null) =>
-    iso
-        ? new Date(iso).toLocaleDateString('es-PE', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-          })
-        : '';
+/* -------------------------------------------------------------------------- */
+/* Estados                                                                    */
+/* -------------------------------------------------------------------------- */
 
-function StatusIcon({ submission }: { submission: Submission | null }) {
-    if (!submission) return <Clock className="size-5 text-muted-foreground" />;
-    if (submission.status === 1)
-        return <CheckCircle2 className="size-5 text-green-600" />;
-    if (submission.status === 3)
-        return <AlertCircle className="size-5 text-amber-500" />;
-    return <Clock className="size-5 text-blue-500" />;
+const STATUS = {
+    1: {
+        label: 'Aprobado',
+        dot: 'bg-green-500',
+        text: 'text-green-600 dark:text-green-400',
+        icon: CheckCircle2,
+    },
+    2: {
+        label: 'En revisión',
+        dot: 'bg-blue-500',
+        text: 'text-blue-600 dark:text-blue-400',
+        icon: Clock,
+    },
+    3: {
+        label: 'Observado',
+        dot: 'bg-amber-500',
+        text: 'text-amber-600 dark:text-amber-400',
+        icon: AlertCircle,
+    },
+} as const;
+
+const NONE = {
+    label: 'Pendiente de entrega',
+    dot: 'bg-muted-foreground/40',
+    text: 'text-muted-foreground',
+    icon: Clock,
+};
+
+const metaOf = (submission: Submission | null) =>
+    submission ? STATUS[submission.status] : NONE;
+
+/* true en el siguiente frame: dispara la animación de entrada una sola vez. */
+function useReady() {
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => setReady(true));
+
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
+    return ready;
 }
 
-function statusText(submission: Submission | null) {
-    if (!submission) return 'Pendiente de entrega';
-    if (submission.status === 1) return 'Aprobado';
-    if (submission.status === 3) return 'Observado, debes reenviarlo';
-    return 'En revisión';
+/* -------------------------------------------------------------------------- */
+/* Resumen: anillo + una frase que dice qué sigue                             */
+/* -------------------------------------------------------------------------- */
+
+const RING_RADIUS = 18;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+
+function PracticeSummary({ documents }: { documents: PracticeDocument[] }) {
+    const ready = useReady();
+    const total = documents.length;
+
+    if (total === 0) {
+        return null;
+    }
+
+    const approved = documents.filter((d) => d.latest?.status === 1).length;
+    const observed = documents.filter((d) => d.latest?.status === 3).length;
+    const missing = documents.filter((d) => !d.latest).length;
+    const inReview = total - approved - observed - missing;
+    const complete = approved === total;
+
+    let headline: string;
+    let detail: string | undefined;
+
+    if (complete) {
+        headline = 'Prácticas completas';
+        detail = 'Tu plan e informe fueron aprobados.';
+    } else if (observed > 0) {
+        headline =
+            observed === 1
+                ? '1 documento por corregir'
+                : `${observed} documentos por corregir`;
+        detail = 'Revisa las observaciones y vuelve a enviarlo.';
+    } else if (missing > 0) {
+        headline =
+            missing === 1
+                ? 'Falta 1 documento por subir'
+                : `Faltan ${missing} documentos por subir`;
+        detail = inReview > 0 ? `${inReview} en revisión.` : undefined;
+    } else {
+        headline = 'En revisión';
+        detail = 'Espera la respuesta de tu docente.';
+    }
+
+    const tone = complete
+        ? 'stroke-green-500'
+        : observed > 0
+          ? 'stroke-amber-500'
+          : 'stroke-primary';
+
+    const offset = ready
+        ? RING_LENGTH * (1 - approved / total)
+        : RING_LENGTH;
+
+    return (
+        <div
+            className="flex items-center gap-3"
+            role="status"
+            aria-label={`${approved} de ${total} documentos aprobados. ${headline}`}
+        >
+            <div className="relative size-11 shrink-0">
+                <svg
+                    viewBox="0 0 44 44"
+                    className="size-full -rotate-90"
+                    aria-hidden
+                >
+                    <circle
+                        cx="22"
+                        cy="22"
+                        r={RING_RADIUS}
+                        fill="none"
+                        strokeWidth="4"
+                        className="stroke-muted"
+                    />
+                    {approved > 0 && (
+                        <circle
+                            cx="22"
+                            cy="22"
+                            r={RING_RADIUS}
+                            fill="none"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeDasharray={RING_LENGTH}
+                            strokeDashoffset={offset}
+                            className={cn(
+                                'transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none',
+                                tone,
+                            )}
+                        />
+                    )}
+                </svg>
+
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold tabular-nums">
+                    {complete ? (
+                        <Check className="size-4 text-green-500" />
+                    ) : (
+                        `${approved}/${total}`
+                    )}
+                </span>
+            </div>
+
+            <div className="min-w-0">
+                <p className="text-sm leading-tight font-medium">{headline}</p>
+
+                {detail && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                        {detail}
+                    </p>
+                )}
+            </div>
+        </div>
+    );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Guía de entrega                                                            */
+/* -------------------------------------------------------------------------- */
+
+function HowToCard() {
+    const steps = [
+        {
+            title: 'Elige el documento',
+            description: 'Plan o informe, según lo que vayas a entregar.',
+        },
+        {
+            title: 'Súbelo aquí',
+            description: `PDF, DOC o DOCX de hasta ${MAX_MB} MB.`,
+        },
+        {
+            title: 'Espera la revisión de tu docente',
+            description: 'Si lo observan, corrígelo y vuelve a enviarlo.',
+        },
+    ];
+
+    return (
+        <SectionCard>
+            <SectionCard.Header>
+                <div className="flex h-9 items-center">
+                    <h3 className="text-sm leading-none font-semibold tracking-tight">
+                        Cómo entregar tu documento
+                    </h3>
+                </div>
+            </SectionCard.Header>
+
+            <SectionCard.Body>
+                <ol className="space-y-3">
+                    {steps.map((step, index) => (
+                        <li key={step.title} className="flex gap-3">
+                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-medium tabular-nums">
+                                {index + 1}
+                            </span>
+
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium">
+                                    {step.title}
+                                </p>
+                                <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                                    {step.description}
+                                </p>
+                            </div>
+                        </li>
+                    ))}
+                </ol>
+
+                <div className="mt-4 flex items-start gap-2 border-t pt-3">
+                    <CircleAlert className="mt-0.5 size-4 shrink-0 text-amber-500" />
+
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                        Solo se envía al docente cuando presionas "Enviar
+                        documento".
+                    </p>
+                </div>
+            </SectionCard.Body>
+        </SectionCard>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Evaluación del docente                                                     */
+/* -------------------------------------------------------------------------- */
+
+function EvaluationPanel({ latest }: { latest: Submission | null }) {
+    const meta = metaOf(latest);
+    const Icon = meta.icon;
+
+    return (
+        <SectionCard>
+            <SectionCard.Header>
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/50">
+                            <MessageSquare className="size-4 text-muted-foreground" />
+                        </div>
+
+                        <div className="min-w-0">
+                            <h3 className="text-sm leading-none font-semibold tracking-tight">
+                                Evaluación
+                            </h3>
+                            <p className="mt-1 truncate text-xs text-muted-foreground">
+                                {latest?.reviewer
+                                    ? `Revisó ${latest.reviewer}`
+                                    : 'Docente supervisor'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <Icon className={cn('size-4 shrink-0', meta.text)} />
+                </div>
+            </SectionCard.Header>
+
+            <SectionCard.Body className="space-y-4">
+                <div className="flex items-end justify-between gap-3">
+                    <div>
+                        <p className="text-[11px] text-muted-foreground">
+                            Estado
+                        </p>
+                        <p className={cn('mt-0.5 text-xs font-semibold', meta.text)}>
+                            {latest ? latest.status_label : 'Sin entrega'}
+                        </p>
+                    </div>
+
+                    <p className="text-2xl leading-none font-semibold tabular-nums">
+                        {latest?.grade ?? '—'}
+                        <span className="ml-1 text-xs font-normal text-muted-foreground">
+                            / 20
+                        </span>
+                    </p>
+                </div>
+
+                <div className="flex gap-2 rounded-md border bg-muted/20 p-2.5">
+                    <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                        {latest?.comment ??
+                            'Todavía no hay observaciones del docente.'}
+                    </p>
+                </div>
+            </SectionCard.Body>
+        </SectionCard>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Historial en línea de tiempo                                               */
+/* -------------------------------------------------------------------------- */
+
+const HISTORY_PREVIEW = 3;
+
+function HistoryPanel({ history }: { history: Submission[] }) {
+    const [showAll, setShowAll] = useState(false);
+
+    const sorted = useMemo(
+        () =>
+            [...history].sort(
+                (a, b) =>
+                    new Date(b.submitted_at).getTime() -
+                    new Date(a.submitted_at).getTime(),
+            ),
+        [history],
+    );
+
+    const visible = showAll ? sorted : sorted.slice(0, HISTORY_PREVIEW);
+    const hidden = sorted.length - visible.length;
+
+    return (
+        <SectionCard className="min-w-0">
+            <SectionCard.Header>
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/50">
+                            <HistoryIcon className="size-4 text-muted-foreground" />
+                        </div>
+
+                        <div className="min-w-0">
+                            <h3 className="text-sm leading-none font-semibold tracking-tight">
+                                Historial
+                            </h3>
+                            <p className="mt-1 truncate text-xs text-muted-foreground">
+                                Entregas de este documento
+                            </p>
+                        </div>
+                    </div>
+
+                    <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
+                        {history.length}
+                    </span>
+                </div>
+            </SectionCard.Header>
+
+            <SectionCard.Body className="space-y-4">
+                {history.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed px-4 py-9 text-center">
+                        <div className="mb-3 flex size-11 items-center justify-center rounded-full bg-muted">
+                            <HistoryIcon className="size-5 text-muted-foreground/60" />
+                        </div>
+
+                        <h4 className="text-sm font-semibold">
+                            Aún no hay entregas
+                        </h4>
+
+                        <p className="mt-1 max-w-56 text-xs leading-relaxed text-muted-foreground">
+                            Cuando envíes el documento, sus revisiones y notas
+                            aparecerán aquí.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="relative space-y-4 before:absolute before:inset-y-2 before:left-[9px] before:w-px before:bg-border">
+                            {visible.map((item, index) => {
+                                const meta = metaOf(item);
+                                const Icon = meta.icon;
+
+                                return (
+                                    <article
+                                        key={item.id}
+                                        className={cn('relative pl-8', enter)}
+                                        style={{
+                                            animationDelay: `${Math.min(index, 8) * 40}ms`,
+                                        }}
+                                    >
+                                        <span
+                                            className={cn(
+                                                'absolute top-1 left-0 flex size-[19px] items-center justify-center rounded-full border-[3px] border-background shadow-sm',
+                                                meta.dot,
+                                            )}
+                                        />
+
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span
+                                                    className={cn(
+                                                        'text-xs font-semibold',
+                                                        meta.text,
+                                                    )}
+                                                >
+                                                    {item.status_label}
+                                                </span>
+
+                                                <span className="text-[11px] text-muted-foreground tabular-nums">
+                                                    {formatDateTime(
+                                                        item.submitted_at,
+                                                    ) ?? 'Fecha desconocida'}
+                                                </span>
+                                            </div>
+
+                                            <div className="rounded-lg border bg-muted/20 p-3">
+                                                <div className="flex items-start gap-2">
+                                                    <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+
+                                                    <div className="min-w-0 flex-1">
+                                                        {item.file ? (
+                                                            <a
+                                                                href={
+                                                                    item.file.url
+                                                                }
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                className="inline-flex max-w-full items-center gap-1 text-xs font-semibold hover:text-primary hover:underline"
+                                                            >
+                                                                <span className="truncate">
+                                                                    {
+                                                                        item.file
+                                                                            .name
+                                                                    }
+                                                                </span>
+                                                                <ExternalLink className="size-3 shrink-0" />
+                                                            </a>
+                                                        ) : (
+                                                            <p className="text-xs font-semibold">
+                                                                Documento
+                                                                adjunto
+                                                            </p>
+                                                        )}
+
+                                                        {item.grade !== null && (
+                                                            <p className="mt-1 text-[11px] text-muted-foreground tabular-nums">
+                                                                Nota:{' '}
+                                                                {item.grade} /
+                                                                20
+                                                            </p>
+                                                        )}
+
+                                                        {item.reviewed_at && (
+                                                            <p className="mt-1 text-[11px] text-muted-foreground">
+                                                                Revisado el{' '}
+                                                                {formatDateTime(
+                                                                    item.reviewed_at,
+                                                                )}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    <Icon
+                                                        className={cn(
+                                                            'size-4 shrink-0',
+                                                            meta.text,
+                                                        )}
+                                                    />
+                                                </div>
+
+                                                {item.comment && (
+                                                    <div className="mt-3 flex gap-2 rounded-md border bg-background/70 p-2.5">
+                                                        <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+
+                                                        <p className="text-[11px] leading-relaxed text-muted-foreground">
+                                                            {item.comment}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+
+                        {sorted.length > HISTORY_PREVIEW && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="w-full text-xs"
+                                aria-expanded={showAll}
+                                onClick={() => setShowAll((v) => !v)}
+                            >
+                                {showAll ? 'Ver menos' : `Ver ${hidden} más`}
+                            </Button>
+                        )}
+                    </>
+                )}
+            </SectionCard.Body>
+        </SectionCard>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Página                                                                     */
+/* -------------------------------------------------------------------------- */
 
 export default function ReportReview({
     documents,
-    required_count,
-    delivered_count,
     can_upload_documents,
 }: Props) {
     const [selectedType, setSelectedType] = useState<DocumentId>('plan');
@@ -98,19 +568,95 @@ export default function ReportReview({
     });
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [dragging, setDragging] = useState(false);
+    const [previewEnabled, setPreviewEnabled] = useState(true);
 
-    const current = documents.find((d) => d.id === selectedType)!;
+    /* Adapta las entregas al formato que espera RequirementsList. */
+    const requirements = useMemo(
+        () =>
+            documents.map((d) => ({
+                code: d.id,
+                title: d.title,
+                has_template: false,
+                history: [],
+                latest: d.latest
+                    ? {
+                          id: d.latest.id,
+                          approval_status: d.latest.status,
+                          path: d.latest.file?.url ?? null,
+                          name: d.latest.file?.name,
+                          size: undefined,
+                      }
+                    : null,
+            })) as unknown as DocumentRequirement[],
+        [documents],
+    );
+
+    const index = Math.max(
+        0,
+        documents.findIndex((d) => d.id === selectedType),
+    );
+    const current = documents[index];
     const selectedFile = files[selectedType];
-    const latest = current.latest;
+    const latest = current?.latest ?? null;
+    const meta = metaOf(latest);
 
-    const handleFileChange = (file: File | undefined) => {
-        if (!file) return;
+    /* Vista previa temporal (solo PDF) del archivo elegido. */
+    const previewUrl = useMemo(
+        () =>
+            selectedFile && selectedFile.type === 'application/pdf'
+                ? URL.createObjectURL(selectedFile)
+                : null,
+        [selectedFile],
+    );
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    const selectType = (id: DocumentId) => {
         setError(null);
+        setSelectedType(id);
+    };
+
+    const go = (step: number) => {
+        const next = documents[index + step];
+
+        if (next) {
+            selectType(next.id);
+        }
+    };
+
+    const setFile = (file: File | null) => {
         setFiles((prev) => ({ ...prev, [selectedType]: file }));
     };
 
+    const handleFileChange = (file: File | undefined) => {
+        if (!file) return;
+
+        if (file.size > MAX_MB * 1024 * 1024) {
+            setError(
+                `El archivo pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. El máximo es ${MAX_MB} MB.`,
+            );
+            return;
+        }
+
+        setError(null);
+        setFile(file);
+    };
+
+    const onDrop = (event: DragEvent<HTMLLabelElement>) => {
+        event.preventDefault();
+        setDragging(false);
+        handleFileChange(event.dataTransfer.files?.[0]);
+    };
+
     const handleSubmit = () => {
-        if (!can_upload_documents || !current.can_submit) return;
+        if (!can_upload_documents || !current?.can_submit) return;
         if (!selectedFile) return;
 
         router.post(
@@ -123,8 +669,7 @@ export default function ReportReview({
                     setProcessing(true);
                     setError(null);
                 },
-                onSuccess: () =>
-                    setFiles((prev) => ({ ...prev, [selectedType]: null })),
+                onSuccess: () => setFile(null),
                 onError: (errors) =>
                     setError(
                         errors.file ??
@@ -140,183 +685,177 @@ export default function ReportReview({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Rev. Prácticas" />
 
-            <PageContainer fullHeight>
-                {/* Encabezado */}
-                <div className="flex items-end justify-between">
-                    <Heading
-                        variant="small"
-                        title="Rev. Prácticas"
-                        description="Gestiona tu plan e informe de prácticas y revisa las observaciones de tu docente."
-                    />
-
-                    <div className="hidden items-center gap-2 rounded-lg border bg-card px-3 py-2 md:flex">
-                        <ClipboardCheck className="size-5 text-muted-foreground" />
-                        <div>
-                            <p className="text-xs font-medium">Mis entregas</p>
-                            <p className="text-xs text-muted-foreground">
-                                {delivered_count} de {required_count} documentos
-                                entregados
-                            </p>
-                        </div>
+            <PageContainer>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                        <h1 className="text-1xl font-semibold tracking-tight">
+                            Revisión de prácticas
+                        </h1>
+                        <p className="text-sm text-foreground/70">
+                            Entrega tu plan e informe y sigue las observaciones
+                            de tu docente.
+                        </p>
                     </div>
+
+                    <PracticeSummary documents={documents} />
                 </div>
 
-                {/* Resumen de documentos */}
-                <div className="grid gap-4 md:grid-cols-2">
-                    {documents.map((document) => (
-                        <button
-                            key={document.id}
-                            type="button"
-                            onClick={() => setSelectedType(document.id)}
-                            className={`rounded-xl border bg-card p-4 text-left transition-colors hover:bg-muted/40 ${
-                                selectedType === document.id
-                                    ? 'border-primary ring-1 ring-primary/20'
-                                    : ''
-                            }`}
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                                        {document.id === 'plan' ? (
-                                            <FileText className="size-5" />
-                                        ) : (
-                                            <FileCheck className="size-5" />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-semibold">
-                                            {document.title}
-                                        </h3>
-                                        <p className="mt-1 text-xs text-muted-foreground">
-                                            {statusText(document.latest)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <StatusIcon submission={document.latest} />
-                            </div>
-                        </button>
-                    ))}
-                </div>
+                <DocumentReviewLayout
+                    hideAside={false}
+                    documentClassName="relative h-full w-full overflow-hidden"
+                    requirements={
+                        <>
+                            <RequirementsList
+                                requirements={requirements}
+                                selectedType={index}
+                                onSelectType={(i: number) => {
+                                    const target = documents[i];
 
-                {/* Paneles principales */}
-                <div className="flex flex-col items-start gap-6 lg:flex-row">
-                    {/* Panel izquierdo */}
-                    <div className="flex w-full shrink-0 flex-col gap-4 lg:w-64 xl:w-72">
-                        <SectionCard>
-                            <SectionCard.Header>
-                                <div>
-                                    <h3 className="text-sm font-semibold">
-                                        Mis documentos
-                                    </h3>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        Selecciona qué documento gestionar.
-                                    </p>
-                                </div>
-                            </SectionCard.Header>
-                            <SectionCard.Body className="space-y-2">
-                                {documents.map((document) => (
-                                    <button
-                                        key={document.id}
-                                        type="button"
-                                        onClick={() =>
-                                            setSelectedType(document.id)
-                                        }
-                                        className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                                            selectedType === document.id
-                                                ? 'border-primary/40 bg-primary/5'
-                                                : 'border-transparent hover:bg-muted'
-                                        }`}
-                                    >
-                                        <FileText className="size-4 shrink-0" />
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium">
-                                                {document.title}
-                                            </p>
-                                            <p className="truncate text-xs text-muted-foreground">
-                                                {files[document.id]?.name ??
-                                                    document.latest?.file
-                                                        ?.name ??
-                                                    'Sin archivo seleccionado'}
-                                            </p>
+                                    if (target) {
+                                        selectType(target.id);
+                                    }
+                                }}
+                                previewEnabled={previewEnabled}
+                                onTogglePreview={() =>
+                                    setPreviewEnabled((value) => !value)
+                                }
+                            />
+
+                            <HowToCard />
+                        </>
+                    }
+                    document={
+                        current ? (
+                            <SectionCard>
+                                <SectionCard.Header>
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div
+                                            key={current.id}
+                                            className={cn(
+                                                'flex min-w-0 items-center gap-3',
+                                                enter,
+                                            )}
+                                        >
+                                            <div
+                                                className={cn(
+                                                    'flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors',
+                                                    selectedFile || latest
+                                                        ? 'border-primary/20 bg-primary/5'
+                                                        : 'bg-muted/50',
+                                                )}
+                                            >
+                                                <FileText
+                                                    className={cn(
+                                                        'size-4',
+                                                        selectedFile || latest
+                                                            ? 'text-primary'
+                                                            : 'text-muted-foreground',
+                                                    )}
+                                                />
+                                            </div>
+
+                                            <div className="flex min-w-0 flex-col">
+                                                <h3 className="truncate text-sm leading-none font-semibold tracking-tight">
+                                                    {current.title}
+                                                </h3>
+
+                                                <p
+                                                    className={cn(
+                                                        'mt-1 text-[11px]',
+                                                        selectedFile
+                                                            ? 'text-primary'
+                                                            : meta.text,
+                                                    )}
+                                                >
+                                                    {selectedFile
+                                                        ? 'Archivo listo para enviar'
+                                                        : meta.label}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </button>
-                                ))}
-                            </SectionCard.Body>
-                        </SectionCard>
 
-                        <SectionCard>
-                            <SectionCard.Header>
-                                <h3 className="text-sm font-semibold">
-                                    Indicaciones
-                                </h3>
-                            </SectionCard.Header>
-                            <SectionCard.Body>
-                                <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
-                                    <p>
-                                        <Paperclip className="mr-2 inline size-4" />
-                                        Selecciona el archivo correspondiente a
-                                        cada documento.
-                                    </p>
-                                    <p>
-                                        <Eye className="mr-2 inline size-4" />
-                                        Revisa las observaciones de tu docente
-                                        para conocer las correcciones.
-                                    </p>
-                                    <p>
-                                        <History className="mr-2 inline size-4" />
-                                        Consulta tus entregas anteriores en el
-                                        historial.
-                                    </p>
-                                </div>
-                            </SectionCard.Body>
-                        </SectionCard>
-                    </div>
+                                        <div className="flex shrink-0 items-center justify-between gap-1 sm:justify-end">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                aria-label="Documento anterior"
+                                                disabled={index === 0}
+                                                onClick={() => go(-1)}
+                                            >
+                                                <ChevronLeft />
+                                            </Button>
 
-                    {/* Panel central */}
-                    <div className="w-full min-w-0 flex-1">
-                        <SectionCard>
-                            <SectionCard.Header>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                                        <FileText className="size-5" />
+                                            <span className="text-xs text-muted-foreground tabular-nums">
+                                                {index + 1}/{documents.length}
+                                            </span>
+
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                aria-label="Documento siguiente"
+                                                disabled={
+                                                    index >=
+                                                    documents.length - 1
+                                                }
+                                                onClick={() => go(1)}
+                                            >
+                                                <ChevronRight />
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-sm font-semibold">
-                                            {current.title}
-                                        </h3>
-                                        <p className="mt-1 text-xs text-muted-foreground">
-                                            {selectedFile
-                                                ? 'Archivo listo para enviar'
-                                                : statusText(latest)}
-                                        </p>
-                                    </div>
-                                </div>
-                            </SectionCard.Header>
+                                </SectionCard.Header>
 
-                            <SectionCard.Body>
-                                <div className="space-y-5">
-                                    <p className="text-sm text-muted-foreground">
+                                <SectionCard.Body className="space-y-4">
+                                    <p className="text-xs leading-relaxed text-muted-foreground">
                                         {current.description}
                                     </p>
 
                                     {!current.can_submit ? (
-                                        <div className="space-y-3 rounded-xl border p-5">
-                                            <p className="text-sm font-medium">
+                                        <div
+                                            className={cn(
+                                                'flex flex-col items-center justify-center rounded-lg border border-dashed px-6 py-12 text-center',
+                                                enter,
+                                            )}
+                                        >
+                                            <div className="mb-3 flex size-11 items-center justify-center rounded-full bg-muted">
+                                                <meta.icon
+                                                    className={cn(
+                                                        'size-5',
+                                                        meta.text,
+                                                    )}
+                                                />
+                                            </div>
+
+                                            <p className="max-w-sm text-sm font-medium">
                                                 {!can_upload_documents
-                                                    ? 'La empresa debe aceptarte y debes registrar el jefe inmediato y los datos de práctica en Pasantía antes de presentar archivos.'
+                                                    ? 'Aún no puedes presentar archivos'
                                                     : latest?.status === 1
-                                                      ? 'Este documento ya fue aprobado.'
-                                                      : 'Tu documento está en revisión por el docente supervisor.'}
+                                                      ? 'Este documento ya fue aprobado'
+                                                      : 'Tu documento está en revisión'}
                                             </p>
+
+                                            <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
+                                                {!can_upload_documents
+                                                    ? 'La empresa debe aceptarte y debes registrar el jefe inmediato y los datos de práctica en Pasantía.'
+                                                    : latest?.status === 1
+                                                      ? 'No necesitas hacer nada más con este documento.'
+                                                      : 'Tu docente supervisor lo está revisando.'}
+                                            </p>
+
                                             {latest?.file && (
                                                 <a
                                                     href={latest.file.url}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    className="mt-4 inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted"
                                                 >
-                                                    <ExternalLink className="size-4" />
-                                                    {latest.file.name}
+                                                    <FileText className="size-3.5 text-muted-foreground" />
+                                                    <span className="max-w-56 truncate">
+                                                        {latest.file.name}
+                                                    </span>
+                                                    <ExternalLink className="size-3 text-muted-foreground" />
                                                 </a>
                                             )}
                                         </div>
@@ -325,85 +864,126 @@ export default function ReportReview({
                                             {latest?.status === 3 && (
                                                 <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
                                                     <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-500" />
-                                                    Tu docente observó la última
-                                                    entrega. Corrige y vuelve a
-                                                    enviarla.
+                                                    <span>
+                                                        Tu docente observó la
+                                                        última entrega. Corrige
+                                                        y vuelve a enviarla.
+                                                    </span>
                                                 </div>
                                             )}
 
-                                            <label
-                                                htmlFor={`file-${selectedType}`}
-                                                className="flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-colors hover:border-primary/50 hover:bg-muted/30"
-                                            >
-                                                <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
-                                                    <Upload className="size-6" />
-                                                </div>
-                                                <p className="text-sm font-medium">
-                                                    Selecciona tu documento
-                                                </p>
-                                                <p className="mt-2 text-xs text-muted-foreground">
-                                                    Haz clic aquí para elegir un
-                                                    archivo de tu equipo.
-                                                </p>
-                                                <input
-                                                    id={`file-${selectedType}`}
-                                                    type="file"
-                                                    accept=".pdf,.doc,.docx"
-                                                    className="sr-only"
-                                                    onChange={(event) => {
-                                                        handleFileChange(
-                                                            event.target
-                                                                .files?.[0],
-                                                        );
-                                                        event.target.value = '';
-                                                    }}
-                                                />
-                                            </label>
+                                            {selectedFile ? (
+                                                <div
+                                                    className={cn(
+                                                        'overflow-hidden rounded-lg border',
+                                                        enter,
+                                                    )}
+                                                >
+                                                    {previewEnabled && previewUrl ? (
+                                                        <iframe
+                                                            src={previewUrl}
+                                                            title={
+                                                                selectedFile.name
+                                                            }
+                                                            className="h-[420px] w-full bg-muted/30"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex h-40 flex-col items-center justify-center bg-muted/20 text-center">
+                                                            <FileCheck className="mb-2 size-7 text-primary" />
+                                                            <p className="text-xs text-muted-foreground">
+                                                                {previewEnabled
+                                                                    ? 'La vista previa solo está disponible para PDF.'
+                                                                    : 'Vista previa desactivada.'}
+                                                            </p>
+                                                        </div>
+                                                    )}
 
-                                            {selectedFile && (
-                                                <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center">
-                                                    <FileCheck className="size-6 shrink-0 text-primary" />
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="text-sm font-medium break-all">
-                                                            {selectedFile.name}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {(
-                                                                selectedFile.size /
-                                                                1024 /
-                                                                1024
-                                                            ).toFixed(2)}{' '}
-                                                            MB
-                                                        </p>
+                                                    <div className="flex items-center gap-3 border-t bg-card p-3">
+                                                        <FileText className="size-4 shrink-0 text-primary" />
+
+                                                        <div className="min-w-0 flex-1">
+                                                            <p className="truncate text-xs font-semibold">
+                                                                {
+                                                                    selectedFile.name
+                                                                }
+                                                            </p>
+                                                            <p className="mt-0.5 text-[11px] text-muted-foreground tabular-nums">
+                                                                {(
+                                                                    selectedFile.size /
+                                                                    1024 /
+                                                                    1024
+                                                                ).toFixed(2)}{' '}
+                                                                MB
+                                                            </p>
+                                                        </div>
+
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            aria-label="Quitar archivo"
+                                                            onClick={() =>
+                                                                setFile(null)
+                                                            }
+                                                        >
+                                                            <X />
+                                                        </Button>
                                                     </div>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            setFiles(
-                                                                (prev) => ({
-                                                                    ...prev,
-                                                                    [selectedType]:
-                                                                        null,
-                                                                }),
-                                                            )
-                                                        }
-                                                    >
-                                                        Quitar
-                                                    </Button>
                                                 </div>
-                                            )}
+                                            ) : (
+                                                <label
+                                                    htmlFor={`file-${selectedType}`}
+                                                    onDragOver={(event) => {
+                                                        event.preventDefault();
+                                                        setDragging(true);
+                                                    }}
+                                                    onDragLeave={() =>
+                                                        setDragging(false)
+                                                    }
+                                                    onDrop={onDrop}
+                                                    className={cn(
+                                                        'flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center transition-colors',
+                                                        dragging
+                                                            ? 'border-primary bg-primary/5'
+                                                            : 'hover:border-primary/40 hover:bg-muted/30',
+                                                    )}
+                                                >
+                                                    <div className="mb-3 flex size-11 items-center justify-center rounded-full bg-muted">
+                                                        <Upload className="size-5 text-muted-foreground" />
+                                                    </div>
 
-                                            <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
-                                                Formatos permitidos: PDF, DOC y
-                                                DOCX, hasta 10 MB. El documento
-                                                se envía al docente supervisor
-                                                al presionar "Enviar documento".
-                                            </div>
+                                                    <p className="text-sm font-medium">
+                                                        {dragging
+                                                            ? 'Suelta el archivo'
+                                                            : 'Arrastra tu documento o haz clic'}
+                                                    </p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        PDF, DOC o DOCX · máx.{' '}
+                                                        {MAX_MB} MB
+                                                    </p>
+
+                                                    <input
+                                                        id={`file-${selectedType}`}
+                                                        type="file"
+                                                        accept=".pdf,.doc,.docx"
+                                                        className="sr-only"
+                                                        onChange={(event) => {
+                                                            handleFileChange(
+                                                                event.target
+                                                                    .files?.[0],
+                                                            );
+                                                            event.target.value =
+                                                                '';
+                                                        }}
+                                                    />
+                                                </label>
+                                            )}
 
                                             {error && (
-                                                <p className="text-xs text-destructive">
+                                                <p
+                                                    role="alert"
+                                                    className="text-xs text-destructive"
+                                                >
                                                     {error}
                                                 </p>
                                             )}
@@ -416,146 +996,35 @@ export default function ReportReview({
                                                 }
                                                 onClick={handleSubmit}
                                             >
-                                                <Upload className="mr-2 size-4" />
+                                                <Upload />
                                                 {processing
                                                     ? 'Enviando...'
                                                     : 'Enviar documento'}
                                             </Button>
                                         </>
                                     )}
-                                </div>
-                            </SectionCard.Body>
-                        </SectionCard>
-                    </div>
-
-                    {/* Panel derecho */}
-                    <div className="flex w-full shrink-0 flex-col gap-4 lg:w-64 xl:w-72">
-                        <SectionCard>
-                            <SectionCard.Header>
-                                <div className="flex items-center gap-2">
-                                    <MessageSquare className="size-4" />
-                                    <h3 className="text-sm font-semibold">
-                                        Evaluación del docente
-                                    </h3>
-                                </div>
-                            </SectionCard.Header>
-                            <SectionCard.Body>
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Estado de revisión
-                                        </p>
-                                        <p className="mt-1 text-sm font-medium">
-                                            {latest
-                                                ? latest.status_label
-                                                : 'Sin entrega'}
-                                        </p>
-                                        {latest?.reviewer && (
-                                            <p className="mt-1 text-xs text-muted-foreground">
-                                                Revisó: {latest.reviewer}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div className="rounded-lg border p-3">
-                                        <p className="text-xs text-muted-foreground">
-                                            Calificación
-                                        </p>
-                                        <p className="mt-1 text-2xl font-semibold">
-                                            {latest?.grade ?? '—'}{' '}
-                                            <span className="text-sm font-normal text-muted-foreground">
-                                                / 20
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="mb-2 text-xs font-medium">
-                                            Observaciones
-                                        </p>
-                                        <div className="rounded-lg bg-muted/40 p-3">
-                                            <p className="text-xs leading-relaxed text-muted-foreground">
-                                                {latest?.comment ??
-                                                    'Todavía no hay comentarios registrados por el docente.'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </SectionCard.Body>
-                        </SectionCard>
-
-                        <SectionCard>
-                            <SectionCard.Header>
-                                <div className="flex items-center gap-2">
-                                    <History className="size-4" />
-                                    <h3 className="text-sm font-semibold">
-                                        Historial de entregas
-                                    </h3>
-                                </div>
-                            </SectionCard.Header>
-                            <SectionCard.Body>
-                                {current.history.length === 0 ? (
-                                    <div className="flex flex-col items-center py-5 text-center">
-                                        <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-muted">
-                                            <CalendarDays className="size-5 text-muted-foreground" />
-                                        </div>
-                                        <p className="text-sm font-medium">
-                                            Sin registros disponibles
-                                        </p>
-                                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                                            Aquí aparecerán las fechas de
-                                            entrega, las revisiones, las notas y
-                                            las observaciones anteriores.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <ul className="space-y-3">
-                                        {current.history.map((item) => (
-                                            <li
-                                                key={item.id}
-                                                className="rounded-lg border p-3 text-xs"
-                                            >
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <span className="font-medium">
-                                                        {formatDate(
-                                                            item.submitted_at,
-                                                        )}
-                                                    </span>
-                                                    <span className="text-muted-foreground">
-                                                        {item.status_label}
-                                                    </span>
-                                                </div>
-                                                {item.grade !== null && (
-                                                    <p className="mt-1 text-muted-foreground">
-                                                        Nota: {item.grade} / 20
-                                                    </p>
-                                                )}
-                                                {item.comment && (
-                                                    <p className="mt-1 text-muted-foreground">
-                                                        {item.comment}
-                                                    </p>
-                                                )}
-                                                {item.file && (
-                                                    <a
-                                                        href={item.file.url}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="mt-2 inline-flex items-center gap-1 text-primary hover:underline"
-                                                    >
-                                                        <ExternalLink className="size-3" />
-                                                        <span className="break-all">
-                                                            {item.file.name}
-                                                        </span>
-                                                    </a>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </SectionCard.Body>
-                        </SectionCard>
-                    </div>
-                </div>
+                                </SectionCard.Body>
+                            </SectionCard>
+                        ) : (
+                            <SectionCard>
+                                <SectionCard.Body className="flex min-h-64 flex-col items-center justify-center text-center">
+                                    <FileText className="mb-3 size-8 text-muted-foreground/50" />
+                                    <p className="text-sm font-medium">
+                                        No hay documentos requeridos
+                                    </p>
+                                </SectionCard.Body>
+                            </SectionCard>
+                        )
+                    }
+                    aside={
+                        current && (
+                            <>
+                                <EvaluationPanel latest={latest} />
+                                <HistoryPanel history={current.history} />
+                            </>
+                        )
+                    }
+                />
             </PageContainer>
         </AppLayout>
     );

@@ -28,7 +28,13 @@ export default function Resource(props: ResourceProps) {
         return (
             <AppLayout>
                 <Head title="Recursos Administrativos" />
-                <AdminResourceContent />
+                <AdminResourceContent
+                    resources={dataList}
+                    documentTypes={documentTypes ?? []}
+                    roles={roles ?? []}
+                    faculties={faculties ?? []}
+                    initialFilters={initialFilters ?? null}
+                />
             </AppLayout>
         );
     }
@@ -52,7 +58,7 @@ export default function Resource(props: ResourceProps) {
         return (
             <AppLayout>
                 <Head title="Recursos Empresariales" />
-                <CompanyResourceContent />
+                <CompanyResourceContent resources={dataList} />
             </AppLayout>
         );
     }

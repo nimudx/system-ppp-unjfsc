@@ -73,6 +73,9 @@ class HandleInertiaRequests extends Middleware
                 'selectedAssignmentId' => session('assignment_id'),
                 'sessionToken' => $user ? md5(session()->getId()) : null,
             ],
+            'jobboard' => [
+                'menuBadgeUntil' => config('jobboard.menu_badge_until'),
+            ],
         ];
     }
 

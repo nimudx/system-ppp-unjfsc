@@ -4,8 +4,9 @@ import type { RoleOption } from '@/modules/registration';
 export interface ResourceItem {
     id: number;
     name: string;
-    description: string;
+    description: string | null;
     level: number;
+    role_id?: number | null;
     created_at: string;
     documents?: {
         id: number;
@@ -13,6 +14,12 @@ export interface ResourceItem {
         name?: string;
         type?: { name: string };
     }[];
+    /** Metadatos adicionales que envía el listado del administrador. */
+    uploader_name?: string | null;
+    uploader_kind?: string | null;
+    target_role_name?: string | null;
+    document_type_name?: string | null;
+    location_name?: string | null;
 }
 export interface ResourceFilters {
     faculty_id: number | string;

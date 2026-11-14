@@ -1,5 +1,6 @@
 <?php
 
+use App\Domains\Dossier\Http\Controllers\CvController;
 use App\Domains\Dossier\Http\Controllers\DossierController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,6 +9,12 @@ Route::middleware(['auth', 'type:1,2', 'approved'])->name('academic.')->group(fu
     Route::get('/dossier', [DossierController::class, 'SubmissionIndex'])
         ->middleware('role:3,4,5')
         ->name('dossiers.submission');
+
+    // Currículum vitae del estudiante: documento de perfil usado también en la Bolsa laboral.
+    Route::middleware('role:5')->group(function () {
+        Route::get('/cv', [CvController::class, 'cv'])->name('cv');
+        Route::post('/cv', [CvController::class, 'store'])->name('cv.store');
+    });
 
     // Dossier Validation (Management) - Different roles for different lists
     Route::middleware(['role:1,2,3'])->group(function () {

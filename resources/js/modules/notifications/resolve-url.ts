@@ -15,7 +15,7 @@ export function resolveWayfinderUrl(
             ? company.requestScreen(id).url
             : null;
     }
-    let current: unknown = { academic };
+    let current: unknown = { academic, company };
     for (const part of routeName.split('.')) {
         if (
             (typeof current !== 'object' && typeof current !== 'function') ||
