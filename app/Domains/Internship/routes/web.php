@@ -3,8 +3,8 @@
 use App\Domains\Internship\Http\Controllers\InternshipController;
 use App\Domains\Internship\Http\Controllers\InternshipSettingController;
 use App\Domains\Internship\Http\Controllers\PlacementController;
+use App\Domains\Internship\Http\Controllers\PracticeReportController;
 use App\Domains\Internship\Http\Controllers\StudentDocumentController;
-use App\Domains\Supervision\Http\Controllers\PracticeSubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'type:1,2', 'approved'])
@@ -23,16 +23,16 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
                 ->name('internship.formalization');
 
             // Estudiante: revisión del plan y del informe
-            Route::get('/internship/report-review', [PracticeSubmissionController::class, 'reportReview'])
+            Route::get('/internship/report-review', [PracticeReportController::class, 'reportReview'])
                 ->middleware(['role:5'])
                 ->name('internship.report-review');
 
             // Estudiante: entregar plan / informe de prácticas
-            Route::post('/internship/report-review/submissions', [PracticeSubmissionController::class, 'store'])
+            Route::post('/internship/report-review/submissions', [PracticeReportController::class, 'store'])
                 ->middleware(['role:5'])
                 ->name('internship.report-review.store');
 
-            // Estudiante: anexos 1-3 y currículum
+            // Estudiante: anexos 1-3 de la práctica
             Route::get('/internship/annexes', [StudentDocumentController::class, 'annexes'])
                 ->middleware(['role:5'])
                 ->name('internship.annexes');
@@ -40,14 +40,6 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
             Route::post('/internship/annexes', [StudentDocumentController::class, 'storeAnnex'])
                 ->middleware(['role:5'])
                 ->name('internship.annexes.store');
-
-            Route::get('/internship/cv', [StudentDocumentController::class, 'cv'])
-                ->middleware(['role:5'])
-                ->name('internship.cv');
-
-            Route::post('/internship/cv', [StudentDocumentController::class, 'storeCv'])
-                ->middleware(['role:5'])
-                ->name('internship.cv.store');
 
             // Placement: formalización previa al Internship
             Route::post('/internship/placements', [PlacementController::class, 'store'])
@@ -67,16 +59,6 @@ Route::middleware(['auth', 'type:1,2', 'approved'])
             // Enviar documentos de prácticas
             Route::post('/internship/documents/{document}', [InternshipController::class, 'storeDocumentInternship'])
                 ->name('internship.documents.store');
-        });
-
-        // Docente supervisor: consulta de planes e informes
-        Route::middleware(['role:4'])->group(function () {
-
-            Route::get('/internship/practice-plans', [PracticeSubmissionController::class, 'plansIndex'])
-                ->name('internship.practice-plans');
-
-            Route::get('/internship/practice-reports', [PracticeSubmissionController::class, 'reportsIndex'])
-                ->name('internship.practice-reports');
         });
 
         // Validación y calificación de prácticas

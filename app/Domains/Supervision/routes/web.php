@@ -32,6 +32,10 @@ Route::middleware(['auth', 'type:1,2', 'approved'])->name('academic.')->group(fu
         // List views
         Route::get('/groups/supervision', [InternshipGroupController::class, 'indexBySupervision'])->name('groups.supervision');
         Route::get('/groups/api/supervision/{group}/students', [InternshipGroupController::class, 'getGroupStudentsDetails'])->name('groups.api.supervision_students');
+
+        // Documentos de prácticas revisados por el supervisor
+        Route::get('supervision/practice-plans', [PracticeSubmissionController::class, 'practicePlans'])->name('supervision.practice-plans');
+        Route::get('supervision/practice-reports', [PracticeSubmissionController::class, 'practiceReports'])->name('supervision.practice-reports');
     });
 
     Route::middleware(['role:1,2,3,4'])->group(function () {
@@ -47,11 +51,6 @@ Route::middleware(['auth', 'type:1,2', 'approved'])->name('academic.')->group(fu
         Route::get('supervision/api/assignments/{assignment}/annexes', [SupervisionController::class, 'getSupervisionAnnexes'])->name('supervision.api.annexes');
 
         Route::patch('evaluations/{evaluation}/status', [SupervisionController::class, 'updateEvaluationStatus'])->name('supervision.update');
-    });
-
-    // Estudiante: Rev. Prácticas (pantalla vacía por ahora)
-    Route::middleware(['role:5'])->group(function () {
-        Route::get('supervision/student', [SupervisionController::class, 'studentIndex'])->name('supervision.student');
     });
 
     // Docente supervisor: calificar plan e informe

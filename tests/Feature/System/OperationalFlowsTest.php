@@ -65,7 +65,6 @@ test('existing screens load for their intended profiles', function (int $role, s
     'student dossier' => [5, 'academic.dossiers.submission'],
     'student formalization' => [5, 'academic.internship.submission'],
     'student formalization documents' => [5, 'academic.internship.formalization'],
-    'student supervision' => [5, 'academic.supervision.student'],
     'student resources' => [5, 'resource.index'],
 ]);
 
@@ -165,9 +164,6 @@ test('groups connect teacher supervisor and student after the domain move', func
     enterOperationalProfile($this, $supervisor);
     $this->get(route('academic.groups.supervision'))->assertOk();
     $this->get(route('academic.groups.api.supervision_students', $group))->assertOk();
-
-    enterOperationalProfile($this, $student);
-    $this->get(route('academic.supervision.student'))->assertOk();
 });
 
 test('a student cannot upload an unreadable ficha de matricula', function () {

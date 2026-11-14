@@ -33,14 +33,24 @@ class DatabaseSeeder extends Seeder
         if (! app()->isProduction()) {
             $this->call([
                 AdminUserSeeder::class,
+                SubAdminUserSeeder::class,
                 TitularUserSeeder::class,
                 SupervisorUserSeeder::class,
                 StudentUserSeeder::class,
                 DemoCompanySeeder::class,
-                ValidatedStudentSeeder::class,
                 InternshipSettingSeeder::class,
-                StudentInternshipSeeder::class,
             ]);
+
+            // Flujos ya iniciados (solicitud aceptada, práctica registrada) y el
+            // escenario demo de la Bolsa Laboral. No se siembran en pruebas para
+            // que cada test parta de un estado limpio.
+            if (! app()->runningUnitTests()) {
+                $this->call([
+                    ValidatedStudentSeeder::class,
+                    StudentInternshipSeeder::class,
+                    JobBoardDemoSeeder::class,
+                ]);
+            }
         }
     }
 }

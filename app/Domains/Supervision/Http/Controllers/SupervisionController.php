@@ -238,9 +238,4 @@ class SupervisionController extends Controller
             'message' => 'Evaluación actualizada correctamente.',
         ]);
     }
-
-    public function studentIndex(): Response
-    {
-        return Inertia::render('supervision/student/index', []);
-    }
 }

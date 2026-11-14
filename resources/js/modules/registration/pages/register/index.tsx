@@ -6,14 +6,9 @@ import Heading from '@/shared/components/heading';
 import AppLayout from '@/shared/layouts/app-layout';
 import { type BreadcrumbItem } from '@/shared/types';
 
-// Layouts & UI Base
-
-// Componentes Desacoplados de UI
+// Componentes desacoplados de UI
 import { PersonFlow } from '../../components/person/person-flow';
 import { SidebarInfo } from '../../components/register/sidebar-info';
-import { ToggleGroup } from '../../components/register/toggle-group';
-
-// Flujos (Inyectados)
 
 interface PageProps {
     roles: RoleOption[];
@@ -21,15 +16,12 @@ interface PageProps {
 }
 
 export default function UserRegistration(props: PageProps) {
-    const [entityType, setEntityType] = useState<'persona' | 'empresa'>(
-        'persona',
-    );
-    const [mode, setMode] = useState<'individual' | 'masivo'>('individual');
+    const [mode] = useState<'individual' | 'masivo'>('individual');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Usuarios', href: '#' },
         { title: 'Registro', href: '#' },
-        { title: entityType === 'persona' ? 'Persona' : 'Empresa', href: '#' },
+        { title: 'Persona', href: '#' },
     ];
 
     if (mode) {
@@ -38,11 +30,6 @@ export default function UserRegistration(props: PageProps) {
             href: '#',
         });
     }
-
-    const handleEntityChange = (type: 'persona' | 'empresa') => {
-        setEntityType(type);
-        setMode('individual'); // Reiniciamos el modo al cambiar de tipo
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -55,28 +42,12 @@ export default function UserRegistration(props: PageProps) {
                         title="Registro de Usuarios"
                         description="Gestione la incorporación de nuevas entidades al sistema."
                     />
-                    <ToggleGroup
-                        selectedCode={entityType}
-                        onChange={handleEntityChange}
-                        options={[
-                            { code: 'persona', title: 'Persona' },
-                            { code: 'empresa', title: 'Empresa' },
-                        ]}
-                    />
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
                         <div>
-                            {entityType === 'persona' && (
-                                <PersonFlow {...props} mode={mode} />
-                            )}
-
-                            {entityType === 'empresa' && (
-                                <div className="p-12 text-center text-muted-foreground italic">
-                                    Flujo de Empresa en construcción...
-                                </div>
-                            )}
+                            <PersonFlow {...props} mode={mode} />
                         </div>
                     </div>
 

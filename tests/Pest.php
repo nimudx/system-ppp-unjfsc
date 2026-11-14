@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/Support/JobBoardFixtures.php';
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
