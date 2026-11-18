@@ -33,8 +33,7 @@ export default function CompanyVacancyCard({
     onSubmit: (vacancy: VacancyDetail) => void;
     onClose: (vacancy: VacancyDetail) => void;
 }) {
-    const canEdit =
-        vacancy.status === 'draft' || vacancy.status === 'observed';
+    const canEdit = vacancy.status === 'draft' || vacancy.status === 'observed';
     const canSubmit = canEdit;
     const canClose = vacancy.status === 'published';
     const showReview =
@@ -65,9 +64,7 @@ export default function CompanyVacancyCard({
                             status={vacancy.status}
                             label={vacancy.status_label}
                         />
-                        <Badge variant="secondary">
-                            {vacancy.type_label}
-                        </Badge>
+                        <Badge variant="secondary">{vacancy.type_label}</Badge>
                         <Badge variant="outline">
                             {vacancy.modality_label}
                         </Badge>

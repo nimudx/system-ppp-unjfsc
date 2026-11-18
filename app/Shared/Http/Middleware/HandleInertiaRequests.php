@@ -5,6 +5,7 @@ namespace App\Shared\Http\Middleware;
 use App\Domains\Academic\Models\Semester;
 use App\Domains\Academic\Services\BrandingService;
 use App\Domains\Identity\Services\SharedDataService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -75,8 +76,30 @@ class HandleInertiaRequests extends Middleware
             ],
             'jobboard' => [
                 'menuBadgeUntil' => config('jobboard.menu_badge_until'),
+                'experimentalUntil' => $this->jobBoardExperimentalUntil(),
             ],
         ];
+    }
+
+    /**
+     * Fecha en la que termina la etapa experimental de la bolsa laboral.
+     * Se calcula a partir del lanzamiento para que la etiqueta "Nuevo"
+     * desaparezca sola sin tocar código.
+     */
+    private function jobBoardExperimentalUntil(): ?string
+    {
+        $startedAt = config('jobboard.experimental_started_at');
+        $days = (int) config('jobboard.experimental_days', 21);
+
+        if (! $startedAt || $days <= 0) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($startedAt)->addDays($days)->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function isHistoricMode(Request $request): bool

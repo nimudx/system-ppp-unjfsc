@@ -170,14 +170,16 @@ export default function CompanyJobBoardForm({
                                             <SelectValue placeholder="Selecciona la modalidad" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {options.modalities.map((option) => (
-                                                <SelectItem
-                                                    key={option.value}
-                                                    value={option.value}
-                                                >
-                                                    {option.label}
-                                                </SelectItem>
-                                            ))}
+                                            {options.modalities.map(
+                                                (option) => (
+                                                    <SelectItem
+                                                        key={option.value}
+                                                        value={option.value}
+                                                    >
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ),
+                                            )}
                                         </SelectContent>
                                     </Select>
                                     <InputError message={errors.modality} />

@@ -35,20 +35,20 @@ Repositorio → **Settings → Secrets and variables → Actions**. Para adminis
 
 En **Secrets → New repository secret**:
 
-| Nombre exacto | Valor |
-| --- | --- |
+| Nombre exacto   | Valor                                                    |
+| --------------- | -------------------------------------------------------- |
 | `MAIL_USERNAME` | Dirección completa de la cuenta que enviará los mensajes |
 | `MAIL_PASSWORD` | Credencial SMTP; para Gmail, la contraseña de aplicación |
 
 En **Variables → New repository variable**:
 
-| Nombre exacto | Valor para Gmail | Uso |
-| --- | --- | --- |
-| `MAIL_HOST` | `smtp.gmail.com` | Servidor de envío |
-| `MAIL_PORT` | `587` | Puerto; se usa 587 si se omite |
-| `MAIL_SCHEME` | `smtp` | STARTTLS automático; para TLS implícito usar `smtps` y el puerto indicado por el proveedor |
-| `MAIL_FROM_ADDRESS` | La misma cuenta configurada en `MAIL_USERNAME` | Remitente autorizado |
-| `MAIL_FROM_NAME` | `Sistema de Prácticas UNJFSC` | Nombre visible; este es el valor predeterminado |
+| Nombre exacto       | Valor para Gmail                               | Uso                                                                                        |
+| ------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `MAIL_HOST`         | `smtp.gmail.com`                               | Servidor de envío                                                                          |
+| `MAIL_PORT`         | `587`                                          | Puerto; se usa 587 si se omite                                                             |
+| `MAIL_SCHEME`       | `smtp`                                         | STARTTLS automático; para TLS implícito usar `smtps` y el puerto indicado por el proveedor |
+| `MAIL_FROM_ADDRESS` | La misma cuenta configurada en `MAIL_USERNAME` | Remitente autorizado                                                                       |
+| `MAIL_FROM_NAME`    | `Sistema de Prácticas UNJFSC`                  | Nombre visible; este es el valor predeterminado                                            |
 
 Para otro proveedor, utilizar sus parámetros SMTP; no asumir que la contraseña normal funciona. Conservar los secretos y variables de despliegue existentes (`APP_KEY`, `DB_PASSWORD`, `VPS_SSH_KEY`, `VPS_HOST`, `VPS_USER`, `VPS_APP_PATH`, `APP_URL`, `DB_DATABASE`).
 

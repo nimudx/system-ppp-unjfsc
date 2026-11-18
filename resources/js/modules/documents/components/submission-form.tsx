@@ -12,6 +12,7 @@ import React from 'react';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
+import { truncateMiddle } from '@/shared/lib/utils';
 
 export interface CleanSubmissionFormProps {
     status: number;
@@ -70,14 +71,14 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
     if (hasExistingDocument && !isEditing && !tempFile) {
         if (status === 1) {
             return (
-                <div className="space-y-4">
-                    <div className="flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50/80 p-4">
+                <div className="space-y-3">
+                    <div className="flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50/80 p-3">
                         <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" />
                         <div className="space-y-1">
                             <p className="text-sm leading-none font-bold tracking-tight text-emerald-900">
                                 Aprobado
                             </p>
-                            <p className="text-[11px] leading-relaxed font-medium text-emerald-700/90">
+                            <p className="text-xs leading-snug font-medium text-emerald-700/90">
                                 Este documento ha sido validado correctamente.
                             </p>
                         </div>
@@ -89,14 +90,14 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
 
         if (status === 2) {
             return (
-                <div className="space-y-4">
-                    <div className="flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <div className="space-y-3">
+                    <div className="flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                         <Clock className="mt-0.5 size-5 shrink-0 text-amber-600" />
                         <div className="space-y-1">
                             <h4 className="text-sm leading-none font-bold tracking-tight text-amber-900">
                                 En espera de revisión
                             </h4>
-                            <p className="text-[11px] leading-relaxed font-medium text-amber-700/80">
+                            <p className="text-xs leading-snug font-medium text-amber-700/80">
                                 Tu archivo ha sido enviado. Pendiente de
                                 validación.
                             </p>
@@ -110,14 +111,14 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
         if (status >= 3) {
             // Observado (3: Ambos/Archivo, 4: Calificación)
             return (
-                <div className="space-y-4">
-                    <div className="flex gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+                <div className="space-y-3">
+                    <div className="flex gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
                         <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
                         <div className="flex flex-col items-start space-y-1.5">
                             <p className="text-sm leading-none font-bold tracking-tight text-destructive">
                                 Observado
                             </p>
-                            <p className="text-[11px] leading-relaxed text-destructive/80 italic">
+                            <p className="text-xs leading-snug text-destructive/80 italic">
                                 "
                                 {existingFileInfo?.observationMsg ||
                                     'Pendiente de corrección.'}
@@ -151,12 +152,12 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
         >
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                    <h4 className="text-[11px] font-extrabold tracking-widest text-muted-foreground/80 uppercase">
+                    <h4 className="text-xs font-extrabold tracking-widest text-muted-foreground uppercase">
                         Archivo Cargado
                     </h4>
                     <Badge
                         variant="secondary"
-                        className="border-blue-100 bg-blue-50 text-[10px] font-bold tracking-tight text-blue-600 uppercase hover:bg-blue-50"
+                        className="border-blue-100 bg-blue-50 text-xs font-bold tracking-tight text-blue-600 uppercase hover:bg-blue-50"
                     >
                         Listo para enviar
                     </Badge>
@@ -178,7 +179,7 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
                                 ? tempFile.name
                                 : existingFileInfo?.name || 'Archivo previo'}
                         </p>
-                        <p className="text-[10px] font-medium tracking-tight text-muted-foreground uppercase">
+                        <p className="text-xs font-medium tracking-tight text-muted-foreground uppercase">
                             {tempFile
                                 ? `${(tempFile.size / 1024 / 1024).toFixed(2)} MB`
                                 : 'Manteniendo archivo validado...'}
@@ -229,7 +230,7 @@ export default function SubmissionForm(props: CleanSubmissionFormProps) {
                     </Button>
                 )}
                 {!isEditing && !hasExistingDocument && (
-                    <p className="mt-1 px-4 text-center text-[10px] leading-relaxed font-medium text-muted-foreground/70">
+                    <p className="mt-1 px-4 text-center text-xs leading-relaxed font-medium text-muted-foreground">
                         Asegúrate de que el archivo esté correcto. Al enviar, no
                         se podrá editar durante su revisión.
                     </p>
@@ -249,22 +250,25 @@ function FileInfoCard({
     grade?: number;
 }) {
     return (
-        <div className="group flex items-center gap-3.5 rounded-lg border border-muted-foreground/15 bg-muted/30 p-3 transition-colors hover:border-muted-foreground/25">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background shadow-sm">
-                <FileText className="size-5 text-muted-foreground/60" />
+        <div className="group flex items-center gap-3 rounded-lg border border-muted-foreground/15 bg-muted/30 p-2.5 transition-colors duration-200 hover:border-muted-foreground/25 motion-reduce:transition-none">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background shadow-sm">
+                <FileText className="size-4.5 text-muted-foreground/60" />
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="truncate text-[11px] font-bold tracking-tight text-foreground/90 uppercase">
-                    {name}
+                <span
+                    className="truncate text-xs font-bold tracking-tight text-foreground/90"
+                    title={name}
+                >
+                    {truncateMiddle(name, 34)}
                 </span>
                 {meta && (
-                    <span className="mt-0.5 text-[9px] leading-none font-medium tracking-widest text-muted-foreground/80 uppercase">
+                    <span className="mt-0.5 text-xs leading-none font-medium tracking-widest text-muted-foreground uppercase">
                         {meta}
                     </span>
                 )}
                 {grade != null && (
                     <div className="mt-0.5 flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                        <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
                             Calificación:
                         </span>
                         <span className="text-xs font-extrabold text-foreground">

@@ -35,7 +35,7 @@ class StudentDocumentController extends Controller
         $canUpload = $assignment->placement !== null
             && app(CompanyAcceptanceService::class)->canUploadDocuments($assignment);
 
-        return Inertia::render('internship/annexes', [
+        return Inertia::render('internship/submission/anexos', [
             'data' => $data,
             'canUploadDocuments' => $canUpload,
         ]);

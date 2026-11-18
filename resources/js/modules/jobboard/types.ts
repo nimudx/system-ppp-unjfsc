@@ -95,11 +95,7 @@ export interface CompanyJobBoardFormProps {
     options: VacancyFormOptions;
 }
 
-export type CandidateStatus =
-    | 'proposed'
-    | 'contacted'
-    | 'hired'
-    | 'discarded';
+export type CandidateStatus = 'proposed' | 'contacted' | 'hired' | 'discarded';
 
 export interface StudentSummary {
     assignment_id: number;
@@ -160,4 +156,3 @@ export interface TeacherJobBoardIndexProps {
         semester: string | null;
     };
 }
-

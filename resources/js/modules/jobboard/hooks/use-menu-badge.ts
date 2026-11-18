@@ -41,7 +41,6 @@ function isJobBoardSection(url: string): boolean {
  */
 export function useJobBoardMenuBadge(): boolean {
     const { url, props } = usePage();
-    const until = props.jobboard?.menuBadgeUntil ?? null;
     const insideSection = isJobBoardSection(url);
 
     useEffect(() => {
@@ -54,11 +53,23 @@ export function useJobBoardMenuBadge(): boolean {
         }
     }, [insideSection]);
 
-    if (!until || insideSection || readSeen()) return false;
+    if (insideSection || readSeen()) return false;
 
-    const expiry = new Date(`${until}T23:59:59`);
+    // La etiqueta se apaga con la primera fecha que venza: la del menú o la
+    // del lanzamiento experimental del módulo.
+    const expiries = [
+        props.jobboard?.menuBadgeUntil,
+        props.jobboard?.experimentalUntil,
+    ]
+        .filter((value): value is string => Boolean(value))
+        .map((value) => new Date(`${value}T23:59:59`))
+        .filter((date) => !Number.isNaN(date.getTime()));
 
-    if (Number.isNaN(expiry.getTime())) return false;
+    if (expiries.length === 0) return false;
+
+    const expiry = new Date(
+        Math.min(...expiries.map((date) => date.getTime())),
+    );
 
     return new Date() <= expiry;
 }

@@ -47,7 +47,20 @@ services:
       - DB_HOST=db
       - DB_CONNECTION=mysql
       - DB_PORT=3306
-    command: ['php', 'artisan', 'queue:work', 'database', '--queue=default', '--sleep=3', '--tries=3', '--backoff=60', '--timeout=60', '--max-time=3600', '--memory=128']
+    command:
+      [
+        'php',
+        'artisan',
+        'queue:work',
+        'database',
+        '--queue=default',
+        '--sleep=3',
+        '--tries=3',
+        '--backoff=60',
+        '--timeout=60',
+        '--max-time=3600',
+        '--memory=128',
+      ]
     stop_grace_period: 90s
     volumes:
       - ./storage-data:/var/www/storage

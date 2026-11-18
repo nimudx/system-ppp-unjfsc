@@ -7,6 +7,7 @@ import SupervisorContent from '@/modules/dashboard/components/supervisor-dashboa
 import TeacherContent from '@/modules/dashboard/components/titular-dashboard';
 import type {
     AdminStats,
+    CompanyStats,
     StudentStats,
     SuperAdminStats,
     SupervisorStats,
@@ -62,7 +63,7 @@ export default function Dashboard({
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Panel de Empresa" />
-                <CompanyContent />
+                <CompanyContent stats={stats as CompanyStats | null} />
             </AppLayout>
         );
     }

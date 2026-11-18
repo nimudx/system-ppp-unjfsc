@@ -42,7 +42,14 @@ export default [
             'import/order': [
                 'error',
                 {
-                    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+                    groups: [
+                        'builtin',
+                        'external',
+                        'internal',
+                        'parent',
+                        'sibling',
+                        'index',
+                    ],
                     alphabetize: {
                         order: 'asc',
                         caseInsensitive: true,
@@ -65,7 +72,18 @@ export default [
         },
     },
     {
-        ignores: ['output/**', 'resources/js/actions/**', 'resources/js/routes/**', 'resources/js/wayfinder/**', 'vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'vite.config.ts'],
+        ignores: [
+            'output/**',
+            'resources/js/actions/**',
+            'resources/js/routes/**',
+            'resources/js/wayfinder/**',
+            'vendor',
+            'node_modules',
+            'public',
+            'bootstrap/ssr',
+            'tailwind.config.js',
+            'vite.config.ts',
+        ],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];

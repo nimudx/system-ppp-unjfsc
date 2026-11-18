@@ -20,6 +20,11 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
+// El layout se vuelve a montar en cada navegación de Inertia y el prop
+// `sidebarOpen` puede venir de una visita prefetcheada (dato viejo). Guardamos
+// el último estado elegido por el usuario para mantenerlo durante la sesión.
+let sidebarOpenMemory: boolean | null = null
+
 type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
@@ -59,7 +64,7 @@ function SidebarProvider({
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen)
+  const [_open, _setOpen] = React.useState(() => sidebarOpenMemory ?? defaultOpen)
   const open = openProp ?? _open
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -69,6 +74,8 @@ function SidebarProvider({
       } else {
         _setOpen(openState)
       }
+
+      sidebarOpenMemory = openState
 
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
@@ -359,7 +366,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}

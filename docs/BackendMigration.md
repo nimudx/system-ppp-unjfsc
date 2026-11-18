@@ -52,18 +52,18 @@ Las carpetas vacías reservadas no incluyen interfaces, políticas, jobs ni endp
 
 La suite original partía de 48 pruebas fallidas y 2 correctas. Después de corregir sus causas y ampliar los casos de regresión, estos son los resultados locales:
 
-| Control | Resultado |
-| --- | --- |
-| Pest completo | 91 pruebas aprobadas, 396 aserciones; sin fallos, errores ni omisiones |
-| Contrato de rutas | 147 rutas conservadas: métodos, URI, nombres y middleware |
-| Arquitectura | 11 pruebas y 149 aserciones aprobadas |
-| Caché de rutas y Wayfinder | Correctos |
-| Pint (`composer test:lint`) | 272 archivos aprobados |
-| Prettier (`npm run format:check`) | Aprobado |
-| ESLint (`eslint . --max-warnings 0`) | Cero errores y advertencias |
-| TypeScript (`npm run types`) | Sin errores |
-| Vite (`npm run build`) | Compilación correcta |
-| Git (`git diff --check`) | Sin errores de espacios |
+| Control                              | Resultado                                                              |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| Pest completo                        | 91 pruebas aprobadas, 396 aserciones; sin fallos, errores ni omisiones |
+| Contrato de rutas                    | 147 rutas conservadas: métodos, URI, nombres y middleware              |
+| Arquitectura                         | 11 pruebas y 149 aserciones aprobadas                                  |
+| Caché de rutas y Wayfinder           | Correctos                                                              |
+| Pint (`composer test:lint`)          | 272 archivos aprobados                                                 |
+| Prettier (`npm run format:check`)    | Aprobado                                                               |
+| ESLint (`eslint . --max-warnings 0`) | Cero errores y advertencias                                            |
+| TypeScript (`npm run types`)         | Sin errores                                                            |
+| Vite (`npm run build`)               | Compilación correcta                                                   |
+| Git (`git diff --check`)             | Sin errores de espacios                                                |
 
 `tests/Feature/System/OperationalFlowsTest.php` cubre 22 accesos a pantallas por perfil y flujos HTTP de estructura académica, registro, expediente con observación/corrección/aprobación, grupos, permisos, bloqueo de escritura en semestres cerrados, formalización con empresa y revisión de anexos con notificación al supervisor.
 

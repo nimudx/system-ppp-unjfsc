@@ -20,6 +20,8 @@ interface SubmissionPanelProps {
     };
     onSubmit: () => void;
     children?: React.ReactNode;
+    /** Sombra mínima de la tarjeta; opt-in para no alterar otras pantallas. */
+    elevated?: boolean;
 }
 
 /**
@@ -54,6 +56,7 @@ export function SubmissionPanel({
     showFileInfo,
     onSubmit,
     children,
+    elevated = false,
 }: SubmissionPanelProps) {
     const hasExistingDocument = Boolean(currentRequirement?.latest);
 
@@ -76,7 +79,7 @@ export function SubmissionPanel({
 
     return (
         <div className="flex w-full shrink-0 flex-col gap-4">
-            <SectionCard>
+            <SectionCard elevated={elevated}>
                 <SectionCard.Header>
                     <div className="min-w-0">
                         <h3 className="text-sm leading-none font-semibold tracking-tight">

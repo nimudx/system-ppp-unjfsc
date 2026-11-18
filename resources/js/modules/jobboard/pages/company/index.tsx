@@ -12,6 +12,7 @@ import { useConfigTable } from '@/shared/hooks/use-config-table';
 import AppLayout from '@/shared/layouts/app-layout';
 import CloseVacancyDialog from '../../components/close-vacancy-dialog';
 import CompanyVacancyCard from '../../components/company-vacancy-card';
+import ExperimentalNotice from '../../components/experimental-notice';
 import type {
     CompanyJobBoardIndexProps,
     VacancyCloseReason,
@@ -23,8 +24,9 @@ export default function CompanyJobBoardIndex({
     company,
 }: CompanyJobBoardIndexProps) {
     const [processingId, setProcessingId] = useState<number | null>(null);
-    const [vacancyToClose, setVacancyToClose] =
-        useState<VacancyDetail | null>(null);
+    const [vacancyToClose, setVacancyToClose] = useState<VacancyDetail | null>(
+        null,
+    );
     const [highlightId] = useState<number | null>(() => {
         if (typeof window === 'undefined') return null;
 
@@ -119,6 +121,8 @@ export default function CompanyJobBoardIndex({
                         </Link>
                     </Button>
                 </div>
+
+                <ExperimentalNotice createUrl={jobboard.create().url} />
 
                 {vacancies.length === 0 ? (
                     <SectionCard>

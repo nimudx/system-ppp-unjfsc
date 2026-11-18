@@ -1,7 +1,6 @@
 import { Head } from '@inertiajs/react';
 import {
     RequestHistory,
-    StudentWorkflow,
     useCompanyRequest,
     type CompanyRequest,
 } from '@/modules/company';
@@ -10,6 +9,7 @@ import type { PlacementRecord } from '@/modules/internship/types';
 import internship from '@/routes/academic/internship';
 import Heading from '@/shared/components/heading';
 import AppLayout from '@/shared/layouts/app-layout';
+import StudentWorkflow from '../../components/submission/student-workflow';
 import { TypeSelector } from '../../components/submission/type-selector';
 import { usePlacementSubmission } from '../../hooks/use-placement-submission';
 

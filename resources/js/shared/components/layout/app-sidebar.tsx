@@ -22,6 +22,7 @@ import {
     COMPANY_NAV,
     FOOTER_NAV,
 } from '@/shared/config/navigation';
+import type { NavSection } from '@/shared/config/navigation';
 import type { NavItem } from '@/shared/types';
 import AppLogo from '../app-logo';
 
@@ -32,18 +33,22 @@ export function AppSidebar() {
     const userType = auth?.user?.type || 'DEFAULT';
     const userTypeId = auth?.user?.type_id || 0;
 
-    // Usamos directamente las constantes importadas en el objeto
-    const menuSelection: Record<string, NavItem[]> = {
+    const menuSelection: Record<string, NavSection[]> = {
         Administrador: ADMIN_NAV,
         Académico: ACADEMIC_NAV,
         Empresa: COMPANY_NAV,
     };
 
-    const mainNavItems = menuSelection[userType] || [
+    const mainSections: NavSection[] = menuSelection[userType] || [
         {
-            title: 'Panel',
-            href: dashboard(),
-            icon: LayoutGrid,
+            id: 'main',
+            items: [
+                {
+                    title: 'Panel',
+                    href: dashboard(),
+                    icon: LayoutGrid,
+                },
+            ],
         },
     ];
 
@@ -78,6 +83,14 @@ export function AppSidebar() {
             items: item.items ? withJobBoardBadge(item.items) : item.items,
         }));
 
+    // Filtra cada sección por rol y descarta las que se quedan vacías.
+    const visibleSections: NavSection[] = mainSections
+        .map((section) => ({
+            ...section,
+            items: withJobBoardBadge(filterItems(section.items, role ?? 0)),
+        }))
+        .filter((section) => section.items.length > 0);
+
     return (
         <Sidebar collapsible="icon" variant="sidebar">
             <SidebarHeader>
@@ -93,11 +106,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain
-                    items={withJobBoardBadge(
-                        filterItems(mainNavItems, role ?? 0),
-                    )}
-                />
+                <NavMain sections={visibleSections} />
             </SidebarContent>
 
             <SidebarFooter>

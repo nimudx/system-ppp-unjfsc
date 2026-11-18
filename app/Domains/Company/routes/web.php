@@ -1,7 +1,9 @@
 <?php
 
 use App\Domains\Company\Http\Controllers\CompanyController;
+use App\Domains\Company\Http\Controllers\CompanyDashboardController;
 use App\Domains\Company\Http\Controllers\CompanyInvitationController;
+use App\Domains\Company\Http\Controllers\CompanyProfileController;
 use App\Domains\Company\Http\Controllers\CompanyValidationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,9 +24,17 @@ Route::middleware(['auth', 'type:1,2', 'approved', 'role:5'])->group(function ()
 });
 
 Route::middleware(['auth', 'type:3'])->group(function () {
+    Route::get('/empresa/panel', CompanyDashboardController::class)
+        ->name('company.dashboard');
+
     Route::get('/empresa/solicitudes', function () {
         return Inertia::render('company/requests');
     })->name('company.requests');
+
+    Route::get('/empresa/perfil', [CompanyProfileController::class, 'edit'])
+        ->name('company.profile.edit');
+    Route::patch('/empresa/perfil', [CompanyProfileController::class, 'update'])
+        ->name('company.profile.update');
 });
 
 // Notifications open an HTML screen, never the JSON API resource.

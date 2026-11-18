@@ -7,7 +7,7 @@ import PasswordInput from '@/shared/components/password-input';
 import PasswordStrength from '@/shared/components/password-strength';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { Field, WorkflowErrors } from '../components/student-workflow';
+import { Field, WorkflowErrors } from '../components/workflow-ui';
 import { workflow, type Invitation } from '../services/company-workflow';
 
 export default function CompanyActivation() {

@@ -92,7 +92,7 @@ test('student entry points and company notifications open the appropriate HTML s
     companyLogin($this, $student);
     $this->get('/estudiante/registro-empresa')->assertRedirect(route('academic.internship.submission'));
     $this->get('/internship')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/placement-index'));
-    $this->get('/internship/formalization')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/formalization'));
+    $this->get('/internship/formalization')->assertOk()->assertInertia(fn ($page) => $page->component('internship/submission/formalizacion'));
     $this->get('/solicitudes-empresa/1')->assertRedirect(route('academic.internship.submission'));
 
     companyLogin($this, companyProfile(3));
@@ -211,7 +211,8 @@ test('activation creates a company account but does not accept the student', fun
         ->and($item->fresh()->state)->toBe(State::AWAITING_COMPANY);
     $this->assertAuthenticatedAs($user);
     $this->getJson(route('company-validation.requests.index'))->assertOk()->assertJsonCount(1, 'data');
-    $this->get('/dashboard')->assertOk();
+    $this->get('/dashboard')->assertRedirect(route('company.dashboard'));
+    $this->get(route('company.dashboard'))->assertOk();
     $this->getJson(route('company-invitations.show', $token))->assertGone();
     expect($user->notificationRecipients()->count())->toBe(1);
 });
@@ -254,7 +255,8 @@ test('the owning company accepts the student and unlocks practice registration a
     expect($internship->documents()->count())->toBe(1);
     $this->getJson(route('company-validation.current'))->assertOk()->assertJsonPath('data.can_upload_documents', true)->assertJsonPath('data.internship_id', $internship->id);
     $this->get('/dashboard')->assertOk();
-    $this->actingAs($companyUser)->get('/dashboard')->assertOk();
+    $this->actingAs($companyUser)->get('/dashboard')->assertRedirect(route('company.dashboard'));
+    $this->get(route('company.dashboard'))->assertOk();
 });
 
 test('the old placement endpoint cannot bypass company acceptance', function () {
