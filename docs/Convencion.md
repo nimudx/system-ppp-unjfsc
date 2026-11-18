@@ -55,14 +55,17 @@ Lo transversal vive en `resources/js/shared/` (`components/ui`, `components/layo
 ## Consecuencias
 
 **Positivas**
+
 - Un dev nuevo sabe dónde buscar: página en `pages/`, todo lo demás en `components/`.
 - Un archivo auxiliar ya no se registra por error como página Inertia.
 - Menos duplicación y menos acoplamiento entre módulos.
 
 **Negativas / costos**
+
 - La migración mueve muchos archivos; los imports cambian y requieren un PR dedicado por módulo para facilitar la revisión.
 - Las reglas ESLint de fronteras pueden marcar imports existentes que hay que corregir primero.
 - Los módulos deben mantener su `index.ts` actualizado.
 
 **Riesgos**
+
 - Cambiar el glob antes de aplanar `pages/` rompería páginas. Por eso el glob se cambia en el paso 4.

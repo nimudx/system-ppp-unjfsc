@@ -48,11 +48,7 @@ export default function CvPreviewDialog({
                 {cv && (
                     <DialogFooter>
                         <Button variant="outline" asChild>
-                            <a
-                                href={cv.url}
-                                target="_blank"
-                                rel="noreferrer"
-                            >
+                            <a href={cv.url} target="_blank" rel="noreferrer">
                                 <ExternalLink className="mr-1.5 size-4" />
                                 Abrir en una pestaña nueva
                             </a>

@@ -135,7 +135,6 @@ export default function Formalization({
                     loading={request.loading}
                     unlocked={documentsEnabled}
                     href={internship.submission.url()}
-                    description="Primero la empresa debe aceptarte y debes guardar los datos del jefe inmediato y de la práctica en Pasantía."
                     refreshOn={['companyRequest']}
                 >
                     <DocumentReviewLayout

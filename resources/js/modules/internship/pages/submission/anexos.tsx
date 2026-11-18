@@ -6,7 +6,7 @@ import {
     DocumentHistoryPanel,
     DocumentWorkbench,
     findApprovedAt,
-    PendingActionsCard,
+    HowToSubmitCard,
     RequirementsList,
     resolveStatus,
     SubmissionPageHeader,
@@ -33,6 +33,24 @@ interface AnnexesProps {
     };
     canUploadDocuments: boolean;
 }
+
+const STEPS = [
+    {
+        title: 'Descarga las plantillas de anexos oficiales',
+        description:
+            'Usa los anexos 1, 2 y 3 publicados en la sección de recursos.',
+    },
+    {
+        title: 'Súbelos en PDF',
+        description:
+            'Cada anexo debe estar en formato PDF, legible y con los datos completos. Peso Maximo 5MB',
+    },
+    {
+        title: 'Espera la revisión',
+        description:
+            'Si observan un anexo, corrígelo y vuelve a subirlo desde esta pantalla.',
+    },
+];
 
 export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
     const form = usePlacementSubmission({
@@ -131,8 +149,10 @@ export default function Annexes({ data, canUploadDocuments }: AnnexesProps) {
                                     elevated
                                 />
 
-                                <PendingActionsCard
-                                    requirements={list}
+                                <HowToSubmitCard
+                                    title="Presentar tus anexos"
+                                    steps={STEPS}
+                                    note="Los documentos deben ser oficiales, descargados de la intranet."
                                     elevated
                                 />
                             </>

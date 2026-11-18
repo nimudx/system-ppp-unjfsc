@@ -15,8 +15,11 @@ use App\Domains\Identity\Models\Person;
 use App\Domains\Identity\Models\TypeUser;
 use App\Domains\Identity\Models\User;
 use App\Domains\Internship\Models\Placement;
+use App\Domains\JobBoard\Enums\CandidateStatus;
 use App\Domains\JobBoard\Enums\VacancyStatus;
 use App\Domains\JobBoard\Models\Vacancy;
+use App\Domains\JobBoard\Models\VacancyCandidate;
+use App\Domains\JobBoard\Models\VacancyView;
 use App\Domains\Notifications\Models\Notification;
 use App\Domains\Notifications\Models\NotificationRecipient;
 use App\Domains\Resources\Models\Resource as ResourceFile;
@@ -47,6 +50,10 @@ class DashboardService
             return $this->superAdmin();
         }
 
+        if ($user->type_user_id === 3) {
+            return $this->company($user);
+        }
+
         $assignment = Assignment::with('section', 'semester')
             ->whereKey(session('assignment_id'))
             ->where('user_id', $user->id)
@@ -59,6 +66,283 @@ class DashboardService
             Role::ESTUDIANTE->value => $this->student($assignment, $user),
             default => null,
         };
+    }
+
+    /**
+     * Panel de la empresa: datos de la cuenta, vacantes, candidatos y
+     * solicitudes de estudiantes que esperan su decisión.
+     */
+    public function company(User $user): array
+    {
+        $company = Company::query()
+            ->where('account_user_id', $user->id)
+            ->where('status', 1)
+            ->first();
+
+        if (! $company) {
+            return $this->emptyCompanyDashboard();
+        }
+
+        $monthStart = now()->startOfMonth();
+
+        $vacancyQuery = Vacancy::query()->where('company_id', $company->id);
+        $vacancyIds = (clone $vacancyQuery)->pluck('id');
+
+        $candidateQuery = VacancyCandidate::query()->whereIn('vacancy_id', $vacancyIds);
+        $requestsQuery = CompanyValidationRequest::query()->where('company_id', $company->id);
+
+        $vacancies = [
+            'total' => (clone $vacancyQuery)->count(),
+            'published' => (clone $vacancyQuery)->where('status', VacancyStatus::PUBLISHED->value)->count(),
+            'draft' => (clone $vacancyQuery)->where('status', VacancyStatus::DRAFT->value)->count(),
+            'pendingReview' => (clone $vacancyQuery)->where('status', VacancyStatus::PENDING_REVIEW->value)->count(),
+            'observed' => (clone $vacancyQuery)->where('status', VacancyStatus::OBSERVED->value)->count(),
+            'closed' => (clone $vacancyQuery)->where('status', VacancyStatus::CLOSED->value)->count(),
+            'thisMonth' => (clone $vacancyQuery)->where('created_at', '>=', $monthStart)->count(),
+            'positions' => (int) (clone $vacancyQuery)->where('status', VacancyStatus::PUBLISHED->value)->sum('positions_count'),
+            'views' => VacancyView::query()->whereIn('vacancy_id', $vacancyIds)->count(),
+        ];
+
+        $candidates = [
+            'total' => (clone $candidateQuery)->count(),
+            'proposed' => (clone $candidateQuery)->where('status', CandidateStatus::PROPOSED->value)->count(),
+            'contacted' => (clone $candidateQuery)->where('status', CandidateStatus::CONTACTED->value)->count(),
+            'hired' => (clone $candidateQuery)->where('status', CandidateStatus::HIRED->value)->count(),
+            'discarded' => (clone $candidateQuery)->where('status', CandidateStatus::DISCARDED->value)->count(),
+        ];
+
+        $requests = [
+            'total' => (clone $requestsQuery)->count(),
+            'awaitingCompany' => (clone $requestsQuery)->where('state', CompanyRequestState::AWAITING_COMPANY->value)->count(),
+            'accepted' => (clone $requestsQuery)->where('state', CompanyRequestState::ACCEPTED->value)->count(),
+            'declined' => (clone $requestsQuery)->where('state', CompanyRequestState::DECLINED->value)->count(),
+            'thisMonth' => (clone $requestsQuery)->where('created_at', '>=', $monthStart)->count(),
+        ];
+
+        $profile = $this->companyProfileCompleteness($company);
+
+        $recentVacancies = (clone $vacancyQuery)
+            ->withCount(['candidates', 'views'])
+            ->latest('updated_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (Vacancy $vacancy) => [
+                'id' => $vacancy->id,
+                'title' => $vacancy->title,
+                'status' => $vacancy->status->value,
+                'status_label' => $vacancy->status->label(),
+                'type_label' => $vacancy->type->label(),
+                'modality_label' => $vacancy->modality->label(),
+                'positions_count' => $vacancy->positions_count,
+                'candidates_count' => $vacancy->candidates_count,
+                'views_count' => $vacancy->views_count,
+                'published_at' => $vacancy->published_at?->toIso8601String(),
+                'updated_at' => $vacancy->updated_at?->toIso8601String(),
+                'deadline_at' => $vacancy->deadline_at?->toIso8601String(),
+            ])
+            ->values()
+            ->all();
+
+        $recentRequests = (clone $requestsQuery)
+            ->with(['assignment.user.person', 'assignment.section.school'])
+            ->latest('updated_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (CompanyValidationRequest $item) => [
+                'id' => $item->id,
+                'student' => $this->personName($item->assignment?->user?->person)
+                    ?: ($item->company_data['name'] ?? 'Estudiante'),
+                'school' => $item->assignment?->section?->school?->name,
+                'state' => $item->state->value,
+                'state_label' => $this->companyRequestStateLabel($item->state),
+                'updated_at' => $item->updated_at?->toIso8601String(),
+            ])
+            ->values()
+            ->all();
+
+        return [
+            'company' => [
+                'id' => $company->id,
+                'name' => $company->name,
+                'ruc' => $company->ruc,
+                'razon' => $company->razon,
+                'address' => $company->address,
+                'phone' => $company->phone,
+                'email' => $company->email,
+                'website' => $company->website,
+                'representative_name' => $company->representative_name,
+                'representative_phone' => $company->representative_phone,
+                'logo_url' => $this->companyLogoUrl($company),
+                'activated_at' => $company->activated_at?->toIso8601String(),
+            ],
+            'profile' => $profile,
+            'vacancies' => $vacancies,
+            'candidates' => $candidates,
+            'requests' => $requests,
+            'recentVacancies' => $recentVacancies,
+            'recentRequests' => $recentRequests,
+            'tasks' => $this->companyTasks($profile, $vacancies, $candidates, $requests),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function emptyCompanyDashboard(): array
+    {
+        return [
+            'company' => null,
+            'profile' => ['percent' => 0, 'completed' => 0, 'total' => 8, 'missing' => []],
+            'vacancies' => [
+                'total' => 0, 'published' => 0, 'draft' => 0, 'pendingReview' => 0,
+                'observed' => 0, 'closed' => 0, 'thisMonth' => 0, 'positions' => 0, 'views' => 0,
+            ],
+            'candidates' => ['total' => 0, 'proposed' => 0, 'contacted' => 0, 'hired' => 0, 'discarded' => 0],
+            'requests' => ['total' => 0, 'awaitingCompany' => 0, 'accepted' => 0, 'declined' => 0, 'thisMonth' => 0],
+            'recentVacancies' => [],
+            'recentRequests' => [],
+            'tasks' => [],
+        ];
+    }
+
+    /**
+     * @return array{percent: int, completed: int, total: int, missing: array<int, string>}
+     */
+    private function companyProfileCompleteness(Company $company): array
+    {
+        $fields = [
+            'razon' => 'Razón social',
+            'name' => 'Nombre comercial',
+            'address' => 'Dirección legal',
+            'phone' => 'Teléfono',
+            'email' => 'Correo',
+            'website' => 'Sitio web',
+            'representative_name' => 'Representante',
+            'representative_phone' => 'Teléfono del representante',
+        ];
+
+        $values = [
+            'razon' => $company->razon,
+            'name' => $company->name,
+            'address' => $company->address,
+            'phone' => $company->phone,
+            'email' => $company->email,
+            'website' => $company->website,
+            'representative_name' => $company->representative_name,
+            'representative_phone' => $company->representative_phone,
+        ];
+
+        $missing = collect($values)
+            ->filter(fn ($value) => blank($value))
+            ->keys()
+            ->map(fn (string $key) => $fields[$key])
+            ->values()
+            ->all();
+
+        return [
+            'percent' => $this->percent(count($values) - count($missing), count($values)),
+            'completed' => count($values) - count($missing),
+            'total' => count($values),
+            'missing' => $missing,
+        ];
+    }
+
+    /**
+     * @param  array{percent: int, completed: int, total: int, missing: array<int, string>}  $profile
+     * @param  array<string, int>  $vacancies
+     * @param  array<string, int>  $candidates
+     * @param  array<string, int>  $requests
+     * @return array<int, array{title: string, detail: string, href: string, priority: string}>
+     */
+    private function companyTasks(array $profile, array $vacancies, array $candidates, array $requests): array
+    {
+        $tasks = [];
+
+        if ($profile['percent'] < 100) {
+            $tasks[] = [
+                'title' => 'Completa el perfil de tu empresa',
+                'detail' => 'Faltan: '.implode(', ', array_slice($profile['missing'], 0, 3)),
+                'href' => route('company.profile.edit'),
+                'priority' => 'medium',
+            ];
+        }
+
+        if ($vacancies['total'] === 0) {
+            $tasks[] = [
+                'title' => 'Publica tu primera vacante',
+                'detail' => 'Los docentes titulares podrán proponer estudiantes de su sección.',
+                'href' => route('company.jobboard.create'),
+                'priority' => 'high',
+            ];
+        }
+
+        if ($vacancies['observed'] > 0) {
+            $tasks[] = [
+                'title' => 'Corrige tus vacantes observadas',
+                'detail' => $vacancies['observed'].' vacante(s) requieren cambios para publicarse.',
+                'href' => route('company.jobboard.index'),
+                'priority' => 'high',
+            ];
+        }
+
+        if ($requests['awaitingCompany'] > 0) {
+            $tasks[] = [
+                'title' => 'Responde las solicitudes de estudiantes',
+                'detail' => $requests['awaitingCompany'].' solicitud(es) esperan tu decisión.',
+                'href' => route('company.requests'),
+                'priority' => 'high',
+            ];
+        }
+
+        if ($candidates['proposed'] > 0) {
+            $tasks[] = [
+                'title' => 'Revisa los candidatos propuestos',
+                'detail' => $candidates['proposed'].' candidato(s) propuestos por los docentes.',
+                'href' => route('company.jobboard.index'),
+                'priority' => 'medium',
+            ];
+        }
+
+        if ($vacancies['pendingReview'] > 0) {
+            $tasks[] = [
+                'title' => 'Vacantes en revisión',
+                'detail' => $vacancies['pendingReview'].' vacante(s) esperando aprobación académica.',
+                'href' => route('company.jobboard.index'),
+                'priority' => 'low',
+            ];
+        }
+
+        $order = ['high' => 0, 'medium' => 1, 'low' => 2];
+        usort($tasks, fn (array $a, array $b) => $order[$a['priority']] <=> $order[$b['priority']]);
+
+        return array_slice($tasks, 0, 5);
+    }
+
+    private function companyRequestStateLabel(CompanyRequestState $state): string
+    {
+        return match ($state) {
+            CompanyRequestState::PENDING_REVIEW => 'Pendiente de revisión',
+            CompanyRequestState::OBSERVED => 'Observada por el docente',
+            CompanyRequestState::REJECTED => 'Rechazada por el docente',
+            CompanyRequestState::AWAITING_COMPANY => 'Esperando tu respuesta',
+            CompanyRequestState::ACCEPTED => 'Estudiante aceptado',
+            CompanyRequestState::DECLINED => 'Estudiante rechazado',
+        };
+    }
+
+    private function companyLogoUrl(Company $company): ?string
+    {
+        $path = $company->path_photo;
+
+        if (! $path) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http') || str_starts_with($path, '/storage/')) {
+            return $path;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 
     public function superAdmin(): array

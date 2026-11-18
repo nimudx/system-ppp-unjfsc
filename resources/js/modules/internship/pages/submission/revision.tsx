@@ -517,7 +517,6 @@ export default function ReportReview({
                 <CompanyRequiredCard
                     unlocked={can_upload_documents}
                     href={internship.submission.url()}
-                    description="La empresa debe aceptarte y debes registrar el jefe inmediato y los datos de práctica en Pasantía."
                     refreshOn={['can_upload_documents', 'documents']}
                 >
                     <DocumentReviewLayout

@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { DocumentRequirement } from '@/modules/documents/types';
 import { Button } from '@/shared/components/ui/button';
 import { SectionCard } from '@/shared/components/ui/section-card';
-import { cn } from '@/shared/lib/utils';
+import { cn, truncateMiddle } from '@/shared/lib/utils';
 
 import {
     DOCUMENT_STATUS,
@@ -24,7 +24,7 @@ export const enter =
     'animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-both motion-reduce:animate-none';
 
 export const MAX_FILE_SIZE = 350 * 1024; // 350 KB
-export const HISTORY_PREVIEW = 6;
+export const HISTORY_PREVIEW = 3;
 
 export interface DossierHistoryRecord {
     id: number;
@@ -36,6 +36,12 @@ export interface DossierHistoryRecord {
     updated_at?: string | null;
     documentTitle: string;
     documentCode: string;
+    /** Evento del historial: subida del archivo o dictamen del revisor. */
+    event?: 'upload' | 'review';
+    /** Identificador único del evento para usarlo como key. */
+    event_id?: string;
+    /** Nombre del docente que emitió el dictamen. */
+    reviewed_by?: string | null;
 }
 
 export function formatDateTime(value?: string | null) {
@@ -196,109 +202,19 @@ export function DossierProgress({
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pendientes por atender                                                     */
-/* -------------------------------------------------------------------------- */
-
-export function PendingActionsCard({
-    requirements,
-}: {
-    requirements: DocumentRequirement[];
-}) {
-    const actionable = requirements
-        .map((item) => ({
-            item,
-            observed: resolveStatus(item) === 3,
-        }))
-        .filter(
-            ({ item, observed }) => !item.locked && (!item.latest || observed),
-        );
-
-    return (
-        <SectionCard>
-            <SectionCard.Header>
-                <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                        <h3 className="text-sm leading-none font-semibold tracking-tight">
-                            Por atender
-                        </h3>
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                            Falta subir o corregir
-                        </p>
-                    </div>
-
-                    <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
-                        {actionable.length}
-                    </span>
-                </div>
-            </SectionCard.Header>
-
-            <SectionCard.Body className="space-y-3">
-                {actionable.length === 0 ? (
-                    <div className="flex items-center gap-3 rounded-lg border border-dashed p-3">
-                        <CheckCircle2 className="size-5 shrink-0 text-green-500" />
-                        <p className="text-xs leading-relaxed text-muted-foreground">
-                            No tienes documentos por subir ni corregir.
-                        </p>
-                    </div>
-                ) : (
-                    <ul className="space-y-1">
-                        {actionable.map(({ item, observed }) => (
-                            <li
-                                key={item.code}
-                                className="flex items-center gap-2.5 rounded-lg px-2.5 py-2"
-                            >
-                                <span
-                                    className={cn(
-                                        'size-2 shrink-0 rounded-full',
-                                        observed
-                                            ? 'bg-destructive'
-                                            : 'bg-muted-foreground/40',
-                                    )}
-                                />
-
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-xs font-medium">
-                                        {item.title}
-                                    </span>
-                                    <span
-                                        className={cn(
-                                            'block text-[11px]',
-                                            observed
-                                                ? 'text-destructive'
-                                                : 'text-muted-foreground',
-                                        )}
-                                    >
-                                        {observed ? 'Observado' : 'Sin subir'}
-                                    </span>
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-
-                <div className="space-y-1 border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
-                    <p>
-                        Los documentos deben ser oficiales, descargados de la
-                        intranet.
-                    </p>
-                    <p className="hidden lg:block">
-                        Usa las flechas ← → del teclado para cambiar de
-                        documento.
-                    </p>
-                </div>
-            </SectionCard.Body>
-        </SectionCard>
-    );
-}
-
-/* -------------------------------------------------------------------------- */
 /* Historial general de documentos (todo en una sola línea de tiempo)         */
 /* -------------------------------------------------------------------------- */
 
 export function DocumentHistoryPanel({
     history,
+    elevated = false,
+    compact = false,
 }: {
     history: DossierHistoryRecord[];
+    /** Sombra mínima de la tarjeta; opt-in para no alterar otras pantallas. */
+    elevated?: boolean;
+    /** Una entrada por evento, sin fechas ni estado duplicados; opt-in. */
+    compact?: boolean;
 }) {
     const [showAll, setShowAll] = useState(false);
 
@@ -321,7 +237,7 @@ export function DocumentHistoryPanel({
     const hidden = sorted.length - visible.length;
 
     return (
-        <SectionCard className="min-w-0">
+        <SectionCard className="min-w-0" elevated={elevated}>
             <SectionCard.Header>
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -333,7 +249,10 @@ export function DocumentHistoryPanel({
                             <h3 className="text-sm leading-none font-semibold tracking-tight">
                                 Historial
                             </h3>
-                            <p className="mt-1 truncate text-xs text-muted-foreground">
+                            <p
+                                className="mt-1 truncate text-xs text-muted-foreground"
+                                title="Movimientos de tus documentos"
+                            >
                                 Movimientos de tus documentos
                             </p>
                         </div>
@@ -363,7 +282,13 @@ export function DocumentHistoryPanel({
                     </div>
                 ) : (
                     <>
-                        <div className="relative space-y-4 before:absolute before:inset-y-2 before:left-[9px] before:w-px before:bg-border">
+                        <div
+                            className={cn(
+                                'relative space-y-4 before:absolute before:inset-y-2 before:left-[9px] before:w-px before:bg-border',
+                                showAll &&
+                                    'max-h-96 overflow-y-auto overscroll-contain pr-1',
+                            )}
+                        >
                             {visible.map((record, index) => {
                                 const status = getStatusMeta(
                                     record.approval_status,
@@ -372,7 +297,10 @@ export function DocumentHistoryPanel({
 
                                 return (
                                     <article
-                                        key={`${record.documentCode}-${record.id}`}
+                                        key={
+                                            record.event_id ??
+                                            `${record.documentCode}-${record.id}`
+                                        }
                                         className={cn('relative pl-8', enter)}
                                         style={{
                                             animationDelay: `${Math.min(index, 8) * 40}ms`,
@@ -386,78 +314,203 @@ export function DocumentHistoryPanel({
                                         />
 
                                         <div className="space-y-2">
-                                            <div className="flex items-center justify-between gap-2">
-                                                <span
-                                                    className={cn(
-                                                        'text-xs font-semibold',
-                                                        status.text,
-                                                    )}
-                                                >
-                                                    {status.label}
-                                                </span>
-
-                                                <span className="text-[11px] text-muted-foreground tabular-nums">
-                                                    {formatDateTime(
-                                                        record.created_at,
-                                                    ) ?? 'Fecha desconocida'}
-                                                </span>
-                                            </div>
-
-                                            <div className="rounded-lg border bg-muted/20 p-3">
+                                            {compact ? (
                                                 <div className="flex items-start gap-2">
-                                                    <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="truncate text-xs font-semibold">
-                                                            {record.name ??
-                                                                'Documento adjunto'}
-                                                        </p>
-
-                                                        <p className="mt-1 text-[11px] text-muted-foreground">
-                                                            {
-                                                                record.documentTitle
-                                                            }
-                                                        </p>
-
-                                                        <p className="mt-1 text-[11px] text-muted-foreground">
-                                                            Subido el{' '}
-                                                            {formatDateTime(
-                                                                record.created_at,
-                                                            ) ??
-                                                                'fecha desconocida'}
-                                                        </p>
-
-                                                        {record.approval_status ===
-                                                            1 && (
-                                                            <p className="text-[11px] text-green-600 dark:text-green-400">
-                                                                Aprobado el{' '}
-                                                                {formatDateTime(
-                                                                    record.approved_at ??
-                                                                        record.updated_at,
-                                                                ) ??
-                                                                    'fecha no registrada'}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
                                                     <StatusIcon
                                                         className={cn(
-                                                            'size-4 shrink-0',
+                                                            'mt-0.5 size-4 shrink-0',
                                                             status.text,
                                                         )}
                                                     />
-                                                </div>
 
-                                                {record.comment && (
-                                                    <div className="mt-3 flex gap-2 rounded-md border bg-background/70 p-2.5">
-                                                        <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                                                    <div className="min-w-0 flex-1">
+                                                        <p
+                                                            className="truncate text-xs font-semibold"
+                                                            title={
+                                                                record.name ??
+                                                                'Documento adjunto'
+                                                            }
+                                                        >
+                                                            {truncateMiddle(
+                                                                record.name ??
+                                                                    'Documento adjunto',
+                                                                30,
+                                                            )}
+                                                        </p>
 
-                                                        <p className="text-[11px] leading-relaxed text-muted-foreground">
-                                                            {record.comment}
+                                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                                            {record.event ===
+                                                            'review' ? (
+                                                                <>
+                                                                    <span
+                                                                        className={cn(
+                                                                            'font-medium',
+                                                                            status.text,
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            status.label
+                                                                        }
+                                                                    </span>{' '}
+                                                                    ·{' '}
+                                                                    {formatDateTime(
+                                                                        record.created_at,
+                                                                    ) ??
+                                                                        'fecha desconocida'}
+                                                                    {record.reviewed_by
+                                                                        ? ` · ${record.reviewed_by}`
+                                                                        : ''}
+                                                                </>
+                                                            ) : record.event ===
+                                                              'upload' ? (
+                                                                <>
+                                                                    Subido{' '}
+                                                                    {formatDateTime(
+                                                                        record.created_at,
+                                                                    ) ??
+                                                                        'fecha desconocida'}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    Subido{' '}
+                                                                    {formatDateTime(
+                                                                        record.created_at,
+                                                                    ) ??
+                                                                        'fecha desconocida'}{' '}
+                                                                    <span
+                                                                        aria-hidden
+                                                                    >
+                                                                        →
+                                                                    </span>{' '}
+                                                                    <span
+                                                                        className={cn(
+                                                                            'font-medium',
+                                                                            status.text,
+                                                                        )}
+                                                                    >
+                                                                        {
+                                                                            status.label
+                                                                        }
+                                                                    </span>
+                                                                </>
+                                                            )}
                                                         </p>
                                                     </div>
-                                                )}
-                                            </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <span
+                                                            className={cn(
+                                                                'text-xs font-semibold',
+                                                                status.text,
+                                                            )}
+                                                        >
+                                                            {status.label}
+                                                        </span>
+
+                                                        <span className="text-xs text-muted-foreground tabular-nums">
+                                                            {formatDateTime(
+                                                                record.created_at,
+                                                            ) ??
+                                                                'Fecha desconocida'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="rounded-lg border bg-muted/20 p-3">
+                                                        <div className="flex items-start gap-2">
+                                                            <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+
+                                                            <div className="min-w-0 flex-1">
+                                                                <p
+                                                                    className="truncate text-xs font-semibold"
+                                                                    title={
+                                                                        record.name ??
+                                                                        'Documento adjunto'
+                                                                    }
+                                                                >
+                                                                    {truncateMiddle(
+                                                                        record.name ??
+                                                                            'Documento adjunto',
+                                                                        30,
+                                                                    )}
+                                                                </p>
+
+                                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                                    {
+                                                                        record.documentTitle
+                                                                    }
+                                                                </p>
+
+                                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                                    {record.event ===
+                                                                    'review' ? (
+                                                                        <>
+                                                                            Revisado
+                                                                            el{' '}
+                                                                            {formatDateTime(
+                                                                                record.created_at,
+                                                                            ) ??
+                                                                                'fecha desconocida'}
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            Subido
+                                                                            el{' '}
+                                                                            {formatDateTime(
+                                                                                record.created_at,
+                                                                            ) ??
+                                                                                'fecha desconocida'}
+                                                                        </>
+                                                                    )}
+                                                                </p>
+
+                                                                {record.event ===
+                                                                    'review' &&
+                                                                    record.reviewed_by && (
+                                                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                                                            por{' '}
+                                                                            {
+                                                                                record.reviewed_by
+                                                                            }
+                                                                        </p>
+                                                                    )}
+
+                                                                {!record.event &&
+                                                                    record.approval_status ===
+                                                                        1 && (
+                                                                        <p className="mt-0.5 text-xs text-green-600 dark:text-green-400">
+                                                                            Aprobado
+                                                                            el{' '}
+                                                                            {formatDateTime(
+                                                                                record.approved_at ??
+                                                                                    record.updated_at,
+                                                                            ) ??
+                                                                                'fecha no registrada'}
+                                                                        </p>
+                                                                    )}
+                                                            </div>
+
+                                                            <StatusIcon
+                                                                className={cn(
+                                                                    'size-4 shrink-0',
+                                                                    status.text,
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {record.comment && (
+                                                <div className="flex gap-2 rounded-md border bg-background/70 p-2.5">
+                                                    <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+
+                                                    <p className="text-xs leading-relaxed text-muted-foreground">
+                                                        {record.comment}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </article>
                                 );
@@ -484,6 +537,28 @@ export function DocumentHistoryPanel({
             </SectionCard.Body>
         </SectionCard>
     );
+}
+
+/**
+ * Fecha de aprobación del archivo vigente, tomada de su historial.
+ * Devuelve `undefined` si el archivo no está aprobado.
+ */
+export function findApprovedAt(
+    history: DossierHistoryRecord[],
+    requirement?: DocumentRequirement | null,
+) {
+    const latest = requirement?.latest;
+
+    if (!latest || latest.approval_status !== DOCUMENT_STATUS.APPROVED) {
+        return undefined;
+    }
+
+    const record = history.find(
+        (item) =>
+            item.id === latest.id && item.documentCode === requirement?.code,
+    );
+
+    return record?.approved_at ?? latest.approved_at ?? null;
 }
 
 /** Une el historial de todos los requisitos, con su título y código de origen. */

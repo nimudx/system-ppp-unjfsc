@@ -36,7 +36,10 @@ export function UserInfo({
                 </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
+                <span
+                    className="truncate font-medium"
+                    title={user.profile_name}
+                >
                     {user.profile_name}
                 </span>
                 {showEmail && (

@@ -10,11 +10,13 @@ import {
     type CompanyRequest,
     type RequestState,
 } from '../services/company-workflow';
-import { Field, WorkflowErrors } from './student-workflow';
+import { Field, WorkflowErrors } from './workflow-ui';
 
 const readRequestId = () => {
     if (typeof window === 'undefined') return null;
-    const id = Number(new URLSearchParams(window.location.search).get('request'));
+    const id = Number(
+        new URLSearchParams(window.location.search).get('request'),
+    );
     return Number.isSafeInteger(id) && id > 0 ? id : null;
 };
 
@@ -33,7 +35,7 @@ const stateTone = (state: string) => {
 function StateBadge({ state }: { state: RequestState }) {
     return (
         <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset transition-colors duration-300 ${stateTone(state)}`}
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1 transition-colors duration-300 ring-inset ${stateTone(state)}`}
         >
             {stateLabels[state]}
         </span>
@@ -177,8 +179,16 @@ export default function RequestManagement({
         try {
             const result =
                 actor === 'teacher'
-                    ? await workflow.review(selected.id, decision, comment.trim())
-                    : await workflow.decide(selected.id, decision, comment.trim());
+                    ? await workflow.review(
+                          selected.id,
+                          decision,
+                          comment.trim(),
+                      )
+                    : await workflow.decide(
+                          selected.id,
+                          decision,
+                          comment.trim(),
+                      );
             setSelected(result.data);
             setComment('');
             setListRevision((value) => value + 1);
@@ -190,7 +200,8 @@ export default function RequestManagement({
         }
     };
 
-    const showingStale = detailLoading && selected && selected.id !== selectedId;
+    const showingStale =
+        detailLoading && selected && selected.id !== selectedId;
     const data = selected ? (selected.company ?? selected.company_data) : null;
     const actionable =
         selected &&
@@ -228,11 +239,13 @@ export default function RequestManagement({
                             }}
                         >
                             <option value="">Todos</option>
-                            {Object.entries(stateLabels).map(([value, label]) => (
-                                <option key={value} value={value}>
-                                    {label}
-                                </option>
-                            ))}
+                            {Object.entries(stateLabels).map(
+                                ([value, label]) => (
+                                    <option key={value} value={value}>
+                                        {label}
+                                    </option>
+                                ),
+                            )}
                         </select>
                     </Field>
                     <Button
@@ -253,7 +266,9 @@ export default function RequestManagement({
                 className={`grid grid-cols-1 items-start transition-[grid-template-columns,column-gap] duration-300 ease-out motion-reduce:transition-none lg:gap-x-0 ${open ? 'lg:grid-cols-[2fr_3fr] lg:gap-x-5' : 'lg:grid-cols-[1fr_0fr]'}`}
             >
                 {/* MASTER */}
-                <div className={`min-w-0 space-y-3 ${open ? 'max-lg:hidden' : ''}`}>
+                <div
+                    className={`min-w-0 space-y-3 ${open ? 'max-lg:hidden' : ''}`}
+                >
                     {(!error || items.length > 0) && (
                         <>
                             <div
@@ -266,11 +281,19 @@ export default function RequestManagement({
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-muted">
                                         <tr>
-                                            <th className="p-3">Empresa / RUC</th>
-                                            {!open && <th className="p-3">Estudiante</th>}
+                                            <th className="p-3">
+                                                Empresa / RUC
+                                            </th>
+                                            {!open && (
+                                                <th className="p-3">
+                                                    Estudiante
+                                                </th>
+                                            )}
                                             <th className="p-3">Estado</th>
                                             <th className="w-10 p-3">
-                                                <span className="sr-only">Ver solicitud</span>
+                                                <span className="sr-only">
+                                                    Ver solicitud
+                                                </span>
                                             </th>
                                         </tr>
                                     </thead>
@@ -278,58 +301,90 @@ export default function RequestManagement({
                                         className={`transition-opacity duration-200 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
                                     >
                                         {firstLoad ? (
-                                            Array.from({ length: 5 }, (_, i) => (
-                                                <tr key={i} className="border-t">
-                                                    <td className="p-3">
-                                                        <Skeleton className="h-4 w-40" />
-                                                        <Skeleton className="mt-2 h-3 w-24" />
-                                                    </td>
-                                                    {!open && (
+                                            Array.from(
+                                                { length: 5 },
+                                                (_, i) => (
+                                                    <tr
+                                                        key={i}
+                                                        className="border-t"
+                                                    >
                                                         <td className="p-3">
-                                                            <Skeleton className="h-4 w-32" />
-                                                            <Skeleton className="mt-2 h-3 w-20" />
+                                                            <Skeleton className="h-4 w-40" />
+                                                            <Skeleton className="mt-2 h-3 w-24" />
                                                         </td>
-                                                    )}
-                                                    <td className="p-3">
-                                                        <Skeleton className="h-5 w-24 rounded-full" />
-                                                    </td>
-                                                    <td className="p-3" />
-                                                </tr>
-                                            ))
+                                                        {!open && (
+                                                            <td className="p-3">
+                                                                <Skeleton className="h-4 w-32" />
+                                                                <Skeleton className="mt-2 h-3 w-20" />
+                                                            </td>
+                                                        )}
+                                                        <td className="p-3">
+                                                            <Skeleton className="h-5 w-24 rounded-full" />
+                                                        </td>
+                                                        <td className="p-3" />
+                                                    </tr>
+                                                ),
+                                            )
                                         ) : items.length ? (
                                             items.map((item) => {
-                                                const isSelected = item.id === selectedId;
+                                                const isSelected =
+                                                    item.id === selectedId;
                                                 return (
                                                     <tr
                                                         key={item.id}
-                                                        onClick={() => openRequest(item.id)}
+                                                        onClick={() =>
+                                                            openRequest(item.id)
+                                                        }
                                                         className={`group cursor-pointer border-t transition-colors duration-200 hover:bg-muted/40 ${isSelected ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
                                                     >
                                                         <td className="p-3">
                                                             <span className="font-medium">
-                                                                {item.company?.name ??
-                                                                    item.company_data.name}
+                                                                {item.company
+                                                                    ?.name ??
+                                                                    item
+                                                                        .company_data
+                                                                        .name}
                                                             </span>
                                                             <p className="text-muted-foreground">
                                                                 {item.ruc}
                                                             </p>
                                                             {open && (
                                                                 <p className="mt-1 truncate text-xs text-muted-foreground">
-                                                                    {item.student.name}
+                                                                    {
+                                                                        item
+                                                                            .student
+                                                                            .name
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </td>
                                                         {!open && (
                                                             <td className="p-3">
-                                                                {item.student.name}
+                                                                {
+                                                                    item.student
+                                                                        .name
+                                                                }
                                                                 <p className="text-muted-foreground">
-                                                                    {item.student.school} ·{' '}
-                                                                    {item.student.semester}
+                                                                    {
+                                                                        item
+                                                                            .student
+                                                                            .school
+                                                                    }{' '}
+                                                                    ·{' '}
+                                                                    {
+                                                                        item
+                                                                            .student
+                                                                            .semester
+                                                                    }
                                                                 </p>
                                                             </td>
                                                         )}
                                                         <td className="p-3">
-                                                            <StateBadge state={item.state} />
+                                                            <StateBadge
+                                                                state={
+                                                                    item.state
+                                                                }
+                                                            />
                                                         </td>
                                                         <td className="p-3 text-right">
                                                             <Button
@@ -337,10 +392,16 @@ export default function RequestManagement({
                                                                 size="icon"
                                                                 disabled={busy}
                                                                 aria-label={`Ver solicitud #${item.id}`}
-                                                                aria-pressed={isSelected}
-                                                                onClick={(e) => {
+                                                                aria-pressed={
+                                                                    isSelected
+                                                                }
+                                                                onClick={(
+                                                                    e,
+                                                                ) => {
                                                                     e.stopPropagation();
-                                                                    openRequest(item.id);
+                                                                    openRequest(
+                                                                        item.id,
+                                                                    );
                                                                 }}
                                                             >
                                                                 <ChevronRight
@@ -353,7 +414,10 @@ export default function RequestManagement({
                                             })
                                         ) : (
                                             <tr>
-                                                <td colSpan={4} className="p-6 text-center">
+                                                <td
+                                                    colSpan={4}
+                                                    className="p-6 text-center"
+                                                >
                                                     <EmptyState title="No hay solicitudes para este estado." />
                                                 </td>
                                             </tr>
@@ -365,7 +429,9 @@ export default function RequestManagement({
                                 <Button
                                     variant="outline"
                                     disabled={page <= 1 || busy || loading}
-                                    onClick={() => setPage((value) => value - 1)}
+                                    onClick={() =>
+                                        setPage((value) => value - 1)
+                                    }
                                 >
                                     Anterior
                                 </Button>
@@ -374,8 +440,12 @@ export default function RequestManagement({
                                 </span>
                                 <Button
                                     variant="outline"
-                                    disabled={page >= lastPage || busy || loading}
-                                    onClick={() => setPage((value) => value + 1)}
+                                    disabled={
+                                        page >= lastPage || busy || loading
+                                    }
+                                    onClick={() =>
+                                        setPage((value) => value + 1)
+                                    }
                                 >
                                     Siguiente
                                 </Button>
@@ -397,7 +467,9 @@ export default function RequestManagement({
                         <div className="flex shrink-0 items-start justify-between gap-3 border-b p-4">
                             <h3 className="flex flex-wrap items-center gap-2 font-semibold">
                                 Solicitud #{selected?.id ?? selectedId ?? ''}
-                                {selected && <StateBadge state={selected.state} />}
+                                {selected && (
+                                    <StateBadge state={selected.state} />
+                                )}
                             </h3>
                             <Button
                                 variant="ghost"
@@ -405,7 +477,9 @@ export default function RequestManagement({
                                 disabled={busy}
                                 onClick={closeRequest}
                             >
-                                <span className="lg:hidden">Volver a la lista</span>
+                                <span className="lg:hidden">
+                                    Volver a la lista
+                                </span>
                                 <span className="max-lg:hidden">Cerrar</span>
                             </Button>
                         </div>
@@ -428,8 +502,13 @@ export default function RequestManagement({
                             )}
 
                             {!selected && detailLoading && (
-                                <div role="status" className="grid gap-3 sm:grid-cols-2">
-                                    <span className="sr-only">Cargando solicitud…</span>
+                                <div
+                                    role="status"
+                                    className="grid gap-3 sm:grid-cols-2"
+                                >
+                                    <span className="sr-only">
+                                        Cargando solicitud…
+                                    </span>
                                     {Array.from({ length: 8 }, (_, i) => (
                                         <div key={i}>
                                             <Skeleton className="h-4 w-20" />
@@ -455,7 +534,9 @@ export default function RequestManagement({
                                             'Escuela / semestre': `${selected.student.school} / ${selected.student.semester ?? ''}`,
                                         }).map(([label, value]) => (
                                             <div key={label}>
-                                                <dt className="font-medium">{label}</dt>
+                                                <dt className="font-medium">
+                                                    {label}
+                                                </dt>
                                                 <dd className="break-words text-muted-foreground">
                                                     {value || '—'}
                                                 </dd>
@@ -472,22 +553,26 @@ export default function RequestManagement({
                                     )}
                                     {actor === 'teacher' && (
                                         <p className="text-sm">
-                                            Verifica la existencia y los datos de la empresa
-                                            antes de aprobar. La consulta por RUC del sistema
-                                            solo comprueba el catálogo local.
+                                            Verifica la existencia y los datos
+                                            de la empresa antes de aprobar. La
+                                            consulta por RUC del sistema solo
+                                            comprueba el catálogo local.
                                         </p>
                                     )}
                                     <p className="text-sm text-muted-foreground">
-                                        Declaración del estudiante: {selected.declaration.text}
+                                        Declaración del estudiante:{' '}
+                                        {selected.declaration.text}
                                     </p>
                                     {selected.review_comment && (
                                         <p className="text-sm">
-                                            <strong>Titular:</strong> {selected.review_comment}
+                                            <strong>Titular:</strong>{' '}
+                                            {selected.review_comment}
                                         </p>
                                     )}
                                     {selected.company_comment && (
                                         <p className="text-sm">
-                                            <strong>Empresa:</strong> {selected.company_comment}
+                                            <strong>Empresa:</strong>{' '}
+                                            {selected.company_comment}
                                         </p>
                                     )}
                                     <details className="text-sm">
@@ -497,11 +582,19 @@ export default function RequestManagement({
                                         <ol className="mt-2 space-y-2 border-l pl-4">
                                             {selected.history.map((event) => (
                                                 <li key={event.id}>
-                                                    {new Date(event.created_at).toLocaleString(
+                                                    {new Date(
+                                                        event.created_at,
+                                                    ).toLocaleString(
                                                         'es-PE',
                                                     )}{' '}
-                                                    · {stateLabels[event.to_state as RequestState]}
-                                                    {event.comment && `: ${event.comment}`}
+                                                    ·{' '}
+                                                    {
+                                                        stateLabels[
+                                                            event.to_state as RequestState
+                                                        ]
+                                                    }
+                                                    {event.comment &&
+                                                        `: ${event.comment}`}
                                                 </li>
                                             ))}
                                         </ol>
@@ -516,20 +609,26 @@ export default function RequestManagement({
                                 <Field label="Comentario (obligatorio para observar o rechazar)">
                                     <Textarea
                                         value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
+                                        onChange={(e) =>
+                                            setComment(e.target.value)
+                                        }
                                         disabled={busy}
                                         maxLength={2000}
                                         rows={3}
                                     />
                                 </Field>
-                                <p className="-mt-1 text-right text-xs tabular-nums text-muted-foreground">
+                                <p className="-mt-1 text-right text-xs text-muted-foreground tabular-nums">
                                     {comment.length}/2000
                                 </p>
                                 <div className="flex flex-wrap gap-3">
                                     <Button
                                         disabled={busy}
                                         onClick={() =>
-                                            void decide(actor === 'teacher' ? 'approve' : 'accept')
+                                            void decide(
+                                                actor === 'teacher'
+                                                    ? 'approve'
+                                                    : 'accept',
+                                            )
                                         }
                                     >
                                         {busy
@@ -542,7 +641,9 @@ export default function RequestManagement({
                                         <Button
                                             variant="outline"
                                             disabled={busy}
-                                            onClick={() => void decide('observe')}
+                                            onClick={() =>
+                                                void decide('observe')
+                                            }
                                         >
                                             Observar
                                         </Button>

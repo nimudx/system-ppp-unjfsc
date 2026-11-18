@@ -6,12 +6,17 @@ import { cn } from "@/shared/lib/utils";
  */
 function SectionCardRoot({
   className,
+  elevated = false,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.HTMLAttributes<HTMLDivElement> & {
+  /** Sombra mínima opcional; por defecto la tarjeta conserva su aspecto. */
+  elevated?: boolean
+}) {
   return (
     <div
       className={cn(
         "overflow-hidden rounded-lg border bg-card text-card-foreground",
+        elevated && "shadow-sm",
         className
       )}
       {...props}

@@ -77,9 +77,7 @@ export default function JobBoardAdminIndex({
 
     return (
         <AppLayout
-            breadcrumbs={[
-                { title: 'Bolsa laboral', href: admin.index().url },
-            ]}
+            breadcrumbs={[{ title: 'Bolsa laboral', href: admin.index().url }]}
         >
             <Head title="Bolsa laboral · Administración" />
 

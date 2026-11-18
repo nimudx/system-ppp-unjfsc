@@ -1,5 +1,14 @@
 import type { LucideIcon } from 'lucide-react';
-import { CheckCircle2, FileUp, AlertCircle, Bell, BriefcaseBusiness, ClipboardCheck, UserCheck, XCircle } from 'lucide-react';
+import {
+    CheckCircle2,
+    FileUp,
+    AlertCircle,
+    Bell,
+    BriefcaseBusiness,
+    ClipboardCheck,
+    UserCheck,
+    XCircle,
+} from 'lucide-react';
 import type { NotificationMeta } from '@/shared/types/session';
 
 export type { NotificationMeta };

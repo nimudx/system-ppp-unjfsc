@@ -11,6 +11,82 @@ export type StudentRow = {
     };
 };
 
+export type CompanyStats = {
+    company: {
+        id: number;
+        name: string;
+        ruc: string;
+        razon: string | null;
+        address: string | null;
+        phone: string | null;
+        email: string | null;
+        website: string | null;
+        representative_name: string | null;
+        representative_phone: string | null;
+        logo_url: string | null;
+        activated_at: string | null;
+    } | null;
+    profile: {
+        percent: number;
+        completed: number;
+        total: number;
+        missing: string[];
+    };
+    vacancies: {
+        total: number;
+        published: number;
+        draft: number;
+        pendingReview: number;
+        observed: number;
+        closed: number;
+        thisMonth: number;
+        positions: number;
+        views: number;
+    };
+    candidates: {
+        total: number;
+        proposed: number;
+        contacted: number;
+        hired: number;
+        discarded: number;
+    };
+    requests: {
+        total: number;
+        awaitingCompany: number;
+        accepted: number;
+        declined: number;
+        thisMonth: number;
+    };
+    recentVacancies: {
+        id: number;
+        title: string;
+        status: string;
+        status_label: string;
+        type_label: string;
+        modality_label: string;
+        positions_count: number;
+        candidates_count: number;
+        views_count: number;
+        published_at: string | null;
+        updated_at: string | null;
+        deadline_at: string | null;
+    }[];
+    recentRequests: {
+        id: number;
+        student: string;
+        school: string | null;
+        state: string;
+        state_label: string;
+        updated_at: string | null;
+    }[];
+    tasks: {
+        title: string;
+        detail: string;
+        href: string;
+        priority: 'high' | 'medium' | 'low';
+    }[];
+};
+
 export type SuperAdminStats = {
     semester: string | null;
     companies: { total: number; thisMonth: number };

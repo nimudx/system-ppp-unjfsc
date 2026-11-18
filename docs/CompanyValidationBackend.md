@@ -68,21 +68,21 @@ Las respuestas de solicitud usan `{ "data": { ... } }`; los listados agregan `li
 
 ## Endpoints
 
-| Método | URL | Actor y uso |
-| --- | --- | --- |
-| GET | `/api/company-validation/companies/{ruc}` | Estudiante: verificar RUC de 11 dígitos |
-| GET | `/api/company-validation/current` | Estudiante: su solicitud actual o `data: null` |
-| POST | `/api/company-validation/requests` | Estudiante: solicitud nueva o confirmación de empresa existente |
-| PATCH | `/api/company-validation/requests/{id}` | Estudiante: corregir una solicitud observada/rechazada |
-| GET | `/api/company-validation/requests` | Titular: solicitudes de su escuela/semestre; empresa: sus alumnos |
-| GET | `/api/company-validation/requests/{id}` | Estudiante propietario, titular autorizado o empresa vinculada |
-| GET | `/api/company-validation/requests/{id}/ruc-document` | Descargar ficha PDF privada con los mismos permisos |
-| PATCH | `/api/company-validation/requests/{id}/review` | Titular: aprobar, observar o rechazar |
-| POST | `/api/company-validation/requests/{id}/resend` | Estudiante: reenviar invitación/confirmación |
-| GET | `/api/company-invitations/{token}` | Datos mínimos para la pantalla de activación |
-| POST | `/api/company-invitations/{token}/activate` | Visitante sin sesión: activar cuenta empresarial |
-| PATCH | `/api/company-validation/requests/{id}/decision` | Empresa: aceptar o rechazar alumno |
-| POST | `/api/company-validation/placement` | Estudiante aceptado: registrar jefe inmediato y práctica |
+| Método | URL                                                  | Actor y uso                                                       |
+| ------ | ---------------------------------------------------- | ----------------------------------------------------------------- |
+| GET    | `/api/company-validation/companies/{ruc}`            | Estudiante: verificar RUC de 11 dígitos                           |
+| GET    | `/api/company-validation/current`                    | Estudiante: su solicitud actual o `data: null`                    |
+| POST   | `/api/company-validation/requests`                   | Estudiante: solicitud nueva o confirmación de empresa existente   |
+| PATCH  | `/api/company-validation/requests/{id}`              | Estudiante: corregir una solicitud observada/rechazada            |
+| GET    | `/api/company-validation/requests`                   | Titular: solicitudes de su escuela/semestre; empresa: sus alumnos |
+| GET    | `/api/company-validation/requests/{id}`              | Estudiante propietario, titular autorizado o empresa vinculada    |
+| GET    | `/api/company-validation/requests/{id}/ruc-document` | Descargar ficha PDF privada con los mismos permisos               |
+| PATCH  | `/api/company-validation/requests/{id}/review`       | Titular: aprobar, observar o rechazar                             |
+| POST   | `/api/company-validation/requests/{id}/resend`       | Estudiante: reenviar invitación/confirmación                      |
+| GET    | `/api/company-invitations/{token}`                   | Datos mínimos para la pantalla de activación                      |
+| POST   | `/api/company-invitations/{token}/activate`          | Visitante sin sesión: activar cuenta empresarial                  |
+| PATCH  | `/api/company-validation/requests/{id}/decision`     | Empresa: aceptar o rechazar alumno                                |
+| POST   | `/api/company-validation/placement`                  | Estudiante aceptado: registrar jefe inmediato y práctica          |
 
 El listado admite `?state=pending_review&per_page=15&page=1`; máximo 100 registros por página. El estado se valida contra el enum; no se aceptan filtros libres de escuela/empresa para ampliar el acceso.
 
@@ -92,10 +92,13 @@ Respuesta para RUC inexistente:
 
 ```json
 {
-  "found": false,
-  "next_action": "send_request",
-  "company": null,
-  "declaration": {"text": "Declaro que los datos de la empresa que registro son válidos y correctos.", "version": "2026-10-v1"}
+    "found": false,
+    "next_action": "send_request",
+    "company": null,
+    "declaration": {
+        "text": "Declaro que los datos de la empresa que registro son válidos y correctos.",
+        "version": "2026-10-v1"
+    }
 }
 ```
 
@@ -105,13 +108,13 @@ Para empresa existente, `found: true`, `next_action: send_confirmation` y `compa
 
 ```json
 {
-  "ruc": "20999999991",
-  "name": "Empresa de prueba",
-  "razon": "Empresa de prueba S.A.C.",
-  "address": "Dirección ficticia",
-  "phone": "999888777",
-  "email": "empresa@example.test",
-  "declaration_accepted": true
+    "ruc": "20999999991",
+    "name": "Empresa de prueba",
+    "razon": "Empresa de prueba S.A.C.",
+    "address": "Dirección ficticia",
+    "phone": "999888777",
+    "email": "empresa@example.test",
+    "declaration_accepted": true
 }
 ```
 
@@ -122,7 +125,7 @@ La declaración se guarda con su texto y versión del servidor, no con un texto 
 Para empresa existente, enviar únicamente:
 
 ```json
-{"ruc": "20999999991", "declaration_accepted": true}
+{ "ruc": "20999999991", "declaration_accepted": true }
 ```
 
 La primera respuesta es 201 y estado `pending_review` para nueva o `awaiting_company` para existente. No hay correo antes de la aprobación de una empresa nueva. Una segunda creación para la misma asignación responde 409; usar la solicitud actual o el PATCH cuando corresponda.
@@ -130,7 +133,7 @@ La primera respuesta es 201 y estado `pending_review` para nueva o `awaiting_com
 ### 3. Revisión del titular
 
 ```json
-{"decision": "approve", "comment": "Verificación realizada"}
+{ "decision": "approve", "comment": "Verificación realizada" }
 ```
 
 También admite `observe` o `reject`, ambos con `comment` obligatorio de hasta 2000 caracteres. Aprobar registra la empresa, cambia la solicitud a `awaiting_company` y encola el correo. Observar/rechazar no crea la empresa ni envía invitación. El alumno puede corregir y reenviar; se conserva el historial.
@@ -145,11 +148,11 @@ El token dura 72 horas, se guarda hasheado y se consume al activar. Reenviar rev
 
 ```json
 {
-  "representative_name": "Representante de prueba",
-  "representative_phone": "999777666",
-  "password": "Contrasena123!",
-  "password_confirmation": "Contrasena123!",
-  "terms_accepted": true
+    "representative_name": "Representante de prueba",
+    "representative_phone": "999777666",
+    "password": "Contrasena123!",
+    "password_confirmation": "Contrasena123!",
+    "terms_accepted": true
 }
 ```
 
@@ -160,7 +163,7 @@ Los textos institucionales de convenio y su versión deben consolidarse con el f
 ### 5. Decisión de la empresa
 
 ```json
-{"decision": "accept"}
+{ "decision": "accept" }
 ```
 
 O `{"decision": "reject", "comment": "Motivo"}`. El rechazo exige motivo y deja `declined`. La aceptación deja `accepted` y `can_register_practice: true`. Repetir exactamente la misma decisión es idempotente; cambiar una decisión ya tomada responde 409. Se notifica al alumno y se registra el actor real.
@@ -169,21 +172,21 @@ O `{"decision": "reject", "comment": "Motivo"}`. El rechazo exige motivo y deja 
 
 ```json
 {
-  "company": {"id": 1},
-  "internship_type": "development",
-  "origin_type": "direct",
-  "practice_declaration_accepted": true,
-  "placement": {
-    "boss_name": "Jefe de prueba",
-    "boss_position": "Jefe de Sistemas",
-    "boss_phone": "999888776",
-    "boss_email": "jefe@example.test",
-    "area_name": "Tecnología",
-    "position": "Practicante",
-    "description": "Funciones de la práctica",
-    "start_date": "2026-04-01",
-    "end_date": "2026-08-01"
-  }
+    "company": { "id": 1 },
+    "internship_type": "development",
+    "origin_type": "direct",
+    "practice_declaration_accepted": true,
+    "placement": {
+        "boss_name": "Jefe de prueba",
+        "boss_position": "Jefe de Sistemas",
+        "boss_phone": "999888776",
+        "boss_email": "jefe@example.test",
+        "area_name": "Tecnología",
+        "position": "Practicante",
+        "description": "Funciones de la práctica",
+        "start_date": "2026-04-01",
+        "end_date": "2026-08-01"
+    }
 }
 ```
 
@@ -193,14 +196,14 @@ También puede enviarse `placement.area_id` de esa empresa en lugar de `area_nam
 
 ## Estados y frontend
 
-| Estado | Significado | Acción siguiente |
-| --- | --- | --- |
-| `pending_review` | Empresa nueva enviada al titular | Esperar revisión |
-| `observed` | Titular pide correcciones | Mostrar motivo y habilitar edición/reenvío |
-| `rejected` | Titular rechaza la propuesta | Mostrar motivo; permitir nueva presentación corregida |
-| `awaiting_company` | Invitación o confirmación enviada | Empresa activa/ingresa y decide |
-| `accepted` | Empresa aceptó al alumno | Habilitar datos de práctica |
-| `declined` | Empresa rechazó al alumno | Mostrar motivo; permitir otro intento |
+| Estado             | Significado                       | Acción siguiente                                      |
+| ------------------ | --------------------------------- | ----------------------------------------------------- |
+| `pending_review`   | Empresa nueva enviada al titular  | Esperar revisión                                      |
+| `observed`         | Titular pide correcciones         | Mostrar motivo y habilitar edición/reenvío            |
+| `rejected`         | Titular rechaza la propuesta      | Mostrar motivo; permitir nueva presentación corregida |
+| `awaiting_company` | Invitación o confirmación enviada | Empresa activa/ingresa y decide                       |
+| `accepted`         | Empresa aceptó al alumno          | Habilitar datos de práctica                           |
+| `declined`         | Empresa rechazó al alumno         | Mostrar motivo; permitir otro intento                 |
 
 El recurso incluye `can_resubmit`, `can_register_practice`, `can_upload_documents`, `placement_id`, `internship_id`, datos de empresa/alumno, declaraciones, historial y fechas. Antes de habilitar archivos, además de `accepted` debe existir el registro de práctica con su declaración. Los endpoints antiguos de formalización y los servicios de documentos también comprueban estos requisitos: no basta con ocultar botones.
 
