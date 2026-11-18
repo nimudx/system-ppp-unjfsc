@@ -20,6 +20,7 @@ export function RequestHistory({
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
     const visible = expanded ? events : events.slice(0, PREVIEW_COUNT);
+    const hidden = events.length - PREVIEW_COUNT;
 
     return (
         <SectionCard>
@@ -28,7 +29,13 @@ export function RequestHistory({
                 description="Cambios de estado y comentarios"
             />
             <SectionCard.Body className="py-4">
-                <ol className="relative ml-1.5 border-l">
+                <ol
+                    className={cn(
+                        'relative ml-1.5 border-l',
+                        expanded &&
+                            'max-h-96 overflow-y-auto overscroll-contain pr-1',
+                    )}
+                >
                     {visible.map((event, i) => (
                         <li
                             key={event.id}
@@ -70,9 +77,9 @@ export function RequestHistory({
                         type="button"
                         aria-expanded={expanded}
                         onClick={() => setExpanded((v) => !v)}
-                        className="mt-3 text-xs font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        className="mt-3 w-full text-xs font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                     >
-                        {expanded ? 'Ver menos' : `Ver todo (${events.length})`}
+                        {expanded ? 'Ver menos' : `Ver ${hidden} más`}
                     </button>
                 )}
             </SectionCard.Body>

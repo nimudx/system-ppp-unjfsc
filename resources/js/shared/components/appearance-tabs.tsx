@@ -27,7 +27,18 @@ export default function AppearanceToggleTab({
             {tabs.map(({ value, icon: Icon, label }) => (
                 <button
                     key={value}
-                    onClick={() => updateAppearance(value)}
+                    onClick={(event) => {
+                        // El centro del botón es el origen del círculo. Se usa el
+                        // rect y no clientX/clientY para que también funcione al
+                        // activar el botón con el teclado.
+                        const rect =
+                            event.currentTarget.getBoundingClientRect();
+
+                        updateAppearance(value, {
+                            x: rect.left + rect.width / 2,
+                            y: rect.top + rect.height / 2,
+                        });
+                    }}
                     className={cn(
                         'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
                         appearance === value

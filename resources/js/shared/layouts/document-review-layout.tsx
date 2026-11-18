@@ -10,6 +10,8 @@ interface DocumentReviewLayoutProps {
     aside: ReactNode;
     /** Oculta la columna derecha, por ejemplo en la vista expandida. */
     hideAside?: boolean;
+    /** Fija la columna derecha al hacer scroll en escritorio. */
+    stickyAside?: boolean;
     /** Clases adicionales para la columna central. */
     documentClassName?: string;
 }
@@ -24,9 +26,10 @@ export default function DocumentReviewLayout({
     aside,
     hideAside = false,
     documentClassName,
+    stickyAside = false,
 }: DocumentReviewLayoutProps) {
     return (
-        <div className="flex flex-col items-start gap-6 lg:flex-row">
+        <div className="flex w-full flex-col items-start gap-6 lg:flex-row">
             <div className="order-3 flex w-full shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
                 {requirements}
             </div>
@@ -41,7 +44,13 @@ export default function DocumentReviewLayout({
             </div>
 
             {!hideAside && (
-                <aside className="order-2 flex w-full min-w-0 shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72">
+                <aside
+                    className={cn(
+                        'order-2 flex w-full min-w-0 shrink-0 flex-col gap-6 lg:order-none lg:w-64 xl:w-72',
+                        stickyAside &&
+                            'lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto',
+                    )}
+                >
                     {aside}
                 </aside>
             )}

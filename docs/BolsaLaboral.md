@@ -70,11 +70,11 @@ Transiciones de vacante (validar en el servicio, no en el controlador):
 
 Archivo `Domains/JobBoard/routes/web.php`:
 
-| Actor | Middleware | Prefijo / nombre |
-|---|---|---|
-| Empresa | `auth`, `type:3` | `empresa/bolsa` · `company.jobboard.*` |
-| Admin | `auth`, `type:1,2`, `approved`, `role:1,2` | `bolsa/administracion` · `academic.jobboard.admin.*` |
-| Titular | `auth`, `type:1,2`, `approved`, `role:3` | `bolsa/vacantes` · `academic.jobboard.teacher.*` |
+| Actor   | Middleware                                 | Prefijo / nombre                                     |
+| ------- | ------------------------------------------ | ---------------------------------------------------- |
+| Empresa | `auth`, `type:3`                           | `empresa/bolsa` · `company.jobboard.*`               |
+| Admin   | `auth`, `type:1,2`, `approved`, `role:1,2` | `bolsa/administracion` · `academic.jobboard.admin.*` |
+| Titular | `auth`, `type:1,2`, `approved`, `role:3`   | `bolsa/vacantes` · `academic.jobboard.teacher.*`     |
 
 Las pantallas admin/titular son índice + detalle por `?v=`. Throttle en los POST de empresa (`throttle:10,60`). Regenera Wayfinder (`php artisan wayfinder:generate` si el plugin de Vite no lo hace).
 

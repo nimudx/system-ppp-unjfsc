@@ -55,7 +55,7 @@ class InternshipController extends Controller
     {
         $assignment = Assignment::query()->findOrFail(session('assignment_id'));
 
-        return Inertia::render('internship/submission/formalization', [
+        return Inertia::render('internship/submission/formalizacion', [
             'data' => $this->placementService->getSubmissionData($assignment),
             'companyRequest' => $this->companyRequest($assignment),
         ]);

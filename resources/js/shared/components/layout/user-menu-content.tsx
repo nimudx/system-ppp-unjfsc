@@ -2,6 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { logout } from '@/routes';
 import { select as selectAssignment } from '@/routes/assignments';
+import { edit as editCompanyProfile } from '@/routes/company/profile';
 import { edit } from '@/routes/profile';
 import { select as selectStaff } from '@/routes/staffs';
 import { UserInfo } from '@/shared/components/layout/user-info';
@@ -103,12 +104,18 @@ export function UserMenuContent({ user }: Props) {
                 <DropdownMenuItem asChild>
                     <Link
                         className="block w-full cursor-pointer"
-                        href={edit()}
+                        href={
+                            user.type === 'Empresa'
+                                ? editCompanyProfile()
+                                : edit()
+                        }
                         prefetch
                         onClick={cleanup}
                     >
                         <Settings className="mr-2" />
-                        Configuración
+                        {user.type === 'Empresa'
+                            ? 'Perfil empresarial'
+                            : 'Configuración'}
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>

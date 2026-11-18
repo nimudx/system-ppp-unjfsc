@@ -7,6 +7,8 @@ import type { DocumentRequirement } from '@/modules/documents';
 import type { PlacementRecord } from '@/modules/internship/types';
 import internship from '@/routes/academic/internship';
 
+import { normalizeInternshipType } from '../utils/internship-type';
+
 // El contexto activo puede ser 'empresa' o el índice de un requerimiento (número)
 export type PlacementContext = 'empresa' | number;
 
@@ -15,15 +17,6 @@ interface UsePlacementSubmissionProps {
     requirements: DocumentRequirement[];
     documentsEnabled?: boolean;
     initialContext?: PlacementContext;
-}
-
-// El tipo puede venir en español en registros antiguos o en inglés en los
-// nuevos. La interfaz y la API trabajan con los valores en inglés.
-function normalizeType(value?: string | null): string | undefined {
-    if (value === 'desarrollo') return 'development';
-    if (value === 'convalidacion') return 'validation';
-
-    return value ?? undefined;
 }
 
 export function usePlacementSubmission({
@@ -36,7 +29,11 @@ export function usePlacementSubmission({
 
     // ── Selección de Tipo ──────────────────────────────────────────────────
     const [selectedType, setType] = useState('development');
-    const type = normalizeType(placement?.internship_type) || selectedType;
+    // El tipo puede venir en español en registros antiguos; la utilidad lo
+    // normaliza a los valores que espera la API.
+    const type =
+        normalizeInternshipType(placement?.internship_type ?? '') ||
+        selectedType;
     const [selectedOrigin, setOrigin] = useState('direct');
     const origin = placement?.origin_type || selectedOrigin;
 

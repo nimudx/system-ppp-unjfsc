@@ -31,6 +31,7 @@ declare module '@inertiajs/core' {
             };
             jobboard?: {
                 menuBadgeUntil: string | null;
+                experimentalUntil: string | null;
             };
             [key: string]: unknown;
         };

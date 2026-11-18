@@ -8,8 +8,7 @@ const STATUS_STYLES: Record<VacancyStatus, string> = {
         'border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400',
     observed:
         'border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400',
-    rejected:
-        'border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400',
+    rejected: 'border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400',
     published:
         'border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
     closed: 'border-neutral-500/20 bg-neutral-500/10 text-neutral-600 dark:text-neutral-400',

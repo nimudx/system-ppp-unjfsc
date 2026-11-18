@@ -7,7 +7,14 @@ export interface DocumentFile {
     justification?: string;
     grade?: number;
     created_at?: string;
+    approved_at?: string | null;
     size?: number;
+    /** Evento del historial: subida del archivo o dictamen del revisor. */
+    event?: 'upload' | 'review';
+    /** Identificador único del evento para usarlo como key. */
+    event_id?: string;
+    /** Nombre del docente que emitió el dictamen. */
+    reviewed_by?: string | null;
 }
 export interface DocumentRequirement {
     code: string;

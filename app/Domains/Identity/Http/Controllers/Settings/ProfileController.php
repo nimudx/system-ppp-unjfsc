@@ -12,14 +12,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-
 class ProfileController extends Controller
 {
     /**
      * Show the user's profile settings page.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request): Response|RedirectResponse
     {
+        // Las cuentas de empresa tienen un apartado propio para editar sus datos.
+        if ($request->user()->type_user_id === 3) {
+            return to_route('company.profile.edit');
+        }
+
         $user = $request->user()->loadMissing('person', 'company');
         $profile = $user->profileOwner();
 

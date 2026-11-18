@@ -109,7 +109,9 @@ export default function VacancyDetailInfo({
 
                     {vacancy.review_comment && (
                         <div className="rounded-lg border bg-muted/40 p-3 text-sm">
-                            <p className="font-medium">Comentario de revisión</p>
+                            <p className="font-medium">
+                                Comentario de revisión
+                            </p>
                             <p className="mt-1 whitespace-pre-line text-muted-foreground">
                                 {vacancy.review_comment}
                             </p>

@@ -10,6 +10,7 @@ import {
 import type { DocumentFile } from '@/modules/documents/types';
 import { Badge } from '@/shared/components/ui/badge';
 import { SectionCard } from '@/shared/components/ui/section-card';
+import { cn } from '@/shared/lib/utils';
 
 import { getDocumentStatusMeta } from '../status';
 
@@ -29,6 +30,8 @@ export interface RequirementsListProps {
     previewEnabled: boolean;
     onTogglePreview: () => void;
     isLoading?: boolean;
+    /** Sombra mínima de la tarjeta; opt-in para no alterar otras pantallas. */
+    elevated?: boolean;
 }
 
 export const getIcon = (code: string) => {
@@ -49,10 +52,14 @@ export default function RequirementsList({
     previewEnabled,
     onTogglePreview,
     isLoading = false,
+    elevated = false,
 }: RequirementsListProps) {
     if (!requirements || requirements.length === 0)
         return (
-            <SectionCard className="flex items-center justify-center py-8 text-sm text-muted-foreground italic">
+            <SectionCard
+                elevated={elevated}
+                className="flex items-center justify-center py-8 text-sm text-muted-foreground italic"
+            >
                 {isLoading
                     ? 'Cargando requisitos...'
                     : 'Sin requisitos configurados.'}
@@ -60,7 +67,7 @@ export default function RequirementsList({
         );
 
     return (
-        <SectionCard>
+        <SectionCard elevated={elevated}>
             <SectionCard.Header>
                 <div className="flex items-center gap-3">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/50">
@@ -87,15 +94,23 @@ export default function RequirementsList({
                             key={req.code}
                             onClick={() => onSelectType(idx)}
                             disabled={req.locked}
-                            className={`inline-flex h-10 w-full items-center justify-between rounded-md px-4 py-2 text-sm font-medium whitespace-nowrap ring-offset-background transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+                            className={cn(
+                                'inline-flex h-10 w-full items-center justify-between rounded-md px-4 py-2 text-sm font-medium whitespace-nowrap ring-offset-background transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none',
                                 isActive
                                     ? 'bg-primary text-primary-foreground hover:bg-primary'
-                                    : 'text-muted-foreground hover:bg-muted/50 hover:text-accent-foreground'
-                            } ${req.locked ? 'cursor-not-allowed opacity-50 grayscale' : ''}`}
+                                    : 'text-muted-foreground hover:bg-muted/50 hover:text-accent-foreground',
+                                req.locked &&
+                                    'cursor-not-allowed opacity-50 grayscale',
+                            )}
                         >
                             <div className="flex items-center">
                                 <Icon
-                                    className={`mr-2 h-4 w-4 shrink-0 ${isActive && !req.locked ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                                    className={cn(
+                                        'mr-2 h-4 w-4 shrink-0',
+                                        isActive && !req.locked
+                                            ? 'text-primary-foreground'
+                                            : 'text-muted-foreground',
+                                    )}
                                 />
                                 <span className="max-w-[150px] truncate text-xs">
                                     {req.title}
@@ -104,7 +119,12 @@ export default function RequirementsList({
                             <div className="flex items-center gap-2">
                                 <Badge
                                     variant="outline"
-                                    className={`h-4 shrink-0 px-1.5 text-[9px] font-bold ${cfg.badge}`}
+                                    className={cn(
+                                        'h-5 shrink-0 px-1.5 text-xs font-bold',
+                                        isActive && !req.locked
+                                            ? 'border-white/30 bg-white/20 text-primary-foreground'
+                                            : cfg.badge,
+                                    )}
                                 >
                                     {cfg.label}
                                 </Badge>
@@ -126,12 +146,12 @@ export default function RequirementsList({
                 <button
                     id="preview-toggle"
                     onClick={onTogglePreview}
-                    className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors ${
+                    className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 motion-reduce:transition-none ${
                         previewEnabled ? 'bg-primary' : 'bg-input'
                     }`}
                 >
                     <span
-                        className={`pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg transition-transform ${
+                        className={`pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg transition-transform duration-200 motion-reduce:transition-none ${
                             previewEnabled ? 'translate-x-4' : 'translate-x-0'
                         }`}
                     />

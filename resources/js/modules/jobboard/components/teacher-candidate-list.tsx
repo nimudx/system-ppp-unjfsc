@@ -123,8 +123,7 @@ export default function TeacherCandidateList({
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                 <span>
                                     Propuesto por{' '}
-                                    {candidate.proposed_by ??
-                                        'docente titular'}
+                                    {candidate.proposed_by ?? 'docente titular'}
                                 </span>
                                 <span>{formatDate(candidate.created_at)}</span>
                                 {student?.cv && (
@@ -163,9 +162,7 @@ export default function TeacherCandidateList({
                                         onClick={() =>
                                             setCandidateToWithdraw(candidate)
                                         }
-                                        disabled={
-                                            processingId === candidate.id
-                                        }
+                                        disabled={processingId === candidate.id}
                                     >
                                         <Trash2 className="mr-1.5 size-3.5" />
                                         Retirar propuesta

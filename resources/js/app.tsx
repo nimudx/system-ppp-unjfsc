@@ -3,6 +3,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../css/app.css';
+import GlobalLoader from '@/shared/components/global-loader';
 import { initializeTheme } from '@/shared/hooks/use-appearance';
 import { modulePagePath } from '@/shared/lib/inertia';
 
@@ -20,13 +21,13 @@ createInertiaApp({
 
         root.render(
             <StrictMode>
+                <GlobalLoader />
                 <App {...props} />
             </StrictMode>,
         );
     },
-    progress: {
-        color: '#4B5563',
-    },
+    // GlobalLoader reemplaza la barra de progreso superior de Inertia.
+    progress: false,
 });
 
 // This will set light / dark mode on load...

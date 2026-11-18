@@ -8,6 +8,12 @@ export interface HistoryRecord {
     comment?: string | null;
     name?: string;
     created_at?: string;
+    /** Evento del historial: subida del archivo o dictamen del revisor. */
+    event?: 'upload' | 'review';
+    /** Identificador único del evento para usarlo como key. */
+    event_id?: string;
+    /** Nombre del docente que emitió el dictamen. */
+    reviewed_by?: string | null;
 }
 
 interface FileHistoryProps {
@@ -42,11 +48,13 @@ export default function FileHistory({ history }: FileHistoryProps) {
                           ? 'bg-destructive'
                           : 'bg-amber-500';
                 const statusLabel =
-                    record.approval_status === 1
-                        ? 'Aprobado'
-                        : record.approval_status === 3
-                          ? 'Observado'
-                          : 'Pendiente';
+                    record.event === 'upload'
+                        ? 'Subido'
+                        : record.approval_status === 1
+                          ? 'Aprobado'
+                          : record.approval_status === 3
+                            ? 'Observado'
+                            : 'Pendiente';
                 const statusText =
                     record.approval_status === 1
                         ? 'text-green-600'
@@ -56,7 +64,7 @@ export default function FileHistory({ history }: FileHistoryProps) {
 
                 return (
                     <div
-                        key={record.id ?? index}
+                        key={record.event_id ?? record.id ?? index}
                         className="group relative pl-8"
                     >
                         <div
@@ -77,6 +85,10 @@ export default function FileHistory({ history }: FileHistoryProps) {
                                               { locale: es },
                                           )
                                         : 'Fecha desconocida'}
+                                    {record.event === 'review' &&
+                                    record.reviewed_by
+                                        ? ` · ${record.reviewed_by}`
+                                        : ''}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 rounded-md border border-transparent bg-muted/30 p-2 transition-colors hover:border-border">

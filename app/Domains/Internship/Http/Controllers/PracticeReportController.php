@@ -26,7 +26,7 @@ class PracticeReportController extends Controller
     {
         $assignment = Assignment::query()->findOrFail(session('assignment_id'));
 
-        return Inertia::render('internship/report-review', $this->service->getStudentData($assignment));
+        return Inertia::render('internship/submission/revision', $this->service->getStudentData($assignment));
     }
 
     /** Estudiante: entregar o reenviar plan / informe. */

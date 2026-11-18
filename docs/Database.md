@@ -39,12 +39,12 @@
 
 Migraciones del módulo (no modifican las migraciones heredadas):
 
-| Migración | Contenido |
-|---|---|
-| `2026_11_08_000001_create_vacancy_candidates_table.php` | Propuestas de candidatos hechas por el docente titular. |
-| `2026_11_08_000002_create_vacancy_views_table.php` | Vistas por usuario para calcular la etiqueta "Nuevo". |
-| `2026_11_08_000003_extend_vacancies_table.php` | Diferencial de `vacancies`: tipo, modalidad, área, ubicación, posiciones, requisitos, fecha límite, revisión, publicación y cierre. |
-| `2026_11_08_000004_add_unique_vacancy_schools.php` | Único `(vacancy_id, school_id)` en escuelas destino. |
+| Migración                                               | Contenido                                                                                                                           |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `2026_11_08_000001_create_vacancy_candidates_table.php` | Propuestas de candidatos hechas por el docente titular.                                                                             |
+| `2026_11_08_000002_create_vacancy_views_table.php`      | Vistas por usuario para calcular la etiqueta "Nuevo".                                                                               |
+| `2026_11_08_000003_extend_vacancies_table.php`          | Diferencial de `vacancies`: tipo, modalidad, área, ubicación, posiciones, requisitos, fecha límite, revisión, publicación y cierre. |
+| `2026_11_08_000004_add_unique_vacancy_schools.php`      | Único `(vacancy_id, school_id)` en escuelas destino.                                                                                |
 
 ### `vacancies` (extendida)
 

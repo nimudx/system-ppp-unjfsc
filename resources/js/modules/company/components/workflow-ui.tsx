@@ -1,7 +1,20 @@
 import type { LucideIcon } from 'lucide-react';
 import { AlertCircle, Check, Info, Lock } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { WorkflowError } from '../services/company-workflow';
+
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/shared/components/ui/card';
+
+export {
+    DataItem,
+    Field,
+    WorkflowErrors,
+} from '@/shared/components/workflow-ui';
 
 /* -------------------------------------------------------------------------- */
 /* Utilidades                                                                 */
@@ -14,80 +27,8 @@ export const cn = (...classes: Array<string | false | null | undefined>) =>
 export type StepState = 'done' | 'current' | 'attention' | 'locked';
 
 /* -------------------------------------------------------------------------- */
-/* Primitivas que ya existían (misma API)                                     */
-/* -------------------------------------------------------------------------- */
-
-export function Field({
-    label,
-    children,
-}: {
-    label: string;
-    children: ReactNode;
-}) {
-    return (
-        <label className="grid gap-2 text-sm font-medium">
-            {label}
-            {children}
-        </label>
-    );
-}
-
-export function WorkflowErrors({ error }: { error: unknown }) {
-    if (!error) return null;
-    const message = error instanceof Error ? error.message : String(error);
-    const details =
-        error instanceof WorkflowError ? Object.entries(error.errors) : [];
-    return (
-        <div
-            role="alert"
-            className="flex items-start gap-2.5 rounded-lg border border-destructive/60 bg-destructive/5 p-3 text-sm text-destructive duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1"
-        >
-            <AlertCircle className="mt-0.5 size-4 shrink-0" />
-            <div className="min-w-0 flex-1 space-y-2">
-                <p>{message}</p>
-                {details.length > 1 && (
-                    <ul className="list-disc pl-4">
-                        {details.map(([key, values]) => (
-                            <li key={key}>{values.join(' ')}</li>
-                        ))}
-                    </ul>
-                )}
-            </div>
-        </div>
-    );
-}
-
-/* -------------------------------------------------------------------------- */
 /* Nuevas primitivas                                                          */
 /* -------------------------------------------------------------------------- */
-
-export function DataItem({
-    label,
-    value,
-    href,
-}: {
-    label: string;
-    value?: string | null;
-    href?: string;
-}) {
-    return (
-        <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            {value && href ? (
-                <a
-                    href={href}
-                    className="text-sm font-medium break-words text-primary hover:underline"
-                >
-                    {value}
-                </a>
-            ) : (
-                <p className="text-sm font-medium break-words">
-                    {value || '—'}
-                </p>
-            )}
-        </div>
-    );
-}
 
 const calloutTone = {
     info: 'border-border bg-muted/40 text-foreground',
@@ -119,6 +60,28 @@ export function Callout({
             <Icon className="mt-0.5 size-4 shrink-0" />
             <div className="min-w-0 flex-1">{children}</div>
         </div>
+    );
+}
+
+export function LockedStepCard({
+    title,
+    description,
+}: {
+    title: string;
+    description: string;
+}) {
+    return (
+        <Card>
+            <CardHeader className="border-b">
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent className="py-4">
+                <p className="text-sm text-muted-foreground">
+                    Disponible cuando la empresa acepte al estudiante.
+                </p>
+            </CardContent>
+        </Card>
     );
 }
 

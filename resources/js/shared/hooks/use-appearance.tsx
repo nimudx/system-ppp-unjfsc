@@ -1,12 +1,20 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
+import { flushSync } from 'react-dom';
 
 export type ResolvedAppearance = 'light' | 'dark';
 export type Appearance = ResolvedAppearance;
 
+// Punto (en px del viewport) desde el que nace la animación del tema.
+export type AppearanceOrigin = { x: number; y: number };
+
 export type UseAppearanceReturn = {
     readonly appearance: Appearance;
     readonly resolvedAppearance: ResolvedAppearance;
-    readonly updateAppearance: (mode: Appearance) => void;
+    readonly updateAppearance: (
+        mode: Appearance,
+        /** Origen opcional de la animación; sin él el cambio es inmediato. */
+        origin?: AppearanceOrigin,
+    ) => void;
 };
 
 const listeners = new Set<() => void>();
@@ -16,6 +24,13 @@ const prefersDark = (): boolean => {
     if (typeof window === 'undefined') return false;
 
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
+
+// Respeta la preferencia del sistema de reducir el movimiento.
+const prefersReducedMotion = (): boolean => {
+    if (typeof window === 'undefined') return false;
+
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 
 const setCookie = (name: string, value: string, days = 365): void => {
@@ -55,6 +70,20 @@ const subscribe = (callback: () => void) => {
 
 const notify = (): void => listeners.forEach((listener) => listener());
 
+// Aplica el tema y lo persiste; se reutiliza con y sin animación.
+const apply = (mode: Appearance): void => {
+    currentAppearance = mode;
+
+    // Store in localStorage for client-side persistence...
+    localStorage.setItem('appearance', mode);
+
+    // Store in cookie for SSR...
+    setCookie('appearance', mode);
+
+    applyTheme(mode);
+    notify();
+};
+
 export function initializeTheme(): void {
     if (typeof window === 'undefined') return;
 
@@ -76,18 +105,57 @@ export function useAppearance(): UseAppearanceReturn {
         [appearance],
     );
 
-    const updateAppearance = useCallback((mode: Appearance): void => {
-        currentAppearance = mode;
+    const updateAppearance = useCallback(
+        (mode: Appearance, origin?: AppearanceOrigin): void => {
+            // Solo se anima cuando hay origen, el navegador soporta la View
+            // Transitions API, no se pidió reducir movimiento y el tema cambia.
+            if (
+                !origin ||
+                mode === currentAppearance ||
+                typeof document === 'undefined' ||
+                typeof document.startViewTransition !== 'function' ||
+                prefersReducedMotion()
+            ) {
+                apply(mode);
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', mode);
+                return;
+            }
 
-        // Store in cookie for SSR...
-        setCookie('appearance', mode);
+            const transition = document.startViewTransition(() => {
+                // flushSync fuerza a React a pintar el tema nuevo antes de que
+                // el navegador capture el estado posterior a la transición.
+                flushSync(() => apply(mode));
+            });
 
-        applyTheme(mode);
-        notify();
-    }, []);
+            // Radio necesario para cubrir la esquina más lejana del viewport.
+            const radius = Math.hypot(
+                Math.max(origin.x, window.innerWidth - origin.x),
+                Math.max(origin.y, window.innerHeight - origin.y),
+            );
+
+            transition.ready
+                .then(() => {
+                    document.documentElement.animate(
+                        {
+                            clipPath: [
+                                `circle(0px at ${origin.x}px ${origin.y}px)`,
+                                `circle(${radius}px at ${origin.x}px ${origin.y}px)`,
+                            ],
+                        },
+                        {
+                            duration: 500,
+                            easing: 'ease-in-out',
+                            pseudoElement: '::view-transition-new(root)',
+                        },
+                    );
+                })
+                .catch(() => {
+                    // Si el navegador omite la transición, el tema ya quedó
+                    // aplicado dentro del callback; no hay nada que revertir.
+                });
+        },
+        [],
+    );
 
     return { appearance, resolvedAppearance, updateAppearance } as const;
 }

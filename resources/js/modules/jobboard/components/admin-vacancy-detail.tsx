@@ -80,9 +80,7 @@ export default function AdminVacancyDetail({
                 decision,
                 comment: comment.trim() || null,
                 notify_teachers: notifyTeachers,
-                ...(decision === 'approve'
-                    ? { school_ids: schoolIds }
-                    : {}),
+                ...(decision === 'approve' ? { school_ids: schoolIds } : {}),
             },
             {
                 preserveScroll: true,

@@ -6,6 +6,7 @@ use App\Domains\Documents\Models\Document;
 use App\Domains\Documents\Models\DocumentType;
 use App\Domains\Documents\Services\DocumentService;
 use App\Domains\Identity\Models\Assignment;
+use App\Domains\Notifications\Models\Notification;
 use App\Domains\Notifications\Services\NotificationService;
 use App\Shared\Enums\Role;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -37,7 +38,20 @@ class DossierService
             ->latest()
             ->get();
 
-        return collect($requerimentsConfig)->map(function ($item) use ($allDocuments) {
+        // Dictámenes emitidos sobre estos documentos. Cada cambio de estado
+        // (aprobado/observado) crea una notificación persistente, así que
+        // sirven como bitácora aunque el documento se sobrescriba.
+        $reviews = Notification::query()
+            ->where('type', 'DOSSIER_VALIDATION')
+            ->where('subject_type', (new Document)->getMorphClass())
+            ->whereIn('subject_id', $allDocuments->pluck('id'))
+            ->with(['actor' => fn ($morph) => $morph->morphWith([
+                Assignment::class => ['user.person'],
+            ])])
+            ->get()
+            ->groupBy('subject_id');
+
+        return collect($requerimentsConfig)->map(function ($item) use ($allDocuments, $reviews) {
             $docsOfType = $allDocuments->filter(
                 function ($doc) use ($item) {
                     return $doc->documentType->code === $item['code'];
@@ -55,12 +69,67 @@ class DossierService
                 return $data;
             };
 
+            $history = $docsOfType
+                ->flatMap(function ($doc) use ($reviews) {
+                    $base = [
+                        ...$doc->toArray(),
+                        'id' => $doc->id,
+                        'path' => $doc->signedFileUrl(),
+                    ];
+
+                    // Evento de subida: cada fila de Document es una versión.
+                    $upload = [
+                        ...$base,
+                        'event' => 'upload',
+                        'event_id' => "upload-{$doc->id}",
+                        'approval_status' => 2,
+                        'comment' => null,
+                        'created_at' => optional($doc->created_at)->toIso8601String(),
+                        'reviewed_by' => null,
+                    ];
+
+                    // Un evento por cada dictamen registrado sobre esa versión.
+                    $reviewEvents = ($reviews->get($doc->id) ?? collect())
+                        ->map(function ($notification) use ($base, $doc) {
+                            $meta = $notification->payload['meta'] ?? [];
+
+                            return [
+                                ...$base,
+                                'event' => 'review',
+                                'event_id' => "review-{$notification->id}",
+                                'approval_status' => (int) ($meta['status'] ?? $doc->approval_status),
+                                'comment' => $meta['comment'] ?? null,
+                                'created_at' => optional($notification->created_at)->toIso8601String(),
+                                'reviewed_by' => $this->notificationService->actorName($notification->actor),
+                            ];
+                        });
+
+                    // Documentos aprobados antes de existir la bitácora: se
+                    // reconstruye su dictamen con el último cambio guardado.
+                    if ($reviewEvents->isEmpty() && (int) $doc->approval_status !== 2) {
+                        $reviewEvents = collect([[
+                            ...$base,
+                            'event' => 'review',
+                            'event_id' => "review-legacy-{$doc->id}",
+                            'approval_status' => (int) $doc->approval_status,
+                            'comment' => $doc->comment ?: null,
+                            'created_at' => optional($doc->updated_at ?? $doc->created_at)->toIso8601String(),
+                            'reviewed_by' => null,
+                        ]]);
+                    }
+
+                    return collect([$upload])->merge($reviewEvents);
+                })
+                ->sortByDesc(fn ($record) => $record['created_at'] ?? '')
+                ->values()
+                ->all();
+
             return [
                 'code' => $item['code'],
                 'title' => $item['title'],
                 'has_template' => $item['has_template'] ?? false,
                 'latest' => $transform($docsOfType->first()),
-                'history' => $docsOfType->map(fn ($d) => $transform($d))->values()->all(),
+                'history' => $history,
                 'status' => $docsOfType->first()->approval_status ?? 0,
             ];
         });

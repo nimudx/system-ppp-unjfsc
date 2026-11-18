@@ -80,9 +80,7 @@ export default function TeacherVacancyDetailPanel({
                         <EligibleStudentSelector
                             students={vacancy.students}
                             selectedIds={data.student_ids}
-                            onChange={(ids) =>
-                                setData('student_ids', ids)
-                            }
+                            onChange={(ids) => setData('student_ids', ids)}
                         />
 
                         <InputError message={errors.student_ids} />
@@ -130,8 +128,7 @@ export default function TeacherVacancyDetailPanel({
                                 type="submit"
                                 size="sm"
                                 disabled={
-                                    processing ||
-                                    data.student_ids.length === 0
+                                    processing || data.student_ids.length === 0
                                 }
                             >
                                 <Send className="mr-1.5 size-4" />
